@@ -1,0 +1,47 @@
+[
+  {
+    "track": "web",
+    "start": "2026-11-08T09:00:00+05:30",
+    "end": "2026-11-08T09:30:00+05:30",
+    "title": "Opening Keynote",
+    "speakerSlug": null,
+    "hall": "Main Hall",
+    "type": "keynote"
+  },
+  {
+    "track": "ai",
+    "start": "2026-11-08T09:45:00+05:30",
+    "end": "2026-11-08T10:30:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall A",
+    "type": "talk"
+  },
+  {
+    "track": "cloud",
+    "start": "2026-11-08T09:45:00+05:30",
+    "end": "2026-11-08T10:30:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall B",
+    "type": "talk"
+  },
+  {
+    "track": "mobile",
+    "start": "2026-11-08T09:45:00+05:30",
+    "end": "2026-11-08T10:30:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall C",
+    "type": "talk"
+  },
+  {
+    "track": "web",
+    "start": "2026-11-08T10:30:00+05:30",
+    "end": "2026-11-08T11:00:00+05:30",
+    "title": "Tea Break",
+    "speakerSlug": null,
+    "hall": "Foyer",
+    "type": "break"
+  }
+]

@@ -1,0 +1,67 @@
+import { z } from "zod";
+
+export const trackSlugSchema = z.enum(["ai", "cloud", "mobile", "web"]);
+
+export const agendaSessionSchema = z.object({
+  track: trackSlugSchema,
+  start: z.iso.datetime({ offset: true }),
+  end: z.iso.datetime({ offset: true }),
+  title: z.string().min(1),
+  speakerSlug: z.string().min(1).nullable(),
+  hall: z.string().min(1),
+  type: z.enum(["talk", "workshop", "keynote", "break", "panel"]),
+});
+
+export type AgendaSession = z.infer<typeof agendaSessionSchema>;
+
+export const agendaSchema = z.array(agendaSessionSchema);
+
+export const speakerSchema = z.object({
+  slug: z.string().min(1),
+  name: z.string().min(1),
+  title: z.string().min(1),
+  company: z.string().min(1),
+  bio: z.string(),
+  photo: z.string().nullable(),
+  links: z.object({
+    twitter: z.string().nullable(),
+    linkedin: z.string().nullable(),
+    github: z.string().nullable(),
+  }),
+  talk: z
+    .object({
+      title: z.string(),
+      track: trackSlugSchema,
+      abstract: z.string(),
+    })
+    .nullable(),
+});
+
+export type Speaker = z.infer<typeof speakerSchema>;
+
+export const sponsorTierSchema = z.enum(["gold", "associate", "community"]);
+
+export const sponsorSchema = z.object({
+  tier: sponsorTierSchema,
+  name: z.string().min(1),
+  logo: z.string().nullable(),
+  url: z.string().nullable(),
+});
+
+export type Sponsor = z.infer<typeof sponsorSchema>;
+
+export const faqItemSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+});
+
+export type FaqItem = z.infer<typeof faqItemSchema>;
+
+export const archivePhotoSchema = z.object({
+  src: z.string(),
+  title: z.string(),
+  description: z.string(),
+  year: z.union([z.literal(2024), z.literal(2025)]),
+});
+
+export type ArchivePhoto = z.infer<typeof archivePhotoSchema>;

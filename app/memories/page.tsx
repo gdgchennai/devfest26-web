@@ -1,0 +1,49 @@
+import type { Metadata } from "next";
+import { archivePhotos } from "@/lib/content";
+import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
+import { Frame } from "@/components/Frame";
+import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
+
+export const metadata: Metadata = { title: "Memories" };
+
+export default function MemoriesPage() {
+  let previousColor: FallbackColor | undefined;
+
+  const photosWithColor = archivePhotos.map((photo) => {
+    const priorColor = previousColor;
+    previousColor = fallbackColorFor(photo.title, priorColor);
+    return { photo, priorColor };
+  });
+
+  return (
+    <div className="px-4 py-12 sm:px-8">
+      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Memories</h1>
+      <p className="mt-2 max-w-xl text-paper/70">
+        Moments from DevFest Chennai 2024 and 2025.
+      </p>
+
+      <div className="mt-8">
+        <MemoriesHallway photos={archivePhotos} />
+      </div>
+
+      {[2025, 2024].map((year) => (
+        <div key={year} className="mt-10">
+          <h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-paper/60">{year}</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {photosWithColor
+              .filter(({ photo }) => photo.year === year)
+              .map(({ photo, priorColor }) => (
+                <Frame
+                  key={photo.src}
+                  src={photo.src}
+                  alt={photo.description}
+                  title={photo.title}
+                  previousColor={priorColor}
+                />
+              ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

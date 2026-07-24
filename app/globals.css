@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0a0a0b;
+  --paper: #ffffff;
+
+  --blue: #4285f4;
+  --red: #ea4335;
+  --yellow: #fbbc04;
+  --green: #34a853;
+
+  --fb-blue: #3b6fd4;
+  --fb-red: #c93a2e;
+  --fb-yellow: #d9a004;
+  --fb-green: #2c8348;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-green: var(--green);
+
+  --color-fb-blue: var(--fb-blue);
+  --color-fb-red: var(--fb-red);
+  --color-fb-yellow: var(--fb-yellow);
+  --color-fb-green: var(--fb-green);
+
+  --font-sans: var(--font-google-sans);
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-google-sans), system-ui, sans-serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* First focusable element: hidden until focused, per WCAG 2.4.1 */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0.5rem;
+  z-index: 100;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  transition: top 150ms ease;
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
