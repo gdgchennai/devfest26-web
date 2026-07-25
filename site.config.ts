@@ -1,3 +1,5 @@
+import type { Sponsor } from "@/lib/schemas";
+
 export type Track = {
   slug: string;
   name: string;
@@ -91,6 +93,15 @@ export const siteConfig = {
   brandDisclaimer:
     "DevFest Chennai is an independent, community-run event organised by GDG Chennai under Google's Community Guidelines. It is not produced or endorsed by Google.",
 } as const;
+
+// Single source of truth for sponsor tiers + display labels, shared by the
+// homepage sponsors block and the /sponsors page. `satisfies` keeps the tier
+// keys locked to the schema's enum, so a mistyped tier fails to compile.
+export const sponsorTiers = [
+  { tier: "gold", label: "Gold" },
+  { tier: "associate", label: "Associate" },
+  { tier: "community", label: "Community Partners" },
+] satisfies { tier: Sponsor["tier"]; label: string }[];
 
 export function formatEventDate(date: string | null): string {
   if (!date) return "Date to be announced";

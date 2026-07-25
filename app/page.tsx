@@ -1,24 +1,23 @@
 import Link from "next/link";
-import { siteConfig } from "@/site.config";
+import { siteConfig, sponsorTiers } from "@/site.config";
 import { agenda, sponsors } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
 import { SectionHeading } from "@/components/SectionHeading";
 import { EmptyState } from "@/components/EmptyState";
 import { Faq } from "@/components/Faq";
-import { HeroSection } from "@/components/motion/HeroSection";
-
-const TIER_LABELS = [
-  { tier: "gold" as const, label: "Gold" },
-  { tier: "associate" as const, label: "Associate" },
-  { tier: "community" as const, label: "Community Partners" },
-];
+import { SectionBoundary } from "@/components/SectionBoundary";
+import { HeroSection, StaticHero } from "@/components/motion/HeroSection";
 
 export default function Home() {
   const previewSessions = agenda.slice(0, 4);
 
   return (
     <>
-      <HeroSection />
+      {/* If the motion hero throws at runtime, degrade to the static hero
+          instead of taking down the whole homepage. */}
+      <SectionBoundary label="hero" fallback={<StaticHero />}>
+        <HeroSection />
+      </SectionBoundary>
 
       {/* What you'll get */}
       <section id="after-hero" className="px-4 py-20 sm:px-8">
@@ -88,7 +87,7 @@ export default function Home() {
       <section className="px-4 py-20 sm:px-8">
         <SectionHeading eyebrow="Thank you" title="Sponsors" dotColor="blue" />
         <div className="space-y-8">
-          {TIER_LABELS.map(({ tier, label }) => {
+          {sponsorTiers.map(({ tier, label }) => {
             const tierSponsors = sponsors.filter((s) => s.tier === tier);
             return (
               <div key={tier}>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { archivePhotos } from "@/lib/content";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { Frame } from "@/components/Frame";
+import { SectionBoundary } from "@/components/SectionBoundary";
 import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
 
 export const metadata: Metadata = { title: "Memories" };
@@ -22,8 +23,12 @@ export default function MemoriesPage() {
         Moments from DevFest Chennai 2024 and 2025.
       </p>
 
+      {/* Contained: if the hallway animation throws, it just vanishes and the
+          static year grids below still render — no fallback needed. */}
       <div className="mt-8">
-        <MemoriesHallway photos={archivePhotos} />
+        <SectionBoundary label="memories-hallway">
+          <MemoriesHallway photos={archivePhotos} />
+        </SectionBoundary>
       </div>
 
       {[2025, 2024].map((year) => (

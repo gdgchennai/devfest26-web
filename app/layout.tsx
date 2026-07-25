@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/Header";
@@ -30,6 +30,28 @@ export const metadata: Metadata = {
     template: `%s — ${siteConfig.name}`,
   },
   description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+  // Image, url, and metadataBase are deliberately omitted until the production
+  // domain is confirmed; the fields below already give WhatsApp/social a proper
+  // title + description unfurl (the agenda link circulates in WhatsApp groups).
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    locale: "en_IN",
+    title: siteConfig.name,
+    description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+  },
+};
+
+// The site is committed-dark (bg-ink). Without this, mobile browser chrome and
+// native controls render against a light default. `--ink` is #0a0a0b.
+export const viewport: Viewport = {
+  themeColor: "#0a0a0b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
 import { sponsorsByTier } from "@/lib/content";
+import { sponsorTiers } from "@/site.config";
 import { EmptyState } from "@/components/EmptyState";
 
 export const metadata: Metadata = { title: "Sponsors" };
-
-const TIERS = [
-  { tier: "gold" as const, label: "Gold" },
-  { tier: "associate" as const, label: "Associate" },
-  { tier: "community" as const, label: "Community Partners" },
-];
 
 export default function SponsorsPage() {
   return (
@@ -20,7 +15,7 @@ export default function SponsorsPage() {
       </p>
 
       <div className="mt-8 space-y-10">
-        {TIERS.map(({ tier, label }) => {
+        {sponsorTiers.map(({ tier, label }) => {
           const tierSponsors = sponsorsByTier(tier);
           return (
             <div key={tier}>

@@ -227,7 +227,7 @@ export function HeroSection() {
   );
 }
 
-function StaticHero() {
+export function StaticHero() {
   const rest = archivePhotos.slice(1);
   return (
     <>
@@ -271,7 +271,10 @@ function StaticHero() {
         </div>
       </section>
 
-      <div id="after-hero" className="grid grid-cols-2 gap-4 px-4 py-12 sm:grid-cols-3 sm:px-8 lg:grid-cols-4">
+      {/* No id="after-hero" here: page.tsx owns that anchor (SkipLink + the
+          motion hero's Scroll link target it). Two elements sharing the id in
+          the static-baseline render was invalid HTML and an ambiguous target. */}
+      <div className="grid grid-cols-2 gap-4 px-4 py-12 sm:grid-cols-3 sm:px-8 lg:grid-cols-4">
         {rest.map((photo) => (
           <Frame key={photo.src} src={photo.src} alt={photo.description} title={photo.title} />
         ))}
