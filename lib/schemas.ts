@@ -62,6 +62,14 @@ export const archivePhotoSchema = z.object({
   title: z.string(),
   description: z.string(),
   year: z.union([z.literal(2024), z.literal(2025)]),
+  // Intrinsic pixel size of the file in public/archive. Carried in content so
+  // the hallway can shape each card to its real ratio on the first frame —
+  // measuring via img.onLoad instead would reflow every card mid-scroll.
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  // Filename of the camera original in assets/. Written by `npm run archive`
+  // so re-runs know which photos are already ingested; nothing renders it.
+  source: z.string().optional(),
 });
 
 export type ArchivePhoto = z.infer<typeof archivePhotoSchema>;

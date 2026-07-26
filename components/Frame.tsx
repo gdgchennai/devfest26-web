@@ -4,11 +4,17 @@ import Image from "next/image";
 import { useState } from "react";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 
+/*
+ * Brand halftones, with an ink label over them (7.0–11.7:1, AAA/AA). These
+ * replaced four hand-mixed dark shades whose paper/55 label sat at 1.49–2.33:1
+ * — effectively invisible. Halftones rather than pastels so a panel awaiting a
+ * photo doesn't flash near-white against the dark page.
+ */
 const FALLBACK_BG: Record<FallbackColor, string> = {
-  blue: "bg-fb-blue",
-  red: "bg-fb-red",
-  yellow: "bg-fb-yellow",
-  green: "bg-fb-green",
+  blue: "bg-blue-halftone",
+  red: "bg-red-halftone",
+  yellow: "bg-yellow-halftone",
+  green: "bg-green-halftone",
 };
 
 type FrameProps = {
@@ -16,7 +22,8 @@ type FrameProps = {
   alt: string;
   title: string;
   aspectRatio?: string;
-  priority?: boolean;
+  /** Preloads via a <link> in <head>. Next 16 deprecated `priority` for this. */
+  preload?: boolean;
   sizes?: string;
   className?: string;
   /** Previous frame's fallback colour, so adjacent frames never match. */
@@ -36,7 +43,7 @@ export function Frame({
   alt,
   title,
   aspectRatio = "16 / 9",
-  priority = false,
+  preload = false,
   sizes = "100vw",
   className = "",
   previousColor,
@@ -59,7 +66,7 @@ export function Frame({
         }`}
         aria-hidden={!showFallback}
       >
-        <span className="font-mono text-[0.75rem] text-paper/55 tabular-nums">{title}</span>
+        <span className="font-mono text-[0.75rem] text-ink tabular-nums">{title}</span>
       </div>
 
       {src && (
@@ -67,7 +74,7 @@ export function Frame({
           src={src}
           alt={alt}
           fill
-          priority={priority}
+          preload={preload}
           sizes={sizes}
           className={`object-cover transition-opacity duration-250 ${loaded && !errored ? "opacity-100" : "opacity-0"}`}
           onLoad={() => {

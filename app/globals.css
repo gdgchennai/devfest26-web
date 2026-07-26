@@ -1,18 +1,31 @@
 @import "tailwindcss";
 
+/*
+ * DevFest Chennai brand palette. Core, halftone, pastel and greyscale ramps as
+ * supplied by the brand kit — do not hand-mix new shades; pick from these.
+ */
 :root {
-  --ink: #0a0a0b;
-  --paper: #ffffff;
+  /* Greyscale */
+  --ink: #1e1e1e;
+  --paper: #f0f0f0;
 
+  /* Core */
   --blue: #4285f4;
-  --red: #ea4335;
-  --yellow: #fbbc04;
   --green: #34a853;
+  --yellow: #f9ab00;
+  --red: #ea4335;
 
-  --fb-blue: #3b6fd4;
-  --fb-red: #c93a2e;
-  --fb-yellow: #d9a004;
-  --fb-green: #2c8348;
+  /* Halftones — mid-tones, legible under ink text */
+  --blue-halftone: #57caff;
+  --green-halftone: #5cdb6d;
+  --yellow-halftone: #ffd427;
+  --red-halftone: #ff7daf;
+
+  /* Pastels — lightest tints */
+  --blue-pastel: #c3ecf6;
+  --green-pastel: #ccf6c5;
+  --yellow-pastel: #ffe7a5;
+  --red-pastel: #f8d8d8;
 }
 
 @theme inline {
@@ -24,10 +37,15 @@
   --color-yellow: var(--yellow);
   --color-green: var(--green);
 
-  --color-fb-blue: var(--fb-blue);
-  --color-fb-red: var(--fb-red);
-  --color-fb-yellow: var(--fb-yellow);
-  --color-fb-green: var(--fb-green);
+  --color-blue-halftone: var(--blue-halftone);
+  --color-green-halftone: var(--green-halftone);
+  --color-yellow-halftone: var(--yellow-halftone);
+  --color-red-halftone: var(--red-halftone);
+
+  --color-blue-pastel: var(--blue-pastel);
+  --color-green-pastel: var(--green-pastel);
+  --color-yellow-pastel: var(--yellow-pastel);
+  --color-red-pastel: var(--red-pastel);
 
   --font-sans: var(--font-google-sans);
 }
@@ -40,6 +58,54 @@ body {
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Darkened space the hallway photos fly through; opacity is driven by the hook. */
+.hallway-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/*
+ * A photo card in the scroll hallway (see components/motion/usePhotoHallway.ts).
+ * Starts hidden and centred so nothing flashes at full size before the first
+ * frame renders. will-change/backface-visibility go on the cards themselves —
+ * these are the elements that transform; promoting the pinned container instead
+ * buys nothing. No blurred box-shadow: re-rendering a large blur on a dozen
+ * scaling cards every frame is what tanks the frame rate.
+ */
+.hallway-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-w, 32vw);
+  aspect-ratio: var(--card-ar, 3 / 2);
+  transform: translate(-50%, -50%) scale(0.15);
+  opacity: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/*
+ * Live only once the stack has formed: browsing it glides, while the
+ * scroll-driven phase above stays instant. Card positions do not change past
+ * PILE_END, so switching this on animates nothing by itself.
+ */
+.hallway-card.is-settled {
+  transition:
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hallway-card.is-settled {
+    transition: none;
+  }
 }
 
 /* First focusable element: hidden until focused, per WCAG 2.4.1 */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Button } from "@/components/Button";
 import { siteConfig } from "@/site.config";
 
 export const metadata: Metadata = { title: "Call for Proposals" };
@@ -26,12 +27,7 @@ export default function CfpPage() {
       <div className="mt-8 rounded-lg border border-paper/10 p-6">
         {isClosed && <p className="font-mono text-sm uppercase text-red">CFP closed</p>}
         {isOpen && siteConfig.cfp.formUrl && (
-          <a
-            href={siteConfig.cfp.formUrl}
-            className="inline-block rounded-full bg-blue px-6 py-3 text-sm font-medium text-paper hover:opacity-90"
-          >
-            Submit a proposal
-          </a>
+          <Button href={siteConfig.cfp.formUrl}>Submit a proposal</Button>
         )}
         {!isOpen && !isClosed && (
           <p className="font-mono text-sm uppercase tracking-wide text-yellow">Opening soon</p>

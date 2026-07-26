@@ -4,13 +4,13 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import Link from "next/link";
-import { siteConfig, formatEventDate } from "@/site.config";
 import { archivePhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
+import { HeroCopy } from "@/components/motion/HeroCopy";
 import { Loader } from "@/components/motion/Loader";
+import { StackControls } from "@/components/motion/StackControls";
 import { useIntroProgress } from "@/components/motion/useIntroProgress";
-import { usePhotoHallway } from "@/components/motion/usePhotoHallway";
+import { usePhotoHallway, cardWidthVw, HALLWAY_CARD_CLASS } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { EASE_SETTLE, EASE_FACTS, EASE_CURTAIN } from "@/components/motion/eases";
 import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -27,7 +27,6 @@ export function HeroSection() {
   const { lenisRef, curtainRef, curtainEl } = useMotion();
 
   const sectionRef = useRef<HTMLElement>(null);
-  const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const wordmarkRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
@@ -48,6 +47,7 @@ export function HeroSection() {
   const seenIntro = useClientValue(hasSeenIntro, true);
   const shouldPlay = !disableHallway && !seenIntro;
   const [revealDone, setRevealDone] = useState(false);
+  const [stackSettled, setStackSettled] = useState(false);
 
   const { contextSafe } = useGSAP({ scope: sectionRef });
 
@@ -116,16 +116,17 @@ export function HeroSection() {
   );
 
   const count = isDesktop ? DESKTOP_COUNT : MOBILE_COUNT;
-  const scrubEnd = isDesktop ? "+=340%" : "+=220%";
   const maxScale = isDesktop ? 3.2 : 2.4;
   const hallwayPhotos = archivePhotos.slice(0, count);
 
-  usePhotoHallway({
+  const { cycle } = usePhotoHallway({
     containerRef: sectionRef,
-    photoRefs,
     count,
-    scrubEnd,
     maxScale,
+    // Slightly slower per photo on mobile, where there are fewer of them and a
+    // shorter section would flick past.
+    perItemVh: isDesktop ? 0.3 : 0.34,
+    onSettledChange: setStackSettled,
     disabled: disableHallway,
   });
 
@@ -139,15 +140,25 @@ export function HeroSection() {
         {hallwayPhotos.map((photo, i) => (
           <div
             key={photo.src}
-            ref={(el) => {
-              photoRefs.current[i] = el;
+            className={HALLWAY_CARD_CLASS}
+            // Varied widths plus each photo's real ratio: identical boxes read
+            // as a slideshow, differing sizes read as depth.
+            style={{
+              ["--card-w" as string]: `${cardWidthVw(i)}vw`,
+              ["--card-ar" as string]: `${photo.width} / ${photo.height}`,
             }}
-            className="absolute left-1/2 top-1/2 h-[40vh] w-[60vw] max-w-md"
           >
-            <Frame src={photo.src} alt={photo.description} title={photo.title} className="h-full w-full" />
+            <Frame
+              src={photo.src}
+              alt={photo.description}
+              title={photo.title}
+              aspectRatio="auto"
+              sizes="45vw"
+              className="h-full w-full"
+            />
           </div>
         ))}
-        <div className="absolute inset-0 bg-ink/45" />
+        <div className="absolute inset-0 bg-ink/65" />
       </div>
 
       <div className="relative flex min-h-[100vh] flex-col justify-end px-4 pb-16 pt-24 sm:px-8">
@@ -159,62 +170,26 @@ export function HeroSection() {
         >
           <div ref={imageScaleRef} className="h-full w-full">
             <Frame
-              src="/archive/2025-opening-keynote.jpg"
-              alt="A wide shot of the DevFest 2025 opening keynote crowd."
-              title="Opening keynote, 2025"
+              src="/archive/2025-full-house.jpg"
+              alt="A speaker facing a packed auditorium at DevFest Chennai 2025."
+              title="Full house, 2025"
               aspectRatio="auto"
-              priority
+              preload
               className="h-full w-full"
             />
           </div>
         </div>
 
-        <div className="overflow-hidden">
-          <div ref={eyebrowRef} className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-paper/70">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue" />
-            {siteConfig.chapter}
-          </div>
-        </div>
-        <div className="overflow-hidden">
-          <h1 ref={wordmarkRef} className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
-            {siteConfig.name}
-          </h1>
-        </div>
-        <div className="overflow-hidden">
-          <p ref={taglineRef} className="mt-3 max-w-xl text-lg text-paper/85 sm:text-xl">
-            {siteConfig.tagline}
-          </p>
-        </div>
-
-        <div ref={factsGroupRef}>
-          <p className="mt-4 font-mono text-sm tabular-nums text-paper/80">
-            {formatEventDate(siteConfig.date)} · {siteConfig.venue.line2}
-            {!siteConfig.venue.confirmed && " (venue TBC)"}
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href={siteConfig.ticketing.url ?? "/agenda"}
-              className="rounded-full bg-blue px-6 py-3 text-sm font-medium text-paper hover:opacity-90"
-            >
-              Get Tickets
-            </a>
-            <Link
-              href="/agenda"
-              className="rounded-full border border-paper/30 px-6 py-3 text-sm font-medium text-paper hover:bg-paper/10"
-            >
-              View Agenda
-            </Link>
-          </div>
-
-          <a
-            href="#after-hero"
-            className="mt-10 block text-center font-mono text-xs uppercase tracking-wide text-paper/60 hover:text-paper"
-          >
-            Scroll
-          </a>
-        </div>
+        <HeroCopy
+          showScrollHint={!stackSettled}
+          eyebrowRef={eyebrowRef}
+          wordmarkRef={wordmarkRef}
+          taglineRef={taglineRef}
+          factsRef={factsGroupRef}
+        />
       </div>
+
+      <StackControls active={stackSettled} count={count} onCycle={cycle} />
 
       {shouldPlay &&
         !revealDone &&
@@ -234,41 +209,17 @@ export function StaticHero() {
       <section className="relative flex min-h-[85vh] flex-col justify-end overflow-hidden px-4 pb-16 pt-24 sm:px-8">
         <div className="absolute inset-0 -z-10">
           <Frame
-            src="/archive/2025-opening-keynote.jpg"
-            alt="A wide shot of the DevFest 2025 opening keynote crowd."
-            title="Opening keynote, 2025"
+            src="/archive/2025-full-house.jpg"
+            alt="A speaker facing a packed auditorium at DevFest Chennai 2025."
+            title="Full house, 2025"
             aspectRatio="auto"
-            priority
+            preload
             className="h-full w-full"
           />
-          <div className="absolute inset-0 bg-ink/45" />
+          <div className="absolute inset-0 bg-ink/65" />
         </div>
 
-        <div className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-paper/70">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue" />
-          {siteConfig.chapter}
-        </div>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">{siteConfig.name}</h1>
-        <p className="mt-3 max-w-xl text-lg text-paper/85 sm:text-xl">{siteConfig.tagline}</p>
-        <p className="mt-4 font-mono text-sm tabular-nums text-paper/80">
-          {formatEventDate(siteConfig.date)} · {siteConfig.venue.line2}
-          {!siteConfig.venue.confirmed && " (venue TBC)"}
-        </p>
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href={siteConfig.ticketing.url ?? "/agenda"}
-            className="rounded-full bg-blue px-6 py-3 text-sm font-medium text-paper hover:opacity-90"
-          >
-            Get Tickets
-          </a>
-          <Link
-            href="/agenda"
-            className="rounded-full border border-paper/30 px-6 py-3 text-sm font-medium text-paper hover:bg-paper/10"
-          >
-            View Agenda
-          </Link>
-        </div>
+        <HeroCopy />
       </section>
 
       {/* No id="after-hero" here: page.tsx owns that anchor (SkipLink + the

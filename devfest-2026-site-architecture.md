@@ -34,7 +34,7 @@ event rather than general principle:
 - **The intro only works because it's escapable.** A cinematic hero is a good first impression and
   an obstacle on the fifth visit. Multi-page means someone going straight to `/agenda` never
   touches it. On a single-page site the intro is in the way every single time.
-- **Payload.** The agenda must load without the hallway's twelve photos in the bundle.
+- **Payload.** The agenda must load without the hallway's photos in the bundle.
 
 Keep the nav to five items plus a persistent button:
 
@@ -192,6 +192,37 @@ Built once in the root layout, consumed everywhere. **This lands before anything
   the motion spec. Site-wide, not a homepage feature.
 - **Metadata** — per-route `generateMetadata`, one OG template with the route title composited in.
 
+### The hallway
+
+`components/motion/usePhotoHallway.ts` drives both the homepage hero and `/memories`. It pins its
+container, then flies the archive photos toward a virtual camera: each card fades in, scales up,
+drifts out toward its own corner, and passes — several visible at different depths at once —
+before the whole set settles into the closing pile.
+
+Things to know before changing it:
+
+- **Adding photos:** drop camera originals in `assets/` and run `npm run archive`. It resizes them
+  into `public/archive/`, reads the capture year and dimensions, and appends entries to
+  `content/archive.json` without touching captions you have already written. You then write a title
+  and description for each new photo — the description is the alt text and cannot be generated. The
+  section lengthens to match: card lifespans come from a depth model derived from the item count,
+  not per-index windows, so pacing stays even instead of compressing as the archive grows.
+  `assets/` is gitignored; only the web copies are committed.
+- **Array order is art direction** — it is the order photos fly past the camera, and the homepage
+  hero takes the first 12 (desktop) or 7 (mobile). The ingest script appends rather than sorts, so
+  placing a new photo is a deliberate edit.
+- **`width`/`height` are required in the JSON** so each card is shaped to its true ratio on the
+  first frame. Measuring with `img.onLoad` instead reflows cards mid-scroll.
+- **Pacing knob:** `perItemVh` — viewport heights of scroll per photo, default `0.3`. Standalone
+  galleries of this kind use ~1.15; this one sits above a whole site, and at 1.15 the hero would
+  eat roughly fourteen screens before a visitor reached any content.
+- **The render loop is driven by a scrubbed proxy tween, not `onUpdate(self.progress)`.** A
+  scrubbed ScrollTrigger only interpolates smoothly when it drives an actual animation; reading
+  progress directly steps with every wheel notch. Do not "simplify" this away.
+- **Reduced motion, Save-Data and lite mode skip it entirely** via `shouldUseStaticBaseline()` —
+  the hero falls back to `StaticHero`, `/memories` to its year grids. That baseline is also what
+  server-renders, so the motion path never unmounts a live pinned trigger after hydration.
+
 ---
 
 ## Brand compliance
@@ -206,6 +237,22 @@ the Google logo may be used.
 This matters practically because the loader dot and the fallback panels both lean on those four
 colours. If the kit restricts that usage, those are the two places to adapt, and it is much
 cheaper to know now.
+
+### The palette, as implemented
+
+All four ramps live in `app/globals.css` as tokens. **Do not hand-mix new shades — pick from
+these.** Core `#4285F4 #34A853 #F9AB00 #EA4335`, halftones `#57CAFF #5CDB6D #FFD427 #FF7DAF`,
+pastels `#C3ECF6 #CCF6C5 #FFE7A5 #F8D8D8`, greyscale `--paper #F0F0F0` / `--ink #1E1E1E`.
+
+Three contrast constraints fall out of it, all measured:
+
+- **Button labels are ink, not paper.** Paper on `#4285F4` is 3.56:1 and the label is 14px, which
+  needs 4.5:1. Ink gives 4.68:1. The palette has no darker blue, so the label is what changes.
+- **Fallback panels use halftones with an ink label** (7.0–11.7:1). They previously used four
+  hand-mixed dark shades with a `paper/55` label at 1.49–2.33:1, which was unreadable. Pastels
+  would score higher still but flash near-white against the dark page while a photo decodes.
+- **The hero scrim is `bg-ink/65`, not `/45`.** Over a blown-out area of a photo, `/45` against
+  the lighter `#1E1E1E` ink measures 2.47:1 under the small date line; `/65` restores 4.54:1.
 
 ---
 

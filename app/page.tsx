@@ -2,6 +2,7 @@ import Link from "next/link";
 import { siteConfig, sponsorTiers } from "@/site.config";
 import { agenda, sponsors } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
+import { Button } from "@/components/Button";
 import { SectionHeading } from "@/components/SectionHeading";
 import { EmptyState } from "@/components/EmptyState";
 import { Faq } from "@/components/Faq";
@@ -139,12 +140,9 @@ export default function Home() {
       {/* Final CTA */}
       <section className="px-4 py-24 text-center sm:px-8">
         <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">See you there.</h2>
-        <a
-          href={siteConfig.ticketing.url ?? "/agenda"}
-          className="mt-6 inline-block rounded-full bg-blue px-8 py-3 text-sm font-medium text-paper hover:opacity-90"
-        >
+        <Button href={siteConfig.ticketing.url ?? "/agenda"} size="lg" className="mt-6">
           Get Tickets
-        </a>
+        </Button>
       </section>
     </>
   );

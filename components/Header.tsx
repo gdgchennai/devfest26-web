@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/Button";
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
 
@@ -27,12 +28,9 @@ export function Header() {
       </nav>
 
       <div className="flex items-center gap-3">
-        <a
-          href={siteConfig.ticketing.url ?? "/agenda"}
-          className="rounded-full bg-blue px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
-        >
+        <Button href={siteConfig.ticketing.url ?? "/agenda"} size="sm">
           Get Tickets
-        </a>
+        </Button>
 
         <details className="relative md:hidden">
           <summary className="list-none cursor-pointer rounded p-2 text-paper/80 hover:text-paper [&::-webkit-details-marker]:hidden">
