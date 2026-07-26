@@ -17,6 +17,7 @@ import {
   HALLWAY_BEACON_CLASS,
   HALLWAY_BACKDROP_CLASS,
   HALLWAY_STACK_CLASS,
+  HALLWAY_RISE_CLASS,
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
@@ -36,15 +37,9 @@ export function HeroSection() {
   const { lenisRef, curtainRef, curtainEl } = useMotion();
 
   const sectionRef = useRef<HTMLElement>(null);
-  const eyebrowRef = useRef<HTMLDivElement>(null);
-  const wordmarkRef = useRef<HTMLHeadingElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
-  const factsGroupRef = useRef<HTMLDivElement>(null);
   const frameWrapRef = useRef<HTMLDivElement>(null);
   const imageScaleRef = useRef<HTMLDivElement>(null);
   const loaderMaskRef = useRef<HTMLDivElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
-  const copyTlRef = useRef<gsap.core.Timeline | null>(null);
 
   // Defaults to the static/disabled baseline (matches SSR and the no-JS
   // fallback) and upgrades to the motion hallway once confirmed on the
@@ -81,17 +76,6 @@ export function HeroSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldPlay]);
 
-  // The copy belongs to the hero the tunnel arrives at, not to the tunnel, so
-  // it starts hidden whenever the tunnel is going to run — including for a
-  // returning visitor, who skips the loader but still travels the hallway.
-  // Leaving "Date to be announced · venue TBC" pinned over the photos was what
-  // made Skip meaningless: there was nothing to skip to.
-  useLayoutEffect(() => {
-    if (disableHallway) return;
-    gsap.set(copyRef.current, { autoAlpha: 0 });
-    gsap.set([eyebrowRef.current, wordmarkRef.current, taglineRef.current], { yPercent: 110 });
-    gsap.set(factsGroupRef.current, { opacity: 0, y: 12 });
-  }, [disableHallway]);
 
   // Hands scrolling back to the visitor and marks the intro seen. Shared by the
   // reveal finishing normally and by Skip cutting it short, so both exits leave
@@ -127,40 +111,17 @@ export function HeroSection() {
       .to(frameWrapRef.current, { opacity: 0, duration: 0.6, ease: EASE_FACTS }, 1.1);
   });
 
-  // Built once, then played forward on arrival and reversed if the visitor
-  // scrolls back into the tunnel, so the copy belongs to the hero rather than
-  // popping in and sticking.
-  // eslint-disable-next-line react-hooks/refs
-  const setCopyShown = contextSafe((shown: boolean) => {
-    copyTlRef.current ??= gsap
-      .timeline({ paused: true })
-      .to(copyRef.current, { autoAlpha: 1, duration: 0.35 }, 0)
-      .to(
-        [eyebrowRef.current, wordmarkRef.current, taglineRef.current],
-        { yPercent: 0, duration: 0.9, ease: EASE_SETTLE, stagger: 0.08 },
-        0.05,
-      )
-      .to(factsGroupRef.current, { opacity: 1, y: 0, duration: 0.6, ease: EASE_FACTS }, 0.5);
-
-    if (shown) copyTlRef.current.play();
-    else copyTlRef.current.reverse();
-  });
 
   // Skip during the wait cuts the reveal to its finished state rather than
   // playing it out; skip once the hallway is running jumps past it to the page.
   // eslint-disable-next-line react-hooks/refs
   const skipReveal = contextSafe(() => {
-    const targets = [
+    gsap.killTweensOf([
       curtainRef.current,
       frameWrapRef.current,
       imageScaleRef.current,
       loaderMaskRef.current,
-      eyebrowRef.current,
-      wordmarkRef.current,
-      taglineRef.current,
-      factsGroupRef.current,
-    ];
-    gsap.killTweensOf(targets);
+    ]);
     gsap.set(curtainRef.current, { clipPath: "inset(0 0 100% 0)" });
     gsap.set(frameWrapRef.current, { opacity: 0 });
     // Deliberately does not reveal the copy: skipping the wait drops you at the
@@ -215,10 +176,9 @@ export function HeroSection() {
     // shorter section would flick past.
     perItemVh: isDesktop ? 0.3 : 0.34,
     riseToTop: true,
-    onPhaseChange: (phase) => {
-      setStackSettled(phase === "hero");
-      setCopyShown(phase === "hero");
-    },
+    // The copy's rise is scrubbed by the hook itself; this only drives the
+    // escape control, which retires once there is nothing left to skip.
+    onPhaseChange: (phase) => setStackSettled(phase === "hero"),
     disabled: disableHallway,
   });
 
@@ -228,8 +188,13 @@ export function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative min-h-[100vh] overflow-hidden">
-      <div className={HALLWAY_BACKDROP_CLASS} />
+      {/* Every layer below lives INSIDE this wrapper. The wrapper's negative
+          z-index makes it a stacking context, so anything left outside it —
+          the backdrop was, once — paints over the whole hallway no matter what
+          z-index it carries. Ordering within: backdrop 0, beacon 1, stack 2,
+          flying photos 10+. */}
       <div className="absolute inset-0 -z-10">
+        <div className={HALLWAY_BACKDROP_CLASS} />
         <div className={HALLWAY_BEACON_CLASS} />
         {flying.map((photo, i) => (
           <div
@@ -296,13 +261,8 @@ export function HeroSection() {
 
         {/* Left half on desktop: the stack parks on the right, so the two share
             the hero instead of the copy sitting on top of the photos. */}
-        <div ref={copyRef} className="relative lg:max-w-[48%]">
-          <HeroCopy
-            eyebrowRef={eyebrowRef}
-            wordmarkRef={wordmarkRef}
-            taglineRef={taglineRef}
-            factsRef={factsGroupRef}
-          />
+        <div className={`relative lg:max-w-[48%] ${HALLWAY_RISE_CLASS}`}>
+          <HeroCopy />
         </div>
       </div>
 

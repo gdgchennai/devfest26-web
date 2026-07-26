@@ -53,13 +53,20 @@ const STACK_FAR_SCALE = 0.07;
  * it just grows steadily and gives away the ending.
  */
 const STACK_APPROACH = 2.4;
+
 /**
- * How much faster opacity resolves than scale. Separate on purpose: while the
- * group is part-transparent the flying photos show straight through the
- * destination, which is the one way this still reads as mush. At 2.2 the stack
- * is solid by roughly half the approach and merely keeps growing after that.
+ * Where the destination reaches full opacity, as a fraction of the tunnel, and
+ * how visible it is on the very first frame.
+ *
+ * Opacity is deliberately NOT driven off the same exponential as scale. Scale
+ * is perspective and genuinely nonlinear; visibility is not — a distant object
+ * is small, not transparent. Driving both off `bloom` left the stack at 0.4%
+ * opacity a twentieth of the way in and under 3% a tenth of the way in, so the
+ * thing whose whole job is to show you how far you have left was invisible for
+ * the first third of the journey. It also let flying photos show through it.
  */
-const STACK_SOLIDIFY = 2.2;
+const STACK_VISIBLE_BY = 0.45;
+const STACK_MIN_OPACITY = 0.18;
 
 /** Fraction of the container the spread row spans, and the gap between cards. */
 const ROW_SPAN = 0.92;
@@ -97,6 +104,17 @@ export const STACK_CARD_CLASS = "stack-card";
 export const HALLWAY_BACKDROP_CLASS = "hallway-backdrop";
 /** Faint halo behind the distant stack, so a speck still reads as *something out there*. */
 export const HALLWAY_BEACON_CLASS = "hallway-beacon";
+/**
+ * Content that rises into place as the row lands — the hero copy block, moved
+ * as one sheet rather than line by line. Driven from here rather than by a
+ * timeline so it is scrubbed: the visitor pulls the page up under the row with
+ * their own scroll, instead of the text playing on its own clock while the row
+ * moves on theirs.
+ */
+export const HALLWAY_RISE_CLASS = "hallway-rise";
+
+/** How far the rising content travels, as a fraction of viewport height. */
+const RISE_FROM = 0.45;
 
 /** Fraction of the section spent fading the backdrop in at the start / out at the end. */
 const BACKDROP_FADE = 0.08;
@@ -149,6 +167,7 @@ export function usePhotoHallway({
     ).slice(0, stackCount);
     const backdrop = container.querySelector<HTMLElement>(`.${HALLWAY_BACKDROP_CLASS}`);
     const beacon = container.querySelector<HTMLElement>(`.${HALLWAY_BEACON_CLASS}`);
+    const rising = container.querySelector<HTMLElement>(`.${HALLWAY_RISE_CLASS}`);
     if (flyCards.length === 0 && stackCards.length === 0) return;
 
     const flyOffsets = Array.from({ length: flyCount }, (_, i) => deterministicOffset(i));
@@ -212,7 +231,10 @@ export function usePhotoHallway({
           `translate(-50%, -50%) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) ` +
           `scale(${scale.toFixed(3)})`;
         // Nearer cards paint over farther ones, by depth rather than by index.
-        el.style.zIndex = String(Math.round(p * 1000));
+        // Offset past the destination layer (z-index 2) and the beacon (1):
+        // every flying photo is nearer than the far end of the tunnel, so a
+        // just-appearing card at p≈0 must still sit in front of them.
+        el.style.zIndex = String(10 + Math.round(p * 1000));
       }
     }
 
@@ -232,7 +254,10 @@ export function usePhotoHallway({
       // ONE opacity, on the group. Fading the cards individually would stack
       // semi-transparent photos on top of each other, which reads as mud; the
       // cards themselves are opaque, so overlapping them reads as depth.
-      stackGroup.style.opacity = clamp(bloom * STACK_SOLIDIFY).toFixed(3);
+      // Ramped on `approach`, not `bloom` — see STACK_VISIBLE_BY.
+      stackGroup.style.opacity = clamp(
+        mapRange(0, STACK_VISIBLE_BY, STACK_MIN_OPACITY, 1, approach),
+      ).toFixed(3);
       stackGroup.style.transform =
         `translate(-50%, -50%) translate3d(0px, ${groupY.toFixed(1)}px, 0) scale(${groupScale.toFixed(4)})`;
 
@@ -264,9 +289,14 @@ export function usePhotoHallway({
       }
 
       if (beacon) {
-        // Atmosphere only: it exists so a 7%-scale speck reads as something out
-        // there, and gets out of the way once the stack is real.
-        beacon.style.opacity = (bloom * (1 - bloom) * 1.6).toFixed(3);
+        // Atmosphere: it exists so a 7%-scale speck reads as something out
+        // there, so it has to be brightest while the stack is *smallest*.
+        // Driving it off `bloom` did the exact opposite — it peaked around the
+        // halfway mark, by which point the stack was half-size and fully solid
+        // and needed no help, and was at 1% opacity when the stack was a speck.
+        beacon.style.opacity = (
+          clamp(approach / 0.06) * Math.pow(1 - approach, 2) * 0.55
+        ).toFixed(3);
         beacon.style.transform = `translate(-50%, -50%) scale(${(0.18 + bloom * 1.4).toFixed(3)})`;
       }
     }
@@ -274,6 +304,15 @@ export function usePhotoHallway({
     function render(progress: number) {
       renderFlyCards(progress);
       renderStack(progress);
+
+      if (rising) {
+        // One sheet, on the same scroll leg as the row's rise, so the page
+        // arrives *because* the visitor pulled it up — not five lines each
+        // emerging from their own clip on a timer.
+        const t = easeOutSettle(clamp(mapRange(TUNNEL_END, HANDOFF_END, 0, 1, progress)));
+        rising.style.opacity = clamp(t * 1.6).toFixed(3);
+        rising.style.transform = `translate3d(0px, ${((1 - t) * RISE_FROM * vh).toFixed(1)}px, 0)`;
+      }
 
       if (backdrop) {
         backdrop.style.opacity = clamp(

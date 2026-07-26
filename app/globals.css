@@ -60,6 +60,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Content that rises into place as the picture row lands. Starts hidden in CSS
+ * so there is no flash before the hook's first frame — the same reason
+ * .hallway-card does.
+ */
+.hallway-rise {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
 /* Darkened space the hallway photos fly through; opacity is driven by the hook. */
 .hallway-backdrop {
   position: absolute;
