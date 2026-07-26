@@ -5,11 +5,13 @@ import { Frame } from "@/components/Frame";
 import {
   usePhotoHallway,
   cardWidthVw,
+  cardSizes,
   HALLWAY_CORRIDOR_CLASS,
   HALLWAY_CARD_CLASS,
   HALLWAY_BACKDROP_CLASS,
   HALLWAY_BEACON_CLASS,
   HALLWAY_STACK_CLASS,
+  HALLWAY_HAZE_CLASS,
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import type { ArchivePhoto } from "@/lib/schemas";
@@ -62,7 +64,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
                 alt={photo.description}
                 title={photo.title}
                 aspectRatio="auto"
-                sizes="40vw"
+                sizes={cardSizes(i, 2.6)}
                 className="h-full w-full"
               />
             </div>
@@ -86,6 +88,9 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
               />
             </div>
           ))}
+
+          {/* Above the deck, inside the group, so it travels with it. */}
+          <div className={HALLWAY_HAZE_CLASS} />
         </div>
       </div>
 

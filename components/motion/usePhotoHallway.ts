@@ -69,8 +69,34 @@ const STACK_APPROACH = 2.4;
  * thing whose whole job is to show you how far you have left was invisible for
  * the first third of the journey. It also let flying photos show through it.
  */
-const STACK_VISIBLE_BY = 0.45;
-const STACK_MIN_OPACITY = 0.18;
+const STACK_VISIBLE_BY = 0.22;
+const STACK_MIN_OPACITY = 0.55;
+
+/**
+ * Atmospheric haze over the destination, lifting as the camera closes on it.
+ *
+ * This is NOT a second darkener — a group at opacity α over the ink backdrop
+ * already composites to exactly what an ink veil at 1−α would give. It exists
+ * to *separate* the two things opacity was conflating: how solid the stack is,
+ * and how far back it reads. The group now firms up early (see the constants
+ * above) so it is a real object rather than a see-through smear, and the haze
+ * carries the recession instead — which also lets it be tinted. Distance in
+ * air shifts things cooler, not merely fainter, and opacity cannot do that.
+ */
+export const HALLWAY_HAZE_CLASS = "hallway-haze";
+const HAZE_MAX = 0.84;
+/**
+ * Exponent on (1 − approach). **Below 1 holds the haze longer; above 1 clears
+ * it faster** — the opposite of what reads intuitively, because (1−a) is itself
+ * less than 1, so raising the power shrinks it.
+ *
+ * Tuned against how busy the corridor is, not by feel: it stays at four photos
+ * until roughly 0.5 and only drains over 0.55→0.72. At 1.5 the haze was down to
+ * 0.10 by 0.55 — the destination back to 90% brightness while three photos were
+ * still competing for attention. At 0.5 it is 0.41 there and clears as the
+ * corridor empties.
+ */
+const HAZE_FALLOFF = 0.5;
 
 /** Fraction of the container the spread row spans, and the gap between cards. */
 const ROW_SPAN = 0.92;
@@ -101,6 +127,22 @@ const CORRIDOR_X = 0.24;
 const CORRIDOR_Y = 0.16;
 /** Scales the outward drift, since placements are now unit vectors. */
 const SPREAD = 0.6;
+
+/**
+ * How much nearer than the destination a photo must appear when it is born.
+ *
+ * The stack is the far end of the tunnel, so nothing may enter from beyond it —
+ * but its size came from `bloom`, a curve with no depth in it, while the cards
+ * come from a real depth model. Two coordinate systems, so nothing enforced the
+ * ordering: measured, cards #7, #8 and #9 were each born *smaller* than the
+ * stack, i.e. behind the thing at the end of the corridor.
+ *
+ * Rather than rebuild the depth model, floor a card's size at the destination's
+ * current size. That is also the honest physical story — as the camera closes on
+ * the end wall there is less runway ahead, so later photos have no choice but to
+ * appear nearer.
+ */
+const SPAWN_CLEARANCE = 1.08;
 
 /**
  * Tilt toward the corridor axis, in degrees, so photos read as hung on walls
@@ -152,6 +194,27 @@ function deterministicOffset(index: number): PhotoOffset {
 /** Width in vw for card `index`, so cards arrive at visibly different sizes. */
 export function cardWidthVw(index: number): number {
   return WIDTHS[index % WIDTHS.length];
+}
+
+/**
+ * Last point in a card's life where it is still meaningfully visible — beyond
+ * this the fade-out has it under half opacity. Lower it to trade sharpness at
+ * the very peak for bytes; see cardSizes().
+ */
+const PEAK_VISIBLE_P = 0.92;
+
+/**
+ * The `sizes` attribute for a flying photo.
+ *
+ * A card's CSS width is only its width at scale 1; the transform blows it up to
+ * ~2.7x while it is still fully opaque, so a 44vw card covers ~118vw of screen.
+ * Declaring the base width made the browser fetch a copy 2.6x too small and
+ * upscale it — softest exactly when the photo is biggest and most looked at.
+ * Viewport-relative, so this costs desktop bandwidth and barely touches mobile.
+ */
+export function cardSizes(index: number, maxScale: number): string {
+  const peak = 0.15 + (maxScale - 0.15) * easeInAccelerating(PEAK_VISIBLE_P);
+  return `${Math.min(100, Math.round(cardWidthVw(index) * peak))}vw`;
 }
 
 /**
@@ -233,6 +296,7 @@ export function usePhotoHallway({
     ).slice(0, stackCount);
     const backdrop = container.querySelector<HTMLElement>(`.${HALLWAY_BACKDROP_CLASS}`);
     const beacon = container.querySelector<HTMLElement>(`.${HALLWAY_BEACON_CLASS}`);
+    const haze = container.querySelector<HTMLElement>(`.${HALLWAY_HAZE_CLASS}`);
     const rising = container.querySelector<HTMLElement>(`.${HALLWAY_RISE_CLASS}`);
     if (flyCards.length === 0 && stackCards.length === 0) return;
 
@@ -256,21 +320,38 @@ export function usePhotoHallway({
      * the arithmetic here.
      */
     let rowScale = 1;
+    /** Cached at refresh — reading offsetWidth per frame would thrash layout. */
+    let groupWidthPx = 0;
 
     function measure() {
       vw = window.innerWidth;
       vh = window.innerHeight;
       const n = stackCards.length;
-      const groupWidth = stackGroup?.offsetWidth ?? 0;
+      groupWidthPx = stackGroup?.offsetWidth ?? 0;
       const containerWidth = container.offsetWidth || vw;
-      rowScale = n > 0 && groupWidth > 0
-        ? Math.min(1, (ROW_SPAN * containerWidth) / (n * ROW_GAP * groupWidth))
+      rowScale = n > 0 && groupWidthPx > 0
+        ? Math.min(1, (ROW_SPAN * containerWidth) / (n * ROW_GAP * groupWidthPx))
         : 1;
+    }
+
+    /** On-screen width of the destination right now, in px. */
+    function stackWidthNow(progress: number) {
+      if (!stackGroup) return 0;
+      const approach = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
+      const bloom = Math.pow(approach, STACK_APPROACH);
+      const spread = easeOutSettle(clamp(mapRange(TUNNEL_END, HANDOFF_END, 0, 1, progress)));
+      return (
+        groupWidthPx *
+        gsap.utils.interpolate(STACK_FAR_SCALE, 1, bloom) *
+        gsap.utils.interpolate(1, rowScale, spread)
+      );
     }
 
     function renderFlyCards(progress: number) {
       const travelled = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
       const cam = gsap.utils.interpolate(camStart, camEnd, travelled);
+      // Nothing may enter the corridor from beyond its far end.
+      const minPx = stackWidthNow(progress) * SPAWN_CLEARANCE;
 
       for (let i = 0; i < flyCards.length; i += 1) {
         const el = flyCards[i];
@@ -284,7 +365,12 @@ export function usePhotoHallway({
           continue;
         }
 
-        const scale = 0.15 + (maxScale - 0.15) * easeInAccelerating(p);
+        // Floored so this photo can never appear farther away than the
+        // destination. The floor rises with the stack, so late arrivals enter
+        // nearer — which is what a shortening runway actually looks like.
+        const cardWidthPx = (cardWidthVw(i) / 100) * vw;
+        const floor = cardWidthPx > 0 ? minPx / cardWidthPx : 0;
+        const scale = Math.max(floor, 0.15 + (maxScale - 0.15) * easeInAccelerating(p));
         // Hug the wall, then accelerate outward — a linear drift makes cards
         // look like they are sliding rather than passing the camera. The
         // corridor term is the floor that keeps the middle clear.
@@ -304,10 +390,10 @@ export function usePhotoHallway({
           `translate(-50%, -50%) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) ` +
           `rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
         // Nearer cards paint over farther ones, by depth rather than by index.
-        // Offset past the destination layer (z-index 2) and the beacon (1):
-        // every flying photo is nearer than the far end of the tunnel, so a
-        // just-appearing card at p≈0 must still sit in front of them.
-        el.style.zIndex = String(10 + Math.round(p * 1000));
+        // Only orders cards against each other — ranking the corridor as a
+        // whole against the stack is `.hallway-corridor`'s z-index, since
+        // perspective seals these values inside that wrapper.
+        el.style.zIndex = String(Math.round(p * 1000));
       }
     }
 
@@ -361,12 +447,25 @@ export function usePhotoHallway({
         el.style.zIndex = String(100 + n - i);
       }
 
+      if (haze) {
+        // Driven off the same `approach` as everything else here, so it cannot
+        // drift out of step with the stack it sits on. Gone by the time the
+        // tunnel ends, which is also when the row starts spreading.
+        haze.style.opacity = (Math.pow(1 - approach, HAZE_FALLOFF) * HAZE_MAX).toFixed(3);
+      }
+
       if (beacon) {
-        // Atmosphere: it exists so a 7%-scale speck reads as something out
-        // there, so it has to be brightest while the stack is *smallest*.
-        // Driving it off `bloom` did the exact opposite — it peaked around the
-        // halfway mark, by which point the stack was half-size and fully solid
-        // and needed no help, and was at 1% opacity when the stack was a speck.
+        // Kept, and the haze is *why*. With the haze holding the destination at
+        // 0.09–0.29 brightness through the first fifth, an unlit speck at 7%
+        // scale would be invisible against the ink — losing the whole point of
+        // being able to see how far is left. Strengthening the haze made this
+        // more necessary, not less. Their windows barely overlap: the glow has
+        // done its work by ~0.3, which is where the stack is finally big enough
+        // to read on its own.
+        //
+        // It has to be brightest while the stack is *smallest*. Driving it off
+        // `bloom` did the exact opposite — it peaked around the halfway mark,
+        // by which point the stack needed no help, and sat at 1% when it did.
         beacon.style.opacity = (
           clamp(approach / 0.06) * Math.pow(1 - approach, 2) * 0.55
         ).toFixed(3);

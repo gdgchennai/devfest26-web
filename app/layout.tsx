@@ -48,9 +48,14 @@ export const metadata: Metadata = {
 };
 
 // The site is committed-dark (bg-ink). Without this, mobile browser chrome and
-// native controls render against a light default. `--ink` is #0a0a0b.
+// native controls render against a light default.
+//
+// Must stay in step with `--ink` in globals.css — this was #0a0a0b against an
+// --ink of #1e1e1e, so mobile address bars rendered near-black above a
+// noticeably lighter charcoal page. Kept as a literal because `viewport` is
+// serialised at build time and cannot read a CSS custom property.
 export const viewport: Viewport = {
-  themeColor: "#0a0a0b",
+  themeColor: "#1e1e1e",
   colorScheme: "dark",
 };
 

@@ -13,11 +13,13 @@ import { useIntroProgress } from "@/components/motion/useIntroProgress";
 import {
   usePhotoHallway,
   cardWidthVw,
+  cardSizes,
   HALLWAY_CORRIDOR_CLASS,
   HALLWAY_CARD_CLASS,
   HALLWAY_BEACON_CLASS,
   HALLWAY_BACKDROP_CLASS,
   HALLWAY_STACK_CLASS,
+  HALLWAY_HAZE_CLASS,
   HALLWAY_RISE_CLASS,
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
@@ -125,7 +127,10 @@ export function HeroSection() {
     // smoother end up disagreeing about where we are.
     const target = document.getElementById("after-hero");
     if (!target) return;
-    if (lenisRef.current) lenisRef.current.scrollTo(target);
+    // Lenis computes its own destination and ignores CSS scroll-margin, so the
+    // sticky header's clearance has to be passed explicitly here to match the
+    // `[id] { scroll-margin-top: 5rem }` the native path gets. 5rem = 80px.
+    if (lenisRef.current) lenisRef.current.scrollTo(target, { offset: -80 });
     else target.scrollIntoView();
   }, [revealDone, skipReveal, lenisRef]);
 
@@ -202,7 +207,7 @@ export function HeroSection() {
                 alt={photo.description}
                 title={photo.title}
                 aspectRatio="auto"
-                sizes="45vw"
+                sizes={cardSizes(i, maxScale)}
                 className="h-full w-full"
               />
             </div>
@@ -228,6 +233,9 @@ export function HeroSection() {
               />
             </div>
           ))}
+
+          {/* Above the deck, inside the group, so it travels with it. */}
+          <div className={HALLWAY_HAZE_CLASS} />
         </div>
       </div>
 

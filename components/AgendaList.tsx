@@ -1,40 +1,14 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
 import type { AgendaSession } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
-
-const TRACK_COLOR: Record<string, string> = {
-  ai: "text-blue",
-  cloud: "text-green",
-  mobile: "text-red",
-  web: "text-yellow",
-};
-
-function getServerNow() {
-  return null;
-}
+import { trackColor } from "@/lib/track-color";
+import { useNow } from "@/lib/useNow";
 
 export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
-  // getSnapshot reads this cached ref rather than calling Date.now() itself,
-  // so it returns a stable value between the minute-by-minute notifications
-  // useSyncExternalStore requires (calling Date.now() directly as getSnapshot
-  // would "change" on every call and defeat the point of the store).
-  const cachedNow = useRef<number | null>(null);
-  const nowMs = useSyncExternalStore(
-    (callback) => {
-      cachedNow.current = Date.now();
-      callback();
-      const id = setInterval(() => {
-        cachedNow.current = Date.now();
-        callback();
-      }, 60_000);
-      return () => clearInterval(id);
-    },
-    () => cachedNow.current,
-    getServerNow,
-  );
-  const now = nowMs === null ? null : new Date(nowMs);
+  // Clock and track palette are both shared with the homepage timeline —
+  // see lib/useNow.ts and lib/track-color.ts, which this file used to own.
+  const now = useNow();
 
   return (
     <ol className="divide-y divide-paper/10 rounded-lg border border-paper/10">
@@ -55,7 +29,7 @@ export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
 
             <div className="flex-1">
               <p className="text-lg font-medium">{session.title}</p>
-              <p className={`font-mono text-xs uppercase tracking-wide ${TRACK_COLOR[session.track] ?? "text-paper/60"}`}>
+              <p className={`font-mono text-xs uppercase tracking-wide ${trackColor(session.track).text}`}>
                 {session.track}
               </p>
             </div>

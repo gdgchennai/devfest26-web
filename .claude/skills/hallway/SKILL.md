@@ -64,6 +64,12 @@ middle stays clear, because that is where the destination sits.
 - **`.hallway-corridor`** carries the `perspective` and wraps *only* the flying
   photos. The backdrop, beacon and stack stay outside it; perspective on a
   shared ancestor would skew them too.
+- **It needs an explicit `z-index: 3`.** `perspective` creates a stacking
+  context, so the flying cards' own z-indexes are sealed inside the wrapper and
+  cannot lift them past the destination on their own — left at `auto` the stack
+  (z 2) painted over the entire corridor. Paint order back to front is backdrop
+  0, beacon 1, stack 2, corridor 3. Every flying photo is nearer the camera than
+  the far end of the tunnel, so the corridor as a whole outranks the stack.
 
 `tube` needs roughly twice the photos to read as *lined* rather than
 *scattered* — about 18 in the hallway role against the 10 that fill two walls.
@@ -96,6 +102,18 @@ Past `HANDOFF_END` it **holds** rather than dissolving, and becomes interactive:
   `StackControls.tsx` uses it to enable Prev/Next plus arrow keys.
 - **Browsing the stack never captures scroll.** The pin releases as normal and
   the page scrolls past at any moment; advancing a card is an explicit action.
+- **Solidity and brightness are separate dials, deliberately.** The group's
+  opacity firms up fast (solid by ~20% of the tunnel) so the destination is a
+  real object rather than a see-through smear; `.hallway-haze` then carries how
+  far *back* it reads, clearing gradually across the whole approach.
+
+  A haze is **not** a second darkener — a group at opacity α over the ink
+  backdrop composites to exactly what an ink veil at 1−α gives, so as pure
+  dimming it would be redundant. It earns its place by doing two things opacity
+  cannot: letting the stack be solid *and* recessive at once, and being
+  **tinted**, since distance in air shifts things cooler rather than merely
+  fainter. Conflating the two meant brightness hit full at a third of the way
+  in and then sat there, pulling focus off the corridor for the rest of the run.
 - **Fade the group, never the cards.** `.hallway-stack` carries one opacity and
   the approach transform; `.stack-card` children stay fully opaque with an ink
   backing. Fading them individually stacks semi-transparent photos into mud —
@@ -108,6 +126,52 @@ Past `HANDOFF_END` it **holds** rather than dissolving, and becomes interactive:
 
 Roughly 1.5 viewport-heights of scrolling keep the stack on screen. Lower
 `PILE_END` to lengthen that if browsing feels rushed.
+
+## Nothing enters the corridor from beyond its far end
+
+The stack is the end of the tunnel, so no photo may appear farther away than it.
+That was not enforced: the stack's size came from `bloom`, a curve with no depth
+in it, while the cards come from a real depth model — two coordinate systems,
+nothing tying them together. Measured, cards #7, #8 and #9 were each born
+*smaller* than the stack, reading as behind the destination.
+
+`SPAWN_CLEARANCE` (1.08) floors a card's on-screen size at the destination's
+current size. The floor rises as the stack grows, so later photos enter nearer —
+which is also the honest physics: as the camera closes on the end wall there is
+less runway ahead to appear from.
+
+| Card | Born at | Width before | Width now | Stack |
+|---|---|---|---|---|
+| #7 | 0.310 | 4.2vw | **7.1vw** | 6.6vw |
+| #8 | 0.376 | 6.3vw | **9.8vw** | 9.0vw |
+| #9 | 0.442 | 4.0vw | **13.2vw** | 12.2vw |
+
+Rejected alternative: reframing the destination as an aperture so its size stops
+being a depth cue. An aperture needs a wall to be an aperture *in*, and this
+tunnel has none — the corridor is floating photos with open black between them,
+so a framed window would just be one more floating rectangle, size-ordered
+against its neighbours like everything else.
+
+## Glow and haze both stay, and they are not redundant
+
+They peak at opposite ends and barely overlap:
+
+| Progress | Glow | Haze | Stack brightness | Corridor |
+|---|---|---|---|---|
+| 0.10 | **0.41** | 0.78 | 0.18 | 4 photos |
+| 0.30 | 0.19 | 0.64 | 0.36 | 4 photos |
+| 0.55 | 0.03 | **0.41** | 0.59 | 3 photos |
+| 0.72 | 0.00 | 0.00 | 1.00 | 0 |
+
+The haze holds the destination back while the corridor is busy. The glow makes
+it *locatable* while it is a 7%-scale speck at 0.18 brightness — without it an
+unlit speck that dim is invisible against the ink, which loses the whole "see
+how far is left" affordance. **Strengthening the haze made the glow more
+necessary, not less.** By 0.3 the glow is spent and the stack is large enough to
+read unaided.
+
+Dropping the glow is only viable if the haze is also weakened early, which
+trades away the focus-on-the-corridor benefit it exists to provide.
 
 ## Why there is no progress bar
 
@@ -202,7 +266,8 @@ string like `AJI02236` is an accessibility regression, not a convenience.
 | `ROW_SPAN` / `ROW_GAP` | `0.92` / `1.06` | How much of the width the spread row covers, and the gap between cards. |
 | `ROW_RISE` | `-0.3` | How far up the row travels, as a fraction of viewport height. |
 | `RISE_FROM` | `0.45` | How far the hero copy rises from, same units. |
-| `STACK_VISIBLE_BY` / `STACK_MIN_OPACITY` | `0.45` / `0.18` | Where the destination reaches full opacity, and how visible it is on frame one. **Ramped on `approach`, never on `bloom`** — see the note in the source. |
+| `STACK_VISIBLE_BY` / `STACK_MIN_OPACITY` | `0.22` / `0.55` | Where the destination becomes fully *solid*, and how solid on frame one. **Ramped on `approach`, never on `bloom`** — see the note in the source. |
+| `HAZE_MAX` / `HAZE_FALLOFF` | `0.84` / `0.5` | Atmospheric haze over the destination. **Falloff below 1 holds it longer, above 1 clears it faster** — the reverse of what it reads like, since (1−approach) is itself under 1. Tuned against corridor population, not feel. |
 | `WIDTHS` | 23–44vw cycle | Card widths. **Varied widths are what read as depth** — the photos are all ~3:2, so aspect ratio alone does nothing. |
 
 `perItemVh` is deliberately far below the 1.15 a standalone gallery of this kind

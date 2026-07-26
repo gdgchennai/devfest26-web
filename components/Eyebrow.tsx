@@ -7,7 +7,8 @@ import type { ReactNode, Ref } from "react";
  */
 export type DotColor = "blue" | "red" | "yellow" | "green";
 
-const DOT: Record<DotColor, string> = {
+/** Exported so SectionDivider can carry the same dot as the heading below it. */
+export const DOT: Record<DotColor, string> = {
   blue: "bg-blue",
   red: "bg-red",
   yellow: "bg-yellow",

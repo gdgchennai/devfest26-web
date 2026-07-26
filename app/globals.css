@@ -116,6 +116,15 @@ body {
   inset: 0;
   perspective: 1100px;
   pointer-events: none;
+  /*
+   * Above the stack (2), and it must be explicit. `perspective` creates a
+   * stacking context, so the flying cards' own z-indexes are sealed inside this
+   * wrapper and cannot lift them past the destination on their own — left at
+   * `auto` the stack painted over the whole corridor. Every flying photo is
+   * nearer the camera than the far end of the tunnel, so the corridor as a
+   * whole outranks it.
+   */
+  z-index: 3;
 }
 
 /*
@@ -176,6 +185,253 @@ body {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--paper) 12%, transparent);
 }
 
+/*
+ * Atmospheric haze over the destination — tinted toward the brand blue rather
+ * than flat ink, because distance in air shifts things cooler, not merely
+ * fainter. Sits above the deck but inside the group, so it scales and travels
+ * with it. See HALLWAY_HAZE_CLASS for why this is not just group opacity.
+ */
+.hallway-haze {
+  position: absolute;
+  inset: -2%;
+  z-index: 200;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--blue) 14%, var(--ink));
+  pointer-events: none;
+  will-change: opacity;
+}
+
+
+/*
+ * The header is sticky at 4rem, so anything jumped to by anchor — #main from
+ * the skip link, #after-hero from the hero's escape hatch — landed underneath
+ * it. Applies to native anchor navigation and scrollIntoView; Lenis does its
+ * own maths and is offset at the call site in HeroSection.
+ */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Section dividers (components/SectionDivider.tsx)
+ *
+ * The rule draws itself rightward as the section enters. Done with a CSS
+ * scroll-driven timeline rather than an IntersectionObserver so the divider
+ * needs no JavaScript and no hydration: browsers without `animation-timeline`
+ * simply render the finished state, which is the correct fallback for
+ * something purely decorative.
+ * ------------------------------------------------------------------------ */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-divider__dot {
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.section-divider__index {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--paper) 45%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-divider__rule {
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--paper) 14%, transparent);
+  transform-origin: left center;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-divider__dot {
+      animation: divider-dot linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 45%;
+    }
+
+    .section-divider__index {
+      animation: divider-fade linear both;
+      animation-timeline: view();
+      animation-range: entry 15% entry 55%;
+    }
+
+    .section-divider__rule {
+      animation: divider-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+  }
+}
+
+@keyframes divider-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes divider-dot {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes divider-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Track cards (components/TrackCards.tsx)
+ *
+ * A soft wash of the track's own colour follows the pointer. Both custom
+ * properties are written straight onto the node by the pointermove handler;
+ * only opacity and the gradient position change, so there is no layout work.
+ * ------------------------------------------------------------------------ */
+.track-card {
+  position: relative;
+  --spot-on: 0;
+  --spot-x: 50%;
+  --spot-y: 0%;
+}
+
+.track-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 0.5rem;
+  pointer-events: none;
+  opacity: var(--spot-on);
+  transition: opacity 300ms ease;
+  background: radial-gradient(
+    16rem circle at var(--spot-x) var(--spot-y),
+    color-mix(in srgb, var(--spot-color, var(--blue)) 18%, transparent),
+    transparent 70%
+  );
+}
+
+/* A pointer-tracked highlight is meaningless without a pointer, and on touch
+   the value sticks on after a tap. */
+@media (hover: none) {
+  .track-card::before {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Ticket stub (components/TicketStub.tsx)
+ *
+ * Perforation is a dashed edge plus two ink-filled notches punched out of the
+ * border, so the seam reads as torn rather than as a table cell divider. The
+ * split runs vertically on desktop and horizontally once the stub stacks.
+ * ------------------------------------------------------------------------ */
+.ticket-stub {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--blue) 7%, transparent),
+    transparent 55%
+  );
+}
+
+.ticket-stub__body {
+  flex: 1;
+  padding: 1.75rem;
+}
+
+.ticket-stub__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.75rem;
+  text-align: center;
+}
+
+/*
+ * The seam. `currentColor` is not used here because the notches must match the
+ * page behind the stub exactly, not the text.
+ */
+.ticket-stub__perf {
+  position: relative;
+  flex-shrink: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--paper) 22%, transparent);
+}
+
+.ticket-stub__perf::before,
+.ticket-stub__perf::after {
+  content: "";
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
+}
+
+/* Stacked: notches bite in from the left and right edges. */
+.ticket-stub__perf::before {
+  left: -0.625rem;
+  top: -0.625rem;
+}
+
+.ticket-stub__perf::after {
+  right: -0.625rem;
+  top: -0.625rem;
+}
+
+@media (min-width: 640px) {
+  .ticket-stub {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .ticket-stub__end {
+    width: 16rem;
+  }
+
+  .ticket-stub__perf {
+    border-top: 0;
+    border-left: 1px dashed color-mix(in srgb, var(--paper) 22%, transparent);
+  }
+
+  /* Side by side: notches bite in from the top and bottom edges. */
+  .ticket-stub__perf::before {
+    left: -0.625rem;
+    top: -0.625rem;
+  }
+
+  .ticket-stub__perf::after {
+    left: -0.625rem;
+    top: auto;
+    bottom: -0.625rem;
+    right: auto;
+  }
+}
 
 /* First focusable element: hidden until focused, per WCAG 2.4.1 */
 .skip-link {

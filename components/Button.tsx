@@ -36,6 +36,18 @@ function classesFor(variant: Variant, size: Size, className: string) {
   return `${BASE} ${VARIANT[variant]} ${SIZE[size]} ${className}`.trim();
 }
 
+/*
+ * The same pill, minus the interactivity. Used where there is nothing to link
+ * to yet — chiefly the ticket CTA while `siteConfig.ticketing.url` is null,
+ * which must still occupy the CTA's space and weight without pretending to be
+ * a destination. Exported rather than added as a `disabled` prop because the
+ * result is not a disabled control: it is a statement, and rendering it as a
+ * real <button disabled> would put an unreachable tab stop in the header.
+ */
+export function inertButtonClasses(size: Size = "md", className = "") {
+  return `${BASE} ${SIZE[size]} border border-dashed border-paper/25 text-paper/60 ${className}`.trim();
+}
+
 /** In-site destinations get client navigation; anything else is a real anchor. */
 function isInternal(href: string) {
   return href.startsWith("/") || href.startsWith("#");

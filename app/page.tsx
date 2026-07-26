@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { siteConfig, sponsorTiers } from "@/site.config";
-import { agenda, sponsors } from "@/lib/content";
-import { formatSessionTime } from "@/lib/format";
-import { Button } from "@/components/Button";
-import { SectionHeading } from "@/components/SectionHeading";
-import { EmptyState } from "@/components/EmptyState";
+import { siteConfig } from "@/site.config";
+import { agenda, speakers } from "@/lib/content";
+import { Card } from "@/components/Card";
+import { Section } from "@/components/Section";
 import { Faq } from "@/components/Faq";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection, StaticHero } from "@/components/motion/HeroSection";
+import { TrackCards } from "@/components/TrackCards";
+import { AgendaTimeline } from "@/components/AgendaTimeline";
+import { SpeakerWall } from "@/components/SpeakerWall";
+import { TicketStub } from "@/components/TicketStub";
 
 export default function Home() {
   const previewSessions = agenda.slice(0, 4);
@@ -20,105 +22,63 @@ export default function Home() {
         <HeroSection />
       </SectionBoundary>
 
-      {/* What you'll get */}
-      <section id="after-hero" className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Why come" title="What you'll get" dotColor="blue" />
+      {/* `id` is load-bearing: the skip link and the hero's escape hatch both
+          target it. No divider — the hero is already its own boundary. */}
+      <Section
+        id="after-hero"
+        index={1}
+        eyebrow="Why come"
+        title="What you'll get"
+        dotColor="blue"
+        divider={false}
+      >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {siteConfig.whatYoullGet.map((item) => (
-            <div key={item.title} className="rounded-lg border border-paper/10 p-5">
+            <Card key={item.title} className="h-full">
               <h3 className="font-semibold">{item.title}</h3>
               <p className="mt-2 text-sm text-paper/70">{item.description}</p>
-            </div>
+            </Card>
           ))}
         </div>
-      </section>
+      </Section>
 
       {/* Why join us — 4 items, stated still (cut from 2025's 12-item marquee) */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="The pitch" title="Why join us" dotColor="red" />
+      <Section index={2} eyebrow="The pitch" title="Why join us" dotColor="red">
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {siteConfig.whyJoinUs.map((reason) => (
-            <li key={reason} className="rounded-lg bg-paper/5 p-5 text-paper/85">
-              {reason}
+            <li key={reason}>
+              <Card className="h-full text-paper/85">{reason}</Card>
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      {/* Tracks */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Four lanes" title="Tracks" dotColor="yellow" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {siteConfig.tracks.map((track) => (
-            <div key={track.slug} className="rounded-lg border border-paper/10 p-5">
-              <h3 className="font-mono text-sm uppercase tracking-wide text-blue">{track.name}</h3>
-              <p className="mt-2 text-sm text-paper/70">{track.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Section index={3} eyebrow="Four lanes" title="Tracks" dotColor="yellow">
+        <TrackCards tracks={siteConfig.tracks} />
+      </Section>
 
-      {/* Agenda preview */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Sample schedule" title="Agenda preview" dotColor="green" />
+      <Section index={4} eyebrow="Sample schedule" title="Agenda preview" dotColor="green">
         <p className="-mt-4 mb-6 text-sm text-paper/60">
           Final sessions and speakers are still being confirmed — this is a placeholder shape of
           the day.
         </p>
-        <div className="divide-y divide-paper/10 rounded-lg border border-paper/10">
-          {previewSessions.map((session, i) => (
-            <div key={i} className="flex items-center gap-4 p-4">
-              <span className="font-mono text-sm tabular-nums text-paper/60">
-                {formatSessionTime(session.start)}
-              </span>
-              <span className="flex-1">{session.title}</span>
-              <span className="font-mono text-xs uppercase text-paper/50">{session.hall}</span>
-            </div>
-          ))}
-        </div>
-        <Link
-          href="/agenda"
-          className="mt-4 inline-block text-sm text-blue underline-offset-4 hover:underline"
-        >
-          View full agenda →
-        </Link>
-      </section>
+        <AgendaTimeline sessions={previewSessions} />
+      </Section>
 
-      {/* Sponsors */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Thank you" title="Sponsors" dotColor="blue" />
-        <div className="space-y-8">
-          {sponsorTiers.map(({ tier, label }) => {
-            const tierSponsors = sponsors.filter((s) => s.tier === tier);
-            return (
-              <div key={tier}>
-                <h3 className="mb-3 font-mono text-xs uppercase tracking-wide text-paper/60">
-                  {label}
-                </h3>
-                {tierSponsors.length === 0 ? (
-                  <EmptyState
-                    message={`${label} sponsors will be announced soon.`}
-                    linkHref="/sponsors"
-                    linkLabel="View sponsorship tiers"
-                  />
-                ) : (
-                  <div className="flex flex-wrap gap-6">
-                    {tierSponsors.map((s) => (
-                      <span key={s.name} className="text-paper/80">
-                        {s.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* Lineup, shown as open places while speakers.json is empty — the CFP
+          pitch belongs where someone is already looking for speakers. */}
+      <Section index={5} eyebrow="Lineup" title="Speakers" dotColor="blue">
+        <p className="-mt-4 mb-6 text-sm text-paper/60">
+          {speakers.length === 0
+            ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
+            : "More speakers still to be announced."}
+        </p>
+        <SpeakerWall />
+      </Section>
 
-      {/* Venue teaser */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Where" title="Venue" dotColor="red" />
+      {/* No sponsors section this year — see /sponsors for the tier page. */}
+
+      <Section index={6} eyebrow="Where" title="Venue" dotColor="red">
         <p className="max-w-xl text-paper/80">
           {siteConfig.venue.line1}, {siteConfig.venue.line2}
           {!siteConfig.venue.confirmed && " — pending final confirmation."}
@@ -129,20 +89,14 @@ export default function Home() {
         >
           Venue details & travel →
         </Link>
-      </section>
+      </Section>
 
-      {/* FAQ */}
-      <section className="px-4 py-20 sm:px-8">
-        <SectionHeading eyebrow="Questions" title="FAQ" dotColor="yellow" />
+      <Section index={7} eyebrow="Questions" title="FAQ" dotColor="yellow">
         <Faq />
-      </section>
+      </Section>
 
-      {/* Final CTA */}
-      <section className="px-4 py-24 text-center sm:px-8">
-        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">See you there.</h2>
-        <Button href={siteConfig.ticketing.url ?? "/agenda"} size="lg" className="mt-6">
-          Get Tickets
-        </Button>
+      <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
+        <TicketStub />
       </section>
     </>
   );

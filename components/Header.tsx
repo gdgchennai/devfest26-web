@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { Button } from "@/components/Button";
+import { Button, inertButtonClasses } from "@/components/Button";
+import { HeaderNav, HeaderMenu } from "@/components/HeaderNav";
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
+import { ticketCta } from "@/lib/cta";
 
 export function Header() {
   const nav = siteConfig.nav.filter((item) => {
@@ -9,45 +11,30 @@ export function Header() {
     return true;
   });
 
+  const cta = ticketCta();
+
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between bg-ink px-4 sm:px-8">
+    // The hairline is what separates the bar from content scrolling beneath
+    // it; bg-ink alone gave a sticky header with no edge, so rows appeared to
+    // be sliced off mid-scroll.
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-paper/10 bg-ink px-4 sm:px-8">
       <Link href="/" className="font-semibold tracking-tight">
         {siteConfig.shortName}
       </Link>
 
-      <nav className="hidden items-center gap-6 md:flex">
-        {nav.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="text-sm text-paper/80 decoration-blue underline-offset-4 hover:text-paper hover:underline"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <HeaderNav nav={nav} />
 
       <div className="flex items-center gap-3">
-        <Button href={siteConfig.ticketing.url ?? "/agenda"} size="sm">
-          Get Tickets
-        </Button>
+        {cta.available ? (
+          <Button href={cta.href} size="sm">
+            {cta.label}
+          </Button>
+        ) : (
+          // Not a link: there is nowhere to go yet. See lib/cta.ts.
+          <span className={`hidden sm:inline-block ${inertButtonClasses("sm")}`}>{cta.label}</span>
+        )}
 
-        <details className="relative md:hidden">
-          <summary className="list-none cursor-pointer rounded p-2 text-paper/80 hover:text-paper [&::-webkit-details-marker]:hidden">
-            Menu
-          </summary>
-          <nav className="absolute right-0 top-full mt-2 flex w-44 flex-col gap-1 rounded-lg bg-ink p-2 shadow-lg ring-1 ring-paper/10">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded px-3 py-2 text-sm text-paper/80 hover:bg-paper/10 hover:text-paper"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </details>
+        <HeaderMenu nav={nav} />
       </div>
     </header>
   );

@@ -98,15 +98,26 @@ leaving a hole, because it will be empty for months.
 | "What you'll get" — Talks / Hiring / Workshops / Community | Keep, four items, tight |
 | "Why join us" — 12-item scrolling marquee | **Cut to 4.** See below. |
 | Event highlights — 4 items | Merge into "What you'll get"; they overlap heavily |
-| Agenda preview — first few sessions | Keep, pulls from the same data as `/agenda` |
+| Agenda preview — first few sessions | Keep, as a timeline spine. Same data as `/agenda` |
 | Insider tips — 9-item marquee | Keep, but move to `/agenda` where it's actually useful |
-| Tracks — 4 lanes | Keep |
-| Sponsors | Keep |
+| Tracks — 4 lanes | Keep. One Google colour each — see `lib/track-color.ts` |
+| Sponsors | **Cut for 2026.** No sponsorship section on the homepage this year. `/sponsors` still exists as the tier page |
 | Venue — address, map, amenities | Keep, link to `/venue` |
 | FAQ — 5 questions | Keep, expand |
 | Memories — 11 photos from 2024 | **This becomes the hallway.** |
-| Final CTA | Keep |
+| Final CTA | Keep, as a ticket stub — see below |
 | Social footer — X, LinkedIn, Instagram, YouTube, GitHub, Discord | Keep |
+| _New:_ Speakers | Added for 2026. A roster with visible open places; the CFP invitation sits in the lineup |
+
+The 2026 homepage runs: hero → What you'll get → Why join us → Tracks → Agenda preview →
+Speakers → Venue → FAQ → ticket stub. Sections 2–7 are numbered and separated by a drawn
+divider (`components/SectionDivider.tsx`); every one is wrapped in `components/Section.tsx`,
+which owns the shared `max-w-6xl` container.
+
+**On the ticket stub:** the closing CTA is printed as a perforated ticket with mono `DATE` and
+`VENUE` fields. This is deliberate given the section below — while `siteConfig.date` is null and
+`ticketing.url` is null, "TBA" on a ticket reads as a ticket not yet issued, where the same fact
+as body copy reads as an unfinished page.
 
 **On the marquees:** the 2025 "Why join us" marquee has twelve items duplicated four times in the
 DOM — 48 nodes to achieve a loop. Two problems. Technically, a CSS marquee needs exactly two
@@ -150,6 +161,16 @@ Almost everything about 2026 is undecided, so build for absence explicitly:
 - Every section renders a designed empty state, not a blank gap. `/speakers` with zero speakers
   should say the lineup is being finalised and link to the CFP — that's a useful page, not a
   broken one.
+- Prefer an **open roster over an apology.** `components/SlotGrid.tsx` renders a list whose content
+  hasn't landed as fixed places: the filled ones, one live invitation, and the rest as ghost
+  outlines. The reader sees how many places exist and that one is theirs, instead of a sentence
+  saying the list is empty. `components/SpeakerWall.tsx` is the consumer — its invitation reads
+  "This could be you" and points at `speakerCta()` in `lib/cta.ts`, which prefers
+  `siteConfig.cfp.formUrl` (Sessionize) and falls back to `/cfp`.
+- **Never render a label the config cannot honour.** `lib/cta.ts` is the single place that decides
+  this. While `ticketing.url` is null there is nowhere to buy a ticket, so the header and the
+  closing CTA say "Tickets open soon" as inert text rather than showing a "Get Tickets" button
+  that silently lands on `/agenda`.
 - `site.config.ts` supports `date: null`, which renders "Date to be announced" everywhere at once.
   One switch, one truth, no possibility of the 2025 contradiction repeating.
 - Gate whole routes on content: if `speakers.length === 0`, drop Speakers from the nav rather than
