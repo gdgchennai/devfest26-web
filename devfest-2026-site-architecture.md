@@ -172,14 +172,47 @@ visitor gets the full route list and no false lead.
 | _New:_ Speakers | Added for 2026. A roster with visible open places; the CFP invitation sits in the lineup |
 
 The 2026 homepage runs: hero → What you'll get → Why join us → Tracks → Agenda preview →
-Speakers → Venue → FAQ → ticket stub. Sections 2–7 are numbered and separated by a drawn
-divider (`components/SectionDivider.tsx`); every one is wrapped in `components/Section.tsx`,
-which owns the shared `max-w-6xl` container.
+Speakers → Venue → FAQ → ticket stub. Every one is wrapped in `components/Section.tsx`, which
+owns the shared `max-w-6xl` container, and all but the first are separated by a drawn divider
+(`components/SectionDivider.tsx`).
+
+**The divider is a bare hairline — no dot, no chapter number.** It carried both briefly and both
+were wrong. The dot repeated the coloured dot in the SectionHeading's eyebrow two rows below it:
+same colour, same size, no new information. The number was worse — the first section sits under
+the hero and has no divider, so the first index a reader ever saw was "02", and the only fix
+would have been to put a rule in the one place it doesn't belong. What remains is the draw
+itself, which was the part doing the work. Section colour still comes through, once, via the
+eyebrow.
 
 **On the ticket stub:** the closing CTA is printed as a perforated ticket with mono `DATE` and
-`VENUE` fields. This is deliberate given the section below — while `siteConfig.date` is null and
+`VENUE` fields. This is deliberate given the section below — when `siteConfig.date` is null and
 `ticketing.url` is null, "TBA" on a ticket reads as a ticket not yet issued, where the same fact
 as body copy reads as an unfinished page.
+
+Its colour is split in two on purpose. The four brand colours run at **full strength along a 2px
+top edge**, where no text sits on them, and as an **8% wash** across the body. A saturated
+four-hue gradient behind body copy makes contrast vary by region and reads like a generic SaaS
+hero rather than DevFest; the edge lets the palette be unapologetic where it costs nothing. The
+torn half is lifted 5% lighter than the body so the perforation reads as a real seam rather than
+a dashed line.
+
+`components/TiltCard.tsx` gives it a small pointer-tracked tilt and a foil sheen, both opted into
+in CSS behind `hover: hover` and `prefers-reduced-motion: no-preference`. **The tilt is capped at
+3.5°** — this is the site's one conversion element, and a card that swings far enough to move its
+own button out from under an approaching cursor costs more than the effect is worth.
+
+### Contrast floor
+
+**Muted text on this site must be checked, not eyeballed.** Every low-opacity label is composited
+over ink (`#1e1e1e`), and the intuition for how dark that gets is unreliable — `text-paper/50`
+lands at **4.64:1**, barely over the 4.5:1 floor, not the comfortable margin it looks like.
+Anything below `paper/50` on ink fails, and on a lifted panel (`Card`, the stub end, the 404
+pills) the floor rises again: `paper/45` on a `paper/3%` card is **3.91:1**, `paper/40` is
+**3.39:1**.
+
+Rules of thumb, all verified rather than estimated: **`paper/60` is the safe minimum for small
+text on any surface** on this site; `paper/55` is the minimum on a 3% panel; never go below
+`paper/50` anywhere. Check against the *lightest* point a gradient reaches, not flat ink.
 
 **On the marquees:** the 2025 "Why join us" marquee has twelve items duplicated four times in the
 DOM — 48 nodes to achieve a loop. Two problems. Technically, a CSS marquee needs exactly two

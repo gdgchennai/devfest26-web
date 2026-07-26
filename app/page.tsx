@@ -26,7 +26,6 @@ export default function Home() {
           target it. No divider — the hero is already its own boundary. */}
       <Section
         id="after-hero"
-        index={1}
         eyebrow="Why come"
         title="What you'll get"
         dotColor="blue"
@@ -43,7 +42,7 @@ export default function Home() {
       </Section>
 
       {/* Why join us — 4 items, stated still (cut from 2025's 12-item marquee) */}
-      <Section index={2} eyebrow="The pitch" title="Why join us" dotColor="red">
+      <Section eyebrow="The pitch" title="Why join us" dotColor="red">
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {siteConfig.whyJoinUs.map((reason) => (
             <li key={reason}>
@@ -53,11 +52,11 @@ export default function Home() {
         </ul>
       </Section>
 
-      <Section index={3} eyebrow="Four lanes" title="Tracks" dotColor="yellow">
+      <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
         <TrackCards tracks={siteConfig.tracks} />
       </Section>
 
-      <Section index={4} eyebrow="Sample schedule" title="Agenda preview" dotColor="green">
+      <Section eyebrow="Sample schedule" title="Agenda preview" dotColor="green">
         <p className="-mt-4 mb-6 text-sm text-paper/60">
           Final sessions and speakers are still being confirmed — this is a placeholder shape of
           the day.
@@ -67,7 +66,7 @@ export default function Home() {
 
       {/* Lineup, shown as open places while speakers.json is empty — the CFP
           pitch belongs where someone is already looking for speakers. */}
-      <Section index={5} eyebrow="Lineup" title="Speakers" dotColor="blue">
+      <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
         <p className="-mt-4 mb-6 text-sm text-paper/60">
           {speakers.length === 0
             ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
@@ -79,7 +78,7 @@ export default function Home() {
       {/* No sponsors section: 2026 is not running sponsorship at all. The
           route and its data are gone too — see the architecture doc. */}
 
-      <Section index={6} eyebrow="Where" title="Venue" dotColor="red">
+      <Section eyebrow="Where" title="Venue" dotColor="red">
         <p className="max-w-xl text-paper/80">
           {siteConfig.venue.line1}, {siteConfig.venue.line2}
           {!siteConfig.venue.confirmed && " — pending final confirmation."}
@@ -92,7 +91,7 @@ export default function Home() {
         </Link>
       </Section>
 
-      <Section index={7} eyebrow="Questions" title="FAQ" dotColor="yellow">
+      <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
         <Faq />
       </Section>
 

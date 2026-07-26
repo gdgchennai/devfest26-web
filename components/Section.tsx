@@ -15,7 +15,6 @@ import type { DotColor } from "@/components/Eyebrow";
  */
 export function Section({
   id,
-  index,
   eyebrow,
   title,
   dotColor = "blue",
@@ -24,7 +23,6 @@ export function Section({
   divider = true,
 }: {
   id?: string;
-  index: number;
   eyebrow: string;
   title: string;
   dotColor?: DotColor;
@@ -33,7 +31,7 @@ export function Section({
 }) {
   return (
     <section id={id} className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-8">
-      {divider && <SectionDivider index={index} dotColor={dotColor} />}
+      {divider && <SectionDivider />}
       <div className={divider ? "pt-10" : ""}>
         <SectionHeading eyebrow={eyebrow} title={title} dotColor={dotColor} />
         {children}

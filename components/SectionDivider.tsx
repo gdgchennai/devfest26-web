@@ -1,32 +1,20 @@
-import { DOT, type DotColor } from "@/components/Eyebrow";
-
 /**
- * The rule between homepage sections: the section's colour dot, its index, and
- * a hairline that draws itself rightward as the section enters the viewport.
+ * The rule between sections: a hairline that draws itself rightward as the
+ * section enters.
  *
- * Deliberately has no JavaScript. The draw is a CSS scroll-driven animation
- * (`animation-timeline: view()`), so there is no observer to hydrate, nothing
- * to flash before the first frame, and browsers without support simply get the
- * finished rule — see the @supports block in globals.css. That also means it
- * cannot read the lite-mode flag, which is in localStorage; acceptable here,
- * because prefers-reduced-motion is honoured in CSS and a 1px scaleX is
- * compositor-only work either way.
+ * It carried a coloured dot and a chapter number until both turned out to be
+ * redundant. The dot repeated the one in the SectionHeading's eyebrow two rows
+ * below it — same colour, same size, no new information. The number was worse
+ * than redundant: the first homepage section sits directly under the hero and
+ * has no divider, so the first index a reader ever saw was "02", and the only
+ * way to fix that was to put a rule in the one place it doesn't belong.
+ *
+ * What's left is the part that was doing the work. Deliberately has no
+ * JavaScript — the draw is a CSS scroll-driven animation
+ * (`animation-timeline: view()`), so there is no observer to hydrate and
+ * nothing to flash before the first frame. Browsers without support get the
+ * finished rule, which is the correct fallback for something decorative.
  */
-export function SectionDivider({
-  index,
-  dotColor,
-}: {
-  /** Omit outside the numbered homepage run — a "01" on the 404 means nothing. */
-  index?: number;
-  dotColor: DotColor;
-}) {
-  return (
-    <div className="section-divider" aria-hidden>
-      <span className={`section-divider__dot ${DOT[dotColor]}`} />
-      {index !== undefined && (
-        <span className="section-divider__index">{String(index).padStart(2, "0")}</span>
-      )}
-      <span className="section-divider__rule" />
-    </div>
-  );
+export function SectionDivider() {
+  return <div className="section-divider" aria-hidden />;
 }

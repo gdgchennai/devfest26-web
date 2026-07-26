@@ -73,7 +73,7 @@ export function NotFoundHighlights() {
 function HighlightCard({ item }: { item: Highlight }) {
   const body = (
     <>
-      <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/45">
+      <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/60">
         {item.eyebrow}
       </span>
       <span className="mt-2 block text-lg font-semibold">
@@ -82,7 +82,7 @@ function HighlightCard({ item }: { item: Highlight }) {
       </span>
       <span className="mt-1 block text-sm text-paper/70">{item.description}</span>
       {item.note && (
-        <span className="mt-2 block font-mono text-[0.6875rem] text-paper/40">{item.note}</span>
+        <span className="mt-2 block font-mono text-[0.6875rem] text-paper/60">{item.note}</span>
       )}
     </>
   );

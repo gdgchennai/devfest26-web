@@ -213,37 +213,16 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
- * Section dividers (components/SectionDivider.tsx)
+ * Section divider (components/SectionDivider.tsx)
  *
- * The rule draws itself rightward as the section enters. Done with a CSS
- * scroll-driven timeline rather than an IntersectionObserver so the divider
- * needs no JavaScript and no hydration: browsers without `animation-timeline`
- * simply render the finished state, which is the correct fallback for
- * something purely decorative.
+ * A bare hairline that draws itself rightward as the section enters. Done with
+ * a CSS scroll-driven timeline rather than an IntersectionObserver so it needs
+ * no JavaScript and no hydration: browsers without `animation-timeline` simply
+ * render the finished rule, which is the correct fallback for something purely
+ * decorative. The dot and chapter number it used to carry were redundant
+ * against the SectionHeading eyebrow directly below — see the component.
  * ------------------------------------------------------------------------ */
 .section-divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.section-divider__dot {
-  height: 0.5rem;
-  width: 0.5rem;
-  flex-shrink: 0;
-  border-radius: 9999px;
-}
-
-.section-divider__index {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--paper) 45%, transparent);
-  font-variant-numeric: tabular-nums;
-}
-
-.section-divider__rule {
-  flex: 1;
   height: 1px;
   background: color-mix(in srgb, var(--paper) 14%, transparent);
   transform-origin: left center;
@@ -251,19 +230,7 @@ body {
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .section-divider__dot {
-      animation: divider-dot linear both;
-      animation-timeline: view();
-      animation-range: entry 5% entry 45%;
-    }
-
-    .section-divider__index {
-      animation: divider-fade linear both;
-      animation-timeline: view();
-      animation-range: entry 15% entry 55%;
-    }
-
-    .section-divider__rule {
+    .section-divider {
       animation: divider-draw linear both;
       animation-timeline: view();
       animation-range: entry 5% entry 70%;
@@ -277,26 +244,6 @@ body {
   }
   to {
     transform: scaleX(1);
-  }
-}
-
-@keyframes divider-dot {
-  from {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes divider-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 
@@ -346,16 +293,78 @@ body {
  * split runs vertically on desktop and horizontally once the stub stacks.
  * ------------------------------------------------------------------------ */
 .ticket-stub {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-radius: 0.75rem;
   border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
+  /*
+   * All four brand colours, but as a wash at 8% rather than a saturated
+   * gradient. The ticket is a text surface: a full-strength four-hue gradient
+   * behind body copy makes contrast vary by region, and reads like a generic
+   * SaaS hero rather than DevFest. At this alpha it gives the panel warmth and
+   * the colour identity is carried properly by the edge below.
+   *
+   * 8% of yellow is the lightest point this can reach; every text colour on
+   * the ticket is checked against that worst case, not against flat ink.
+   */
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--blue) 7%, transparent),
-    transparent 55%
+    color-mix(in srgb, var(--blue) 8%, transparent),
+    color-mix(in srgb, var(--red) 6%, transparent) 38%,
+    color-mix(in srgb, var(--yellow) 8%, transparent) 68%,
+    color-mix(in srgb, var(--green) 6%, transparent)
   );
+}
+
+/*
+ * The four colours at full strength, confined to a 2px edge where there is no
+ * text to sit on them. This is where the ticket says "Google" — a place a
+ * gradient can be unapologetic without costing a single contrast point.
+ */
+.ticket-stub::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    var(--blue),
+    var(--red) 34%,
+    var(--yellow) 67%,
+    var(--green)
+  );
+}
+
+/* The foil sheen. Paint only — it never moves anything. */
+.ticket-stub::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    22rem circle at var(--sheen-x, 50%) var(--sheen-y, 50%),
+    color-mix(in srgb, var(--paper) 10%, transparent),
+    transparent 65%
+  );
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ticket-stub::after {
+    opacity: var(--sheen-on, 0);
+    transition: opacity 300ms ease;
+  }
+}
+
+/* Above the sheen, which sits at z-index 0. */
+.ticket-stub__body,
+.ticket-stub__end {
+  position: relative;
+  z-index: 1;
 }
 
 .ticket-stub__body {
@@ -370,6 +379,12 @@ body {
   justify-content: center;
   padding: 1.75rem;
   text-align: center;
+  /*
+   * The torn-off half, lifted clear of the body so the perforation reads as a
+   * real seam rather than a decorative dashed line. Costs contrast: every
+   * label on this panel had to move up an opacity step to stay above 4.5:1.
+   */
+  background: color-mix(in srgb, var(--paper) 5%, transparent);
 }
 
 /*
@@ -378,6 +393,7 @@ body {
  */
 .ticket-stub__perf {
   position: relative;
+  z-index: 1;
   flex-shrink: 0;
   border-top: 1px dashed color-mix(in srgb, var(--paper) 22%, transparent);
 }
@@ -430,6 +446,29 @@ body {
     top: auto;
     bottom: -0.625rem;
     right: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Tilt card (components/TiltCard.tsx)
+ *
+ * The transform is declared only inside the positive media query, so on touch
+ * and under reduced-motion the element is never transformed at all — no
+ * override to fight, and no stuck rotation after a tap.
+ * ------------------------------------------------------------------------ */
+.tilt-scene {
+  perspective: 1000px;
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tilt-card {
+    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    transition: transform 220ms ease-out;
+    will-change: transform;
   }
 }
 

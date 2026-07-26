@@ -1,4 +1,5 @@
 import { Button, inertButtonClasses } from "@/components/Button";
+import { TiltCard } from "@/components/TiltCard";
 import { siteConfig, formatEventDate } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 
@@ -11,15 +12,22 @@ import { ticketCta } from "@/lib/cta";
  * body copy that reads as an unfinished page. Printed as mono fields on a
  * ticket, "TBA" reads as a ticket that has not been issued yet, which is
  * exactly the true state of things.
+ *
+ * Every muted label here is one opacity step higher than it looks like it
+ * needs to be. The panel behind them is a four-colour wash and the torn half
+ * is lifted 5% lighter again, and at the original values `Date`/`Venue`
+ * (4.02:1) and the stub labels (3.83–4.37:1) all sat under the 4.5:1 floor for
+ * text this size. Checked against the lightest point the gradient reaches, not
+ * against flat ink.
  */
 export function TicketStub() {
   const cta = ticketCta();
   const dateKnown = siteConfig.date !== null;
 
   return (
-    <div className="ticket-stub">
+    <TiltCard className="ticket-stub">
       <div className="ticket-stub__body">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/50">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/60">
           {siteConfig.chapter} presents
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -34,7 +42,7 @@ export function TicketStub() {
           <Field label="Venue">
             {siteConfig.venue.name}
             {!siteConfig.venue.confirmed && (
-              <span className="text-paper/45"> · unconfirmed</span>
+              <span className="text-paper/60"> · unconfirmed</span>
             )}
           </Field>
         </dl>
@@ -43,7 +51,7 @@ export function TicketStub() {
       <div className="ticket-stub__perf" aria-hidden />
 
       <div className="ticket-stub__end">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/50">Admit one</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/65">Admit one</p>
 
         {cta.available ? (
           <Button href={cta.href} size="lg" className="mt-4">
@@ -52,18 +60,18 @@ export function TicketStub() {
         ) : (
           <>
             <p className={`mt-4 ${inertButtonClasses("lg")}`}>{cta.label}</p>
-            <p className="mt-2 font-mono text-[0.6875rem] text-paper/45">{cta.note}</p>
+            <p className="mt-2 font-mono text-[0.6875rem] text-paper/60">{cta.note}</p>
           </>
         )}
       </div>
-    </div>
+    </TiltCard>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/45">{label}</dt>
+      <dt className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/60">{label}</dt>
       <dd className="mt-0.5 text-sm text-paper/90">{children}</dd>
     </div>
   );

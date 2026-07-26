@@ -55,7 +55,7 @@ export default function NotFound() {
       </div>
 
       <div className="mt-10">
-        <SectionDivider dotColor="yellow" />
+        <SectionDivider />
       </div>
 
       <h2 className="mt-8 text-lg font-semibold tracking-tight">
@@ -81,7 +81,7 @@ export default function NotFound() {
               className="flex items-baseline gap-2 rounded-full border border-paper/10 bg-paper/[0.03] px-4 py-2 text-sm transition-colors hover:border-paper/25 hover:bg-paper/[0.06]"
             >
               {route.label}
-              <span className="font-mono text-xs text-paper/40">{route.href}</span>
+              <span className="font-mono text-xs text-paper/55">{route.href}</span>
             </Link>
           </li>
         ))}
@@ -90,7 +90,7 @@ export default function NotFound() {
       {CONSOLATION && (
         <>
           <div className="mt-12">
-            <SectionDivider dotColor="blue" />
+            <SectionDivider />
           </div>
 
           <Link href="/memories" className="group mt-8 block sm:flex sm:items-center sm:gap-6">

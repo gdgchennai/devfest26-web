@@ -86,6 +86,14 @@ const STACK_MIN_OPACITY = 0.55;
 export const HALLWAY_HAZE_CLASS = "hallway-haze";
 const HAZE_MAX = 0.84;
 /**
+ * Haze the destination keeps even at the mouth of the tunnel. It should not
+ * arrive at full brightness while it is still the far end of a corridor — a
+ * distant thing that becomes perfectly clear stops reading as distant. Cleared
+ * only across the spread, once it stops being a destination and becomes the
+ * hero's picture row.
+ */
+const HAZE_MIN = 0.12;
+/**
  * Exponent on (1 − approach). **Below 1 holds the haze longer; above 1 clears
  * it faster** — the opposite of what reads intuitively, because (1−a) is itself
  * less than 1, so raising the power shrinks it.
@@ -123,8 +131,15 @@ const CORRIDOR_LAYOUT: CorridorLayout = "walls";
  * which is exactly where the destination sits, so the newest photo covered it
  * at every single moment of the tunnel. Elliptical because the stack is 3:2.
  */
-const CORRIDOR_X = 0.24;
-const CORRIDOR_Y = 0.16;
+const CORRIDOR_X = 0.14;
+const CORRIDOR_Y = 0.1;
+
+/**
+ * Aspect of `.hallway-stack` — kept in step with the `aspect-ratio` on that
+ * class in globals.css, so the birth radius below can clear the destination
+ * vertically as well as horizontally.
+ */
+const STACK_ASPECT = 1.5;
 /** Scales the outward drift, since placements are now unit vectors. */
 const SPREAD = 0.6;
 
@@ -142,7 +157,20 @@ const SPREAD = 0.6;
  * the end wall there is less runway ahead, so later photos have no choice but to
  * appear nearer.
  */
-const SPAWN_CLEARANCE = 1.08;
+const SPAWN_CLEARANCE = 1;
+
+/**
+ * Fraction of a photo's life spent resolving as it emerges, and the shorter
+ * fraction spent fading as it passes.
+ *
+ * A photo is born at the far end, which is the hazed end — so it should come
+ * out of that atmosphere at the same rate the destination clears, not snap in.
+ * Its own fade-in *is* its dehazing, which is why lengthening this reads as
+ * emerging from the haze rather than appearing in front of it. The exit stays
+ * short: it is rushing past a camera, not receding.
+ */
+const EMERGE = 0.34;
+const DEPART = 0.16;
 
 /**
  * Tilt toward the corridor axis, in degrees, so photos read as hung on walls
@@ -350,8 +378,28 @@ export function usePhotoHallway({
     function renderFlyCards(progress: number) {
       const travelled = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
       const cam = gsap.utils.interpolate(camStart, camEnd, travelled);
-      // Nothing may enter the corridor from beyond its far end.
-      const minPx = stackWidthNow(progress) * SPAWN_CLEARANCE;
+      /*
+       * The destination is the corridor's vanishing point, so photos are born
+       * *at its edge, at its size* — same size reading as same depth, sitting
+       * on the far wall beside it rather than materialising somewhere in front.
+       *
+       * Both the birth radius and the birth size therefore track the stack: it
+       * is a speck early, so photos emerge from close to the centre point; it
+       * is large later, so they peel off its edges. A fixed corridor width and
+       * a fixed birth size were two constants that merely happened not to
+       * collide, which is why a photo still read as coming from behind it.
+       *
+       * They are born *beside* rather than *behind* deliberately. Emerging from
+       * behind would be the truer image, but it needs per-card depth sorting
+       * across the stack, and `.hallway-corridor` is one stacking context above
+       * it — splitting that would mean re-parenting cards mid-flight.
+       */
+      const stackPx = stackWidthNow(progress);
+      const minPx = stackPx * SPAWN_CLEARANCE;
+      // Centre-to-centre clearance is half the stack plus half the card, and at
+      // birth the card matches the stack — so one full stack dimension.
+      const birthRx = Math.max(CORRIDOR_X, stackPx / (vw * 0.5));
+      const birthRy = Math.max(CORRIDOR_Y, stackPx / STACK_ASPECT / (vh * 0.5));
 
       for (let i = 0; i < flyCards.length; i += 1) {
         const el = flyCards[i];
@@ -375,8 +423,8 @@ export function usePhotoHallway({
         // look like they are sliding rather than passing the camera. The
         // corridor term is the floor that keeps the middle clear.
         const drift = Math.pow(p, 1.4) * scale * SPREAD;
-        const dx = ux * (CORRIDOR_X + drift) * vw * 0.5;
-        const dy = uy * (CORRIDOR_Y + drift) * vh * 0.5;
+        const dx = ux * (birthRx + drift) * vw * 0.5;
+        const dy = uy * (birthRy + drift) * vh * 0.5;
         // Turn to face the axis, more sharply as the angle grows oblique.
         const tilt = 0.6 + 0.4 * p;
         const ry = -ux * TILT_Y * tilt;
@@ -385,7 +433,7 @@ export function usePhotoHallway({
         // Direct style writes rather than gsap.set(): this runs for every card
         // every frame, and gsap.set re-parses unit strings and walks its
         // property pipeline each time.
-        el.style.opacity = clamp(Math.min(p / 0.14, (1 - p) / 0.16)).toFixed(3);
+        el.style.opacity = clamp(Math.min(p / EMERGE, (1 - p) / DEPART)).toFixed(3);
         el.style.transform =
           `translate(-50%, -50%) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) ` +
           `rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
@@ -449,9 +497,12 @@ export function usePhotoHallway({
 
       if (haze) {
         // Driven off the same `approach` as everything else here, so it cannot
-        // drift out of step with the stack it sits on. Gone by the time the
-        // tunnel ends, which is also when the row starts spreading.
-        haze.style.opacity = (Math.pow(1 - approach, HAZE_FALLOFF) * HAZE_MAX).toFixed(3);
+        // drift out of step with the stack it sits on. Never reaches zero
+        // during the tunnel — only the spread clears the residue, at the point
+        // the stack stops being a destination and becomes the picture row.
+        const atmospheric =
+          HAZE_MIN + (HAZE_MAX - HAZE_MIN) * Math.pow(1 - approach, HAZE_FALLOFF);
+        haze.style.opacity = (atmospheric * (1 - spread)).toFixed(3);
       }
 
       if (beacon) {
