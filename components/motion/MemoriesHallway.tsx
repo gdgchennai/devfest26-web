@@ -8,6 +8,7 @@ import {
   cardWidthVw,
   HALLWAY_CARD_CLASS,
   HALLWAY_BACKDROP_CLASS,
+  HALLWAY_BEACON_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import type { ArchivePhoto } from "@/lib/schemas";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -34,6 +35,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
     // black block sitting in the middle of the page.
     <section ref={sectionRef} className="relative mb-12 min-h-[100vh] overflow-hidden rounded-lg">
       <div className={HALLWAY_BACKDROP_CLASS} />
+      <div className={HALLWAY_BEACON_CLASS} />
       <div className="absolute inset-0">
         {photos.map((photo, i) => (
           <div

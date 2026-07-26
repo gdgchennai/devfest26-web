@@ -1,5 +1,4 @@
 import { forwardRef } from "react";
-import { siteConfig } from "@/site.config";
 import type { FallbackColor } from "@/lib/fallback-color";
 
 const DOT_COLOR_VAR: Record<FallbackColor, string> = {
@@ -12,19 +11,20 @@ const DOT_COLOR_VAR: Record<FallbackColor, string> = {
 type LoaderProps = {
   progress: number;
   dotColor: FallbackColor;
-  showEscapeHatch: boolean;
 };
 
+/**
+ * The counter only. This renders inside the curtain, which is aria-hidden — so
+ * nothing here reaches assistive tech and nothing focusable may live here. The
+ * loading announcement and the way out are in <IntroEscape>, which is portalled
+ * to document.body precisely so it sits outside this subtree.
+ */
 export const Loader = forwardRef<HTMLDivElement, LoaderProps>(function Loader(
-  { progress, dotColor, showEscapeHatch },
+  { progress, dotColor },
   maskRef,
 ) {
   return (
-    <div className="pointer-events-auto flex h-full flex-col justify-end p-6 sm:p-10">
-      <span className="sr-only" role="status">
-        Loading
-      </span>
-
+    <div className="pointer-events-none flex h-full flex-col justify-end p-6 sm:p-10">
       <div ref={maskRef} className="overflow-hidden">
         <div className="flex items-baseline gap-[1ch]" aria-hidden="true">
           <span
@@ -39,22 +39,6 @@ export const Loader = forwardRef<HTMLDivElement, LoaderProps>(function Loader(
           </span>
         </div>
       </div>
-
-      {showEscapeHatch && (
-        <div className="mt-6 flex gap-4 font-mono text-[0.8rem] text-paper/70">
-          <a href="/agenda" className="hover:text-paper">
-            Agenda
-          </a>
-          <span>·</span>
-          <a href={siteConfig.ticketing.url ?? "/agenda"} className="hover:text-paper">
-            Tickets
-          </a>
-          <span>·</span>
-          <a href="#main" className="hover:text-paper">
-            Skip
-          </a>
-        </div>
-      )}
     </div>
   );
 });

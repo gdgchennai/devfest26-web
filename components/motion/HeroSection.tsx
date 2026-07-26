@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -8,9 +8,15 @@ import { archivePhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { HeroCopy } from "@/components/motion/HeroCopy";
 import { Loader } from "@/components/motion/Loader";
+import { IntroEscape, type IntroPhase } from "@/components/motion/IntroEscape";
 import { StackControls } from "@/components/motion/StackControls";
 import { useIntroProgress } from "@/components/motion/useIntroProgress";
-import { usePhotoHallway, cardWidthVw, HALLWAY_CARD_CLASS } from "@/components/motion/usePhotoHallway";
+import {
+  usePhotoHallway,
+  cardWidthVw,
+  HALLWAY_CARD_CLASS,
+  HALLWAY_BEACON_CLASS,
+} from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { EASE_SETTLE, EASE_FACTS, EASE_CURTAIN } from "@/components/motion/eases";
 import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -72,21 +78,24 @@ export function HeroSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldPlay]);
 
+  // Hands scrolling back to the visitor and marks the intro seen. Shared by the
+  // reveal finishing normally and by Skip cutting it short, so both exits leave
+  // the page in exactly the same state.
+  const releaseIntro = useCallback(() => {
+    lenisRef.current?.start();
+    document.body.style.overflow = "";
+    document.getElementById("main")?.removeAttribute("aria-busy");
+    window.sessionStorage.setItem(INTRO_SEEN_KEY, "1");
+    gsap.set(curtainRef.current, { pointerEvents: "none" });
+    setRevealDone(true);
+  }, [lenisRef, curtainRef]);
+
   // contextSafe-wrapping a closure over refs is the documented @gsap/react
   // pattern for callbacks invoked later (here, from useIntroProgress's
   // onSettled) rather than during this render.
   // eslint-disable-next-line react-hooks/refs
   const startReveal = contextSafe(() => {
-    const tl = gsap.timeline({
-      onComplete: () => {
-        lenisRef.current?.start();
-        document.body.style.overflow = "";
-        document.getElementById("main")?.removeAttribute("aria-busy");
-        window.sessionStorage.setItem(INTRO_SEEN_KEY, "1");
-        gsap.set(curtainRef.current, { pointerEvents: "none" });
-        setRevealDone(true);
-      },
-    });
+    const tl = gsap.timeline({ onComplete: releaseIntro });
 
     tl.to(loaderMaskRef.current, { yPercent: -110, duration: 0.62, ease: EASE_SETTLE }, 0)
       .to(curtainRef.current, { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: EASE_CURTAIN }, 0.14)
@@ -108,12 +117,58 @@ export function HeroSection() {
       .to(frameWrapRef.current, { opacity: 0, duration: 0.5, ease: EASE_FACTS }, 1.5);
   });
 
+  // Skip during the wait cuts the reveal to its finished state rather than
+  // playing it out; skip once the hallway is running jumps past it to the page.
+  // eslint-disable-next-line react-hooks/refs
+  const skipReveal = contextSafe(() => {
+    const targets = [
+      curtainRef.current,
+      frameWrapRef.current,
+      imageScaleRef.current,
+      loaderMaskRef.current,
+      eyebrowRef.current,
+      wordmarkRef.current,
+      taglineRef.current,
+      factsGroupRef.current,
+    ];
+    gsap.killTweensOf(targets);
+    gsap.set(curtainRef.current, { clipPath: "inset(0 0 100% 0)" });
+    gsap.set(frameWrapRef.current, { opacity: 0 });
+    gsap.set([eyebrowRef.current, wordmarkRef.current, taglineRef.current], { yPercent: 0 });
+    gsap.set(factsGroupRef.current, { opacity: 1, y: 0 });
+    releaseIntro();
+  });
+
+  const onSkip = useCallback(() => {
+    if (!revealDone) {
+      skipReveal();
+      return;
+    }
+    // Already through the reveal: the ask is "past the photos", not "past the
+    // loader". Lenis owns the scroll, so go through it or ScrollTrigger and the
+    // smoother end up disagreeing about where we are.
+    const target = document.getElementById("after-hero");
+    if (!target) return;
+    if (lenisRef.current) lenisRef.current.scrollTo(target);
+    else target.scrollIntoView();
+  }, [revealDone, skipReveal, lenisRef]);
+
   const heroAssets = archivePhotos.slice(0, 3).map((p) => p.src);
   const { progress, dotColor, showEscapeHatch } = useIntroProgress(
     heroAssets,
     startReveal,
     !shouldPlay,
   );
+
+  // Loading while the curtain is still down, then hallway until the stack
+  // lands — at which point StackControls take over that corner.
+  const introPhase: IntroPhase | null = disableHallway
+    ? null
+    : shouldPlay && !revealDone
+      ? "loading"
+      : stackSettled
+        ? null
+        : "hallway";
 
   const count = isDesktop ? DESKTOP_COUNT : MOBILE_COUNT;
   const maxScale = isDesktop ? 3.2 : 2.4;
@@ -137,6 +192,7 @@ export function HeroSection() {
   return (
     <section ref={sectionRef} className="relative min-h-[100vh] overflow-hidden">
       <div className="absolute inset-0 -z-10">
+        <div className={HALLWAY_BEACON_CLASS} />
         {hallwayPhotos.map((photo, i) => (
           <div
             key={photo.src}
@@ -191,13 +247,18 @@ export function HeroSection() {
 
       <StackControls active={stackSettled} count={count} onCycle={cycle} />
 
+      {introPhase && (
+        <IntroEscape
+          phase={introPhase}
+          emphasis={introPhase === "hallway" || showEscapeHatch}
+          onSkip={onSkip}
+        />
+      )}
+
       {shouldPlay &&
         !revealDone &&
         curtainEl &&
-        createPortal(
-          <Loader ref={loaderMaskRef} progress={progress} dotColor={dotColor} showEscapeHatch={showEscapeHatch} />,
-          curtainEl,
-        )}
+        createPortal(<Loader ref={loaderMaskRef} progress={progress} dotColor={dotColor} />, curtainEl)}
     </section>
   );
 }

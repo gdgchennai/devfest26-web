@@ -71,6 +71,32 @@ body {
 }
 
 /*
+ * The light at the end of the tunnel: the destination glowing into view so a
+ * visitor can see how far is left without any progress chrome. Opacity and
+ * scale are driven by the hook; the gradient itself never changes, so this
+ * stays a compositor-only effect.
+ */
+.hallway-beacon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side,
+    color-mix(in srgb, var(--paper) 82%, transparent),
+    color-mix(in srgb, var(--blue) 26%, transparent) 55%,
+    transparent 78%
+  );
+  transform: translate(-50%, -50%) scale(0.18);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+/*
  * A photo card in the scroll hallway (see components/motion/usePhotoHallway.ts).
  * Starts hidden and centred so nothing flashes at full size before the first
  * frame renders. will-change/backface-visibility go on the cards themselves —

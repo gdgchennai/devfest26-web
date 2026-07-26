@@ -74,6 +74,18 @@ export const HALLWAY_BACKDROP_CLASS = "hallway-backdrop";
 /** Fraction of the section spent fading the backdrop in at the start / out at the end. */
 const BACKDROP_FADE = 0.08;
 
+/**
+ * Optional glow marking the far end of the tunnel — the light you steer toward,
+ * so how much further to go is legible without any progress chrome. It blooms
+ * as the camera closes on the stack, then hands off: it fades out across the
+ * forming window as the real cards materialise in the same spot.
+ */
+export const HALLWAY_BEACON_CLASS = "hallway-beacon";
+
+/** Exponent on the beacon's approach. >1 keeps it a distant pinprick for most
+ *  of the tunnel and blooms late, which is what reads as "getting closer". */
+const BEACON_APPROACH = 2.4;
+
 /** Added to the cards once the stack has formed; carries the browse transition. */
 const SETTLED_CLASS = "is-settled";
 
@@ -121,6 +133,7 @@ export function usePhotoHallway({
     if (cards.length === 0) return;
 
     const backdrop = container.querySelector<HTMLElement>(`.${HALLWAY_BACKDROP_CLASS}`);
+    const beacon = container.querySelector<HTMLElement>(`.${HALLWAY_BEACON_CLASS}`);
 
     // stackPos[cardIndex] = its depth in the settled stack; 0 is the top card.
     // Cycling rewrites this, never the DOM order, so the cards keep their
@@ -219,6 +232,18 @@ export function usePhotoHallway({
         backdrop.style.opacity = clamp(
           Math.min(progress / BACKDROP_FADE, (1 - progress) / BACKDROP_FADE),
         ).toFixed(3);
+      }
+
+      if (beacon) {
+        // Approach 0 -> 1 across the tunnel, then hand off to the real stack
+        // over the forming window so the light resolves into the photos.
+        const approach = clamp(mapRange(0, PILE_START, 0, 1, progress));
+        const handoff = clamp(mapRange(PILE_START, PILE_END, 1, 0, progress));
+        const bloom = Math.pow(approach, BEACON_APPROACH);
+        // Only opacity and transform — a re-rasterised gradient every frame is
+        // the same trap as a blurred box-shadow on a moving card.
+        beacon.style.opacity = (bloom * handoff).toFixed(3);
+        beacon.style.transform = `translate(-50%, -50%) scale(${(0.18 + bloom * 1.5).toFixed(3)})`;
       }
 
       const nowSettled = progress >= PILE_END;
