@@ -20,7 +20,7 @@ export type IntroPhase = "loading" | "hallway";
  * watching a dozen photos fly past would want it.
  *
  * Bottom-right because it is the only free corner: the hero copy and CTAs own
- * bottom-left, and StackControls plus both Scroll hints own bottom-centre.
+ * bottom-left, and both Scroll hints own bottom-centre.
  *
  * Carries no progress indicator. The loading phase already has the % counter in
  * <Loader>, and the hallway has the beacon — the stack glowing into view as the

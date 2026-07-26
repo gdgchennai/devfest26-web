@@ -127,8 +127,9 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
+  /* No max-width: the hook measures this box to work out how far to shrink the
+     group so N cards span the row, and a clamp would desync that arithmetic. */
   width: 34vw;
-  max-width: 30rem;
   aspect-ratio: 3 / 2;
   transform: translate(-50%, -50%) scale(0.07);
   opacity: 0;
@@ -153,25 +154,6 @@ body {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--paper) 12%, transparent);
 }
 
-/*
- * Live only once the stack has landed: browsing it glides, while the
- * scroll-driven phase stays instant. Card positions do not change past
- * HANDOFF_END, so switching this on animates nothing by itself.
- */
-.stack-card.is-settled {
-  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: auto;
-}
-
-.hallway-stack:has(.is-settled) {
-  pointer-events: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stack-card.is-settled {
-    transition: none;
-  }
-}
 
 /* First focusable element: hidden until focused, per WCAG 2.4.1 */
 .skip-link {

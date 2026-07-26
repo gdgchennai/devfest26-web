@@ -9,7 +9,6 @@ import { Frame } from "@/components/Frame";
 import { HeroCopy } from "@/components/motion/HeroCopy";
 import { Loader } from "@/components/motion/Loader";
 import { IntroEscape, type IntroPhase } from "@/components/motion/IntroEscape";
-import { StackControls } from "@/components/motion/StackControls";
 import { useIntroProgress } from "@/components/motion/useIntroProgress";
 import {
   usePhotoHallway,
@@ -25,8 +24,9 @@ import { EASE_SETTLE, EASE_FACTS, EASE_CURTAIN } from "@/components/motion/eases
 import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
-/** Desktop flies every hallway-role photo; mobile takes the first few. */
+/** Desktop flies and lands every photo of each role; mobile takes the first few. */
 const MOBILE_FLY_COUNT = 6;
+const MOBILE_ROW_COUNT = 3;
 
 function hasSeenIntro() {
   return window.sessionStorage.getItem(INTRO_SEEN_KEY) !== null;
@@ -191,7 +191,7 @@ export function HeroSection() {
   );
 
   // Loading while the curtain is still down, then hallway until the stack
-  // lands — at which point StackControls take over that corner.
+  // lands, at which point there is nothing left to escape from.
   const introPhase: IntroPhase | null = disableHallway
     ? null
     : shouldPlay && !revealDone
@@ -200,20 +200,21 @@ export function HeroSection() {
         ? null
         : "hallway";
 
-  // Mobile flies fewer photos; the destination stack is the payoff, so it is
-  // never trimmed.
+  // Mobile flies fewer photos, and lands fewer: five across a 390px viewport is
+  // ~78px each, too small to read as photographs once they spread into a row.
   const flying = isDesktop ? hallwayPhotos : hallwayPhotos.slice(0, MOBILE_FLY_COUNT);
+  const landing = isDesktop ? stackPhotos : stackPhotos.slice(0, MOBILE_ROW_COUNT);
   const maxScale = isDesktop ? 3.2 : 2.4;
 
-  const { cycle } = usePhotoHallway({
+  usePhotoHallway({
     containerRef: sectionRef,
     flyCount: flying.length,
-    stackCount: stackPhotos.length,
+    stackCount: landing.length,
     maxScale,
     // Slightly slower per photo on mobile, where there are fewer of them and a
     // shorter section would flick past.
     perItemVh: isDesktop ? 0.3 : 0.34,
-    heroHandoff: true,
+    riseToTop: true,
     onPhaseChange: (phase) => {
       setStackSettled(phase === "hero");
       setCopyShown(phase === "hero");
@@ -255,7 +256,7 @@ export function HeroSection() {
         {/* The destination. Present from the first frame, approaching in the
             distance, so arriving at it is earned rather than sudden. */}
         <div className={HALLWAY_STACK_CLASS}>
-          {stackPhotos.map((photo) => (
+          {landing.map((photo) => (
             <div
               key={photo.src}
               className={STACK_CARD_CLASS}
@@ -313,7 +314,6 @@ export function HeroSection() {
         </div>
       )}
 
-      <StackControls active={stackSettled} count={stackPhotos.length} onCycle={cycle} />
 
       {introPhase && (
         <IntroEscape

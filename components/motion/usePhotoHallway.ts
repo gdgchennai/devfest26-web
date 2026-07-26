@@ -1,4 +1,3 @@
-import { useCallback, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -6,17 +5,15 @@ import { clamp, mapRange, easeInAccelerating, easeOutSettle } from "@/lib/easing
 
 gsap.registerPlugin(ScrollTrigger);
 
-function noop() {}
-
 type PhotoOffset = { ox: number; oy: number; rotate: number };
 
 /**
  * Progress map for the pinned section.
  *
  *   0 ─────────────── TUNNEL_END ─────── HANDOFF_END ──── 1
- *   fly-through,                  stack slides to its    browse
- *   stack approaching             hero position,         window
- *   in the distance               copy reveals
+ *   fly-through,                  stack rises and         settled
+ *   stack approaching             spreads into a row,     hero
+ *   in the distance               copy rises beneath it
  */
 const TUNNEL_END = 0.72;
 const HANDOFF_END = 0.9;
@@ -32,6 +29,15 @@ const APPROACH = 1.2; // depth travelled while a card fades and scales in
 const PASS = 0.9; // depth travelled past the camera plane before it is gone
 
 /**
+ * How far into its life the nearest photo already is at progress 0. Without it
+ * the camera starts exactly where the first card begins to exist, so the tunnel
+ * opens on an empty frame and only populates once you scroll — you would arrive
+ * to nothing. At 0.35 two photos are already in flight when the curtain lifts,
+ * so there is something to be moving *through* from the first moment.
+ */
+const PRIMED = 0.35;
+
+/**
  * Scroll budget per photo, in viewport heights. Deliberately well below the
  * reference implementation's 1.15: that gallery is a standalone section, while
  * this is a page hero with a whole site underneath it — at 1.15 the hero would
@@ -44,13 +50,22 @@ const STACK_FAR_SCALE = 0.07;
 /**
  * Exponent on the stack's approach. Above 1 it stays a distant speck for most
  * of the tunnel and arrives late, which is what reads as *getting closer*; at 1
- * it just sits there growing steadily and gives away the ending.
+ * it just grows steadily and gives away the ending.
  */
 const STACK_APPROACH = 2.4;
+/**
+ * How much faster opacity resolves than scale. Separate on purpose: while the
+ * group is part-transparent the flying photos show straight through the
+ * destination, which is the one way this still reads as mush. At 2.2 the stack
+ * is solid by roughly half the approach and merely keeps growing after that.
+ */
+const STACK_SOLIDIFY = 2.2;
 
-/** Where the stack parks once it hands off to the hero, as a fraction of half-viewport. */
-const HERO_X = 0.46;
-const HERO_SCALE = 0.74;
+/** Fraction of the container the spread row spans, and the gap between cards. */
+const ROW_SPAN = 0.92;
+const ROW_GAP = 1.06;
+/** How far up the row travels, as a fraction of viewport height. */
+const ROW_RISE = -0.3;
 
 /** Card widths in vw, cycled. Varied sizes are what read as depth — see note in the hook. */
 const WIDTHS = [30, 38, 26, 44, 32, 24, 36, 28, 42, 27, 34, 23];
@@ -76,18 +91,15 @@ export function cardWidthVw(index: number): number {
 export const HALLWAY_CARD_CLASS = "hallway-card";
 /** Wrapper for the destination photos; carries the group transform and opacity. */
 export const HALLWAY_STACK_CLASS = "hallway-stack";
-/** A photo inside that wrapper. Always fully opaque — see note in render(). */
+/** A photo inside that wrapper. Always fully opaque — see note in renderStack(). */
 export const STACK_CARD_CLASS = "stack-card";
 /** Darkened space the photos travel through. */
 export const HALLWAY_BACKDROP_CLASS = "hallway-backdrop";
-/** Faint halo behind the distant stack, so a speck still reads as *something there*. */
+/** Faint halo behind the distant stack, so a speck still reads as *something out there*. */
 export const HALLWAY_BEACON_CLASS = "hallway-beacon";
 
 /** Fraction of the section spent fading the backdrop in at the start / out at the end. */
 const BACKDROP_FADE = 0.08;
-
-/** Added to the stack cards once browsing is live; carries the cycle transition. */
-const SETTLED_CLASS = "is-settled";
 
 export type HallwayPhase = "tunnel" | "hero";
 
@@ -95,17 +107,18 @@ export type HallwayOptions = {
   containerRef: React.RefObject<HTMLElement | null>;
   /** Number of photos that fly past. Section length scales with this. */
   flyCount: number;
-  /** Number of photos in the destination stack. */
+  /** Number of photos in the destination row. */
   stackCount: number;
   maxScale?: number;
   /** Viewport heights of scroll per flying photo. */
   perItemVh?: number;
   /**
-   * Slide the stack aside at the end to make room for hero copy. The homepage
-   * does; /memories has no copy to make room for, so its stack stays centred.
+   * Also lift the row to the top of the section, so hero copy can rise beneath
+   * it. The homepage does; /memories has no copy to make room for, so its row
+   * spreads where it is.
    */
-  heroHandoff?: boolean;
-  /** Fires when the stack finishes arriving, and again if scrolling back up undoes it. */
+  riseToTop?: boolean;
+  /** Fires when the row finishes landing, and again if scrolling back up undoes it. */
   onPhaseChange?: (phase: HallwayPhase) => void;
   disabled?: boolean;
 };
@@ -116,14 +129,10 @@ export function usePhotoHallway({
   stackCount,
   maxScale = 3.2,
   perItemVh = DEFAULT_PER_ITEM_VH,
-  heroHandoff = false,
+  riseToTop = false,
   onPhaseChange,
   disabled = false,
 }: HallwayOptions) {
-  // Populated by the effect below; lets the caller cycle the stack without the
-  // hook re-running, which would tear down and rebuild the pinned trigger.
-  const cycleRef = useRef<(delta: number) => void>(noop);
-
   useGSAP(() => {
     if (disabled || !containerRef.current) return;
     const container = containerRef.current;
@@ -145,17 +154,32 @@ export function usePhotoHallway({
     const flyOffsets = Array.from({ length: flyCount }, (_, i) => deterministicOffset(i));
     const stackOffsets = Array.from({ length: stackCount }, (_, i) => deterministicOffset(i + 7));
 
-    // stackPos[cardIndex] = depth in the deck; 0 is the top card. Cycling
-    // rewrites this and never the DOM order, so each card keeps its identity.
-    const stackPos = stackCards.map((_, i) => i);
     let phase: HallwayPhase = "tunnel";
 
     const depths = Array.from({ length: flyCount }, (_, i) => i * SPACING);
-    const camStart = depths.length ? depths[0] - APPROACH : 0;
+    const camStart = depths.length ? depths[0] - APPROACH + PRIMED * (APPROACH + PASS) : 0;
     const camEnd = depths.length ? depths[flyCount - 1] + PASS : 0;
 
     let vw = window.innerWidth;
     let vh = window.innerHeight;
+    /**
+     * Shrink applied to the group so `stackCount` cards laid side by side span
+     * ROW_SPAN of the container. Measured rather than derived from the CSS
+     * width, so changing `.hallway-stack` in globals.css cannot silently break
+     * the arithmetic here.
+     */
+    let rowScale = 1;
+
+    function measure() {
+      vw = window.innerWidth;
+      vh = window.innerHeight;
+      const n = stackCards.length;
+      const groupWidth = stackGroup?.offsetWidth ?? 0;
+      const containerWidth = container.offsetWidth || vw;
+      rowScale = n > 0 && groupWidth > 0
+        ? Math.min(1, (ROW_SPAN * containerWidth) / (n * ROW_GAP * groupWidth))
+        : 1;
+    }
 
     function renderFlyCards(progress: number) {
       const travelled = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
@@ -194,47 +218,56 @@ export function usePhotoHallway({
 
     function renderStack(progress: number) {
       if (!stackGroup) return;
+      const n = stackCards.length;
 
       const approach = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
       const bloom = Math.pow(approach, STACK_APPROACH);
-      const handoff = heroHandoff
-        ? easeOutSettle(clamp(mapRange(TUNNEL_END, HANDOFF_END, 0, 1, progress)))
-        : 0;
+      const spread = easeOutSettle(clamp(mapRange(TUNNEL_END, HANDOFF_END, 0, 1, progress)));
 
-      const groupScale = gsap.utils.interpolate(STACK_FAR_SCALE, 1, bloom) *
-        gsap.utils.interpolate(1, HERO_SCALE, handoff);
-      const groupX = HERO_X * handoff * vw * 0.5;
+      const groupScale =
+        gsap.utils.interpolate(STACK_FAR_SCALE, 1, bloom) *
+        gsap.utils.interpolate(1, rowScale, spread);
+      const groupY = riseToTop ? ROW_RISE * spread * vh : 0;
 
-      // ONE opacity, on the group. Fading the cards individually would stack a
-      // dozen semi-transparent photos on top of each other, which reads as mud;
-      // the cards themselves stay fully opaque so overlapping them reads as
-      // depth instead.
-      stackGroup.style.opacity = bloom.toFixed(3);
+      // ONE opacity, on the group. Fading the cards individually would stack
+      // semi-transparent photos on top of each other, which reads as mud; the
+      // cards themselves are opaque, so overlapping them reads as depth.
+      stackGroup.style.opacity = clamp(bloom * STACK_SOLIDIFY).toFixed(3);
       stackGroup.style.transform =
-        `translate(-50%, -50%) translate3d(${groupX.toFixed(1)}px, 0, 0) scale(${groupScale.toFixed(4)})`;
+        `translate(-50%, -50%) translate3d(0px, ${groupY.toFixed(1)}px, 0) scale(${groupScale.toFixed(4)})`;
 
-      for (let i = 0; i < stackCards.length; i += 1) {
+      for (let i = 0; i < n; i += 1) {
         const el = stackCards[i];
         const offset = stackOffsets[i];
-        const pos = stackPos[i];
-        const isTop = pos === 0;
-        // Depth comes from geometry, not alpha: the front card carries the
-        // photo and the rest peek out behind it as edges and slivers.
-        const recede = pos * 0.045;
-        const tx = isTop ? 0 : offset.ox * 0.1 + recede;
-        const ty = isTop ? 0 : offset.oy * 0.1 + recede;
+        const isFront = i === 0;
+
+        // Deck: the front card square-on, the rest peeking out behind it as
+        // edges and slivers. Percentages, not px, so they track the card as the
+        // group scales.
+        const deckX = isFront ? 0 : offset.ox * 10 + i * 4.5;
+        const deckY = isFront ? 0 : offset.oy * 10 + i * 4.5;
+        const deckRotate = isFront ? 0 : offset.rotate;
+        const deckScale = 1 - i * 0.04;
+
+        // Row: evenly spaced about the centre, all square-on and equal size.
+        const rowX = (i - (n - 1) / 2) * 100 * ROW_GAP;
+
+        const x = gsap.utils.interpolate(deckX, rowX, spread);
+        const y = gsap.utils.interpolate(deckY, 0, spread);
+        const rotate = gsap.utils.interpolate(deckRotate, 0, spread);
+        const scale = gsap.utils.interpolate(deckScale, 1, spread);
+
         el.style.transform =
-          `translate(-50%, -50%) translate3d(${(tx * 100).toFixed(1)}px, ${(ty * 100).toFixed(1)}px, 0) ` +
-          `rotate(${(isTop ? 0 : offset.rotate).toFixed(2)}deg) scale(${(1 - pos * 0.04).toFixed(3)})`;
-        el.style.zIndex = String(100 + stackCards.length - pos);
+          `translate(-50%, -50%) translate(${x.toFixed(2)}%, ${y.toFixed(2)}%) ` +
+          `rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        el.style.zIndex = String(100 + n - i);
       }
 
       if (beacon) {
-        // Atmosphere only: it exists so a 2%-of-viewport speck reads as
-        // something out there, and gets out of the way once the stack is real.
+        // Atmosphere only: it exists so a 7%-scale speck reads as something out
+        // there, and gets out of the way once the stack is real.
         beacon.style.opacity = (bloom * (1 - bloom) * 1.6).toFixed(3);
-        beacon.style.transform =
-          `translate(-50%, -50%) scale(${(0.18 + bloom * 1.4).toFixed(3)})`;
+        beacon.style.transform = `translate(-50%, -50%) scale(${(0.18 + bloom * 1.4).toFixed(3)})`;
       }
     }
 
@@ -251,11 +284,6 @@ export function usePhotoHallway({
       const nextPhase: HallwayPhase = progress >= HANDOFF_END ? "hero" : "tunnel";
       if (nextPhase !== phase) {
         phase = nextPhase;
-        // Only transition while parked. Positions do not change past
-        // HANDOFF_END, so switching this on animates nothing by itself; it
-        // exists purely so cycling the deck glides. Removing it on the way back
-        // up keeps the scroll-driven writes instant instead of smeared.
-        for (const el of stackCards) el.classList.toggle(SETTLED_CLASS, nextPhase === "hero");
         onPhaseChange?.(nextPhase);
       }
     }
@@ -276,37 +304,14 @@ export function usePhotoHallway({
       scrub: 1,
       animation: tl,
       invalidateOnRefresh: true,
-      onRefresh: () => {
-        vw = window.innerWidth;
-        vh = window.innerHeight;
-      },
+      onRefresh: measure,
     });
 
-    // Rotating the deck: every card moves one place and whichever falls off the
-    // near end wraps to the back. Only stackPos changes, then we re-render from
-    // the current playhead — the scroll position is untouched, so browsing the
-    // stack never fights the scroll.
-    cycleRef.current = (delta: number) => {
-      if (stackCards.length < 2 || phase !== "hero") return;
-      const n = stackCards.length;
-      const step = ((delta % n) + n) % n;
-      if (step === 0) return;
-      for (let i = 0; i < n; i += 1) stackPos[i] = (stackPos[i] - step + n * 2) % n;
-      // Animated by the CSS transition on .stack-card.is-settled, not GSAP:
-      // render() owns these inline transforms outright, so a tween on them
-      // would simply be overwritten.
-      render(proxy.p);
-    };
-
+    measure();
     render(0);
   }, {
     scope: containerRef,
-    dependencies: [flyCount, stackCount, maxScale, perItemVh, heroHandoff, disabled],
+    dependencies: [flyCount, stackCount, maxScale, perItemVh, riseToTop, disabled],
     revertOnUpdate: true,
   });
-
-  /** Advance the stack by `delta` cards (negative goes back). Inert until it has landed. */
-  const cycle = useCallback((delta: number) => cycleRef.current(delta), []);
-
-  return { cycle };
 }

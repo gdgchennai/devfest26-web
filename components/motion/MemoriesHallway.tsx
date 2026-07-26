@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Frame } from "@/components/Frame";
-import { StackControls } from "@/components/motion/StackControls";
 import {
   usePhotoHallway,
   cardWidthVw,
@@ -26,13 +25,13 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
   const flying = useMemo(() => photos.filter((p) => p.role === "hallway"), [photos]);
   const stack = useMemo(() => photos.filter((p) => p.role === "stack"), [photos]);
 
-  const { cycle } = usePhotoHallway({
+  usePhotoHallway({
     containerRef: sectionRef,
     flyCount: flying.length,
     stackCount: stack.length,
     maxScale: 2.6,
-    // No copy on this page to make room for, so the stack stays centred.
-    heroHandoff: false,
+    // No copy on this page to make room for, so the row spreads where it is.
+    riseToTop: false,
     onPhaseChange: (phase) => setSettled(phase === "hero"),
     disabled,
   });
@@ -87,13 +86,12 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
         </div>
       </div>
 
-      {/* Swaps to the browse controls once the photos have landed in the stack. */}
+      {/* Retires once the row has landed — there is nothing left to scroll for. */}
       {!settled && (
         <div className="pointer-events-none absolute inset-x-0 bottom-6 text-center font-mono text-xs uppercase tracking-wide text-paper/50">
           Scroll
         </div>
       )}
-      <StackControls active={settled} count={stack.length} onCycle={cycle} />
     </section>
   );
 }
