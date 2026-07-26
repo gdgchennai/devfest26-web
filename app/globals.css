@@ -433,6 +433,47 @@ body {
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * 404 signal dots (app/not-found.tsx)
+ *
+ * Four brand dots, one burnt out. The empty one breathes very slowly — slow
+ * enough to read as ambient rather than as something demanding attention,
+ * which on an error page matters more than on any other. Opacity only, so it
+ * stays off the main thread, and it never moves anything.
+ * ------------------------------------------------------------------------ */
+.signal-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.signal-dots__dot {
+  height: 0.625rem;
+  width: 0.625rem;
+  border-radius: 9999px;
+}
+
+.signal-dots__dot--out {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--paper) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .signal-dots__dot--out {
+    animation: signal-out 3.2s ease-in-out infinite;
+  }
+}
+
+@keyframes signal-out {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* First focusable element: hidden until focused, per WCAG 2.4.1 */
 .skip-link {
   position: absolute;

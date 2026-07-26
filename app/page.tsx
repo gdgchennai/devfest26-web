@@ -76,7 +76,8 @@ export default function Home() {
         <SpeakerWall />
       </Section>
 
-      {/* No sponsors section this year — see /sponsors for the tier page. */}
+      {/* No sponsors section: 2026 is not running sponsorship at all. The
+          route and its data are gone too — see the architecture doc. */}
 
       <Section index={6} eyebrow="Where" title="Venue" dotColor="red">
         <p className="max-w-xl text-paper/80">

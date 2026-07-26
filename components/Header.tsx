@@ -4,9 +4,10 @@ import { HeaderNav, HeaderMenu } from "@/components/HeaderNav";
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
 import { ticketCta } from "@/lib/cta";
+import { navRoutes } from "@/lib/routes";
 
 export function Header() {
-  const nav = siteConfig.nav.filter((item) => {
+  const nav = navRoutes.filter((item) => {
     if (item.href === "/speakers") return speakers.length > 0;
     return true;
   });

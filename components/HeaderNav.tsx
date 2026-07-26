@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { NavItem } from "@/site.config";
+import type { SiteRoute } from "@/lib/routes";
 
 /**
  * The header's links, split out purely so the active-route check can run on
@@ -23,7 +23,7 @@ function useIsActive() {
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function HeaderNav({ nav }: { nav: readonly NavItem[] }) {
+export function HeaderNav({ nav }: { nav: readonly SiteRoute[] }) {
   const isActive = useIsActive();
 
   return (
@@ -53,7 +53,7 @@ export function HeaderNav({ nav }: { nav: readonly NavItem[] }) {
   );
 }
 
-export function HeaderMenu({ nav }: { nav: readonly NavItem[] }) {
+export function HeaderMenu({ nav }: { nav: readonly SiteRoute[] }) {
   const isActive = useIsActive();
 
   return (

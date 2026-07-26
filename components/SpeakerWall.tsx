@@ -13,8 +13,8 @@ import { speakerCta } from "@/lib/cta";
  * already looking. Destination comes from `speakerCta()`, so setting
  * `siteConfig.cfp.formUrl` points these straight at Sessionize.
  *
- * Portraits go through <Frame> — unlike sponsor logos these are photographs,
- * which is exactly what its object-cover crop and halftone fallback are for.
+ * Portraits go through <Frame>: these are photographs, which is exactly what
+ * its object-cover crop and halftone fallback are for.
  */
 
 /** Places shown in the lineup before it starts scrolling past a screenful. */

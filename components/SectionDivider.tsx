@@ -12,11 +12,20 @@ import { DOT, type DotColor } from "@/components/Eyebrow";
  * because prefers-reduced-motion is honoured in CSS and a 1px scaleX is
  * compositor-only work either way.
  */
-export function SectionDivider({ index, dotColor }: { index: number; dotColor: DotColor }) {
+export function SectionDivider({
+  index,
+  dotColor,
+}: {
+  /** Omit outside the numbered homepage run — a "01" on the 404 means nothing. */
+  index?: number;
+  dotColor: DotColor;
+}) {
   return (
     <div className="section-divider" aria-hidden>
       <span className={`section-divider__dot ${DOT[dotColor]}`} />
-      <span className="section-divider__index">{String(index).padStart(2, "0")}</span>
+      {index !== undefined && (
+        <span className="section-divider__index">{String(index).padStart(2, "0")}</span>
+      )}
       <span className="section-divider__rule" />
     </div>
   );

@@ -57,14 +57,59 @@ collapses into a menu.
 | `/speakers` | Speaker grid | `<Frame>` reveals, `once: true` | **All TBD** — build empty-state first |
 | `/speakers/[slug]` | Bio, talk, links | Curtain transition only | TBD |
 | `/venue` | Location, travel, amenities | Light fade-ups | Carried from 2025, confirm venue |
-| `/sponsors` | Tiers + logos + brochure | Light fade-ups | Tiers known, logos TBD |
 | `/memories` | 2024 + 2025 archive | Hallway lives here too | Photos exist |
 | `/cfp` | Call for speakers | Light fade-ups | New; time-gated |
 | `/contact` | Chapter contact | None | Carried from 2025 |
 | `/code-of-conduct` | Required policy | None | Required |
+| _404_ | Every unmatched URL, plus `notFound()` | Ambient only | See below |
+
+**`lib/routes.ts` is the one route list.** The header used to hold its own five-item copy in
+`siteConfig.nav` while the site had nine routes; it now filters this list by `inNav`, and the
+404's rescue grid reads the same list unfiltered. A second hand-written copy is how a 404 ends up
+recommending a page that no longer exists.
 
 Build priority, which is deliberately not the order above:
 `/agenda` → shared infrastructure → `/` → `/speakers` → the rest.
+
+### The 404
+
+No redirects: every dead URL, including `/sponsors`, lands here. The design rule is that whoever
+is reading it is already annoyed, **so every flourish has to shorten the way out rather than
+decorate the dead end.** Nothing animates on a delay, nothing blocks, and the headline plus the
+full route grid are in the static HTML — readable before hydration and with JavaScript off.
+
+- **"Did you mean…"** — `lib/nearest-route.ts` runs Levenshtein against the real route table and
+  offers the closest match as the primary button. `/speaker` → Speakers, `/agend` → Agenda. The
+  threshold is a *fraction* of the longer string (0.4), not an absolute edit budget, so a typo in
+  a short slug isn't judged like one in a long slug. It deliberately rejects
+  `/sponsors` → `/speakers` at 0.5: that page is retired, not misspelled.
+- **Retired routes get the actual reason.** `retiredRoutes` in `lib/routes.ts` maps a removed URL
+  to an explanation and a useful destination. `/sponsors` says there is no 2026 sponsorship
+  programme and points at `/contact`, because the people arriving there followed the 2025
+  brochure, which we cannot edit.
+- **"Back to where you were"** — same-origin `document.referrer` only, and never a link back to
+  the 404 itself.
+- **Four brand dots, one burnt out**, in place of a giant "404". The site's identity is those four
+  colours, so a missing one says page-not-found in the site's own language without shouting at
+  someone who already knows. Opacity-only breathing, off under `prefers-reduced-motion`.
+- **Three highlights, then the index** — `components/NotFoundHighlights.tsx` leads with the three
+  things people actually came for: when it is (Agenda), how to get in (Tickets), how to get on
+  stage (CFP). A dead slug like `/asdfghjkl` has no near match to offer, and a flat list of nine
+  routes is an inventory, not an answer. The complete index still follows, deliberately lighter —
+  compact pills rather than cards, because it is the fallback and not the main event. Tickets
+  reads from `ticketCta()`, so while there is no URL it is a dashed non-link saying so.
+- **It ends on the event, not the error** — "Hope to see you at DevFest," with the date and venue
+  read from `siteConfig`, so this line can never contradict the hero or the ticket stub.
+- An archive photo links to `/memories`.
+
+The path-dependent block is a client component (`NotFoundRecovery`) reading through
+`useClientValue`: the 404 is prerendered once at `/_not-found` and served for every unmatched
+path, so the URL is only knowable in the browser. Its slot is height-reserved — a page that
+shoves its own buttons downward under an already-irritated cursor is the opposite of helpful.
+
+One caveat: for unmatched URLs the 404 is fully server-rendered, but `notFound()` thrown inside
+the dynamic `/speakers/[slug]` route streams as an RSC payload in this Next version, so that
+path's markup arrives via JS.
 
 ---
 
@@ -82,13 +127,30 @@ Build priority, which is deliberately not the order above:
 | Scale claim | 1500+ developers | Update with 2025's actual number |
 | Format | Single day | Carry over |
 
-### Sponsor tiers
+### Sponsor tiers — removed for 2026
 
-Gold → Associate → Community Partners. 2025 filled these with Poshmark (gold); Codewalla,
-Rezoomex, Dinodial (associate); and Women Techmakers Chennai, Kotlin Users Group Chennai, JS Lovers
-Chennai, Chennai ReactJS (community). **All 2026 sponsors TBD.** Keep the tier structure and the
-sponsorship brochure link; build the page so an empty Gold tier renders gracefully rather than
-leaving a hole, because it will be empty for months.
+**2026 is not running sponsorship.** The `/sponsors` route, `content/sponsors.json`, the
+`sponsorTiers` config, `sponsorSchema`/`Sponsor`, and `sponsorsByTier` were all deleted rather
+than left dormant, because a tier page with nothing in it and no programme behind it is worse than
+no page. Two lines of homepage copy went with them — "What you'll get → Hiring" no longer promises
+sponsor booths, and "Why join us" no longer promises a direct line to sponsors.
+
+Kept for reference if it returns: the 2025 structure was Gold → Associate → Community Partners,
+filled with Poshmark (gold); Codewalla, Rezoomex, Dinodial (associate); and Women Techmakers
+Chennai, Kotlin Users Group Chennai, JS Lovers Chennai, Chennai ReactJS (community). Rebuilding it
+means a new schema plus a route — but not new UI: `components/SlotGrid.tsx` already renders a
+tiered roster with filled slots, one live invitation and ghost outlines, which is exactly what a
+sponsor wall needs.
+
+**`/sponsors` is now a 404, and the URL is in the 2025 sponsorship brochure. That 404 is the right
+answer — no redirect.** An earlier note here called for redirecting it to `/contact`; that was
+wrong once 2026 became self-funded with no sponsorship programme at all. Sending a sponsor enquiry
+to a contact form implies a programme exists and invites a conversation there is no answer to.
+
+The 404 already handles it deliberately rather than by omission: `lib/nearest-route.ts` sets its
+similarity threshold at 0.4 specifically so `/sponsors` → `/speakers` (0.5) is *rejected* — "that
+page is retired, not misspelled, and guessing at it would be worse than saying nothing." The
+visitor gets the full route list and no false lead.
 
 ### Sections on the 2025 homepage, and what to do with each
 
@@ -101,7 +163,7 @@ leaving a hole, because it will be empty for months.
 | Agenda preview — first few sessions | Keep, as a timeline spine. Same data as `/agenda` |
 | Insider tips — 9-item marquee | Keep, but move to `/agenda` where it's actually useful |
 | Tracks — 4 lanes | Keep. One Google colour each — see `lib/track-color.ts` |
-| Sponsors | **Cut for 2026.** No sponsorship section on the homepage this year. `/sponsors` still exists as the tier page |
+| Sponsors | **Cut for 2026.** No sponsorship programme this year — section, route and data all removed |
 | Venue — address, map, amenities | Keep, link to `/venue` |
 | FAQ — 5 questions | Keep, expand |
 | Memories — 11 photos from 2024 | **This becomes the hallway.** |
@@ -172,7 +234,15 @@ Almost everything about 2026 is undecided, so build for absence explicitly:
   closing CTA say "Tickets open soon" as inert text rather than showing a "Get Tickets" button
   that silently lands on `/agenda`.
 - `site.config.ts` supports `date: null`, which renders "Date to be announced" everywhere at once.
-  One switch, one truth, no possibility of the 2025 contradiction repeating.
+  One switch, one truth, no possibility of the 2025 contradiction repeating. **The 2026 date is
+  `2026-10-10`.** Change that one field and the hero, the agenda header and the ticket stub all
+  follow; the session dates in `content/agenda.json` are the one thing that does *not*, so move
+  them by hand at the same time. The FAQ deliberately no longer states the date — that is exactly
+  the hand-written second copy that broke in 2025.
+- **All dates and times render in `Asia/Kolkata`, pinned in `lib/format.ts`.** Not optional: these
+  routes are statically generated and Vercel builds in UTC, so an unpinned `toLocaleTimeString`
+  shipped 09:00 IST sessions to everyone as "03:30". The agenda components are client components
+  too, so an unpinned formatter also made the server and the browser disagree at hydration.
 - Gate whole routes on content: if `speakers.length === 0`, drop Speakers from the nav rather than
   linking to an empty page.
 - The hallway runs on 2024 and 2025 archive photos, which already exist. This is the one showpiece
@@ -212,6 +282,13 @@ Built once in the root layout, consumed everywhere. **This lands before anything
   footer of every route. Shares its rendering path with reduced-motion and no-JS; see Part 4 of
   the motion spec. Site-wide, not a homepage feature.
 - **Metadata** — per-route `generateMetadata`, one OG template with the route title composited in.
+- **Fonts** — `public/fonts/google-sans-latin.woff2`, generated by `npm run fonts`. Never point
+  `next/font/local` at the raw TTF in `Google_Sans/`: it copies the file byte for byte, so the
+  4.6 MB source shipped 4.6 MB to every visitor — about nine times the entire hero photo payload.
+  Subset to Latin and transcoded it is **95 KB, 98% smaller**, with the 100–900 variable axis
+  intact. The italic face is deliberately not loaded; nothing renders italic, and its 4.6 MB was
+  one stray `<em>` from being fetched. Re-run the script when the source font changes or the site
+  needs characters outside Latin Extended-A.
 
 ### The hallway
 

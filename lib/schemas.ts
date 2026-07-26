@@ -39,17 +39,6 @@ export const speakerSchema = z.object({
 
 export type Speaker = z.infer<typeof speakerSchema>;
 
-export const sponsorTierSchema = z.enum(["gold", "associate", "community"]);
-
-export const sponsorSchema = z.object({
-  tier: sponsorTierSchema,
-  name: z.string().min(1),
-  logo: z.string().nullable(),
-  url: z.string().nullable(),
-});
-
-export type Sponsor = z.infer<typeof sponsorSchema>;
-
 export const faqItemSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),

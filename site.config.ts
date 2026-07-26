@@ -1,14 +1,9 @@
-import type { Sponsor } from "@/lib/schemas";
+import { EVENT_TIME_ZONE } from "@/lib/format";
 
 export type Track = {
   slug: string;
   name: string;
   description: string;
-};
-
-export type NavItem = {
-  label: string;
-  href: string;
 };
 
 export const siteConfig = {
@@ -17,9 +12,20 @@ export const siteConfig = {
   chapter: "GDG Chennai",
   tagline: "Build. Learn. Connect",
 
-  // `null` renders "Date to be announced" everywhere this is read from.
-  // Set to an ISO string once the organising team confirms it.
-  date: null as string | null,
+  /*
+   * THE event date. Change it here and it changes everywhere at once — the
+   * hero, the agenda header and the ticket stub all read this one field, and
+   * `null` puts every one of them back to "Date to be announced".
+   *
+   * Plain `YYYY-MM-DD`, deliberately: it is the easiest thing to edit
+   * correctly, and it is unambiguous because `formatEventDate` renders it in
+   * IST. A date-only string parses as UTC midnight, and IST is UTC+5:30, so
+   * it always lands on the same calendar day in Chennai.
+   *
+   * If you move this, move the session dates in content/agenda.json with it —
+   * they are the same day and nothing enforces that automatically.
+   */
+  date: "2026-10-10" as string | null,
 
   venue: {
     name: "IITM Research Park",
@@ -49,7 +55,8 @@ export const siteConfig = {
 
   whatYoullGet: [
     { title: "Talks", description: "Sessions across four tracks from practitioners building at scale." },
-    { title: "Hiring", description: "Meet teams that are actively hiring at the sponsor booths." },
+    // Reworded when 2026 dropped sponsorship: there are no sponsor booths.
+    { title: "Hiring", description: "Meet engineering teams who are actively hiring, in person." },
     { title: "Workshops", description: "Hands-on sessions — bring a laptop, leave with working code." },
     { title: "Community", description: "Meet the Chennai developer community behind the chapter." },
   ],
@@ -58,7 +65,7 @@ export const siteConfig = {
   whyJoinUs: [
     "The largest single-day developer gathering in Chennai.",
     "Speakers from product teams, not just conference circuits.",
-    "Direct line to sponsors who are hiring in Chennai right now.",
+    "Direct line to companies hiring developers in Chennai right now.",
     "Run entirely by volunteers from the local GDG chapter.",
   ],
 
@@ -82,26 +89,16 @@ export const siteConfig = {
     email: "chennai@gdgchennai.org",
   },
 
-  nav: [
-    { label: "Home", href: "/" },
-    { label: "Agenda", href: "/agenda" },
-    { label: "Speakers", href: "/speakers" },
-    { label: "Venue", href: "/venue" },
-    { label: "About", href: "/about" },
-  ] satisfies NavItem[],
+  // Header nav lived here as its own five-item list while the site had nine
+  // routes. It now comes from `navRoutes` in lib/routes.ts, which is the one
+  // list the 404's rescue grid reads too.
 
   brandDisclaimer:
     "DevFest Chennai is an independent, community-run event organised by GDG Chennai under Google's Community Guidelines. It is not produced or endorsed by Google.",
 } as const;
 
-// Single source of truth for sponsor tiers + display labels, shared by the
-// homepage sponsors block and the /sponsors page. `satisfies` keeps the tier
-// keys locked to the schema's enum, so a mistyped tier fails to compile.
-export const sponsorTiers = [
-  { tier: "gold", label: "Gold" },
-  { tier: "associate", label: "Associate" },
-  { tier: "community", label: "Community Partners" },
-] satisfies { tier: Sponsor["tier"]; label: string }[];
+// Sponsor tiers lived here until 2026 dropped sponsorship. See the
+// architecture doc if they come back — nothing else referenced them.
 
 export function formatEventDate(date: string | null): string {
   if (!date) return "Date to be announced";
@@ -110,5 +107,9 @@ export function formatEventDate(date: string | null): string {
     day: "numeric",
     month: "long",
     year: "numeric",
+    // Without this the build server's zone decides the day. Vercel builds in
+    // UTC, and any negative-offset zone renders a date-only string as the day
+    // before. See EVENT_TIME_ZONE.
+    timeZone: EVENT_TIME_ZONE,
   });
 }

@@ -7,19 +7,20 @@ import { siteConfig } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SkipLink } from "@/components/SkipLink";
 
+/*
+ * A subset WOFF2, not the raw TTF. `next/font/local` copies the file verbatim —
+ * it neither transcodes nor subsets — so pointing this at the 4.6 MB source
+ * shipped 4.6 MB to every visitor, roughly nine times the entire hero photo
+ * payload. `npm run fonts` regenerates it; see scripts/subset-fonts.mjs.
+ *
+ * No italic face. Nothing in the site renders italic, and the 4.8 MB italic
+ * source was one stray <em> away from being downloaded. If italic is ever
+ * genuinely needed, subset that source too rather than pointing at the raw file.
+ */
 const googleSans = localFont({
-  src: [
-    {
-      path: "../Google_Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "../Google_Sans/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf",
-      weight: "100 900",
-      style: "italic",
-    },
-  ],
+  src: "../public/fonts/google-sans-latin.woff2",
+  weight: "100 900",
+  style: "normal",
   variable: "--font-google-sans",
   display: "swap",
 });

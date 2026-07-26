@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "archive": "node scripts/ingest-archive.mjs"
+    "archive": "node scripts/ingest-archive.mjs",
+    "fonts": "node scripts/subset-fonts.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "subset-font": "^2.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
