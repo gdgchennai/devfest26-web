@@ -4,7 +4,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { archivePhotos } from "@/lib/content";
+import { archivePhotos, hallwayPhotos, stackPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { HeroCopy } from "@/components/motion/HeroCopy";
 import { Loader } from "@/components/motion/Loader";
@@ -16,14 +16,17 @@ import {
   cardWidthVw,
   HALLWAY_CARD_CLASS,
   HALLWAY_BEACON_CLASS,
+  HALLWAY_BACKDROP_CLASS,
+  HALLWAY_STACK_CLASS,
+  STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { EASE_SETTLE, EASE_FACTS, EASE_CURTAIN } from "@/components/motion/eases";
 import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
-const DESKTOP_COUNT = 12;
-const MOBILE_COUNT = 7;
+/** Desktop flies every hallway-role photo; mobile takes the first few. */
+const MOBILE_FLY_COUNT = 6;
 
 function hasSeenIntro() {
   return window.sessionStorage.getItem(INTRO_SEEN_KEY) !== null;
@@ -40,6 +43,8 @@ export function HeroSection() {
   const frameWrapRef = useRef<HTMLDivElement>(null);
   const imageScaleRef = useRef<HTMLDivElement>(null);
   const loaderMaskRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const copyTlRef = useRef<gsap.core.Timeline | null>(null);
 
   // Defaults to the static/disabled baseline (matches SSR and the no-JS
   // fallback) and upgrades to the motion hallway once confirmed on the
@@ -71,12 +76,22 @@ export function HeroSection() {
     gsap.set(curtainRef.current, { clipPath: "inset(0 0 0 0)", pointerEvents: "auto" });
     gsap.set(frameWrapRef.current, { clipPath: "inset(38% 34% 38% 34% round 6px)", opacity: 1 });
     gsap.set(imageScaleRef.current, { scale: 1.35 });
-    gsap.set([eyebrowRef.current, wordmarkRef.current, taglineRef.current], { yPercent: 110 });
-    gsap.set(factsGroupRef.current, { opacity: 0, y: 12 });
     // lenis/curtainRef are stable for the component's lifetime; shouldPlay
     // is the only input that should re-run this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldPlay]);
+
+  // The copy belongs to the hero the tunnel arrives at, not to the tunnel, so
+  // it starts hidden whenever the tunnel is going to run — including for a
+  // returning visitor, who skips the loader but still travels the hallway.
+  // Leaving "Date to be announced · venue TBC" pinned over the photos was what
+  // made Skip meaningless: there was nothing to skip to.
+  useLayoutEffect(() => {
+    if (disableHallway) return;
+    gsap.set(copyRef.current, { autoAlpha: 0 });
+    gsap.set([eyebrowRef.current, wordmarkRef.current, taglineRef.current], { yPercent: 110 });
+    gsap.set(factsGroupRef.current, { opacity: 0, y: 12 });
+  }, [disableHallway]);
 
   // Hands scrolling back to the visitor and marks the intro seen. Shared by the
   // reveal finishing normally and by Skip cutting it short, so both exits leave
@@ -97,6 +112,8 @@ export function HeroSection() {
   const startReveal = contextSafe(() => {
     const tl = gsap.timeline({ onComplete: releaseIntro });
 
+    // Opens onto the mouth of the tunnel — no copy. The copy arrives later,
+    // when the stack does.
     tl.to(loaderMaskRef.current, { yPercent: -110, duration: 0.62, ease: EASE_SETTLE }, 0)
       .to(curtainRef.current, { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: EASE_CURTAIN }, 0.14)
       .to(
@@ -105,16 +122,28 @@ export function HeroSection() {
         0.24,
       )
       .to(imageScaleRef.current, { scale: 1, duration: 1.7, ease: EASE_SETTLE }, 0.24)
+      // The opened frame hands off to the hallway — without this it stays an
+      // opaque layer forever, permanently hiding the photos scrolling behind it.
+      .to(frameWrapRef.current, { opacity: 0, duration: 0.6, ease: EASE_FACTS }, 1.1);
+  });
+
+  // Built once, then played forward on arrival and reversed if the visitor
+  // scrolls back into the tunnel, so the copy belongs to the hero rather than
+  // popping in and sticking.
+  // eslint-disable-next-line react-hooks/refs
+  const setCopyShown = contextSafe((shown: boolean) => {
+    copyTlRef.current ??= gsap
+      .timeline({ paused: true })
+      .to(copyRef.current, { autoAlpha: 1, duration: 0.35 }, 0)
       .to(
         [eyebrowRef.current, wordmarkRef.current, taglineRef.current],
         { yPercent: 0, duration: 0.9, ease: EASE_SETTLE, stagger: 0.08 },
-        0.8,
+        0.05,
       )
-      .to(factsGroupRef.current, { opacity: 1, y: 0, duration: 0.6, ease: EASE_FACTS }, 1.22)
-      // The opened frame hands off to the hallway, which takes over as the
-      // scroll backdrop — without this it stays an opaque layer forever,
-      // permanently hiding the hallway photos scrolling behind it.
-      .to(frameWrapRef.current, { opacity: 0, duration: 0.5, ease: EASE_FACTS }, 1.5);
+      .to(factsGroupRef.current, { opacity: 1, y: 0, duration: 0.6, ease: EASE_FACTS }, 0.5);
+
+    if (shown) copyTlRef.current.play();
+    else copyTlRef.current.reverse();
   });
 
   // Skip during the wait cuts the reveal to its finished state rather than
@@ -134,8 +163,9 @@ export function HeroSection() {
     gsap.killTweensOf(targets);
     gsap.set(curtainRef.current, { clipPath: "inset(0 0 100% 0)" });
     gsap.set(frameWrapRef.current, { opacity: 0 });
-    gsap.set([eyebrowRef.current, wordmarkRef.current, taglineRef.current], { yPercent: 0 });
-    gsap.set(factsGroupRef.current, { opacity: 1, y: 0 });
+    // Deliberately does not reveal the copy: skipping the wait drops you at the
+    // mouth of the tunnel, not past it. Skipping the tunnel is the other branch
+    // of onSkip below.
     releaseIntro();
   });
 
@@ -170,18 +200,24 @@ export function HeroSection() {
         ? null
         : "hallway";
 
-  const count = isDesktop ? DESKTOP_COUNT : MOBILE_COUNT;
+  // Mobile flies fewer photos; the destination stack is the payoff, so it is
+  // never trimmed.
+  const flying = isDesktop ? hallwayPhotos : hallwayPhotos.slice(0, MOBILE_FLY_COUNT);
   const maxScale = isDesktop ? 3.2 : 2.4;
-  const hallwayPhotos = archivePhotos.slice(0, count);
 
   const { cycle } = usePhotoHallway({
     containerRef: sectionRef,
-    count,
+    flyCount: flying.length,
+    stackCount: stackPhotos.length,
     maxScale,
     // Slightly slower per photo on mobile, where there are fewer of them and a
     // shorter section would flick past.
     perItemVh: isDesktop ? 0.3 : 0.34,
-    onSettledChange: setStackSettled,
+    heroHandoff: true,
+    onPhaseChange: (phase) => {
+      setStackSettled(phase === "hero");
+      setCopyShown(phase === "hero");
+    },
     disabled: disableHallway,
   });
 
@@ -191,9 +227,10 @@ export function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative min-h-[100vh] overflow-hidden">
+      <div className={HALLWAY_BACKDROP_CLASS} />
       <div className="absolute inset-0 -z-10">
         <div className={HALLWAY_BEACON_CLASS} />
-        {hallwayPhotos.map((photo, i) => (
+        {flying.map((photo, i) => (
           <div
             key={photo.src}
             className={HALLWAY_CARD_CLASS}
@@ -214,7 +251,27 @@ export function HeroSection() {
             />
           </div>
         ))}
-        <div className="absolute inset-0 bg-ink/65" />
+
+        {/* The destination. Present from the first frame, approaching in the
+            distance, so arriving at it is earned rather than sudden. */}
+        <div className={HALLWAY_STACK_CLASS}>
+          {stackPhotos.map((photo) => (
+            <div
+              key={photo.src}
+              className={STACK_CARD_CLASS}
+              style={{ ["--card-ar" as string]: `${photo.width} / ${photo.height}` }}
+            >
+              <Frame
+                src={photo.src}
+                alt={photo.description}
+                title={photo.title}
+                aspectRatio="auto"
+                sizes="34vw"
+                className="h-full w-full"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="relative flex min-h-[100vh] flex-col justify-end px-4 pb-16 pt-24 sm:px-8">
@@ -236,16 +293,27 @@ export function HeroSection() {
           </div>
         </div>
 
-        <HeroCopy
-          showScrollHint={!stackSettled}
-          eyebrowRef={eyebrowRef}
-          wordmarkRef={wordmarkRef}
-          taglineRef={taglineRef}
-          factsRef={factsGroupRef}
-        />
+        {/* Left half on desktop: the stack parks on the right, so the two share
+            the hero instead of the copy sitting on top of the photos. */}
+        <div ref={copyRef} className="relative lg:max-w-[48%]">
+          <HeroCopy
+            eyebrowRef={eyebrowRef}
+            wordmarkRef={wordmarkRef}
+            taglineRef={taglineRef}
+            factsRef={factsGroupRef}
+          />
+        </div>
       </div>
 
-      <StackControls active={stackSettled} count={count} onCycle={cycle} />
+      {/* The tunnel has no copy, so it needs its own hint that scrolling is
+          what moves it. Retires the moment the stack lands. */}
+      {!stackSettled && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 text-center font-mono text-xs uppercase tracking-wide text-paper/50">
+          Scroll
+        </div>
+      )}
+
+      <StackControls active={stackSettled} count={stackPhotos.length} onCycle={cycle} />
 
       {introPhase && (
         <IntroEscape

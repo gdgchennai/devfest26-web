@@ -11,27 +11,25 @@ function noop() {}
 type PhotoOffset = { ox: number; oy: number; rotate: number };
 
 /**
- * Fraction of the section where the fly-through ends and the photos settle into
- * the stack. Past PILE_END the stack holds — it is the destination of everything
- * that just flew past, not a transition, so it does not dissolve.
+ * Progress map for the pinned section.
+ *
+ *   0 ─────────────── TUNNEL_END ─────── HANDOFF_END ──── 1
+ *   fly-through,                  stack slides to its    browse
+ *   stack approaching             hero position,         window
+ *   in the distance               copy reveals
  */
-const PILE_START = 0.74;
-const PILE_END = 0.88;
-
-/** Settled stack geometry. Position 0 is the top card. */
-const STACK_SCALE = 0.42;
-/** The top card straightens up and sits slightly proud of the rest. */
-const TOP_SCALE = 0.52;
+const TUNNEL_END = 0.72;
+const HANDOFF_END = 0.9;
 
 /**
- * Depth model for the fly-through phase. Cards sit SPACING apart along a virtual
- * z-axis and the camera travels through the stack, so each card's lifespan is
- * derived from the item count rather than a hardcoded per-index window — add or
- * remove photos in content/archive.json and the pacing stays even.
+ * Depth model for the fly-through. Cards sit SPACING apart along a virtual
+ * z-axis and the camera travels through them, so each card's lifespan derives
+ * from the item count rather than a hardcoded per-index window — add or remove
+ * photos in content/archive.json and the pacing stays even.
  */
 const SPACING = 0.5;
 const APPROACH = 1.2; // depth travelled while a card fades and scales in
-const PASS = 0.9; // depth travelled after the camera plane before it is gone
+const PASS = 0.9; // depth travelled past the camera plane before it is gone
 
 /**
  * Scroll budget per photo, in viewport heights. Deliberately well below the
@@ -40,6 +38,19 @@ const PASS = 0.9; // depth travelled after the camera plane before it is gone
  * eat ~14 screens of scroll before a visitor reached any content.
  */
 const DEFAULT_PER_ITEM_VH = 0.3;
+
+/** How small the destination is at the far end of the tunnel. */
+const STACK_FAR_SCALE = 0.07;
+/**
+ * Exponent on the stack's approach. Above 1 it stays a distant speck for most
+ * of the tunnel and arrives late, which is what reads as *getting closer*; at 1
+ * it just sits there growing steadily and gives away the ending.
+ */
+const STACK_APPROACH = 2.4;
+
+/** Where the stack parks once it hands off to the hero, as a fraction of half-viewport. */
+const HERO_X = 0.46;
+const HERO_SCALE = 0.74;
 
 /** Card widths in vw, cycled. Varied sizes are what read as depth — see note in the hook. */
 const WIDTHS = [30, 38, 26, 44, 32, 24, 36, 28, 42, 27, 34, 23];
@@ -61,172 +72,175 @@ export function cardWidthVw(index: number): number {
   return WIDTHS[index % WIDTHS.length];
 }
 
-/** Every card the hook drives carries this class; it is also the CSS hook in globals.css. */
+/** A photo that flies past the camera. */
 export const HALLWAY_CARD_CLASS = "hallway-card";
-
-/**
- * Optional backdrop panel inside the section. If present it fades up as the
- * hallway takes over the viewport and back down as it releases, so the photos
- * fly through their own darkened space instead of over whatever precedes them.
- */
+/** Wrapper for the destination photos; carries the group transform and opacity. */
+export const HALLWAY_STACK_CLASS = "hallway-stack";
+/** A photo inside that wrapper. Always fully opaque — see note in render(). */
+export const STACK_CARD_CLASS = "stack-card";
+/** Darkened space the photos travel through. */
 export const HALLWAY_BACKDROP_CLASS = "hallway-backdrop";
+/** Faint halo behind the distant stack, so a speck still reads as *something there*. */
+export const HALLWAY_BEACON_CLASS = "hallway-beacon";
 
 /** Fraction of the section spent fading the backdrop in at the start / out at the end. */
 const BACKDROP_FADE = 0.08;
 
-/**
- * Optional glow marking the far end of the tunnel — the light you steer toward,
- * so how much further to go is legible without any progress chrome. It blooms
- * as the camera closes on the stack, then hands off: it fades out across the
- * forming window as the real cards materialise in the same spot.
- */
-export const HALLWAY_BEACON_CLASS = "hallway-beacon";
-
-/** Exponent on the beacon's approach. >1 keeps it a distant pinprick for most
- *  of the tunnel and blooms late, which is what reads as "getting closer". */
-const BEACON_APPROACH = 2.4;
-
-/** Added to the cards once the stack has formed; carries the browse transition. */
+/** Added to the stack cards once browsing is live; carries the cycle transition. */
 const SETTLED_CLASS = "is-settled";
+
+export type HallwayPhase = "tunnel" | "hero";
 
 export type HallwayOptions = {
   containerRef: React.RefObject<HTMLElement | null>;
-  count: number;
+  /** Number of photos that fly past. Section length scales with this. */
+  flyCount: number;
+  /** Number of photos in the destination stack. */
+  stackCount: number;
   maxScale?: number;
-  /** Viewport heights of scroll per photo. Total section length scales with count. */
+  /** Viewport heights of scroll per flying photo. */
   perItemVh?: number;
-  onProgress?: (progress: number) => void;
   /**
-   * Fires when the stack finishes forming, and again if scrolling back up
-   * unforms it. The caller uses this to enable the browse controls — the stack
-   * is only interactive once it exists.
+   * Slide the stack aside at the end to make room for hero copy. The homepage
+   * does; /memories has no copy to make room for, so its stack stays centred.
    */
-  onSettledChange?: (settled: boolean) => void;
+  heroHandoff?: boolean;
+  /** Fires when the stack finishes arriving, and again if scrolling back up undoes it. */
+  onPhaseChange?: (phase: HallwayPhase) => void;
   disabled?: boolean;
 };
 
 export function usePhotoHallway({
   containerRef,
-  count,
+  flyCount,
+  stackCount,
   maxScale = 3.2,
   perItemVh = DEFAULT_PER_ITEM_VH,
-  onProgress,
-  onSettledChange,
+  heroHandoff = false,
+  onPhaseChange,
   disabled = false,
 }: HallwayOptions) {
   // Populated by the effect below; lets the caller cycle the stack without the
-  // hook re-running (which would tear down and rebuild the pinned trigger).
+  // hook re-running, which would tear down and rebuild the pinned trigger.
   const cycleRef = useRef<(delta: number) => void>(noop);
 
   useGSAP(() => {
     if (disabled || !containerRef.current) return;
-
-    const offsets = Array.from({ length: count }, (_, i) => deterministicOffset(i));
     const container = containerRef.current;
 
-    // Cards are queried from the scoped container rather than threaded in as a
-    // ref array: two hallways on one page cannot collide, callers stay simpler,
-    // and the render loop owns the elements it mutates.
-    const cards = Array.from(
+    // Elements are queried from the scoped container rather than threaded in as
+    // ref arrays: two hallways on one page cannot collide, callers stay
+    // simpler, and the render loop owns everything it mutates.
+    const flyCards = Array.from(
       container.querySelectorAll<HTMLElement>(`.${HALLWAY_CARD_CLASS}`),
-    ).slice(0, count);
-    if (cards.length === 0) return;
-
+    ).slice(0, flyCount);
+    const stackGroup = container.querySelector<HTMLElement>(`.${HALLWAY_STACK_CLASS}`);
+    const stackCards = Array.from(
+      container.querySelectorAll<HTMLElement>(`.${STACK_CARD_CLASS}`),
+    ).slice(0, stackCount);
     const backdrop = container.querySelector<HTMLElement>(`.${HALLWAY_BACKDROP_CLASS}`);
     const beacon = container.querySelector<HTMLElement>(`.${HALLWAY_BEACON_CLASS}`);
+    if (flyCards.length === 0 && stackCards.length === 0) return;
 
-    // stackPos[cardIndex] = its depth in the settled stack; 0 is the top card.
-    // Cycling rewrites this, never the DOM order, so the cards keep their
-    // identity (and their scatter offset) as they move through the deck.
-    const stackPos = cards.map((_, i) => i);
-    let settled = false;
+    const flyOffsets = Array.from({ length: flyCount }, (_, i) => deterministicOffset(i));
+    const stackOffsets = Array.from({ length: stackCount }, (_, i) => deterministicOffset(i + 7));
 
-    // Camera sweeps from just before the first card to just past the last.
-    const depths = Array.from({ length: count }, (_, i) => i * SPACING);
-    const camStart = depths[0] - APPROACH;
-    const camEnd = depths[count - 1] + PASS;
+    // stackPos[cardIndex] = depth in the deck; 0 is the top card. Cycling
+    // rewrites this and never the DOM order, so each card keeps its identity.
+    const stackPos = stackCards.map((_, i) => i);
+    let phase: HallwayPhase = "tunnel";
+
+    const depths = Array.from({ length: flyCount }, (_, i) => i * SPACING);
+    const camStart = depths.length ? depths[0] - APPROACH : 0;
+    const camEnd = depths.length ? depths[flyCount - 1] + PASS : 0;
 
     let vw = window.innerWidth;
     let vh = window.innerHeight;
 
-    function render(progress: number) {
-      onProgress?.(progress);
+    function renderFlyCards(progress: number) {
+      const travelled = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
+      const cam = gsap.utils.interpolate(camStart, camEnd, travelled);
 
-      const inPile = progress >= PILE_START;
-      const cam = gsap.utils.interpolate(
-        camStart,
-        camEnd,
-        clamp(mapRange(0, PILE_START, 0, 1, progress)),
-      );
+      for (let i = 0; i < flyCards.length; i += 1) {
+        const el = flyCards[i];
+        const offset = flyOffsets[i];
+        // p runs 0 -> 1 across this card's whole life, from fade-in to gone.
+        const p = (cam - depths[i] + APPROACH) / (APPROACH + PASS);
 
-      for (let i = 0; i < cards.length; i += 1) {
-        const el = cards[i];
-        const offset = offsets[i];
-
-        let scale: number;
-        let opacity: number;
-        let tx = offset.ox;
-        let ty = offset.oy;
-        let rotate = 0;
-        let zIndex: number;
-
-        if (!inPile) {
-          // p runs 0 -> 1 across this card's whole life, from fade-in to gone.
-          const p = (cam - depths[i] + APPROACH) / (APPROACH + PASS);
-
-          if (p <= 0 || p >= 1) {
-            // Off camera: write opacity once and skip the rest of the work.
-            if (el.style.opacity !== "0") el.style.opacity = "0";
-            continue;
-          }
-
-          scale = 0.15 + (maxScale - 0.15) * easeInAccelerating(p);
-          // Hug the centre, then accelerate outward — a linear drift makes the
-          // cards look like they are sliding rather than passing the camera.
-          const drift = Math.pow(p, 1.4);
-          tx = offset.ox * drift;
-          ty = offset.oy * drift;
-          opacity = clamp(Math.min(p / 0.14, (1 - p) / 0.16));
-          // Nearer cards paint over farther ones, by depth rather than by index.
-          zIndex = Math.round(p * 1000);
-        } else {
-          // Forming, then holding. `raw` saturates at 1 past PILE_END, so the
-          // stack simply stays put rather than dissolving — it is the
-          // destination for everything that just flew past.
-          const raw = clamp(mapRange(PILE_START, PILE_END, 0, 1, progress));
-          const pileLocal = easeOutSettle(raw);
-          const pos = stackPos[i];
-          const isTop = pos === 0;
-
-          // The top card straightens and sits proud so it reads as "this one",
-          // and cycling the deck is visible rather than just a z-index swap.
-          const targetScale = isTop ? TOP_SCALE : STACK_SCALE;
-          const targetX = isTop ? 0 : offset.ox * 0.15;
-          const targetY = isTop ? 0 : offset.oy * 0.15;
-          const targetRotate = isTop ? 0 : offset.rotate;
-
-          scale = gsap.utils.interpolate(maxScale, targetScale, pileLocal);
-          tx = gsap.utils.interpolate(offset.ox, targetX, pileLocal);
-          ty = gsap.utils.interpolate(offset.oy, targetY, pileLocal);
-          rotate = gsap.utils.interpolate(0, targetRotate, pileLocal);
-          // By the time the stack starts forming the camera has passed every
-          // card, so all of them are at opacity 0. Crossfade them back in over
-          // the first third instead of popping the whole set in on one frame.
-          opacity = clamp(raw / 0.33);
-          zIndex = 100 + count - pos;
+        if (p <= 0 || p >= 1) {
+          // Off camera: write opacity once and skip the rest of the work.
+          if (el.style.opacity !== "0") el.style.opacity = "0";
+          continue;
         }
 
+        const scale = 0.15 + (maxScale - 0.15) * easeInAccelerating(p);
+        // Hug the centre, then accelerate outward — a linear drift makes cards
+        // look like they are sliding rather than passing the camera.
+        const drift = Math.pow(p, 1.4);
+        const dx = offset.ox * drift * scale * vw * 0.5;
+        const dy = offset.oy * drift * scale * vh * 0.5;
+
         // Direct style writes rather than gsap.set(): this runs for every card
-        // on every frame, and gsap.set re-parses the "vw"/"vh" unit strings and
-        // walks its property pipeline each time.
-        const dx = tx * scale * vw * 0.5;
-        const dy = ty * scale * vh * 0.5;
-        el.style.opacity = opacity.toFixed(3);
+        // every frame, and gsap.set re-parses unit strings and walks its
+        // property pipeline each time.
+        el.style.opacity = clamp(Math.min(p / 0.14, (1 - p) / 0.16)).toFixed(3);
         el.style.transform =
           `translate(-50%, -50%) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) ` +
-          `rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
-        el.style.zIndex = String(zIndex);
+          `scale(${scale.toFixed(3)})`;
+        // Nearer cards paint over farther ones, by depth rather than by index.
+        el.style.zIndex = String(Math.round(p * 1000));
       }
+    }
+
+    function renderStack(progress: number) {
+      if (!stackGroup) return;
+
+      const approach = clamp(mapRange(0, TUNNEL_END, 0, 1, progress));
+      const bloom = Math.pow(approach, STACK_APPROACH);
+      const handoff = heroHandoff
+        ? easeOutSettle(clamp(mapRange(TUNNEL_END, HANDOFF_END, 0, 1, progress)))
+        : 0;
+
+      const groupScale = gsap.utils.interpolate(STACK_FAR_SCALE, 1, bloom) *
+        gsap.utils.interpolate(1, HERO_SCALE, handoff);
+      const groupX = HERO_X * handoff * vw * 0.5;
+
+      // ONE opacity, on the group. Fading the cards individually would stack a
+      // dozen semi-transparent photos on top of each other, which reads as mud;
+      // the cards themselves stay fully opaque so overlapping them reads as
+      // depth instead.
+      stackGroup.style.opacity = bloom.toFixed(3);
+      stackGroup.style.transform =
+        `translate(-50%, -50%) translate3d(${groupX.toFixed(1)}px, 0, 0) scale(${groupScale.toFixed(4)})`;
+
+      for (let i = 0; i < stackCards.length; i += 1) {
+        const el = stackCards[i];
+        const offset = stackOffsets[i];
+        const pos = stackPos[i];
+        const isTop = pos === 0;
+        // Depth comes from geometry, not alpha: the front card carries the
+        // photo and the rest peek out behind it as edges and slivers.
+        const recede = pos * 0.045;
+        const tx = isTop ? 0 : offset.ox * 0.1 + recede;
+        const ty = isTop ? 0 : offset.oy * 0.1 + recede;
+        el.style.transform =
+          `translate(-50%, -50%) translate3d(${(tx * 100).toFixed(1)}px, ${(ty * 100).toFixed(1)}px, 0) ` +
+          `rotate(${(isTop ? 0 : offset.rotate).toFixed(2)}deg) scale(${(1 - pos * 0.04).toFixed(3)})`;
+        el.style.zIndex = String(100 + stackCards.length - pos);
+      }
+
+      if (beacon) {
+        // Atmosphere only: it exists so a 2%-of-viewport speck reads as
+        // something out there, and gets out of the way once the stack is real.
+        beacon.style.opacity = (bloom * (1 - bloom) * 1.6).toFixed(3);
+        beacon.style.transform =
+          `translate(-50%, -50%) scale(${(0.18 + bloom * 1.4).toFixed(3)})`;
+      }
+    }
+
+    function render(progress: number) {
+      renderFlyCards(progress);
+      renderStack(progress);
 
       if (backdrop) {
         backdrop.style.opacity = clamp(
@@ -234,27 +248,15 @@ export function usePhotoHallway({
         ).toFixed(3);
       }
 
-      if (beacon) {
-        // Approach 0 -> 1 across the tunnel, then hand off to the real stack
-        // over the forming window so the light resolves into the photos.
-        const approach = clamp(mapRange(0, PILE_START, 0, 1, progress));
-        const handoff = clamp(mapRange(PILE_START, PILE_END, 1, 0, progress));
-        const bloom = Math.pow(approach, BEACON_APPROACH);
-        // Only opacity and transform — a re-rasterised gradient every frame is
-        // the same trap as a blurred box-shadow on a moving card.
-        beacon.style.opacity = (bloom * handoff).toFixed(3);
-        beacon.style.transform = `translate(-50%, -50%) scale(${(0.18 + bloom * 1.5).toFixed(3)})`;
-      }
-
-      const nowSettled = progress >= PILE_END;
-      if (nowSettled !== settled) {
-        settled = nowSettled;
-        // Only transition while settled. Positions do not change past PILE_END,
-        // so adding it here animates nothing; it exists purely so cycling the
-        // stack glides. Removing it on the way back up keeps the scroll-driven
-        // per-frame writes instant instead of smeared.
-        for (const el of cards) el.classList.toggle(SETTLED_CLASS, nowSettled);
-        onSettledChange?.(nowSettled);
+      const nextPhase: HallwayPhase = progress >= HANDOFF_END ? "hero" : "tunnel";
+      if (nextPhase !== phase) {
+        phase = nextPhase;
+        // Only transition while parked. Positions do not change past
+        // HANDOFF_END, so switching this on animates nothing by itself; it
+        // exists purely so cycling the deck glides. Removing it on the way back
+        // up keeps the scroll-driven writes instant instead of smeared.
+        for (const el of stackCards) el.classList.toggle(SETTLED_CLASS, nextPhase === "hero");
+        onPhaseChange?.(nextPhase);
       }
     }
 
@@ -269,7 +271,7 @@ export function usePhotoHallway({
     ScrollTrigger.create({
       trigger: container,
       start: "top top",
-      end: () => `+=${count * perItemVh * window.innerHeight + window.innerHeight}`,
+      end: () => `+=${flyCount * perItemVh * window.innerHeight + window.innerHeight}`,
       pin: true,
       scrub: 1,
       animation: tl,
@@ -280,31 +282,30 @@ export function usePhotoHallway({
       },
     });
 
-    // Rotating the deck: every card moves one place, and whichever falls off
-    // the near end wraps to the back. Only stackPos changes, then we re-render
-    // from the current playhead — the scroll position is untouched, so browsing
-    // the stack never fights the scroll.
+    // Rotating the deck: every card moves one place and whichever falls off the
+    // near end wraps to the back. Only stackPos changes, then we re-render from
+    // the current playhead — the scroll position is untouched, so browsing the
+    // stack never fights the scroll.
     cycleRef.current = (delta: number) => {
-      if (count < 2 || !settled) return;
-      const step = ((delta % count) + count) % count;
+      if (stackCards.length < 2 || phase !== "hero") return;
+      const n = stackCards.length;
+      const step = ((delta % n) + n) % n;
       if (step === 0) return;
-      for (let i = 0; i < count; i += 1) {
-        stackPos[i] = (stackPos[i] - step + count * 2) % count;
-      }
-      // The move is animated by a CSS transition that is only live while
-      // settled (see SETTLED_CLASS below) — a GSAP tween cannot drive these
-      // cards, because render() owns their inline transform outright.
+      for (let i = 0; i < n; i += 1) stackPos[i] = (stackPos[i] - step + n * 2) % n;
+      // Animated by the CSS transition on .stack-card.is-settled, not GSAP:
+      // render() owns these inline transforms outright, so a tween on them
+      // would simply be overwritten.
       render(proxy.p);
     };
 
     render(0);
   }, {
     scope: containerRef,
-    dependencies: [count, maxScale, perItemVh, disabled],
+    dependencies: [flyCount, stackCount, maxScale, perItemVh, heroHandoff, disabled],
     revertOnUpdate: true,
   });
 
-  /** Advance the stack by `delta` cards (negative goes back). No-op until settled. */
+  /** Advance the stack by `delta` cards (negative goes back). Inert until it has landed. */
   const cycle = useCallback((delta: number) => cycleRef.current(delta), []);
 
   return { cycle };

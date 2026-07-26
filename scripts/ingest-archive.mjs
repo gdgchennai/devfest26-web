@@ -127,6 +127,10 @@ function main() {
       width,
       height,
       source: file,
+      // New photos join the fly-through by default. Move one to "stack" by hand
+      // to put it in the destination deck instead — the two sets must stay
+      // disjoint, because the stack is visible from the first frame.
+      role: "hallway",
     };
     entries.push(entry);
     added.push(entry);
@@ -138,13 +142,20 @@ function main() {
 
   console.log(`\n  ${sources.length} original(s) in assets/, ${entries.length} entr(ies) in the archive.`);
   if (regenerated) console.log(`  Regenerated ${regenerated} missing web cop(ies).`);
-  if (added.length === 0) {
-    console.log("  Nothing new to ingest.\n");
-    return;
-  }
 
-  console.log(`  Added ${added.length}:`);
-  for (const e of added) console.log(`    ${e.src}  (${e.year}, ${e.width}x${e.height})`);
+  const byRole = entries.reduce((acc, e) => {
+    const role = e.role ?? "hallway";
+    acc[role] = (acc[role] ?? 0) + 1;
+    return acc;
+  }, {});
+  console.log(`  Roles: ${byRole.hallway ?? 0} fly past, ${byRole.stack ?? 0} in the stack.`);
+
+  if (added.length) {
+    console.log(`  Added ${added.length}:`);
+    for (const e of added) console.log(`    ${e.src}  (${e.year}, ${e.width}x${e.height})`);
+  } else {
+    console.log("  Nothing new to ingest.");
+  }
 
   const needCaptions = entries.filter((e) => !e.title || !e.description);
   if (needCaptions.length) {

@@ -36,6 +36,12 @@ export const archivePhotos: ArchivePhoto[] = parseOrThrow(
   archiveData,
   "content/archive.json",
 );
+
+/** Photos that fly past the camera in the hero tunnel. */
+export const hallwayPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "hallway");
+
+/** Photos waiting at the end of it. Disjoint from the above by construction. */
+export const stackPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "stack");
 export const about = aboutData as { body: string };
 export const codeOfConduct = cocData as {
   isPlaceholder: boolean;

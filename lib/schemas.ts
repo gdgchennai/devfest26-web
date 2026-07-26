@@ -70,6 +70,13 @@ export const archivePhotoSchema = z.object({
   // Filename of the camera original in assets/. Written by `npm run archive`
   // so re-runs know which photos are already ingested; nothing renders it.
   source: z.string().optional(),
+  /**
+   * Which half of the hero a photo belongs to. `hallway` photos fly past the
+   * camera; `stack` photos are the destination waiting at the end of the tunnel
+   * and must be a disjoint set — the stack is visible from the first frame, so
+   * a photo cannot both be approaching and already have gone by.
+   */
+  role: z.enum(["hallway", "stack"]).default("hallway"),
 });
 
 export type ArchivePhoto = z.infer<typeof archivePhotoSchema>;

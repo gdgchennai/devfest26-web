@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Frame } from "@/components/Frame";
 import { StackControls } from "@/components/motion/StackControls";
 import {
@@ -9,6 +9,8 @@ import {
   HALLWAY_CARD_CLASS,
   HALLWAY_BACKDROP_CLASS,
   HALLWAY_BEACON_CLASS,
+  HALLWAY_STACK_CLASS,
+  STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import type { ArchivePhoto } from "@/lib/schemas";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -19,11 +21,19 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
   const disabled = useClientValue(shouldUseStaticBaseline, true);
   const [settled, setSettled] = useState(false);
 
+  // Same split as the homepage: the flying set and the destination set must be
+  // disjoint, since the stack is visible from the first frame.
+  const flying = useMemo(() => photos.filter((p) => p.role === "hallway"), [photos]);
+  const stack = useMemo(() => photos.filter((p) => p.role === "stack"), [photos]);
+
   const { cycle } = usePhotoHallway({
     containerRef: sectionRef,
-    count: photos.length,
+    flyCount: flying.length,
+    stackCount: stack.length,
     maxScale: 2.6,
-    onSettledChange: setSettled,
+    // No copy on this page to make room for, so the stack stays centred.
+    heroHandoff: false,
+    onPhaseChange: (phase) => setSettled(phase === "hero"),
     disabled,
   });
 
@@ -37,7 +47,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
       <div className={HALLWAY_BACKDROP_CLASS} />
       <div className={HALLWAY_BEACON_CLASS} />
       <div className="absolute inset-0">
-        {photos.map((photo, i) => (
+        {flying.map((photo, i) => (
           <div
             key={photo.src}
             className={HALLWAY_CARD_CLASS}
@@ -56,6 +66,25 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
             />
           </div>
         ))}
+
+        <div className={HALLWAY_STACK_CLASS}>
+          {stack.map((photo) => (
+            <div
+              key={photo.src}
+              className={STACK_CARD_CLASS}
+              style={{ ["--card-ar" as string]: `${photo.width} / ${photo.height}` }}
+            >
+              <Frame
+                src={photo.src}
+                alt={photo.description}
+                title={photo.title}
+                aspectRatio="auto"
+                sizes="34vw"
+                className="h-full w-full"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Swaps to the browse controls once the photos have landed in the stack. */}
@@ -64,7 +93,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
           Scroll
         </div>
       )}
-      <StackControls active={settled} count={photos.length} onCycle={cycle} />
+      <StackControls active={settled} count={stack.length} onCycle={cycle} />
     </section>
   );
 }

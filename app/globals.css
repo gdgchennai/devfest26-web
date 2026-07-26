@@ -118,18 +118,57 @@ body {
 }
 
 /*
- * Live only once the stack has formed: browsing it glides, while the
- * scroll-driven phase above stays instant. Card positions do not change past
- * PILE_END, so switching this on animates nothing by itself.
+ * The destination waiting at the end of the tunnel. The GROUP carries opacity
+ * and the approach transform; the cards inside stay fully opaque, because
+ * fading them individually would stack semi-transparent photos into mud rather
+ * than reading as depth.
  */
-.hallway-card.is-settled {
-  transition:
-    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 300ms ease;
+.hallway-stack {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34vw;
+  max-width: 30rem;
+  aspect-ratio: 3 / 2;
+  transform: translate(-50%, -50%) scale(0.07);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 2;
+}
+
+.stack-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: var(--card-ar, 3 / 2);
+  transform: translate(-50%, -50%);
+  backface-visibility: hidden;
+  border-radius: 6px;
+  overflow: hidden;
+  /* Opaque backing, so a card that has not decoded yet still occludes the one
+     behind it and the deck never looks see-through. */
+  background: var(--ink);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--paper) 12%, transparent);
+}
+
+/*
+ * Live only once the stack has landed: browsing it glides, while the
+ * scroll-driven phase stays instant. Card positions do not change past
+ * HANDOFF_END, so switching this on animates nothing by itself.
+ */
+.stack-card.is-settled {
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.hallway-stack:has(.is-settled) {
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hallway-card.is-settled {
+  .stack-card.is-settled {
     transition: none;
   }
 }
