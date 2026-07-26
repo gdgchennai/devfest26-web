@@ -107,6 +107,18 @@ body {
 }
 
 /*
+ * Holds only the flying photos, so their 3D tilt has somewhere to project.
+ * Deliberately not on the parent: the backdrop, beacon and stack must stay
+ * square to the viewer, and perspective on a shared ancestor would skew them.
+ */
+.hallway-corridor {
+  position: absolute;
+  inset: 0;
+  perspective: 1100px;
+  pointer-events: none;
+}
+
+/*
  * A photo card in the scroll hallway (see components/motion/usePhotoHallway.ts).
  * Starts hidden and centred so nothing flashes at full size before the first
  * frame renders. will-change/backface-visibility go on the cards themselves —

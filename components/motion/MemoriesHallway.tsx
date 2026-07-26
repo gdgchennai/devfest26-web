@@ -5,6 +5,7 @@ import { Frame } from "@/components/Frame";
 import {
   usePhotoHallway,
   cardWidthVw,
+  HALLWAY_CORRIDOR_CLASS,
   HALLWAY_CARD_CLASS,
   HALLWAY_BACKDROP_CLASS,
   HALLWAY_BEACON_CLASS,
@@ -46,25 +47,27 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
       <div className={HALLWAY_BACKDROP_CLASS} />
       <div className={HALLWAY_BEACON_CLASS} />
       <div className="absolute inset-0">
-        {flying.map((photo, i) => (
-          <div
-            key={photo.src}
-            className={HALLWAY_CARD_CLASS}
-            style={{
-              ["--card-w" as string]: `${cardWidthVw(i)}vw`,
-              ["--card-ar" as string]: `${photo.width} / ${photo.height}`,
-            }}
-          >
-            <Frame
-              src={photo.src}
-              alt={photo.description}
-              title={photo.title}
-              aspectRatio="auto"
-              sizes="40vw"
-              className="h-full w-full"
-            />
-          </div>
-        ))}
+        <div className={HALLWAY_CORRIDOR_CLASS}>
+          {flying.map((photo, i) => (
+            <div
+              key={photo.src}
+              className={HALLWAY_CARD_CLASS}
+              style={{
+                ["--card-w" as string]: `${cardWidthVw(i)}vw`,
+                ["--card-ar" as string]: `${photo.width} / ${photo.height}`,
+              }}
+            >
+              <Frame
+                src={photo.src}
+                alt={photo.description}
+                title={photo.title}
+                aspectRatio="auto"
+                sizes="40vw"
+                className="h-full w-full"
+              />
+            </div>
+          ))}
+        </div>
 
         <div className={HALLWAY_STACK_CLASS}>
           {stack.map((photo) => (

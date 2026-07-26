@@ -34,6 +34,43 @@ sets there is nothing to bring back — the stack simply arrives.
 `lib/content.ts` exports `hallwayPhotos` and `stackPhotos`; nothing should
 re-derive the split.
 
+## The corridor
+
+Flying photos hang on the walls of a short tube and tilt toward its axis, so
+they read as things you are passing rather than cards thrown at the lens. The
+middle stays clear, because that is where the destination sits.
+
+- **`CORRIDOR_LAYOUT`** switches `"walls"` (left and right only, current) and
+  `"tube"` (all round). **Both are the same construction** — a direction on a
+  ring around the axis, differing only in how the angles are distributed — so
+  switching is this one constant and nothing else.
+- **`CORRIDOR_X` / `CORRIDOR_Y` (0.24 / 0.16)** are the clear channel, as a
+  fraction of the half-viewport, *before* any outward drift. This floor is the
+  whole point: without it `drift` and `scale` both go to zero at birth, so every
+  photo was born exactly at the vanishing point — which is where the stack is.
+  Measured, a card sat dead-centre on the destination at **every** sampled
+  moment of the tunnel. Elliptical because the stack is 3:2.
+- **`TILT_Y` / `TILT_X` (34° / 22°)** turn each photo to face the axis,
+  sharpening across its life as the angle grows oblique. **The signs are not
+  symmetric and that is deliberate:** `rotateY(θ)` takes a front normal
+  `(0,0,1)` to `(sinθ,0,cosθ)`, so θ>0 faces *right* and a right-wall card must
+  face left — hence `-ux` on Y. `rotateX(θ)` gives `(0,−sinθ,cosθ)`, so θ>0
+  faces *up*, already correct for a card below the axis. Don't "tidy" them to
+  match.
+- **`PRIMED` (0.55)** is how far inside the corridor the camera already stands
+  when the curtain lifts. At 0.35 it opened on two small photos near the middle,
+  which read as *looking at* a corridor rather than *being in* one; at 0.65 the
+  nearest card is already half out of frame.
+- **`.hallway-corridor`** carries the `perspective` and wraps *only* the flying
+  photos. The backdrop, beacon and stack stay outside it; perspective on a
+  shared ancestor would skew them too.
+
+`tube` needs roughly twice the photos to read as *lined* rather than
+*scattered* — about 18 in the hallway role against the 10 that fill two walls.
+Measured occlusion with 10 photos: walls blocks the destination in 5 of 15
+sampled frames (1 in the first half), tube in 11 of 15 (6 in the first half).
+Revisit `tube` once the archive has grown.
+
 ## The progress map
 
 ```
@@ -162,7 +199,10 @@ string like `AJI02236` is an accessibility regression, not a convenience.
 | `TUNNEL_END` / `HANDOFF_END` | `0.72` / `0.9` | Where the fly-through ends and where the stack finishes moving aside. |
 | `STACK_FAR_SCALE` | `0.07` | How small the destination is at the far end. |
 | `STACK_APPROACH` | `2.4` | Exponent on the approach. Above 1 it stays a distant speck and arrives late, which is what reads as *getting closer*. At 1 it grows steadily and gives away the ending. |
-| `HERO_X` / `HERO_SCALE` | `0.46` / `0.74` | Where the stack parks in the hero, and how much it shrinks getting there. |
+| `ROW_SPAN` / `ROW_GAP` | `0.92` / `1.06` | How much of the width the spread row covers, and the gap between cards. |
+| `ROW_RISE` | `-0.3` | How far up the row travels, as a fraction of viewport height. |
+| `RISE_FROM` | `0.45` | How far the hero copy rises from, same units. |
+| `STACK_VISIBLE_BY` / `STACK_MIN_OPACITY` | `0.45` / `0.18` | Where the destination reaches full opacity, and how visible it is on frame one. **Ramped on `approach`, never on `bloom`** — see the note in the source. |
 | `WIDTHS` | 23–44vw cycle | Card widths. **Varied widths are what read as depth** — the photos are all ~3:2, so aspect ratio alone does nothing. |
 
 `perItemVh` is deliberately far below the 1.15 a standalone gallery of this kind
@@ -184,12 +224,37 @@ ScrollTrigger and crashes React's reconciliation.
 
 Both hero variants share `HeroCopy.tsx`. Change the tagline or CTAs there, once.
 
+## The curtain opens onto the corridor, not onto a photo
+
+There used to be a single hero image that clip-path opened and dissolved between
+the loader and the hallway. It made the intro hand off to *one picture* rather
+than to the space the whole thing is about, so it is gone — `startReveal` is now
+just the loader mask lifting and the curtain sweeping.
+
+`useIntroProgress` waits on **exactly what is on screen when it lifts** — the
+first three wall photos plus the front of the stack. It used to wait on
+`archivePhotos.slice(0, 3)`, which after the role split no longer matched what
+was visible, so a card could still be decoding when the corridor appeared.
+
 ## The copy belongs to the hero, not the tunnel
 
-The hero copy starts hidden whenever the tunnel will run — including for a
-returning visitor who skips the loader but still travels the hallway — and is
-revealed by `setCopyShown(true)` when the hook reports phase `hero`. The
-timeline is built once and reversed if the visitor scrolls back into the tunnel.
+The hero copy starts hidden in CSS (`.hallway-rise`) and is raised by the hook
+across the same scroll leg as the row, **as one sheet** — not line by line.
+
+Two decisions worth keeping:
+
+- **Scrubbed, not triggered.** An earlier version played a GSAP timeline when
+  the phase flipped, so the row moved with the visitor's scroll while the text
+  ran on its own clock. Driving it from `render()` means the visitor physically
+  pulls the page up under the row.
+- **One block, no per-line stagger.** The tunnel spends four viewport heights
+  establishing a space to travel through; ending that with five words each
+  emerging from their own clip switches to a fussier, purely typographic
+  language at the exact moment the spatial one should pay off. `HeroCopy` has no
+  animation hooks at all now — that is deliberate, don't add them back.
+- Only the copy moves. The sections below are off-screen behind the pinned hero,
+  so translating them would animate a tall subtree, force paint on all of it,
+  and fight the real scroll position on pin release — for no visible gain.
 
 This is load-bearing, not decoration. With the copy pinned over the flying
 photos, "Skip intro" was meaningless: the site was already on screen, so there

@@ -13,6 +13,7 @@ import { useIntroProgress } from "@/components/motion/useIntroProgress";
 import {
   usePhotoHallway,
   cardWidthVw,
+  HALLWAY_CORRIDOR_CLASS,
   HALLWAY_CARD_CLASS,
   HALLWAY_BEACON_CLASS,
   HALLWAY_BACKDROP_CLASS,
@@ -21,7 +22,7 @@ import {
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
-import { EASE_SETTLE, EASE_FACTS, EASE_CURTAIN } from "@/components/motion/eases";
+import { EASE_SETTLE, EASE_CURTAIN } from "@/components/motion/eases";
 import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
@@ -37,8 +38,6 @@ export function HeroSection() {
   const { lenisRef, curtainRef, curtainEl } = useMotion();
 
   const sectionRef = useRef<HTMLElement>(null);
-  const frameWrapRef = useRef<HTMLDivElement>(null);
-  const imageScaleRef = useRef<HTMLDivElement>(null);
   const loaderMaskRef = useRef<HTMLDivElement>(null);
 
   // Defaults to the static/disabled baseline (matches SSR and the no-JS
@@ -69,8 +68,6 @@ export function HeroSection() {
     document.getElementById("main")?.setAttribute("aria-busy", "true");
 
     gsap.set(curtainRef.current, { clipPath: "inset(0 0 0 0)", pointerEvents: "auto" });
-    gsap.set(frameWrapRef.current, { clipPath: "inset(38% 34% 38% 34% round 6px)", opacity: 1 });
-    gsap.set(imageScaleRef.current, { scale: 1.35 });
     // lenis/curtainRef are stable for the component's lifetime; shouldPlay
     // is the only input that should re-run this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,19 +93,13 @@ export function HeroSection() {
   const startReveal = contextSafe(() => {
     const tl = gsap.timeline({ onComplete: releaseIntro });
 
-    // Opens onto the mouth of the tunnel — no copy. The copy arrives later,
-    // when the stack does.
+    // Straight onto the corridor. There used to be a single hero photo that
+    // clip-path opened and then dissolved before the hallway appeared — a beat
+    // that made the loader hand off to *one picture* rather than to the space
+    // the whole intro is about. The curtain now reveals the corridor itself,
+    // already populated (see PRIMED), with no intermediate image.
     tl.to(loaderMaskRef.current, { yPercent: -110, duration: 0.62, ease: EASE_SETTLE }, 0)
-      .to(curtainRef.current, { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: EASE_CURTAIN }, 0.14)
-      .to(
-        frameWrapRef.current,
-        { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1.25, ease: EASE_SETTLE },
-        0.24,
-      )
-      .to(imageScaleRef.current, { scale: 1, duration: 1.7, ease: EASE_SETTLE }, 0.24)
-      // The opened frame hands off to the hallway — without this it stays an
-      // opaque layer forever, permanently hiding the photos scrolling behind it.
-      .to(frameWrapRef.current, { opacity: 0, duration: 0.6, ease: EASE_FACTS }, 1.1);
+      .to(curtainRef.current, { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: EASE_CURTAIN }, 0.14);
   });
 
 
@@ -116,14 +107,8 @@ export function HeroSection() {
   // playing it out; skip once the hallway is running jumps past it to the page.
   // eslint-disable-next-line react-hooks/refs
   const skipReveal = contextSafe(() => {
-    gsap.killTweensOf([
-      curtainRef.current,
-      frameWrapRef.current,
-      imageScaleRef.current,
-      loaderMaskRef.current,
-    ]);
+    gsap.killTweensOf([curtainRef.current, loaderMaskRef.current]);
     gsap.set(curtainRef.current, { clipPath: "inset(0 0 100% 0)" });
-    gsap.set(frameWrapRef.current, { opacity: 0 });
     // Deliberately does not reveal the copy: skipping the wait drops you at the
     // mouth of the tunnel, not past it. Skipping the tunnel is the other branch
     // of onSkip below.
@@ -144,7 +129,11 @@ export function HeroSection() {
     else target.scrollIntoView();
   }, [revealDone, skipReveal, lenisRef]);
 
-  const heroAssets = archivePhotos.slice(0, 3).map((p) => p.src);
+  // Exactly what is on screen the instant the curtain lifts: the nearest few
+  // wall photos plus the front of the stack. Measuring the first three entries
+  // of the archive instead meant one visible photo was never waited for, so the
+  // corridor could be revealed with a card still undecoded.
+  const heroAssets = [...hallwayPhotos.slice(0, 3), ...stackPhotos.slice(0, 1)].map((p) => p.src);
   const { progress, dotColor, showEscapeHatch } = useIntroProgress(
     heroAssets,
     startReveal,
@@ -196,27 +185,29 @@ export function HeroSection() {
       <div className="absolute inset-0 -z-10">
         <div className={HALLWAY_BACKDROP_CLASS} />
         <div className={HALLWAY_BEACON_CLASS} />
-        {flying.map((photo, i) => (
-          <div
-            key={photo.src}
-            className={HALLWAY_CARD_CLASS}
-            // Varied widths plus each photo's real ratio: identical boxes read
-            // as a slideshow, differing sizes read as depth.
-            style={{
-              ["--card-w" as string]: `${cardWidthVw(i)}vw`,
-              ["--card-ar" as string]: `${photo.width} / ${photo.height}`,
-            }}
-          >
-            <Frame
-              src={photo.src}
-              alt={photo.description}
-              title={photo.title}
-              aspectRatio="auto"
-              sizes="45vw"
-              className="h-full w-full"
-            />
-          </div>
-        ))}
+        <div className={HALLWAY_CORRIDOR_CLASS}>
+          {flying.map((photo, i) => (
+            <div
+              key={photo.src}
+              className={HALLWAY_CARD_CLASS}
+              // Varied widths plus each photo's real ratio: identical boxes read
+              // as a slideshow, differing sizes read as depth.
+              style={{
+                ["--card-w" as string]: `${cardWidthVw(i)}vw`,
+                ["--card-ar" as string]: `${photo.width} / ${photo.height}`,
+              }}
+            >
+              <Frame
+                src={photo.src}
+                alt={photo.description}
+                title={photo.title}
+                aspectRatio="auto"
+                sizes="45vw"
+                className="h-full w-full"
+              />
+            </div>
+          ))}
+        </div>
 
         {/* The destination. Present from the first frame, approaching in the
             distance, so arriving at it is earned rather than sudden. */}
@@ -241,24 +232,6 @@ export function HeroSection() {
       </div>
 
       <div className="relative flex min-h-[100vh] flex-col justify-end px-4 pb-16 pt-24 sm:px-8">
-        {/* Only visible during the entry reveal (opacity set to 1 there);
-            fades back out once settled so the hallway shows through on scroll. */}
-        <div
-          ref={frameWrapRef}
-          className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[6px] opacity-0"
-        >
-          <div ref={imageScaleRef} className="h-full w-full">
-            <Frame
-              src="/archive/2025-full-house.jpg"
-              alt="A speaker facing a packed auditorium at DevFest Chennai 2025."
-              title="Full house, 2025"
-              aspectRatio="auto"
-              preload
-              className="h-full w-full"
-            />
-          </div>
-        </div>
-
         {/* Left half on desktop: the stack parks on the right, so the two share
             the hero instead of the copy sitting on top of the photos. */}
         <div className={`relative lg:max-w-[48%] ${HALLWAY_RISE_CLASS}`}>

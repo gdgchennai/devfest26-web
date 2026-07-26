@@ -29,13 +29,17 @@ const APPROACH = 1.2; // depth travelled while a card fades and scales in
 const PASS = 0.9; // depth travelled past the camera plane before it is gone
 
 /**
- * How far into its life the nearest photo already is at progress 0. Without it
- * the camera starts exactly where the first card begins to exist, so the tunnel
- * opens on an empty frame and only populates once you scroll — you would arrive
- * to nothing. At 0.35 two photos are already in flight when the curtain lifts,
- * so there is something to be moving *through* from the first moment.
+ * How far into its life the nearest photo already is at progress 0 — in effect,
+ * how far inside the corridor the camera already stands when the curtain lifts.
+ *
+ * Without it the camera sits exactly where the first card begins to exist, so
+ * the tunnel opens on an empty frame. At 0.35 it opened on two small photos
+ * floating near the middle, which read as *looking at* a corridor rather than
+ * *being in* one. At 0.55 the nearest is ~29vw wide and 25vw off-centre with
+ * two more receding behind it. Higher again (0.65) opens on a 40vw card already
+ * half out of frame, which is too close to establish the space.
  */
-const PRIMED = 0.35;
+const PRIMED = 0.55;
 
 /**
  * Scroll budget per photo, in viewport heights. Deliberately well below the
@@ -74,8 +78,64 @@ const ROW_GAP = 1.06;
 /** How far up the row travels, as a fraction of viewport height. */
 const ROW_RISE = -0.3;
 
+/**
+ * Where the photos hang. Both layouts are the same construction — a direction
+ * on a ring around the tunnel axis — differing only in how the angles are
+ * distributed, so switching is this one constant and nothing else.
+ *
+ * `walls` clusters them left and right; `tube` spreads them evenly all round.
+ * A tube needs roughly twice as many photos alive at once to read as *lined*
+ * rather than *scattered* (~18 hallway photos vs the 10 that populate two
+ * walls comfortably), so it wants the archive to grow first.
+ */
+type CorridorLayout = "walls" | "tube";
+const CORRIDOR_LAYOUT: CorridorLayout = "walls";
+
+/**
+ * Clear channel down the middle, as a fraction of the half-viewport, before
+ * any outward drift. Without this every card is born at the vanishing point —
+ * which is exactly where the destination sits, so the newest photo covered it
+ * at every single moment of the tunnel. Elliptical because the stack is 3:2.
+ */
+const CORRIDOR_X = 0.24;
+const CORRIDOR_Y = 0.16;
+/** Scales the outward drift, since placements are now unit vectors. */
+const SPREAD = 0.6;
+
+/**
+ * Tilt toward the corridor axis, in degrees, so photos read as hung on walls
+ * being passed rather than as flat cards flying at the lens. Sharpens across a
+ * card's life as the viewing angle grows more oblique.
+ *
+ * Signs are not symmetric, and the derivation is worth keeping: rotateY(θ)
+ * takes a front normal (0,0,1) to (sinθ,0,cosθ), so θ>0 faces *right* — a card
+ * on the right wall has to face left, hence the negation on Y. rotateX(θ)
+ * takes it to (0,−sinθ,cosθ), so θ>0 faces *up*, which is already what a card
+ * below the axis wants. Only Y is negated.
+ */
+const TILT_Y = 34;
+const TILT_X = 22;
+
 /** Card widths in vw, cycled. Varied sizes are what read as depth — see note in the hook. */
 const WIDTHS = [30, 38, 26, 44, 32, 24, 36, 28, 42, 27, 34, 23];
+
+/**
+ * Unit direction from the tunnel axis for card `index`, plus a per-card radius
+ * wobble so the wall does not read as a ruled line.
+ */
+function corridorPlacement(index: number, layout: CorridorLayout) {
+  const radius = 0.86 + 0.28 * ((index * 0.382) % 1);
+  if (layout === "tube") {
+    // Golden angle: spreads points evenly round the ring without clumping.
+    const angle = index * 137.508 * (Math.PI / 180);
+    return { ux: Math.cos(angle) * radius, uy: Math.sin(angle) * radius };
+  }
+  // Alternate walls, and scatter up and down each one so the two sides do not
+  // read as two neat rows of pictures.
+  const side = index % 2 === 0 ? -1 : 1;
+  const jitter = ((index * 0.618) % 1) * 2 - 1;
+  return { ux: side * radius, uy: jitter * 0.55 * radius };
+}
 
 function deterministicOffset(index: number): PhotoOffset {
   // Golden-angle scatter: spreads points off-centre and off the diagonals
@@ -94,6 +154,12 @@ export function cardWidthVw(index: number): number {
   return WIDTHS[index % WIDTHS.length];
 }
 
+/**
+ * Wrapper holding only the flying photos. Carries the `perspective` that makes
+ * their tilt read as 3D — kept off the backdrop, beacon and stack, which must
+ * stay square to the viewer.
+ */
+export const HALLWAY_CORRIDOR_CLASS = "hallway-corridor";
 /** A photo that flies past the camera. */
 export const HALLWAY_CARD_CLASS = "hallway-card";
 /** Wrapper for the destination photos; carries the group transform and opacity. */
@@ -170,7 +236,9 @@ export function usePhotoHallway({
     const rising = container.querySelector<HTMLElement>(`.${HALLWAY_RISE_CLASS}`);
     if (flyCards.length === 0 && stackCards.length === 0) return;
 
-    const flyOffsets = Array.from({ length: flyCount }, (_, i) => deterministicOffset(i));
+    const flyPlacements = Array.from({ length: flyCount }, (_, i) =>
+      corridorPlacement(i, CORRIDOR_LAYOUT),
+    );
     const stackOffsets = Array.from({ length: stackCount }, (_, i) => deterministicOffset(i + 7));
 
     let phase: HallwayPhase = "tunnel";
@@ -206,7 +274,7 @@ export function usePhotoHallway({
 
       for (let i = 0; i < flyCards.length; i += 1) {
         const el = flyCards[i];
-        const offset = flyOffsets[i];
+        const { ux, uy } = flyPlacements[i];
         // p runs 0 -> 1 across this card's whole life, from fade-in to gone.
         const p = (cam - depths[i] + APPROACH) / (APPROACH + PASS);
 
@@ -217,11 +285,16 @@ export function usePhotoHallway({
         }
 
         const scale = 0.15 + (maxScale - 0.15) * easeInAccelerating(p);
-        // Hug the centre, then accelerate outward — a linear drift makes cards
-        // look like they are sliding rather than passing the camera.
-        const drift = Math.pow(p, 1.4);
-        const dx = offset.ox * drift * scale * vw * 0.5;
-        const dy = offset.oy * drift * scale * vh * 0.5;
+        // Hug the wall, then accelerate outward — a linear drift makes cards
+        // look like they are sliding rather than passing the camera. The
+        // corridor term is the floor that keeps the middle clear.
+        const drift = Math.pow(p, 1.4) * scale * SPREAD;
+        const dx = ux * (CORRIDOR_X + drift) * vw * 0.5;
+        const dy = uy * (CORRIDOR_Y + drift) * vh * 0.5;
+        // Turn to face the axis, more sharply as the angle grows oblique.
+        const tilt = 0.6 + 0.4 * p;
+        const ry = -ux * TILT_Y * tilt;
+        const rx = uy * TILT_X * tilt;
 
         // Direct style writes rather than gsap.set(): this runs for every card
         // every frame, and gsap.set re-parses unit strings and walks its
@@ -229,7 +302,7 @@ export function usePhotoHallway({
         el.style.opacity = clamp(Math.min(p / 0.14, (1 - p) / 0.16)).toFixed(3);
         el.style.transform =
           `translate(-50%, -50%) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) ` +
-          `scale(${scale.toFixed(3)})`;
+          `rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
         // Nearer cards paint over farther ones, by depth rather than by index.
         // Offset past the destination layer (z-index 2) and the beacon (1):
         // every flying photo is nearer than the far end of the tunnel, so a
