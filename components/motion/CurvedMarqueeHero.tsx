@@ -5,9 +5,14 @@ import Link from "next/link";
 import * as THREE from "three";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
 import { siteConfig } from "@/site.config";
 import { prefersReducedMotion } from "@/lib/motion-prefs";
+import { RollingText } from "@/components/motion/RollingText";
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* ------------------------------------------------------------------ *
  * A 3D curved image slider, ported from the reference WebGL technique
@@ -21,6 +26,9 @@ const IMAGE_SRCS = archivePhotos.slice(0, 8).map((p) => p.src);
 
 /** Marquee speed, inter-plane gap (%), bend strength, scroll direction. */
 const OPTS = { speed: 22, gap: 24, curve: 14, direction: -1 };
+
+/** Max forward "coin flip" tilt (about the horizontal axis) as the hero scrolls out. */
+const SCROLL_FLIP_RAD = (65 * Math.PI) / 180;
 
 const VERTEX_SHADER = /* glsl */ `
   uniform float curve;
@@ -54,6 +62,7 @@ const FRAGMENT_SHADER = /* glsl */ `
 const planeStep = () => 1 + OPTS.gap / 100;
 
 export function CurvedMarqueeHero() {
+  const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const ticketHref = siteConfig.ticketing.url ?? "/agenda";
@@ -140,6 +149,22 @@ export function CurvedMarqueeHero() {
 
     build();
 
+    // Scroll-driven forward flip: as the hero scrolls out, tilt the WHOLE
+    // carousel about its horizontal axis like a coin flipping forward, up to
+    // SCROLL_FLIP_RAD. The marquee keeps running underneath it.
+    let flip = 0;
+    const trigger = reduce
+      ? null
+      : ScrollTrigger.create({
+          trigger: sectionRef.current ?? view,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+          onUpdate: (self) => {
+            flip = self.progress;
+          },
+        });
+
     let raf = 0;
     let time = 0;
     let prev = performance.now();
@@ -150,6 +175,7 @@ export function CurvedMarqueeHero() {
       if (Math.abs(scene.position.x) >= planeStep() * slideAmount) time = 0;
       time += OPTS.direction * dt * 0.00001;
       scene.position.x = time * OPTS.speed;
+      scene.rotation.x = flip * SCROLL_FLIP_RAD;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
     }
@@ -165,6 +191,7 @@ export function CurvedMarqueeHero() {
 
     return () => {
       cancelAnimationFrame(raf);
+      trigger?.kill();
       window.removeEventListener("resize", onResize);
       disposePlanes();
       geometry.dispose();
@@ -263,7 +290,10 @@ export function CurvedMarqueeHero() {
   }, []);
 
   return (
-    <section className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden bg-black">
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden"
+    >
       {/* WebGL canvas mounts here — the curved, bending photo strip. */}
       <div ref={containerRef} className="pointer-events-none absolute inset-0" />
 
@@ -288,11 +318,11 @@ export function CurvedMarqueeHero() {
         className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper sm:gap-16 sm:text-xl"
         style={{ bottom: "16%" }}
       >
-        <Link href={ticketHref} className="transition-opacity hover:opacity-60">
-          Get Tickets →
+        <Link href={ticketHref}>
+          <RollingText>Get Tickets →</RollingText>
         </Link>
-        <Link href="/agenda" className="transition-opacity hover:opacity-60">
-          See Agenda →
+        <Link href="/agenda">
+          <RollingText>See Agenda →</RollingText>
         </Link>
       </div>
     </section>

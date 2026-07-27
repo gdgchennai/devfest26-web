@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useClientValue } from "@/lib/useClientValue";
+import { RollingText } from "@/components/motion/RollingText";
 
 /* ------------------------------------------------------------------ *
  * Geometry + timeline, lifted verbatim from loader.html.
@@ -68,11 +69,44 @@ const bump = (u: number) => (u <= 0 || u >= 1 ? 0 : (1 - Math.cos(TAU * u)) / 2)
 const bounceY = (i: number, t: number) =>
   -B_AMP * bump((t - (B_START + SPEC[i].stagger * B_STAG)) / B_DUR);
 
+// The final mark rectangles (in the SVG's viewBox space), used to punch the
+// mark's shape out of the white field on enter — turning the logo into a
+// transparent window onto whatever is behind it.
+const MARK_RECTS = SPEC.map((s) => ({
+  cx: s.ex,
+  cy: s.ey,
+  w: END_W,
+  h: END_H,
+  rot: s.rot,
+  rx: Math.min(END_W, END_H) / 2,
+}));
+
+/**
+ * A CSS mask (`url(...)`) that is opaque white everywhere except the mark's
+ * shapes, which are cut to transparent — so applying it to the white field
+ * leaves mark-shaped holes aligned exactly over the on-screen logo (`rect` is
+ * the live bounding box of the mark <svg>; viewBox is "0 250 1728 535").
+ */
+function buildHoleMask(rect: DOMRect, vw: number, vh: number): string {
+  const k = rect.width / 1728;
+  const holes = MARK_RECTS.map((r) => {
+    const cx = rect.left + (r.cx / 1728) * rect.width;
+    const cy = rect.top + ((r.cy - 250) / 535) * rect.height;
+    const w = r.w * k;
+    const h = r.h * k;
+    return `<rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${(r.rx * k).toFixed(1)}" fill="black" transform="rotate(${r.rot} ${cx.toFixed(1)} ${cy.toFixed(1)})"/>`;
+  }).join("");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${vw}" height="${vh}"><defs><mask id="h"><rect width="${vw}" height="${vh}" fill="white"/>${holes}</mask></defs><rect width="${vw}" height="${vh}" fill="white" mask="url(#h)"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
 type LoaderProps = {
   /** True once the hero assets have decoded. The bounce finishes its current loop, then morphs. */
   loadingComplete: boolean;
-  /** Fired when the visitor clicks the CTA. The overlay lifts and the caller drives the scroll. */
+  /** Fired when the visitor clicks the CTA — mount the flythrough behind the mask holes. */
   onEnter: () => void;
+  /** Fired once the white field has fully cleared — the flythrough can start flying now. */
+  onReveal: () => void;
 };
 
 /**
@@ -81,7 +115,7 @@ type LoaderProps = {
  * stacking context. aria-hidden — the loading announcement and any skip live
  * on the page beneath it.
  */
-export function Loader({ loadingComplete, onEnter }: LoaderProps) {
+export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
   const rootRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -209,18 +243,34 @@ export function Loader({ loadingComplete, onEnter }: LoaderProps) {
     if (entered) return;
     setEntered(true);
     onEnter();
-    // Fly the camera *through* the mark: the whole white field scales up from
-    // its centre and fades to transparent, as if the loader were a window we
-    // push through — the hallway (already flying past on the auto-scroll
-    // beneath) resolves as the white clears. Accelerating ease so it reads as
-    // gaining speed into the tunnel rather than a flat dissolve.
-    gsap.to(rootRef.current, {
-      scale: 6.5,
-      autoAlpha: 0,
-      transformOrigin: "50% 50%",
-      duration: 1.3,
-      ease: "power2.in",
-    });
+
+    const root = rootRef.current;
+    const svg = svgRef.current;
+    if (!root || !svg) return;
+
+    // 1. The button disappears.
+    if (ctaRef.current) gsap.to(ctaRef.current, { autoAlpha: 0, duration: 0.3, ease: "power1.out" });
+
+    // 2. The mark becomes a transparent mask: punch its shape out of the white
+    // field so the flythrough (mounted behind on enter) shows through it, and
+    // fade the coloured logo away since it *is* the holes now.
+    const mask = buildHoleMask(svg.getBoundingClientRect(), window.innerWidth, window.innerHeight);
+    root.style.transformOrigin = "50% 50%";
+    root.style.maskImage = mask;
+    root.style.setProperty("-webkit-mask-image", mask);
+    root.style.maskRepeat = "no-repeat";
+    root.style.setProperty("-webkit-mask-repeat", "no-repeat");
+    root.style.maskSize = "100% 100%";
+    root.style.setProperty("-webkit-mask-size", "100% 100%");
+    gsap.to(svg, { autoAlpha: 0, duration: 0.4, ease: "power1.out" });
+
+    // 3. Slow pull-zoom into the mark. The white holds through the zoom, then
+    // fades once we're deep in — revealing the flythrough section beneath. Only
+    // once the white has fully cleared does the flythrough start flying.
+    gsap
+      .timeline({ onComplete: onReveal })
+      .to(root, { scale: 8, duration: 2.2, ease: "power2.in" }, 0)
+      .to(root, { autoAlpha: 0, duration: 0.6, ease: "power1.out" }, 1.6);
   };
 
   if (!mounted) return null;
@@ -254,10 +304,10 @@ export function Loader({ loadingComplete, onEnter }: LoaderProps) {
         type="button"
         onClick={handleEnter}
         style={{ visibility: "hidden" }}
-        className="rounded-full px-3 py-1 text-lg text-ink outline-none transition-opacity hover:opacity-60 focus-visible:ring-2 focus-visible:ring-ink/40 disabled:opacity-40 sm:text-xl"
+        className="rounded-full px-3 py-1 text-lg text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/40 disabled:opacity-40 sm:text-xl"
         disabled={entered}
       >
-        Enter the DevFest experience →
+        <RollingText>Enter the DevFest experience →</RollingText>
       </button>
     </div>,
     document.body,

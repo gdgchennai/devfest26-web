@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 
 /**
- * Minimum time the loader stays up even on an instant (cached) load, so the
- * bounce always reads as a deliberate beat rather than a flash.
+ * Minimum time the loader stays up even on an instant (cached) load — a pseudo
+ * loading beat. A bounce cycle is ~1.25s, so ~2s guarantees the dots bounce two
+ * full times before the morph, rather than flashing past.
  */
-const MIN_DURATION = 1200;
-/** Hard ceiling — a stalled or failed decode must never trap the visitor. */
-const WATCHDOG = 6000;
+const MIN_DURATION = 2000;
+/**
+ * Hard ceiling so a stalled or failed decode never traps the visitor. Generous
+ * (the bounce is meant to hold until everything is genuinely ready) but finite.
+ */
+const WATCHDOG = 15000;
 
 /**
  * Resolves to `true` once every asset has decoded (or the watchdog fires),

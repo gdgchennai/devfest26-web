@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 // noticeably lighter charcoal page. Kept as a literal because `viewport` is
 // serialised at build time and cannot read a CSS custom property.
 export const viewport: Viewport = {
-  themeColor: "#1e1e1e",
+  themeColor: "#000000",
   colorScheme: "dark",
 };
 

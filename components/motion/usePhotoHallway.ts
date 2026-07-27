@@ -302,8 +302,17 @@ export type HallwayOptions = {
    * flythrough as a fixed overlay (no scrolling), then hands off to the hero.
    */
   autoplay?: boolean;
-  /** Seconds the autoplay run takes (ignored unless `autoplay`). */
+  /** Seconds the autoplay run takes at 1× (ignored unless `autoplay`). */
   autoplayDuration?: number;
+  /**
+   * Playback rate the autoplay run STARTS at. The homepage begins slow (~0.25×)
+   * so the photos drift gently behind the loader's mask holes during the
+   * portal zoom, then ramps to 1× once the white clears (via the tween handed
+   * to `onAutoplayReady`).
+   */
+  autoplayInitialTimeScale?: number;
+  /** Receives the autoplay tween so the caller can retime it (e.g. slow → 1×). */
+  onAutoplayReady?: (tween: gsap.core.Tween) => void;
   /**
    * Progress value the autoplay run stops at (default 1). The homepage stops
    * early (~0.8): the flying photos have all passed by ~0.72, so the remaining
@@ -329,6 +338,8 @@ export function usePhotoHallway({
   autoplay = false,
   autoplayDuration = 4,
   autoplayTo = 1,
+  autoplayInitialTimeScale = 1,
+  onAutoplayReady,
   onAutoplayProgress,
   onAutoplayComplete,
 }: HallwayOptions) {
@@ -582,7 +593,7 @@ export function usePhotoHallway({
     if (autoplay) {
       measure();
       render(0);
-      gsap.to(proxy, {
+      const tween = gsap.to(proxy, {
         p: autoplayTo,
         duration: autoplayDuration,
         ease: "none",
@@ -592,6 +603,9 @@ export function usePhotoHallway({
         },
         onComplete: () => onAutoplayComplete?.(),
       });
+      // Start slow (drifting behind the mask holes); the caller ramps to 1×.
+      tween.timeScale(autoplayInitialTimeScale);
+      onAutoplayReady?.(tween);
       return;
     }
 
@@ -617,7 +631,7 @@ export function usePhotoHallway({
     render(0);
   }, {
     scope: containerRef,
-    dependencies: [flyCount, stackCount, maxScale, perItemVh, riseToTop, disabled, autoplay, autoplayDuration, autoplayTo],
+    dependencies: [flyCount, stackCount, maxScale, perItemVh, riseToTop, disabled, autoplay, autoplayDuration, autoplayTo, autoplayInitialTimeScale],
     revertOnUpdate: true,
   });
 }

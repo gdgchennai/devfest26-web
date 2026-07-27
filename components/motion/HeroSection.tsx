@@ -2,10 +2,9 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { hallwayPhotos } from "@/lib/content";
+import { archivePhotos, hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { Loader } from "@/components/motion/Loader";
-import { IntroEscape } from "@/components/motion/IntroEscape";
 import { CurvedMarqueeHero } from "@/components/motion/CurvedMarqueeHero";
 import { useAssetsLoaded } from "@/components/motion/useAssetsLoaded";
 import {
@@ -51,6 +50,9 @@ export function HeroSection() {
   const shouldPlay = !disableHallway && !seenIntro;
   const [revealDone, setRevealDone] = useState(false);
   const [entering, setEntering] = useState(false);
+  // The flythrough autoplay tween, held so we can ramp it from its slow
+  // portal-transition speed up to 1× once the loader's white layer clears.
+  const flyTweenRef = useRef<gsap.core.Tween | null>(null);
 
   const flying = isDesktop ? hallwayPhotos : hallwayPhotos.slice(0, MOBILE_FLY_COUNT);
   const maxScale = isDesktop ? 3.2 : 2.4;
@@ -76,17 +78,27 @@ export function HeroSection() {
     document.body.style.overflow = "";
     document.getElementById("main")?.removeAttribute("aria-busy");
     window.sessionStorage.setItem(INTRO_SEEN_KEY, "1");
-    if (heroWrapRef.current) {
-      gsap.set(heroWrapRef.current, { clearProps: "transform,opacity,visibility" });
-    }
     setEntering(false);
     setRevealDone(true);
   }, [lenisRef]);
 
-  // "Enter" clicked. Mount the flythrough overlay (it autoplays on mount) and
-  // let the Loader zoom its white field away over it. No scrolling involved.
+  // "Enter" clicked. Mount the flythrough overlay; it starts drifting slowly
+  // (0.25×) behind the loader's mask holes while the white zooms away.
   const enterExperience = useCallback(() => {
     setEntering(true);
+  }, []);
+
+  const onFlyReady = useCallback((tween: gsap.core.Tween) => {
+    flyTweenRef.current = tween;
+  }, []);
+
+  // The loader's white layer has finished clearing — gradually accelerate the
+  // flythrough from its slow drift up to full 1× speed (no abrupt jump), so it
+  // eases into flying in properly and lands on the hero.
+  const startFlythrough = useCallback(() => {
+    if (flyTweenRef.current) {
+      gsap.to(flyTweenRef.current, { timeScale: 1, duration: 1, ease: "power2.in" });
+    }
   }, []);
 
   // Per-frame during the flythrough: ease the hero in behind it and fade the
@@ -108,7 +120,10 @@ export function HeroSection() {
     if (fly) fly.style.opacity = (1 - clamp((p - 0.58) / 0.2)).toFixed(3);
   }, []);
 
-  const heroAssets = hallwayPhotos.slice(0, 3).map((p) => p.src);
+  // Wait on EVERY archive image the intro + hero will show — the 4-dot bounce
+  // keeps looping until all of them (flythrough photos and the curved-hero
+  // marquee) have decoded, so nothing pops in unloaded once we enter.
+  const heroAssets = archivePhotos.map((p) => p.src);
   const loadingComplete = useAssetsLoaded(heroAssets, !shouldPlay);
 
   usePhotoHallway({
@@ -121,19 +136,29 @@ export function HeroSection() {
     autoplay: true,
     autoplayDuration: Math.min(6, Math.max(3, flying.length * 0.4 + 1.5)),
     autoplayTo: AUTOPLAY_TO,
+    autoplayInitialTimeScale: 0.5,
+    onAutoplayReady: onFlyReady,
     onAutoplayProgress: onFlyProgress,
     onAutoplayComplete: releaseIntro,
   });
 
-  // Reduced-motion / Save-Data / lite, and every reload after the first visit:
-  // straight to the hero, no intro.
-  if (disableHallway || seenIntro) {
-    return <CurvedMarqueeHero />;
-  }
+  // Reveal the hero for good once the intro is done. This runs AFTER
+  // usePhotoHallway's revert (which, when the flythrough tears down, snaps the
+  // hero back to its hidden start frame via onFlyProgress) — declared after it,
+  // so this layout effect wins and the hero doesn't stay invisible.
+  useLayoutEffect(() => {
+    if (!revealDone || !heroWrapRef.current) return;
+    gsap.set(heroWrapRef.current, { clearProps: "transform,opacity,visibility" });
+  }, [revealDone]);
 
+  // The hero (CurvedMarqueeHero) is ALWAYS rendered here, in this exact tree
+  // position, whether or not the intro plays — so it never unmounts/remounts
+  // when the intro ends (releaseIntro writes intro-seen, which would otherwise
+  // flip `seenIntro` and swap render branches, tearing down its WebGL). Only
+  // the intro overlays below are conditional.
   return (
     <>
-      {/* The hero is present the whole time — it just starts hidden and zoomed
+      {/* Present the whole time. During the intro it starts hidden and zoomed
           out, then eases in as the flythrough ends (see onFlyProgress). */}
       <div ref={heroWrapRef} style={{ transformOrigin: "50% 50%", willChange: "transform, opacity" }}>
         <CurvedMarqueeHero />
@@ -141,7 +166,7 @@ export function HeroSection() {
 
       {/* The flythrough: a fixed overlay of photos flying past on black,
           auto-played (no scroll), fading out as the hero lands beneath it. */}
-      {entering && !revealDone && (
+      {shouldPlay && entering && !revealDone && (
         <section ref={flythroughRef} aria-hidden className="fixed inset-0 z-[500] overflow-hidden">
           <div className="absolute inset-0">
             <div className={HALLWAY_BACKDROP_CLASS} />
@@ -170,9 +195,13 @@ export function HeroSection() {
         </section>
       )}
 
-      {entering && !revealDone && <IntroEscape phase="hallway" emphasis onSkip={releaseIntro} />}
-
-      {!revealDone && <Loader loadingComplete={loadingComplete} onEnter={enterExperience} />}
+      {shouldPlay && !revealDone && (
+        <Loader
+          loadingComplete={loadingComplete}
+          onEnter={enterExperience}
+          onReveal={startFlythrough}
+        />
+      )}
     </>
   );
 }
