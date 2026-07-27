@@ -16,8 +16,11 @@ const EXPECT_CARDS = siteConfig.whatYoullGet;
 
 /**
  * The dark "What to expect" section that follows the hero: a pinned panel whose
- * leaning card row scrolls horizontally as the visitor scrolls down (native
- * swipe on touch / narrow screens). The brand-shape backdrop shows behind it.
+ * leaning card row scrolls horizontally as the visitor scrolls down. This runs
+ * on ALL screen sizes (mobile included) so the horizontal scroll is driven the
+ * same way everywhere — by the page scroll (wheel / trackpad / touch) — rather
+ * than a native swipe on mobile and a pin on desktop. The brand-shape backdrop
+ * shows behind it.
  *
  * Carries the load-bearing `id="after-hero"` (skip link + hero escape target).
  * Under reduced-motion / lite / save-data it degrades to a static row.
@@ -36,32 +39,27 @@ export function ExpectShowcase() {
       const track = trackRef.current;
       const pin = pinRef.current;
 
-      // Pin + horizontal scroll only on wider screens; touch/narrow screens get
-      // native horizontal swipe (overflow-x-auto below md), which is smoother
-      // there than a hijacked pin. (The hash spins off the whole-page scroll in
-      // HashTitle, so it keeps turning through the pin on its own.)
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 768px)", () => {
-        const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
-        const tween = gsap.to(track, {
-          x: () => -distance(),
-          ease: "none",
-          scrollTrigger: {
-            trigger: pin,
-            start: "top top",
-            end: () => `+=${distance()}`,
-            scrub: 1,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            // Refresh before downstream triggers (e.g. WhyJoin's theme scrub) so
-            // this pin's spacer is in place when they measure their positions.
-            refreshPriority: 1,
-          },
-        });
-        return () => tween.kill();
+      // Pin + scroll-jack the row horizontally at every breakpoint (no mobile
+      // native-swipe exception). invalidateOnRefresh recomputes the distance on
+      // resize so it stays correct across widths.
+      const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+      const tween = gsap.to(track, {
+        x: () => -distance(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: pin,
+          start: "top top",
+          end: () => `+=${distance()}`,
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          // Refresh before downstream triggers (e.g. WhyJoin's theme scrub) so
+          // this pin's spacer is in place when they measure their positions.
+          refreshPriority: 1,
+        },
       });
-      return () => mm.revert();
+      return () => tween.kill();
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );
@@ -77,7 +75,7 @@ export function ExpectShowcase() {
             <HashTitle>What to expect</HashTitle>
           </div>
 
-          <div className="overflow-x-auto md:overflow-hidden [scrollbar-width:none]">
+          <div className="overflow-hidden [scrollbar-width:none]">
             <div ref={trackRef} className="flex gap-10 px-8 will-change-transform sm:px-14">
               {EXPECT_CARDS.map((item, i) => {
                 // Placeholder imagery for now — cycles the local archive photos.

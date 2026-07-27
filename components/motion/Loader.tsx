@@ -304,7 +304,7 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
         type="button"
         onClick={handleEnter}
         style={{ visibility: "hidden" }}
-        className="rounded-full px-3 py-1 text-lg text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/40 disabled:opacity-40 sm:text-xl"
+        className="rounded-full px-3 py-1 text-2xl text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/40 disabled:opacity-40 sm:text-3xl"
         disabled={entered}
       >
         <RollingText>Enter the DevFest experience →</RollingText>

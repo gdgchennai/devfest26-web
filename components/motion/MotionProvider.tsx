@@ -45,7 +45,13 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
   // One Lenis instance for the whole site, created here and kept alive
   // across route changes (root layout never remounts on navigation).
   useEffect(() => {
+    // Always land at the top on a fresh load / refresh — opt out of the
+    // browser's native scroll restoration and reset before Lenis takes over.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+
     const instance = new Lenis({ autoRaf: false });
+    instance.scrollTo(0, { immediate: true, force: true });
     const tick = (time: number) => instance.raf(time * 1000);
     instance.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(tick);
