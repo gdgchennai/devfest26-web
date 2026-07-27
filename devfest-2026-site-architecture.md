@@ -297,9 +297,9 @@ Non-negotiable:
   are actually looking for.
 - Minimum 16px body, high contrast, generous tap targets.
 - Test on a mid-range Android over throttled 3G before the event, not on your laptop.
-- Reachable in one tap from the loader's escape-hatch row and from the header on every route. The
-  path from "landed on the site" to "reading the agenda" should never require finishing an
-  animation.
+- Reachable from the header on every route, and the first-visit intro can be skipped straight
+  through (the "Skip intro" control during the enter-scroll, or Escape). The path from "landed on
+  the site" to "reading the agenda" should never require finishing an animation.
 
 ---
 
@@ -308,7 +308,10 @@ Non-negotiable:
 Built once in the root layout, consumed everywhere. **This lands before anything else.**
 
 - **`<Frame>`** — every image on every route, including speaker headshots and sponsor logos.
-- **The ink curtain** — intro mode on first session load, transition mode on route change.
+- **The ink curtain** — route-transition sweeps between pages. The first-visit intro is its own
+  full-screen white loader overlay (`components/motion/Loader.tsx`): the four brand dots bounce in
+  a loop while assets decode, then morph into the DevFest `> <` mark, and an "Enter the DevFest
+  experience" button hands off to a simulated smooth scroll through the hallway.
 - **One Lenis instance** — created in the layout, never per-page.
 - **`site.config.ts`** — single source of truth for every fact.
 - **Lite mode** — `?lite=1` plus a persisted preference, exposed as a "Lite version" link in the
@@ -365,8 +368,8 @@ design — community events are typically required to state plainly that they're
 rather than a Google product, and there are usually constraints on how the four Google colours and
 the Google logo may be used.
 
-This matters practically because the loader dot and the fallback panels both lean on those four
-colours. If the kit restricts that usage, those are the two places to adapt, and it is much
+This matters practically because the loader mark (all four dots/pills) and the fallback panels
+both lean on those four colours. If the kit restricts that usage, those are the two places to adapt, and it is much
 cheaper to know now.
 
 ### The palette, as implemented

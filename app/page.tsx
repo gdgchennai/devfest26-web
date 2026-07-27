@@ -5,7 +5,8 @@ import { Card } from "@/components/Card";
 import { Section } from "@/components/Section";
 import { Faq } from "@/components/Faq";
 import { SectionBoundary } from "@/components/SectionBoundary";
-import { HeroSection, StaticHero } from "@/components/motion/HeroSection";
+import { HeroSection } from "@/components/motion/HeroSection";
+import { CurvedMarqueeHero } from "@/components/motion/CurvedMarqueeHero";
 import { TrackCards } from "@/components/TrackCards";
 import { AgendaTimeline } from "@/components/AgendaTimeline";
 import { SpeakerWall } from "@/components/SpeakerWall";
@@ -18,7 +19,7 @@ export default function Home() {
     <>
       {/* If the motion hero throws at runtime, degrade to the static hero
           instead of taking down the whole homepage. */}
-      <SectionBoundary label="hero" fallback={<StaticHero />}>
+      <SectionBoundary label="hero" fallback={<CurvedMarqueeHero />}>
         <HeroSection />
       </SectionBoundary>
 

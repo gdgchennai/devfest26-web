@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 function getServerNow() {
   return null;
@@ -20,19 +20,20 @@ export function useNow(): Date | null {
   // useSyncExternalStore requires (calling Date.now() directly as getSnapshot
   // would "change" on every call and defeat the point of the store).
   const cachedNow = useRef<number | null>(null);
-  const nowMs = useSyncExternalStore(
-    (callback) => {
+  // subscribe MUST keep a stable identity: useSyncExternalStore re-subscribes
+  // whenever it changes, and this subscribe calls callback() synchronously — an
+  // inline function would re-subscribe every render, each pass writing a fresh
+  // Date.now() and forcing another render, i.e. an infinite update loop.
+  const subscribe = useCallback((callback: () => void) => {
+    cachedNow.current = Date.now();
+    callback();
+    const id = setInterval(() => {
       cachedNow.current = Date.now();
       callback();
-      const id = setInterval(() => {
-        cachedNow.current = Date.now();
-        callback();
-      }, 60_000);
-      return () => clearInterval(id);
-    },
-    () => cachedNow.current,
-    getServerNow,
-  );
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const nowMs = useSyncExternalStore(subscribe, () => cachedNow.current, getServerNow);
 
   return nowMs === null ? null : new Date(nowMs);
 }

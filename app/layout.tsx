@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { siteConfig } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
@@ -66,11 +66,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${googleSans.variable} h-full antialiased`}>
+    // suppressHydrationWarning: the inline script below intentionally adds the
+    // `intro-pending` class to <html> before hydration, so the server and
+    // client class lists differ by design (the standard pre-paint-script pattern).
+    <html lang="en" suppressHydrationWarning className={`${googleSans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-ink text-paper">
+        {/*
+         * Before first paint, decide whether the first-visit intro loader will
+         * play; if so, mark <html> so a white bridge covers the SSR hero until
+         * React mounts the loader (see html.intro-pending in globals.css).
+         * beforeInteractive runs during initial HTML parse; conditions mirror
+         * shouldUseStaticBaseline() + hasSeenIntro().
+         */}
+        <Script id="intro-bridge" strategy="beforeInteractive">
+          {`(function(){try{var p=new URLSearchParams(location.search);var lite=p.get('lite')==='1'||localStorage.getItem('devfest-lite')==='1';var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var c=navigator.connection;var save=!!(c&&(c.saveData||c.effectiveType==='2g'||c.effectiveType==='slow-2g'));var seen=sessionStorage.getItem('devfest-intro-seen')!==null;if(!seen&&!reduce&&!lite&&!save){document.documentElement.classList.add('intro-pending');}}catch(e){}})();`}
+        </Script>
         <SkipLink />
         <MotionProvider>
-          <Header />
+          {/* Header intentionally removed — a new one is being designed. */}
           <main id="main" className="flex-1">
             {children}
           </main>

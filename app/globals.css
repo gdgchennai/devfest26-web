@@ -56,6 +56,22 @@ body {
   font-family: var(--font-google-sans), system-ui, sans-serif;
 }
 
+/*
+ * Pre-paint bridge for the first-visit intro. A tiny inline script in the
+ * layout adds `intro-pending` to <html> BEFORE first paint when the loader is
+ * going to play (see app/layout.tsx). This white field then covers the
+ * server-rendered hero until React mounts the real <Loader> over it — without
+ * it, the hero paints for a frame before the loader appears. HeroSection
+ * removes the class once the loader is up (its white takes over seamlessly).
+ */
+html.intro-pending::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 990;
+}
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
