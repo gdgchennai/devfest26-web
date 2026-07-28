@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { markReady, BRACKETS_READY } from "@/lib/assetReady";
 
 /** The dynamically-imported three.js namespace, passed to the builders below. */
 type Three = typeof import("three");
@@ -438,6 +439,16 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
       floaterItems.push({ mesh, mat, i });
     }
 
+    // Brackets + floaters are built and three.js has finished downloading: the
+    // visible backdrop is ready, so release the preloader from waiting on 3D.
+    // (The footer logo below only matters at the page bottom — don't hold the
+    // reveal on it.)
+    if (!disposed) {
+      measure();
+      renderNow();
+      markReady(BRACKETS_READY);
+    }
+
     // The footer lockup, extruded like the brackets. Built to world height 1;
     // apply() scales it to the live footer-logo box on settle. Loaded by full
     // path (loadPaths prefixes the brand-shapes dir).
@@ -550,13 +561,17 @@ export function BracketsField() {
     let cancelled = false;
     let teardown: (() => void) | undefined;
 
-    void Promise.all([import("three"), import("three/addons/loaders/SVGLoader.js")]).then(
-      ([T, { SVGLoader }]) => {
+    void Promise.all([import("three"), import("three/addons/loaders/SVGLoader.js")])
+      .then(([T, { SVGLoader }]) => {
         // The effect may already have been cleaned up while this was in flight.
         if (cancelled) return;
         teardown = mount(host, T, SVGLoader);
-      },
-    );
+      })
+      .catch(() => {
+        // three failed to load (offline chunk, etc.). Release the preloader
+        // anyway — it must never be trapped waiting on the 3D backdrop.
+        markReady(BRACKETS_READY);
+      });
 
     return () => {
       cancelled = true;

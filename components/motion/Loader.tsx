@@ -102,12 +102,20 @@ function buildHoleMask(rect: DOMRect, vw: number, vh: number): string {
 }
 
 type LoaderProps = {
-  /** True once the hero assets have decoded. The bounce finishes its current loop, then morphs. */
+  /** True once everything is ready. The bounce finishes its current loop, then hands off. */
   loadingComplete: boolean;
+  /**
+   * First visit of the session: play the full dots→brackets morph and the enter
+   * CTA. On a refresh (already seen this session) this is false — the bounce
+   * just fades out to reveal the page, no morph and no CTA.
+   */
+  playIntro: boolean;
   /** Fired when the visitor clicks the CTA — mount the flythrough behind the mask holes. */
   onEnter: () => void;
   /** Fired once the white field has fully cleared — the flythrough can start flying now. */
   onReveal: () => void;
+  /** Fired on the refresh path once the bounce has faded out — release the page. */
+  onDismiss: () => void;
 };
 
 /**
@@ -123,7 +131,7 @@ type LoaderProps = {
  * it, leaving a screen-reader user with no announced way forward. `aria-modal`
  * is what hides the (inert, scroll-locked) page beneath instead.
  */
-export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
+export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismiss }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
   const rootRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -137,6 +145,15 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
   useEffect(() => {
     loadingRef.current = loadingComplete;
   }, [loadingComplete]);
+
+  // Likewise for the hand-off branch and the refresh dismiss callback, so the
+  // once-only bounce loop always reads the current values.
+  const playIntroRef = useRef(playIntro);
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    playIntroRef.current = playIntro;
+    onDismissRef.current = onDismiss;
+  }, [playIntro, onDismiss]);
 
   useGSAP(
     () => {
@@ -196,9 +213,10 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
 
       layoutRow();
 
-      // Dots fade in, staggered, while the bounce is already running.
-      gsap.set(rects, { opacity: 0 });
-      gsap.to(rects, { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
+      // Start fully visible — the server-rendered #boot-preloader has been
+      // bouncing since first paint, so this takes over from it seamlessly
+      // rather than fading in from nothing.
+      gsap.set(rects, { opacity: 1 });
 
       const morph = { p: 0 };
       function startMorph() {
@@ -211,9 +229,25 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
         });
       }
 
-      // The bounce loop. onRepeat fires at each cycle boundary, where every
-      // dot is at rest — the only clean moment to hand off to the morph. So the
-      // wave always plays out its current cycle before the mark forms.
+      // Refresh path: no morph, no CTA — the dots have done their job as the
+      // preloader, so the whole white field simply fades out to reveal the page.
+      function dismiss() {
+        const root = rootRef.current;
+        if (!root) {
+          onDismissRef.current();
+          return;
+        }
+        gsap.to(root, {
+          autoAlpha: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          onComplete: () => onDismissRef.current(),
+        });
+      }
+
+      // The bounce loop. onRepeat fires at each cycle boundary, where every dot
+      // is at rest — the only clean moment to hand off. So the wave always plays
+      // out its current cycle before it either morphs (first visit) or fades.
       const wave = { t: B_START };
       const bounce = gsap.to(wave, {
         t: WAVE_END,
@@ -226,7 +260,8 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
           if (!loadingRef.current) return;
           bounce.kill();
           layoutRow();
-          startMorph();
+          if (playIntroRef.current) startMorph();
+          else dismiss();
         },
       });
     },

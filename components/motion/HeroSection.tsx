@@ -47,7 +47,11 @@ export function HeroSection() {
   const disableHallway = useClientValue(shouldUseStaticBaseline, true);
   const isDesktop = useClientValue(() => window.matchMedia("(min-width: 1024px)").matches, true);
   const seenIntro = useClientValue(hasSeenIntro, true);
-  const shouldPlay = !disableHallway && !seenIntro;
+  // The bouncing preloader shows on EVERY non-baseline load/refresh (something
+  // is always loading). The dots→brackets morph + enter CTA + flythrough are
+  // the one-time "intro", played only on the first visit of a session.
+  const showLoader = !disableHallway;
+  const playIntro = !disableHallway && !seenIntro;
   const [revealDone, setRevealDone] = useState(false);
   const [entering, setEntering] = useState(false);
   // The flythrough autoplay tween, held so we can ramp it from its slow
@@ -61,15 +65,25 @@ export function HeroSection() {
   // overlay covers everything until the visitor enters. Nothing scrolls during
   // the intro — the flythrough plays on its own clock as an overlay.
   useLayoutEffect(() => {
-    document.documentElement.classList.remove("intro-pending");
-    if (!shouldPlay) return;
+    // The server-rendered boot preloader has done its job — hide it. For the
+    // full intro the GSAP <Loader> mounts in this same commit and takes over the
+    // white field (no seam — both are full-screen white with the same dots); for
+    // the baseline (reduced-motion / lite) there's no loader and we just reveal
+    // the page. Doing this in React is the RELIABLE hide — the pre-paint script
+    // is only a best-effort early hide, so without this a lite visitor (whose
+    // showLoader is false) could be left stuck on the bouncing dots.
+    document.documentElement.classList.add("boot-done");
+    if (!showLoader) return;
     document.body.style.overflow = "hidden";
     lenisRef.current?.stop();
     document.getElementById("main")?.setAttribute("aria-busy", "true");
-    if (heroWrapRef.current) gsap.set(heroWrapRef.current, { autoAlpha: 0, scale: 0.85 });
-    // lenisRef is stable; shouldPlay is the only input that should re-run this.
+    // Only the first-visit intro hides + shrinks the hero (it eases back in as
+    // the flythrough lands). On a refresh the preloader just fades to reveal the
+    // hero already in place, so leave it untouched.
+    if (playIntro && heroWrapRef.current) gsap.set(heroWrapRef.current, { autoAlpha: 0, scale: 0.85 });
+    // lenisRef is stable; the gating flags are the only inputs that re-run this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPlay]);
+  }, [showLoader, playIntro]);
 
   // Hands the page over: hero fully settled at the top, scrolling restored.
   // Shared by the flythrough finishing and by a skip cutting it short.
@@ -120,11 +134,11 @@ export function HeroSection() {
     if (fly) fly.style.opacity = (1 - clamp((p - 0.58) / 0.2)).toFixed(3);
   }, []);
 
-  // Wait on EVERY archive image the intro + hero will show — the 4-dot bounce
-  // keeps looping until all of them (flythrough photos and the curved-hero
-  // marquee) have decoded, so nothing pops in unloaded once we enter.
+  // The preloader waits on the whole initial experience — fonts, the title
+  // typeface, every archive image, and the 3D brackets backdrop — so the 4-dot
+  // bounce keeps looping until it's all ready and nothing pops in unloaded.
   const heroAssets = archivePhotos.map((p) => p.src);
-  const loadingComplete = useAssetsLoaded(heroAssets, !shouldPlay);
+  const loadingComplete = useAssetsLoaded(heroAssets, !showLoader);
 
   usePhotoHallway({
     containerRef: flythroughRef,
@@ -166,7 +180,7 @@ export function HeroSection() {
 
       {/* The flythrough: a fixed overlay of photos flying past on black,
           auto-played (no scroll), fading out as the hero lands beneath it. */}
-      {shouldPlay && entering && !revealDone && (
+      {playIntro && entering && !revealDone && (
         <section ref={flythroughRef} aria-hidden className="fixed inset-0 z-[500] overflow-hidden">
           <div className="absolute inset-0">
             <div className={HALLWAY_BACKDROP_CLASS} />
@@ -186,6 +200,10 @@ export function HeroSection() {
                     title={photo.title}
                     aspectRatio="auto"
                     sizes={cardSizes(i, maxScale)}
+                    // Serve the raw file, not a resized /_next/image variant, so
+                    // these hit the exact URLs the preloader warmed — otherwise
+                    // the flythrough fetches fresh and shows blank on slow links.
+                    unoptimized
                     className="h-full w-full"
                   />
                 </div>
@@ -195,11 +213,13 @@ export function HeroSection() {
         </section>
       )}
 
-      {shouldPlay && !revealDone && (
+      {showLoader && !revealDone && (
         <Loader
           loadingComplete={loadingComplete}
+          playIntro={playIntro}
           onEnter={enterExperience}
           onReveal={startFlythrough}
+          onDismiss={releaseIntro}
         />
       )}
     </>

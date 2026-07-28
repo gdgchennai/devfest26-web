@@ -6,6 +6,14 @@ export function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/**
+ * Whether the connection is metered/slow. NOTE: no longer used for gating — the
+ * experience is deliberately identical on every connection (the preloader holds
+ * until everything is ready, rather than downgrading slow visitors to a static
+ * page). Kept for potential future use / diagnostics. Also: Chrome DevTools
+ * network throttling reports `effectiveType: "slow-2g"` for its 3G presets, so
+ * gating on this made the intro impossible to test under throttling.
+ */
 export function isSaveData(): boolean {
   if (typeof navigator === "undefined") return false;
   const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
@@ -30,20 +38,29 @@ export function clearLiteMode(): void {
   window.localStorage.removeItem(LITE_STORAGE_KEY);
 }
 
-/** True when the full motion layer (loader, curtain, hallway/pile) should be skipped entirely. */
+/**
+ * True when the full motion layer (preloader, intro, hallway, 3D) should be
+ * skipped entirely and the visitor sent straight to the static site.
+ *
+ * The experience is intentionally consistent on every connection speed — the
+ * bouncing preloader holds until everything is ready rather than downgrading
+ * slow/save-data visitors. So the ONLY opt-outs are an explicit accessibility
+ * preference (reduced-motion) and the manual lite toggle (`?lite=1`). Save-data
+ * / slow-connection deliberately does NOT downgrade anymore (see isSaveData).
+ */
 export function shouldUseStaticBaseline(): boolean {
-  return prefersReducedMotion() || isSaveData() || isLiteMode();
+  return prefersReducedMotion() || isLiteMode();
 }
 
 /**
  * True when a heavy optional download (three.js, chiefly) must not be fetched
- * at all — the visitor is on a metered/slow connection or has opted into lite.
+ * at all. Now only the manual lite toggle opts out — every real connection gets
+ * the full 3D experience, with the preloader covering the download time.
  *
- * Deliberately NOT the same test as `shouldUseStaticBaseline`. Reduced-motion
- * is a vestibular preference, not a bandwidth one: those visitors should still
- * get still imagery, just nothing that moves. Bundling the two would silently
- * strip content from people who only asked for less animation.
+ * Deliberately NOT gated on reduced-motion: that is a vestibular preference, not
+ * a bandwidth one, so those visitors still get still imagery (rendered once
+ * instead of animated), just nothing that moves.
  */
 export function shouldSkipHeavyAssets(): boolean {
-  return isSaveData() || isLiteMode();
+  return isLiteMode();
 }

@@ -24,6 +24,12 @@ type FrameProps = {
   aspectRatio?: string;
   /** Preloads via a <link> in <head>. Next 16 deprecated `priority` for this. */
   preload?: boolean;
+  /**
+   * Serve the raw `src` instead of a resized /_next/image variant. Use when the
+   * image is preloaded by exact URL elsewhere (e.g. the intro flythrough, warmed
+   * by useAssetsLoaded) so it hits the cache instead of fetching a fresh size.
+   */
+  unoptimized?: boolean;
   sizes?: string;
   className?: string;
   /** Previous frame's fallback colour, so adjacent frames never match. */
@@ -44,6 +50,7 @@ export function Frame({
   title,
   aspectRatio = "16 / 9",
   preload = false,
+  unoptimized = false,
   sizes = "100vw",
   className = "",
   previousColor,
@@ -75,6 +82,7 @@ export function Frame({
           alt={alt}
           fill
           preload={preload}
+          unoptimized={unoptimized}
           sizes={sizes}
           className={`object-cover transition-opacity duration-250 ${loaded && !errored ? "opacity-100" : "opacity-0"}`}
           onLoad={() => {
