@@ -54,6 +54,13 @@ export function HeroSection() {
   const playIntro = !disableHallway && !seenIntro;
   const [revealDone, setRevealDone] = useState(false);
   const [entering, setEntering] = useState(false);
+  // The scroll lock must happen exactly once, at the start of the intro. It is
+  // undone by releaseIntro — and must NOT be re-applied afterwards. releaseIntro
+  // writes INTRO_SEEN_KEY, which flips `seenIntro` (and thus `playIntro`) on the
+  // next render; without this guard the lock effect would re-run and re-lock the
+  // page the moment the intro finished. (Refresh is unaffected: playIntro is
+  // already false there, so it never flips.)
+  const lockedRef = useRef(false);
   // The flythrough autoplay tween, held so we can ramp it from its slow
   // portal-transition speed up to 1× once the loader's white layer clears.
   const flyTweenRef = useRef<gsap.core.Tween | null>(null);
@@ -73,7 +80,8 @@ export function HeroSection() {
     // is only a best-effort early hide, so without this a lite visitor (whose
     // showLoader is false) could be left stuck on the bouncing dots.
     document.documentElement.classList.add("boot-done");
-    if (!showLoader) return;
+    if (!showLoader || lockedRef.current) return;
+    lockedRef.current = true;
     document.body.style.overflow = "hidden";
     lenisRef.current?.stop();
     document.getElementById("main")?.setAttribute("aria-busy", "true");
