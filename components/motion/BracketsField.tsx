@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
-import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+// Type-only: erased at build. The runtime namespace and the SVGLoader addon are
+// fetched inside the effect via `await import(...)`, so three.js lands in its
+// own chunk instead of the homepage's initial JS. Both this component and
+// CurvedMarqueeHero must do it — one static import anywhere pulls the whole
+// library back into the initial bundle.
+import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+
+/** The dynamically-imported three.js namespace, passed to the builders below. */
+type Three = typeof import("three");
+/** The SVGLoader class itself (its statics are used, not just instances). */
+type SvgLoaderCtor = typeof import("three/addons/loaders/SVGLoader.js").SVGLoader;
 
 /* ------------------------------------------------------------------ *
  * The 3D brand-shape backdrop: a FIXED, full-viewport black layer behind
@@ -33,9 +42,13 @@ const VIEWBOX_H: Record<string, number> = {
   "small_plus.svg": 169,
 };
 
-/** Brand palette every shape cycles through, wrapped so the loop is seamless. */
-const PALETTE = [0x4285f4, 0xea4335, 0xf9ab00, 0x34a853].map((c) => new THREE.Color(c));
-const PALETTE_STOPS = [...PALETTE, PALETTE[0]];
+/**
+ * Brand palette every shape cycles through, wrapped so the loop is seamless.
+ * Held as raw hex because THREE.Color instances can only be built once the
+ * library has been dynamically imported — module scope runs before that.
+ */
+const PALETTE_HEX = [0x4285f4, 0xea4335, 0xf9ab00, 0x34a853];
+const PALETTE_STOPS_HEX = [...PALETTE_HEX, PALETTE_HEX[0]];
 
 /** Target on-screen height of a bracket, in world units — kept small. */
 const BRACKET_HEIGHT = 1.4;
@@ -54,7 +67,7 @@ const SETTLE_RIGHT_CX = 1537.8; // right bracket centre (full 1795.4 − 257.6)
 const SETTLE_CY = 265.15; // bracket vertical centre
 const SETTLE_BRACKET_H = 530.3; // bracket height (spans the whole lockup)
 /** Brackets are the brand gold once settled, like the logo. */
-const SETTLE_COLOR = new THREE.Color(0xf9ab00);
+const SETTLE_COLOR_HEX = 0xf9ab00;
 
 type BracketConfig = {
   file: string;
@@ -87,21 +100,27 @@ function fbm(t: number, seed: number): number {
 
 const frac = (x: number) => x - Math.floor(x);
 
-/** Smoothly samples the wrapped palette at t (0..1). */
-function colorAt(t: number, out: THREE.Color) {
+/** Smoothly samples the wrapped palette at t (0..1). `stops` is built in the effect. */
+function colorAt(t: number, out: THREE.Color, stops: THREE.Color[]) {
   const wrapped = ((t % 1) + 1) % 1;
-  const seg = wrapped * (PALETTE_STOPS.length - 1);
+  const seg = wrapped * (stops.length - 1);
   const i = Math.floor(seg);
-  return out.copy(PALETTE_STOPS[i]).lerp(PALETTE_STOPS[i + 1], seg - i);
+  return out.copy(stops[i]).lerp(stops[i + 1], seg - i);
 }
 
-type SvgPaths = ReturnType<SVGLoader["parse"]>["paths"];
+type SvgPaths = ReturnType<InstanceType<SvgLoaderCtor>["parse"]>["paths"];
 
 /** Extrudes loaded SVG paths into a centred, upright geometry scaled to targetH. */
-function buildGeometry(paths: SvgPaths, targetH: number, viewBoxH: number): THREE.ExtrudeGeometry {
-  const shapes = paths.flatMap((p) => SVGLoader.createShapes(p));
+function buildGeometry(
+  T: Three,
+  Loader: SvgLoaderCtor,
+  paths: SvgPaths,
+  targetH: number,
+  viewBoxH: number,
+): THREE.ExtrudeGeometry {
+  const shapes = paths.flatMap((p) => Loader.createShapes(p));
   const depth = viewBoxH * 0.14;
-  const geometry = new THREE.ExtrudeGeometry(shapes, {
+  const geometry = new T.ExtrudeGeometry(shapes, {
     depth,
     bevelEnabled: true,
     bevelThickness: viewBoxH * 0.012,
@@ -135,7 +154,7 @@ type LogoBuild = { group: THREE.Group; geos: THREE.BufferGeometry[]; mats: THREE
  * front face instead of z-fighting it. Built centred, upright (Y flipped) and
  * scaled to targetH; every material starts transparent (faded in on settle).
  */
-function buildLogo(paths: SvgPaths, targetH: number): LogoBuild {
+function buildLogo(T: Three, Loader: SvgLoaderCtor, paths: SvgPaths, targetH: number): LogoBuild {
   const byFill = new Map<string, SvgPaths>();
   for (const p of paths) {
     const fill = ((p.userData as { style?: { fill?: string } } | undefined)?.style?.fill ?? "#000").toLowerCase();
@@ -147,11 +166,11 @@ function buildLogo(paths: SvgPaths, targetH: number): LogoBuild {
 
   const built: { geo: THREE.ExtrudeGeometry; fill: string }[] = [];
   for (const [fill, ps] of byFill) {
-    const shapes = ps.flatMap((p) => SVGLoader.createShapes(p));
+    const shapes = ps.flatMap((p) => Loader.createShapes(p));
     if (shapes.length === 0) continue;
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
     const depth = LOGO_VBH * (isPlate ? 0.055 : 0.09);
-    const geo = new THREE.ExtrudeGeometry(shapes, {
+    const geo = new T.ExtrudeGeometry(shapes, {
       depth,
       bevelEnabled: true,
       bevelThickness: LOGO_VBH * 0.004,
@@ -164,14 +183,14 @@ function buildLogo(paths: SvgPaths, targetH: number): LogoBuild {
   }
 
   // Union bounds across every fill, so the whole lockup scales/centres as one.
-  const box = new THREE.Box3();
+  const box = new T.Box3();
   for (const { geo } of built) if (geo.boundingBox) box.union(geo.boundingBox);
   const h = box.max.y - box.min.y || 1;
   const s = targetH / h;
   const cx = (box.min.x + box.max.x) / 2;
   const cy = (box.min.y + box.max.y) / 2;
 
-  const group = new THREE.Group();
+  const group = new T.Group();
   const geos: THREE.BufferGeometry[] = [];
   const mats: THREE.MeshStandardMaterial[] = [];
   for (const { geo, fill } of built) {
@@ -181,25 +200,342 @@ function buildLogo(paths: SvgPaths, targetH: number): LogoBuild {
     // The white pill is self-lit so the scene lights don't shade it grey — it
     // should read as bright white like the flat mark.
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(fill),
+    const mat = new T.MeshStandardMaterial({
+      color: new T.Color(fill),
       roughness: isPlate ? 0.5 : 0.45,
       metalness: isPlate ? 0 : 0.12,
       // A gentle self-lit lift so the pill reads bright, but low enough that the
       // scene lights still shade it and it keeps its 3D form (too high and it
       // flattens into a blank white blob).
-      emissive: isPlate ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
+      emissive: isPlate ? new T.Color(0xffffff) : new T.Color(0x000000),
       emissiveIntensity: isPlate ? 0.05 : 0,
-      side: THREE.DoubleSide,
+      side: T.DoubleSide,
       transparent: true,
       opacity: 0,
     });
-    group.add(new THREE.Mesh(geo, mat));
+    group.add(new T.Mesh(geo, mat));
     geos.push(geo);
     mats.push(mat);
   }
   group.visible = false;
   return { group, geos, mats };
+}
+
+/**
+ * Builds the whole WebGL backdrop into `host` and returns its teardown.
+ *
+ * Split out of the component so the effect can `await import("three")` and
+ * hand the namespace in: keeping this inline would force a static import and
+ * pull the entire library into the homepage's initial JS.
+ */
+function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => void {
+  let disposed = false;
+
+  const scene = new T.Scene();
+  const camera = new T.PerspectiveCamera(50, host.clientWidth / host.clientHeight, 0.1, 100);
+  camera.position.z = 6;
+
+  const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(host.clientWidth, host.clientHeight);
+  // Supersample to at least 2× even on 1× (non-retina) displays: WebGL's MSAA
+  // alone leaves the high-contrast shape edges looking jagged against the
+  // crisp DOM text, and this renders on scroll only, so the cost is fine.
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 2), 2));
+  host.appendChild(renderer.domElement);
+
+  scene.add(new T.AmbientLight(0xffffff, 0.9));
+  const key = new T.DirectionalLight(0xffffff, 2.2);
+  key.position.set(-4, 5, 6);
+  scene.add(key);
+  const fill = new T.DirectionalLight(0xbcd2ff, 1.1);
+  fill.position.set(3, -2, -4);
+  scene.add(fill);
+
+  type BracketItem = { group: THREE.Group; geo: THREE.BufferGeometry; mat: THREE.MeshStandardMaterial; config: BracketConfig };
+  type FloaterItem = { mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial; i: number };
+  const bracketItems: BracketItem[] = [];
+  const floaterItems: FloaterItem[] = [];
+  const floaterGeos: THREE.BufferGeometry[] = [];
+  // The 3D lockup that fades in on the footer settle (loaded async, below).
+  let logoBuild: LogoBuild | null = null;
+
+  // Half-extents of the viewport in world units at the shapes' depth.
+  let halfW = 4;
+  let halfH = 3;
+  function measure() {
+    const vFov = (camera.fov * Math.PI) / 180;
+    halfH = Math.tan(vFov / 2) * camera.position.z;
+    halfW = halfH * camera.aspect;
+  }
+  measure();
+
+  const tmpColor = new T.Color();
+  // Built here rather than at module scope: THREE.Color needs the library,
+  // and the library only exists once the dynamic import has resolved.
+  const paletteStops = PALETTE_STOPS_HEX.map((h) => new T.Color(h));
+  const SETTLE_COLOR = new T.Color(SETTLE_COLOR_HEX);
+
+  function apply(
+    scrollY: number,
+    vh: number,
+    vw: number,
+    maxScroll: number,
+    widen: number,
+    settle: number,
+    logo: DOMRect | null,
+  ) {
+    const p = clamp(scrollY / maxScroll); // whole-page 0..1 (colour + bracket tumble)
+    const q = scrollY / vh; // viewports scrolled (parallax rise — uniform)
+    const reveal = clamp((scrollY - vh * 0.12) / (vh * 0.6));
+
+    // Settle only kicks in when there is a logo to land on.
+    const settleOn = logo ? settle : 0;
+    // Half-extents of the frame at the settle plane (z = 0), and px→world
+    // scale for the logo box, precomputed once for both brackets.
+    const tanHalfFov = Math.tan((camera.fov * Math.PI) / 180 / 2);
+    const halfH0 = tanHalfFov * camera.position.z;
+    const halfW0 = halfH0 * camera.aspect;
+    const sPx = logo ? logo.width / WO_VBW : 0;
+
+    // --- Brackets: hold near the edges, gentle even drift/turn -------------
+    const spanFrac = 0.5 + 0.45 * widen; // wider mid-section, tighter at edges
+    for (const { group, mat, config } of bracketItems) {
+      const s = config.seed;
+      const pathX = fbm(p, s + 0.1) * halfW * spanFrac;
+      const parkedX = config.side * (halfW + 1.4);
+      // Free-drift transform (settle = 0).
+      const driftX = parkedX + (pathX - parkedX) * reveal;
+      const driftY = fbm(p, s + 2.7) * halfH * (0.4 + 0.4 * widen) * reveal;
+      const driftZ = -1 + fbm(p, s + 5.1) * 0.9;
+      const driftScale = 0.55 + 0.45 * reveal;
+      const driftRotY = fbm(p, s + 7.3) * (0.9 + 0.3 * widen);
+      const driftRotX = fbm(p, s + 9.9) * 0.32;
+      const driftRotZ = fbm(p, s + 12.4) * 0.32;
+
+      if (settleOn > 0 && logo) {
+        // Settled transform: land flat, facing the camera, on the logo slot.
+        const cxWo = config.side === -1 ? SETTLE_LEFT_CX : SETTLE_RIGHT_CX;
+        const sx = logo.left + cxWo * sPx; // wo x=0 → logo.left
+        const sy = logo.top + SETTLE_CY * sPx;
+        const settleX = (((sx / vw) * 2 - 1) * halfW0 - driftX) * settleOn + driftX;
+        const settleY = ((1 - (sy / vh) * 2) * halfH0 - driftY) * settleOn + driftY;
+        const settleScale =
+          (((SETTLE_BRACKET_H * sPx) / vh) * 2 * halfH0) / BRACKET_HEIGHT;
+        group.position.x = settleX;
+        group.position.y = settleY;
+        group.position.z = driftZ + (0 - driftZ) * settleOn;
+        group.scale.setScalar(driftScale + (settleScale - driftScale) * settleOn);
+        group.rotation.x = driftRotX * (1 - settleOn);
+        group.rotation.y = driftRotY * (1 - settleOn);
+        group.rotation.z = driftRotZ * (1 - settleOn);
+        colorAt(p + config.colorOffset, tmpColor, paletteStops);
+        tmpColor.lerp(SETTLE_COLOR, settleOn);
+        mat.color.copy(tmpColor);
+      } else {
+        group.position.x = driftX;
+        group.position.y = driftY;
+        group.position.z = driftZ;
+        group.scale.setScalar(driftScale);
+        group.rotation.y = driftRotY;
+        group.rotation.x = driftRotX;
+        group.rotation.z = driftRotZ;
+        colorAt(p + config.colorOffset, tmpColor, paletteStops);
+        mat.color.copy(tmpColor);
+      }
+    }
+
+    // --- Footer logo: fade the 3D lockup onto the live footer-logo box -----
+    if (logoBuild) {
+      if (settleOn > 0.01 && logo) {
+        const cxPx = logo.left + logo.width / 2;
+        const cyPx = logo.top + logo.height / 2;
+        logoBuild.group.visible = true;
+        logoBuild.group.position.set(
+          ((cxPx / vw) * 2 - 1) * halfW0,
+          (1 - (cyPx / vh) * 2) * halfH0,
+          0,
+        );
+        // Built to height 1, so scale = the box's world height.
+        logoBuild.group.scale.setScalar(((logo.height / vh) * 2 * halfH0) || 0.001);
+        for (const m of logoBuild.mats) m.opacity = settleOn;
+      } else {
+        logoBuild.group.visible = false;
+      }
+    }
+
+    // --- Floaters: rise with the page like parallax and scroll out of view.
+    // No wrap and no fade — each is anchored to a point along the page and
+    // travels straight up and off the top as you scroll past it, entering
+    // from below. Every one moves at the same parallax rate.
+    const PF = 0.6; // parallax speed relative to the page (uniform for all)
+    const travel = maxScroll * PF;
+    const ROT_RATE = 1.2; // radians turned per viewport
+    const COLOR_RATE = 0.15; // palette units per viewport
+    for (const { mesh, mat, i } of floaterItems) {
+      mesh.visible = true;
+      // Push each one back to its own depth, and size the frame to THAT depth
+      // so it spans the screen properly rather than clustering near centre.
+      const z = -2.2 - frac(i * 0.7311) * 3.5;
+      const hH = tanHalfFov * (camera.position.z - z);
+      const hW = hH * camera.aspect;
+
+      const fx = (frac(i * 0.618) * 2 - 1) * hW * 0.92;
+      // Staggered home, starting below the first screen so nothing sits over
+      // the hero; maps px-from-top into world space at this depth.
+      const homeY = vh + frac(i * 0.4142 + 0.13) * (travel + vh);
+      const clientY = homeY - scrollY * PF;
+      const worldY = hH - (clientY / vh) * 2 * hH;
+      mesh.position.set(fx, worldY, z);
+      mesh.scale.setScalar(0.5 + frac(i * 0.271) * 0.6);
+
+      // Flip about X or Y (alternating), same angular velocity for all.
+      const turn = frac(i * 0.911) * Math.PI * 2 + q * ROT_RATE;
+      if (i % 2 === 0) mesh.rotation.set(turn, 0.3, 0);
+      else mesh.rotation.set(0.3, turn, 0);
+
+      colorAt(q * COLOR_RATE + frac(i * 0.317), tmpColor, paletteStops);
+      mat.color.copy(tmpColor);
+    }
+  }
+
+  // Load every shape from /public and build its meshes. Async, so the scene
+  // fills in as files arrive; renders that happen before then just draw empty.
+  const loader = new Loader();
+  const loadPaths = (file: string) =>
+    new Promise<SvgPaths>((resolve) => {
+      loader.load(SHAPE_BASE + file, (data) => resolve(data.paths), undefined, () => resolve([]));
+    });
+
+  const material = () =>
+    new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.15, side: T.DoubleSide });
+
+  (async () => {
+    for (const config of BRACKETS) {
+      const paths = await loadPaths(config.file);
+      if (disposed) return;
+      const geo = buildGeometry(T, Loader, paths, BRACKET_HEIGHT, VIEWBOX_H[config.file]);
+      const mat = material();
+      const group = new T.Group();
+      group.add(new T.Mesh(geo, mat));
+      scene.add(group);
+      bracketItems.push({ group, geo, mat, config });
+    }
+
+    const geoByFile: Record<string, THREE.BufferGeometry> = {};
+    for (const file of FLOATER_FILES) {
+      const paths = await loadPaths(file);
+      if (disposed) return;
+      const geo = buildGeometry(T, Loader, paths, 1, VIEWBOX_H[file]);
+      geoByFile[file] = geo;
+      floaterGeos.push(geo);
+    }
+    for (let i = 0; i < FLOATER_COUNT; i += 1) {
+      const geo = geoByFile[FLOATER_FILES[i % FLOATER_FILES.length]];
+      const mat = material();
+      const mesh = new T.Mesh(geo, mat);
+      mesh.visible = false;
+      scene.add(mesh);
+      floaterItems.push({ mesh, mat, i });
+    }
+
+    // The footer lockup, extruded like the brackets. Built to world height 1;
+    // apply() scales it to the live footer-logo box on settle. Loaded by full
+    // path (loadPaths prefixes the brand-shapes dir).
+    const logoPaths = await new Promise<SvgPaths>((resolve) => {
+      loader.load(LOGO_FILE, (data) => resolve(data.paths), undefined, () => resolve([]));
+    });
+    if (disposed) return;
+    logoBuild = buildLogo(T, Loader, logoPaths, 1);
+    scene.add(logoBuild.group);
+
+    if (disposed) return;
+    measure();
+    renderNow();
+  })();
+
+  // The homepage's content sections; the bracket sweep widens while the
+  // viewport centre sits deep inside one. Re-read on resize (layout shifts).
+  let sectionEls = Array.from(document.querySelectorAll<HTMLElement>("main section"));
+  function sectionWiden(vh: number) {
+    const midY = vh * 0.5;
+    let best = 0;
+    for (const el of sectionEls) {
+      const r = el.getBoundingClientRect();
+      if (r.height < 1 || midY < r.top || midY > r.bottom) continue;
+      const centered = 1 - Math.min(1, Math.abs(midY - (r.top + r.height / 2)) / (r.height / 2));
+      if (centered > best) best = centered;
+    }
+    return best * best * (3 - 2 * best); // smoothstep, so the widening eases
+  }
+
+  // The footer logo the brackets settle onto (id set in FooterLogo). Looked
+  // up lazily — the footer lives in the layout, so it is present, but this
+  // effect can run before it is queryable on the very first paint.
+  let logoEl: HTMLElement | null = null;
+
+  // Render on scroll (and resize) only — never on a clock. Lenis fires a
+  // scroll event every frame while it's animating, so this stays smooth, and
+  // the page is free to go idle the moment scrolling stops.
+  function renderNow() {
+    if (disposed) return;
+    const vh = window.innerHeight || 1;
+    const vw = window.innerWidth || 1;
+    const scrollY = window.scrollY;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
+
+    // Settle ramps over the last ~0.85 viewport of scroll, easing to 1 at the
+    // very bottom where the footer logo comes to rest.
+    const raw = clamp(1 - (maxScroll - scrollY) / (vh * 0.85));
+    const settle = raw * raw * (3 - 2 * raw); // smoothstep
+    let logoRect: DOMRect | null = null;
+    if (settle > 0) {
+      if (!logoEl) logoEl = document.getElementById("footer-logo");
+      const r = logoEl?.getBoundingClientRect();
+      if (r && r.width > 0) logoRect = r;
+    }
+
+    apply(scrollY, vh, vw, maxScroll, sectionWiden(vh), settle, logoRect);
+    renderer.render(scene, camera);
+  }
+
+  let pending = false;
+  function scheduleRender() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      renderNow();
+    });
+  }
+
+  renderNow();
+  window.addEventListener("scroll", scheduleRender, { passive: true });
+
+  function onResize() {
+    camera.aspect = host.clientWidth / host.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(host.clientWidth, host.clientHeight);
+    measure();
+    sectionEls = Array.from(document.querySelectorAll<HTMLElement>("main section"));
+    renderNow();
+  }
+  window.addEventListener("resize", onResize);
+
+  return () => {
+    disposed = true;
+    window.removeEventListener("scroll", scheduleRender);
+    window.removeEventListener("resize", onResize);
+    bracketItems.forEach(({ geo, mat }) => {
+      geo.dispose();
+      mat.dispose();
+    });
+    floaterItems.forEach(({ mat }) => mat.dispose());
+    floaterGeos.forEach((g) => g.dispose());
+    logoBuild?.geos.forEach((g) => g.dispose());
+    logoBuild?.mats.forEach((m) => m.dispose());
+    renderer.dispose();
+    if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
+  };
 }
 
 export function BracketsField() {
@@ -208,311 +544,23 @@ export function BracketsField() {
   useEffect(() => {
     const host = hostRef.current;
     // No WebGL under reduced-motion / lite / save-data — the black layer alone
-    // stays as the static backdrop.
+    // stays as the static backdrop, and three.js is never fetched at all.
     if (!host || shouldUseStaticBaseline()) return;
 
-    let disposed = false;
+    let cancelled = false;
+    let teardown: (() => void) | undefined;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, host.clientWidth / host.clientHeight, 0.1, 100);
-    camera.position.z = 6;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(host.clientWidth, host.clientHeight);
-    // Supersample to at least 2× even on 1× (non-retina) displays: WebGL's MSAA
-    // alone leaves the high-contrast shape edges looking jagged against the
-    // crisp DOM text, and this renders on scroll only, so the cost is fine.
-    renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 2), 2));
-    host.appendChild(renderer.domElement);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const key = new THREE.DirectionalLight(0xffffff, 2.2);
-    key.position.set(-4, 5, 6);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0xbcd2ff, 1.1);
-    fill.position.set(3, -2, -4);
-    scene.add(fill);
-
-    type BracketItem = { group: THREE.Group; geo: THREE.BufferGeometry; mat: THREE.MeshStandardMaterial; config: BracketConfig };
-    type FloaterItem = { mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial; i: number };
-    const bracketItems: BracketItem[] = [];
-    const floaterItems: FloaterItem[] = [];
-    const floaterGeos: THREE.BufferGeometry[] = [];
-    // The 3D lockup that fades in on the footer settle (loaded async, below).
-    let logoBuild: LogoBuild | null = null;
-
-    // Half-extents of the viewport in world units at the shapes' depth.
-    let halfW = 4;
-    let halfH = 3;
-    function measure() {
-      const vFov = (camera.fov * Math.PI) / 180;
-      halfH = Math.tan(vFov / 2) * camera.position.z;
-      halfW = halfH * camera.aspect;
-    }
-    measure();
-
-    const tmpColor = new THREE.Color();
-
-    function apply(
-      scrollY: number,
-      vh: number,
-      vw: number,
-      maxScroll: number,
-      widen: number,
-      settle: number,
-      logo: DOMRect | null,
-    ) {
-      const p = clamp(scrollY / maxScroll); // whole-page 0..1 (colour + bracket tumble)
-      const q = scrollY / vh; // viewports scrolled (parallax rise — uniform)
-      const reveal = clamp((scrollY - vh * 0.12) / (vh * 0.6));
-
-      // Settle only kicks in when there is a logo to land on.
-      const settleOn = logo ? settle : 0;
-      // Half-extents of the frame at the settle plane (z = 0), and px→world
-      // scale for the logo box, precomputed once for both brackets.
-      const tanHalfFov = Math.tan((camera.fov * Math.PI) / 180 / 2);
-      const halfH0 = tanHalfFov * camera.position.z;
-      const halfW0 = halfH0 * camera.aspect;
-      const sPx = logo ? logo.width / WO_VBW : 0;
-
-      // --- Brackets: hold near the edges, gentle even drift/turn -------------
-      const spanFrac = 0.5 + 0.45 * widen; // wider mid-section, tighter at edges
-      for (const { group, mat, config } of bracketItems) {
-        const s = config.seed;
-        const pathX = fbm(p, s + 0.1) * halfW * spanFrac;
-        const parkedX = config.side * (halfW + 1.4);
-        // Free-drift transform (settle = 0).
-        const driftX = parkedX + (pathX - parkedX) * reveal;
-        const driftY = fbm(p, s + 2.7) * halfH * (0.4 + 0.4 * widen) * reveal;
-        const driftZ = -1 + fbm(p, s + 5.1) * 0.9;
-        const driftScale = 0.55 + 0.45 * reveal;
-        const driftRotY = fbm(p, s + 7.3) * (0.9 + 0.3 * widen);
-        const driftRotX = fbm(p, s + 9.9) * 0.32;
-        const driftRotZ = fbm(p, s + 12.4) * 0.32;
-
-        if (settleOn > 0 && logo) {
-          // Settled transform: land flat, facing the camera, on the logo slot.
-          const cxWo = config.side === -1 ? SETTLE_LEFT_CX : SETTLE_RIGHT_CX;
-          const sx = logo.left + cxWo * sPx; // wo x=0 → logo.left
-          const sy = logo.top + SETTLE_CY * sPx;
-          const settleX = (((sx / vw) * 2 - 1) * halfW0 - driftX) * settleOn + driftX;
-          const settleY = ((1 - (sy / vh) * 2) * halfH0 - driftY) * settleOn + driftY;
-          const settleScale =
-            (((SETTLE_BRACKET_H * sPx) / vh) * 2 * halfH0) / BRACKET_HEIGHT;
-          group.position.x = settleX;
-          group.position.y = settleY;
-          group.position.z = driftZ + (0 - driftZ) * settleOn;
-          group.scale.setScalar(driftScale + (settleScale - driftScale) * settleOn);
-          group.rotation.x = driftRotX * (1 - settleOn);
-          group.rotation.y = driftRotY * (1 - settleOn);
-          group.rotation.z = driftRotZ * (1 - settleOn);
-          colorAt(p + config.colorOffset, tmpColor);
-          tmpColor.lerp(SETTLE_COLOR, settleOn);
-          mat.color.copy(tmpColor);
-        } else {
-          group.position.x = driftX;
-          group.position.y = driftY;
-          group.position.z = driftZ;
-          group.scale.setScalar(driftScale);
-          group.rotation.y = driftRotY;
-          group.rotation.x = driftRotX;
-          group.rotation.z = driftRotZ;
-          colorAt(p + config.colorOffset, tmpColor);
-          mat.color.copy(tmpColor);
-        }
-      }
-
-      // --- Footer logo: fade the 3D lockup onto the live footer-logo box -----
-      if (logoBuild) {
-        if (settleOn > 0.01 && logo) {
-          const cxPx = logo.left + logo.width / 2;
-          const cyPx = logo.top + logo.height / 2;
-          logoBuild.group.visible = true;
-          logoBuild.group.position.set(
-            ((cxPx / vw) * 2 - 1) * halfW0,
-            (1 - (cyPx / vh) * 2) * halfH0,
-            0,
-          );
-          // Built to height 1, so scale = the box's world height.
-          logoBuild.group.scale.setScalar(((logo.height / vh) * 2 * halfH0) || 0.001);
-          for (const m of logoBuild.mats) m.opacity = settleOn;
-        } else {
-          logoBuild.group.visible = false;
-        }
-      }
-
-      // --- Floaters: rise with the page like parallax and scroll out of view.
-      // No wrap and no fade — each is anchored to a point along the page and
-      // travels straight up and off the top as you scroll past it, entering
-      // from below. Every one moves at the same parallax rate.
-      const PF = 0.6; // parallax speed relative to the page (uniform for all)
-      const travel = maxScroll * PF;
-      const ROT_RATE = 1.2; // radians turned per viewport
-      const COLOR_RATE = 0.15; // palette units per viewport
-      for (const { mesh, mat, i } of floaterItems) {
-        mesh.visible = true;
-        // Push each one back to its own depth, and size the frame to THAT depth
-        // so it spans the screen properly rather than clustering near centre.
-        const z = -2.2 - frac(i * 0.7311) * 3.5;
-        const hH = tanHalfFov * (camera.position.z - z);
-        const hW = hH * camera.aspect;
-
-        const fx = (frac(i * 0.618) * 2 - 1) * hW * 0.92;
-        // Staggered home, starting below the first screen so nothing sits over
-        // the hero; maps px-from-top into world space at this depth.
-        const homeY = vh + frac(i * 0.4142 + 0.13) * (travel + vh);
-        const clientY = homeY - scrollY * PF;
-        const worldY = hH - (clientY / vh) * 2 * hH;
-        mesh.position.set(fx, worldY, z);
-        mesh.scale.setScalar(0.5 + frac(i * 0.271) * 0.6);
-
-        // Flip about X or Y (alternating), same angular velocity for all.
-        const turn = frac(i * 0.911) * Math.PI * 2 + q * ROT_RATE;
-        if (i % 2 === 0) mesh.rotation.set(turn, 0.3, 0);
-        else mesh.rotation.set(0.3, turn, 0);
-
-        colorAt(q * COLOR_RATE + frac(i * 0.317), tmpColor);
-        mat.color.copy(tmpColor);
-      }
-    }
-
-    // Load every shape from /public and build its meshes. Async, so the scene
-    // fills in as files arrive; renders that happen before then just draw empty.
-    const loader = new SVGLoader();
-    const loadPaths = (file: string) =>
-      new Promise<SvgPaths>((resolve) => {
-        loader.load(SHAPE_BASE + file, (data) => resolve(data.paths), undefined, () => resolve([]));
-      });
-
-    const material = () =>
-      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.15, side: THREE.DoubleSide });
-
-    (async () => {
-      for (const config of BRACKETS) {
-        const paths = await loadPaths(config.file);
-        if (disposed) return;
-        const geo = buildGeometry(paths, BRACKET_HEIGHT, VIEWBOX_H[config.file]);
-        const mat = material();
-        const group = new THREE.Group();
-        group.add(new THREE.Mesh(geo, mat));
-        scene.add(group);
-        bracketItems.push({ group, geo, mat, config });
-      }
-
-      const geoByFile: Record<string, THREE.BufferGeometry> = {};
-      for (const file of FLOATER_FILES) {
-        const paths = await loadPaths(file);
-        if (disposed) return;
-        const geo = buildGeometry(paths, 1, VIEWBOX_H[file]);
-        geoByFile[file] = geo;
-        floaterGeos.push(geo);
-      }
-      for (let i = 0; i < FLOATER_COUNT; i += 1) {
-        const geo = geoByFile[FLOATER_FILES[i % FLOATER_FILES.length]];
-        const mat = material();
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.visible = false;
-        scene.add(mesh);
-        floaterItems.push({ mesh, mat, i });
-      }
-
-      // The footer lockup, extruded like the brackets. Built to world height 1;
-      // apply() scales it to the live footer-logo box on settle. Loaded by full
-      // path (loadPaths prefixes the brand-shapes dir).
-      const logoPaths = await new Promise<SvgPaths>((resolve) => {
-        loader.load(LOGO_FILE, (data) => resolve(data.paths), undefined, () => resolve([]));
-      });
-      if (disposed) return;
-      logoBuild = buildLogo(logoPaths, 1);
-      scene.add(logoBuild.group);
-
-      if (disposed) return;
-      measure();
-      renderNow();
-    })();
-
-    // The homepage's content sections; the bracket sweep widens while the
-    // viewport centre sits deep inside one. Re-read on resize (layout shifts).
-    let sectionEls = Array.from(document.querySelectorAll<HTMLElement>("main section"));
-    function sectionWiden(vh: number) {
-      const midY = vh * 0.5;
-      let best = 0;
-      for (const el of sectionEls) {
-        const r = el.getBoundingClientRect();
-        if (r.height < 1 || midY < r.top || midY > r.bottom) continue;
-        const centered = 1 - Math.min(1, Math.abs(midY - (r.top + r.height / 2)) / (r.height / 2));
-        if (centered > best) best = centered;
-      }
-      return best * best * (3 - 2 * best); // smoothstep, so the widening eases
-    }
-
-    // The footer logo the brackets settle onto (id set in FooterLogo). Looked
-    // up lazily — the footer lives in the layout, so it is present, but this
-    // effect can run before it is queryable on the very first paint.
-    let logoEl: HTMLElement | null = null;
-
-    // Render on scroll (and resize) only — never on a clock. Lenis fires a
-    // scroll event every frame while it's animating, so this stays smooth, and
-    // the page is free to go idle the moment scrolling stops.
-    function renderNow() {
-      if (disposed) return;
-      const vh = window.innerHeight || 1;
-      const vw = window.innerWidth || 1;
-      const scrollY = window.scrollY;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
-
-      // Settle ramps over the last ~0.85 viewport of scroll, easing to 1 at the
-      // very bottom where the footer logo comes to rest.
-      const raw = clamp(1 - (maxScroll - scrollY) / (vh * 0.85));
-      const settle = raw * raw * (3 - 2 * raw); // smoothstep
-      let logoRect: DOMRect | null = null;
-      if (settle > 0) {
-        if (!logoEl) logoEl = document.getElementById("footer-logo");
-        const r = logoEl?.getBoundingClientRect();
-        if (r && r.width > 0) logoRect = r;
-      }
-
-      apply(scrollY, vh, vw, maxScroll, sectionWiden(vh), settle, logoRect);
-      renderer.render(scene, camera);
-    }
-
-    let pending = false;
-    function scheduleRender() {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(() => {
-        pending = false;
-        renderNow();
-      });
-    }
-
-    renderNow();
-    window.addEventListener("scroll", scheduleRender, { passive: true });
-
-    function onResize() {
-      camera.aspect = host!.clientWidth / host!.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(host!.clientWidth, host!.clientHeight);
-      measure();
-      sectionEls = Array.from(document.querySelectorAll<HTMLElement>("main section"));
-      renderNow();
-    }
-    window.addEventListener("resize", onResize);
+    void Promise.all([import("three"), import("three/addons/loaders/SVGLoader.js")]).then(
+      ([T, { SVGLoader }]) => {
+        // The effect may already have been cleaned up while this was in flight.
+        if (cancelled) return;
+        teardown = mount(host, T, SVGLoader);
+      },
+    );
 
     return () => {
-      disposed = true;
-      window.removeEventListener("scroll", scheduleRender);
-      window.removeEventListener("resize", onResize);
-      bracketItems.forEach(({ geo, mat }) => {
-        geo.dispose();
-        mat.dispose();
-      });
-      floaterItems.forEach(({ mat }) => mat.dispose());
-      floaterGeos.forEach((g) => g.dispose());
-      logoBuild?.geos.forEach((g) => g.dispose());
-      logoBuild?.mats.forEach((m) => m.dispose());
-      renderer.dispose();
-      if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
+      cancelled = true;
+      teardown?.();
     };
   }, []);
 

@@ -297,9 +297,15 @@ Non-negotiable:
   are actually looking for.
 - Minimum 16px body, high contrast, generous tap targets.
 - Test on a mid-range Android over throttled 3G before the event, not on your laptop.
-- Reachable from the header on every route, and the first-visit intro can be skipped straight
-  through (the "Skip intro" control during the enter-scroll, or Escape). The path from "landed on
-  the site" to "reading the agenda" should never require finishing an animation.
+- The path from "landed on the site" to "reading the agenda" should never require finishing an
+  animation. **Currently unmet — this is a known gap, not a satisfied requirement:**
+  - There is no header. `components/Header.tsx` and `HeaderNav.tsx` were removed pending a
+    redesign, so `navRoutes` in `lib/routes.ts` currently has no consumer and `/agenda`, `/about`,
+    `/cfp`, `/memories` and `/speakers` are reachable only from whatever links a given page
+    happens to carry. Restoring site-wide navigation is the blocking item.
+  - There is no skip control. `components/motion/IntroEscape.tsx` still exists and still handles
+    both the "Skip intro" button and the Escape key, but nothing renders it — the intro can only
+    be dismissed via the loader's "Enter" button. Mounting it is the fix; the component is done.
 
 ---
 
@@ -376,9 +382,11 @@ cheaper to know now.
 
 All four ramps live in `app/globals.css` as tokens. **Do not hand-mix new shades — pick from
 these.** Core `#4285F4 #34A853 #F9AB00 #EA4335`, halftones `#57CAFF #5CDB6D #FFD427 #FF7DAF`,
-pastels `#C3ECF6 #CCF6C5 #FFE7A5 #F8D8D8`, greyscale `--paper #F0F0F0` / `--ink #1E1E1E`.
+pastels `#C3ECF6 #CCF6C5 #FFE7A5 #F8D8D8`. Greyscale is no longer fixed: `--ink` and `--paper` are
+derived from `--theme` (0 = dark, 1 = light), so `--ink` runs `#000 → #FFF` and `--paper` runs
+`#F0F0F0 → #000` as `WhyJoin` scrubs the flip.
 
-Three contrast constraints fall out of it, all measured:
+Four contrast constraints fall out of it, all measured:
 
 - **Button labels are ink, not paper.** Paper on `#4285F4` is 3.56:1 and the label is 14px, which
   needs 4.5:1. Ink gives 4.68:1. The palette has no darker blue, so the label is what changes.
@@ -387,6 +395,14 @@ Three contrast constraints fall out of it, all measured:
   would score higher still but flash near-white against the dark page while a photo decodes.
 - **The hero scrim is `bg-ink/65`, not `/45`.** Over a blown-out area of a photo, `/45` against
   the lighter `#1E1E1E` ink measures 2.47:1 under the small date line; `/65` restores 4.54:1.
+- **The light theme cannot use core brand colours as text — unresolved.** Muted greys were fixed
+  by running `--paper` to `#000` rather than `#1E1E1E` (that alone moves `/60` from 4.42:1 to
+  5.74:1, so every `/60`-and-above muted style passes in both themes), but the four core colours
+  measured on white are blue 3.56:1, red 3.92:1, green 3.06:1 and yellow **1.93:1** — all under
+  4.5:1. This bites `text-blue` links and the four `lib/track-color` track headings once the page
+  has flipped. There is no fix inside the current kit: as the first constraint above already
+  notes, it supplies no darker shades, and both other ramps (halftone, pastel) are *lighter*.
+  Resolving it needs a brand decision — commission on-light variants, or drop the light flip.
 
 ---
 

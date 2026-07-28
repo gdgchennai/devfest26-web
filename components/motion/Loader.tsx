@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useClientValue } from "@/lib/useClientValue";
 import { RollingText } from "@/components/motion/RollingText";
+import { siteConfig } from "@/site.config";
 
 /* ------------------------------------------------------------------ *
  * Geometry + timeline, lifted verbatim from loader.html.
@@ -112,8 +113,15 @@ type LoaderProps = {
 /**
  * The full-screen intro. A white field (per the brand mark's own artwork),
  * portalled to <body> so it sits above the hallway and outside the hero's
- * stacking context. aria-hidden — the loading announcement and any skip live
- * on the page beneath it.
+ * stacking context.
+ *
+ * Exposed to assistive tech as a modal dialog rather than hidden: it holds the
+ * only control that dismisses it (the enter CTA, which is also focused once it
+ * appears), and it locks body scroll while it is up. Marking the container
+ * aria-hidden while focusing a button inside it is the `aria-hidden-focus`
+ * violation — the AT is told the subtree does not exist, then focus lands in
+ * it, leaving a screen-reader user with no announced way forward. `aria-modal`
+ * is what hides the (inert, scroll-locked) page beneath instead.
  */
 export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
@@ -278,11 +286,23 @@ export function Loader({ loadingComplete, onEnter, onReveal }: LoaderProps) {
   return createPortal(
     <div
       ref={rootRef}
-      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${siteConfig.name} intro`}
       className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white will-change-transform"
     >
+      {/*
+       * The only announced loading state. The dots are a decorative rendering
+       * of the same thing, so they stay hidden from AT; this line is what a
+       * screen reader actually hears, and it changes once the CTA is focusable.
+       */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {ctaReady ? "Ready." : `Loading ${siteConfig.name}…`}
+      </p>
+
       <svg
         ref={svgRef}
+        aria-hidden="true"
         viewBox="0 250 1728 535"
         xmlns="http://www.w3.org/2000/svg"
         className="block h-auto w-[min(82vw,720px)]"

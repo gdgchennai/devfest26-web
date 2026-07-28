@@ -32,7 +32,11 @@ export function Footer() {
           </a>
           <LiteToggle />
         </div>
-        <p className="max-w-2xl font-mono text-xs text-paper/50">{siteConfig.brandDisclaimer}</p>
+        {/* /70, not /50: the footer is the one block that renders in BOTH
+            themes (light on the homepage, dark everywhere else), and /50 over
+            the light theme's white is 3.95:1 — under WCAG AA. /70 clears it in
+            both (8.45:1 light, 8.83:1 dark). */}
+        <p className="max-w-2xl font-mono text-xs text-paper/70">{siteConfig.brandDisclaimer}</p>
       </div>
     </footer>
   );

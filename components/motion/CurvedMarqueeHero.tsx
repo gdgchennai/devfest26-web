@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import * as THREE from "three";
-import { FontLoader } from "three/addons/loaders/FontLoader.js";
-import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+// Type-only: erased at build, so it costs nothing in the bundle. The runtime
+// namespace is pulled in per-effect via `await import("three")` below.
+import type * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
 import { siteConfig } from "@/site.config";
-import { prefersReducedMotion } from "@/lib/motion-prefs";
+import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -70,133 +70,163 @@ export function CurvedMarqueeHero() {
   useEffect(() => {
     if (!containerRef.current) return;
     const view: HTMLDivElement = containerRef.current;
+    // Lite mode / Save-Data / 2G must not pay for three.js at all. Reduced
+    // motion is deliberately NOT part of this test — see shouldSkipHeavyAssets:
+    // those visitors still get the strip, just rendered once instead of driven
+    // by rAF, which is what the `reduce` branches below already do.
+    if (shouldSkipHeavyAssets()) return;
     const reduce = prefersReducedMotion();
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, view.clientWidth / view.clientHeight, 0.1, 20);
-    camera.position.z = 2;
+    let disposed = false;
+    let teardown: (() => void) | undefined;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(view.clientWidth, view.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    view.appendChild(renderer.domElement);
+    void (async () => {
+      // three.js is fetched on demand so it lands in its own chunk rather than
+      // the homepage's initial JS. This is the "Loading External Libraries"
+      // pattern from the Next lazy-loading guide; next/dynamic is not usable
+      // here because app/page.tsx is a Server Component, and Next does not
+      // code-split Client Components dynamically imported from one.
+      const T = await import("three");
+      // The effect may already have been cleaned up while this was in flight.
+      if (disposed) return;
 
-    const geometry = new THREE.PlaneGeometry(1, 1, 20, 20);
-    const loader = new THREE.TextureLoader();
-    const slideAmount = IMAGE_SRCS.length;
+      const scene = new T.Scene();
+      const camera = new T.PerspectiveCamera(75, view.clientWidth / view.clientHeight, 0.1, 20);
+      camera.position.z = 2;
 
-    let planes: THREE.Mesh[] = [];
-    let materials: THREE.ShaderMaterial[] = [];
-    let textures: THREE.Texture[] = [];
-
-    // Pixels per world-unit at z = 0, so a 1-unit plane spans a predictable
-    // fraction of the container — how the reference sizes/spaces its planes.
-    function pixelsPerUnit() {
-      const vFov = (camera.fov * Math.PI) / 180;
-      const worldH = 2 * Math.tan(vFov / 2) * camera.position.z;
-      const worldW = worldH * (view.clientWidth / view.clientHeight);
-      return view.clientWidth / worldW;
-    }
-
-    function disposePlanes() {
-      planes.forEach((p) => scene.remove(p));
-      materials.forEach((m) => m.dispose());
-      textures.forEach((t) => t.dispose());
-      planes = [];
-      materials = [];
-      textures = [];
-    }
-
-    function build() {
-      disposePlanes();
-      const step = planeStep();
-      const planeSpacePx = pixelsPerUnit() * step;
-      // Enough duplicated planes to fill the width plus a buffer, so the loop
-      // wraps seamlessly.
-      const total = Math.ceil(view.clientWidth / planeSpacePx) + 1 + slideAmount;
-      const initialOffset = Math.ceil(view.clientWidth / (2 * planeSpacePx) - 0.5);
-
-      for (let i = 0; i < total; i += 1) {
-        const src = IMAGE_SRCS[i % slideAmount];
-        loader.load(src, (texture) => {
-          // Deliberately NOT setting texture.colorSpace: this custom
-          // ShaderMaterial outputs texture samples straight to the canvas with
-          // no sRGB re-encode, so decoding the texture to linear (which
-          // colorSpace=SRGB does) would render the photos dark/low-contrast.
-          // Leaving it as-is passes the sRGB bytes through, matching the source.
-          const img = texture.image as { width: number; height: number };
-          const material = new THREE.ShaderMaterial({
-            uniforms: {
-              tex: { value: texture },
-              curve: { value: OPTS.curve },
-              texAspect: { value: img.width / img.height },
-              planeAspect: { value: 1 },
-            },
-            vertexShader: VERTEX_SHADER,
-            fragmentShader: FRAGMENT_SHADER,
-            transparent: true,
-          });
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.position.x = -OPTS.direction * (i - initialOffset) * step;
-          scene.add(mesh);
-          planes.push(mesh);
-          materials.push(material);
-          textures.push(texture);
-          if (reduce) renderer.render(scene, camera); // static: draw as textures arrive
-        });
-      }
-    }
-
-    build();
-
-    // Scroll-driven forward flip: as the hero scrolls out, tilt the WHOLE
-    // carousel about its horizontal axis like a coin flipping forward, up to
-    // SCROLL_FLIP_RAD. The marquee keeps running underneath it.
-    let flip = 0;
-    const trigger = reduce
-      ? null
-      : ScrollTrigger.create({
-          trigger: sectionRef.current ?? view,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-          onUpdate: (self) => {
-            flip = self.progress;
-          },
-        });
-
-    let raf = 0;
-    let time = 0;
-    let prev = performance.now();
-    function animate(now: number) {
-      const dt = now - prev;
-      prev = now;
-      // Loop when the scene has travelled one full set of unique images.
-      if (Math.abs(scene.position.x) >= planeStep() * slideAmount) time = 0;
-      time += OPTS.direction * dt * 0.00001;
-      scene.position.x = time * OPTS.speed;
-      scene.rotation.x = flip * SCROLL_FLIP_RAD;
-      renderer.render(scene, camera);
-      raf = requestAnimationFrame(animate);
-    }
-    if (!reduce) raf = requestAnimationFrame(animate);
-
-    function onResize() {
-      camera.aspect = view.clientWidth / view.clientHeight;
-      camera.updateProjectionMatrix();
+      const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(view.clientWidth, view.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      view.appendChild(renderer.domElement);
+
+      const geometry = new T.PlaneGeometry(1, 1, 20, 20);
+      const loader = new T.TextureLoader();
+      const slideAmount = IMAGE_SRCS.length;
+
+      let planes: THREE.Mesh[] = [];
+      let materials: THREE.ShaderMaterial[] = [];
+      let textures: THREE.Texture[] = [];
+
+      // Pixels per world-unit at z = 0, so a 1-unit plane spans a predictable
+      // fraction of the container — how the reference sizes/spaces its planes.
+      function pixelsPerUnit() {
+        const vFov = (camera.fov * Math.PI) / 180;
+        const worldH = 2 * Math.tan(vFov / 2) * camera.position.z;
+        const worldW = worldH * (view.clientWidth / view.clientHeight);
+        return view.clientWidth / worldW;
+      }
+
+      function disposePlanes() {
+        planes.forEach((p) => scene.remove(p));
+        materials.forEach((m) => m.dispose());
+        textures.forEach((t) => t.dispose());
+        planes = [];
+        materials = [];
+        textures = [];
+      }
+
+      function build() {
+        disposePlanes();
+        const step = planeStep();
+        const planeSpacePx = pixelsPerUnit() * step;
+        // Enough duplicated planes to fill the width plus a buffer, so the loop
+        // wraps seamlessly.
+        const total = Math.ceil(view.clientWidth / planeSpacePx) + 1 + slideAmount;
+        const initialOffset = Math.ceil(view.clientWidth / (2 * planeSpacePx) - 0.5);
+
+        for (let i = 0; i < total; i += 1) {
+          const src = IMAGE_SRCS[i % slideAmount];
+          loader.load(src, (texture) => {
+            // A texture can still arrive after teardown; dropping it here stops
+            // it being added to a scene whose renderer is already disposed.
+            if (disposed) {
+              texture.dispose();
+              return;
+            }
+            // Deliberately NOT setting texture.colorSpace: this custom
+            // ShaderMaterial outputs texture samples straight to the canvas with
+            // no sRGB re-encode, so decoding the texture to linear (which
+            // colorSpace=SRGB does) would render the photos dark/low-contrast.
+            // Leaving it as-is passes the sRGB bytes through, matching the source.
+            const img = texture.image as { width: number; height: number };
+            const material = new T.ShaderMaterial({
+              uniforms: {
+                tex: { value: texture },
+                curve: { value: OPTS.curve },
+                texAspect: { value: img.width / img.height },
+                planeAspect: { value: 1 },
+              },
+              vertexShader: VERTEX_SHADER,
+              fragmentShader: FRAGMENT_SHADER,
+              transparent: true,
+            });
+            const mesh = new T.Mesh(geometry, material);
+            mesh.position.x = -OPTS.direction * (i - initialOffset) * step;
+            scene.add(mesh);
+            planes.push(mesh);
+            materials.push(material);
+            textures.push(texture);
+            if (reduce) renderer.render(scene, camera); // static: draw as textures arrive
+          });
+        }
+      }
+
       build();
-    }
-    window.addEventListener("resize", onResize);
+
+      // Scroll-driven forward flip: as the hero scrolls out, tilt the WHOLE
+      // carousel about its horizontal axis like a coin flipping forward, up to
+      // SCROLL_FLIP_RAD. The marquee keeps running underneath it.
+      let flip = 0;
+      const trigger = reduce
+        ? null
+        : ScrollTrigger.create({
+            trigger: sectionRef.current ?? view,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+            onUpdate: (self) => {
+              flip = self.progress;
+            },
+          });
+
+      let raf = 0;
+      let time = 0;
+      let prev = performance.now();
+      function animate(now: number) {
+        const dt = now - prev;
+        prev = now;
+        // Loop when the scene has travelled one full set of unique images.
+        if (Math.abs(scene.position.x) >= planeStep() * slideAmount) time = 0;
+        time += OPTS.direction * dt * 0.00001;
+        scene.position.x = time * OPTS.speed;
+        scene.rotation.x = flip * SCROLL_FLIP_RAD;
+        renderer.render(scene, camera);
+        raf = requestAnimationFrame(animate);
+      }
+      if (!reduce) raf = requestAnimationFrame(animate);
+
+      function onResize() {
+        camera.aspect = view.clientWidth / view.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(view.clientWidth, view.clientHeight);
+        build();
+      }
+      window.addEventListener("resize", onResize);
+
+      teardown = () => {
+        cancelAnimationFrame(raf);
+        trigger?.kill();
+        window.removeEventListener("resize", onResize);
+        disposePlanes();
+        geometry.dispose();
+        renderer.dispose();
+        if (renderer.domElement.parentNode === view) view.removeChild(renderer.domElement);
+      };
+    })();
 
     return () => {
-      cancelAnimationFrame(raf);
-      trigger?.kill();
-      window.removeEventListener("resize", onResize);
-      disposePlanes();
-      geometry.dispose();
-      renderer.dispose();
-      if (renderer.domElement.parentNode === view) view.removeChild(renderer.domElement);
+      disposed = true;
+      teardown?.();
     };
   }, []);
 
@@ -205,87 +235,110 @@ export function CurvedMarqueeHero() {
   useEffect(() => {
     if (!textRef.current) return;
     const host: HTMLDivElement = textRef.current;
+    // Same bandwidth gate as the strip above — this layer is the other half of
+    // the three.js payload (it pulls the FontLoader/TextGeometry addons too).
+    if (shouldSkipHeavyAssets()) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 100);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(host.clientWidth, host.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    host.appendChild(renderer.domElement);
-
-    // Lights shape the bevels — that shading is what sells "solid 3D".
-    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-    const key = new THREE.DirectionalLight(0xffffff, 3);
-    key.position.set(-3, 4, 6);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.9);
-    fill.position.set(4, -1, 3);
-    scene.add(fill);
-    const rim = new THREE.DirectionalLight(0x5b8cff, 1.1); // brand-blue edge glow
-    rim.position.set(0, 2, -5);
-    scene.add(rim);
-
-    let mesh: THREE.Mesh | null = null;
-    let geometry: TextGeometry | null = null;
-    let material: THREE.Material | null = null;
     let disposed = false;
+    let teardown: (() => void) | undefined;
 
-    const render = () => renderer.render(scene, camera);
-
-    // Frame the text so it spans most of the width, whatever the viewport.
-    function fit() {
-      if (!geometry) return;
-      geometry.computeBoundingBox();
-      const bb = geometry.boundingBox;
-      if (!bb) return;
-      const w = bb.max.x - bb.min.x;
-      const aspect = host.clientWidth / host.clientHeight;
-      const vFov = (camera.fov * Math.PI) / 180;
-      const fillFrac = aspect < 0.9 ? 0.92 : 0.8; // portrait phones: allow wider
-      const visibleWidth = w / fillFrac;
-      camera.position.set(0, 0, visibleWidth / (2 * Math.tan(vFov / 2) * aspect));
-      camera.lookAt(0, 0, 0);
-      camera.aspect = aspect;
-      camera.updateProjectionMatrix();
-    }
-
-    new FontLoader().load("/fonts/google-sans-bold.typeface.json", (font) => {
+    void (async () => {
+      // The addons are separate entry points, so they are fetched alongside the
+      // core namespace rather than through it.
+      const [T, { FontLoader }, { TextGeometry }] = await Promise.all([
+        import("three"),
+        import("three/addons/loaders/FontLoader.js"),
+        import("three/addons/geometries/TextGeometry.js"),
+      ]);
       if (disposed) return;
-      geometry = new TextGeometry(siteConfig.shortName, {
-        font,
-        size: 1,
-        depth: 0.32,
-        curveSegments: 8,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.035,
-        bevelSegments: 4,
-      });
-      geometry.center();
-      material = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.38, metalness: 0.12 });
-      mesh = new THREE.Mesh(geometry, material);
-      // Held at a fixed slight angle so the extruded sides stay visible — the
-      // text reads as a solid 3D object without moving.
-      mesh.rotation.set(-0.04, 0.17, 0);
-      scene.add(mesh);
-      fit();
-      render();
-    });
 
-    function onResize() {
+      const scene = new T.Scene();
+      const camera = new T.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 100);
+      const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(host.clientWidth, host.clientHeight);
-      fit();
-      render();
-    }
-    window.addEventListener("resize", onResize);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      host.appendChild(renderer.domElement);
+
+      // Lights shape the bevels — that shading is what sells "solid 3D".
+      scene.add(new T.AmbientLight(0xffffff, 0.75));
+      const key = new T.DirectionalLight(0xffffff, 3);
+      key.position.set(-3, 4, 6);
+      scene.add(key);
+      const fill = new T.DirectionalLight(0xffffff, 0.9);
+      fill.position.set(4, -1, 3);
+      scene.add(fill);
+      const rim = new T.DirectionalLight(0x5b8cff, 1.1); // brand-blue edge glow
+      rim.position.set(0, 2, -5);
+      scene.add(rim);
+
+      let mesh: THREE.Mesh | null = null;
+      // Typed as the base class rather than TextGeometry: every call below
+      // (center/computeBoundingBox/boundingBox/dispose) is a BufferGeometry
+      // member, and this avoids a second type-only import of the addon.
+      let geometry: THREE.BufferGeometry | null = null;
+      let material: THREE.Material | null = null;
+
+      const render = () => renderer.render(scene, camera);
+
+      // Frame the text so it spans most of the width, whatever the viewport.
+      function fit() {
+        if (!geometry) return;
+        geometry.computeBoundingBox();
+        const bb = geometry.boundingBox;
+        if (!bb) return;
+        const w = bb.max.x - bb.min.x;
+        const aspect = host.clientWidth / host.clientHeight;
+        const vFov = (camera.fov * Math.PI) / 180;
+        const fillFrac = aspect < 0.9 ? 0.92 : 0.8; // portrait phones: allow wider
+        const visibleWidth = w / fillFrac;
+        camera.position.set(0, 0, visibleWidth / (2 * Math.tan(vFov / 2) * aspect));
+        camera.lookAt(0, 0, 0);
+        camera.aspect = aspect;
+        camera.updateProjectionMatrix();
+      }
+
+      new FontLoader().load("/fonts/google-sans-bold.typeface.json", (font) => {
+        if (disposed) return;
+        geometry = new TextGeometry(siteConfig.shortName, {
+          font,
+          size: 1,
+          depth: 0.32,
+          curveSegments: 8,
+          bevelEnabled: true,
+          bevelThickness: 0.05,
+          bevelSize: 0.035,
+          bevelSegments: 4,
+        });
+        geometry.center();
+        material = new T.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.38, metalness: 0.12 });
+        mesh = new T.Mesh(geometry, material);
+        // Held at a fixed slight angle so the extruded sides stay visible — the
+        // text reads as a solid 3D object without moving.
+        mesh.rotation.set(-0.04, 0.17, 0);
+        scene.add(mesh);
+        fit();
+        render();
+      });
+
+      function onResize() {
+        renderer.setSize(host.clientWidth, host.clientHeight);
+        fit();
+        render();
+      }
+      window.addEventListener("resize", onResize);
+
+      teardown = () => {
+        window.removeEventListener("resize", onResize);
+        geometry?.dispose();
+        material?.dispose();
+        renderer.dispose();
+        if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
+      };
+    })();
 
     return () => {
       disposed = true;
-      window.removeEventListener("resize", onResize);
-      geometry?.dispose();
-      material?.dispose();
-      renderer.dispose();
-      if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
+      teardown?.();
     };
   }, []);
 

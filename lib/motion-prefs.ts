@@ -34,3 +34,16 @@ export function clearLiteMode(): void {
 export function shouldUseStaticBaseline(): boolean {
   return prefersReducedMotion() || isSaveData() || isLiteMode();
 }
+
+/**
+ * True when a heavy optional download (three.js, chiefly) must not be fetched
+ * at all — the visitor is on a metered/slow connection or has opted into lite.
+ *
+ * Deliberately NOT the same test as `shouldUseStaticBaseline`. Reduced-motion
+ * is a vestibular preference, not a bandwidth one: those visitors should still
+ * get still imagery, just nothing that moves. Bundling the two would silently
+ * strip content from people who only asked for less animation.
+ */
+export function shouldSkipHeavyAssets(): boolean {
+  return isSaveData() || isLiteMode();
+}

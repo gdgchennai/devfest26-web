@@ -45,13 +45,29 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
   // One Lenis instance for the whole site, created here and kept alive
   // across route changes (root layout never remounts on navigation).
   useEffect(() => {
-    // Always land at the top on a fresh load / refresh — opt out of the
-    // browser's native scroll restoration and reset before Lenis takes over.
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-    window.scrollTo(0, 0);
+    // Land at the top on a fresh load or refresh, but NOT when the visitor
+    // arrived via back/forward — there, returning them to where they were is
+    // the whole point, so the browser's restoration is left alone.
+    const navType = (
+      performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
+    )?.type;
+    const isHistoryNav = navType === "back_forward";
+
+    // Opting out of native restoration is only needed to win the race against
+    // the browser's own (sometimes post-hydration) restore on refresh. It is
+    // handed straight back afterwards: leaving it "manual" for the session was
+    // what made in-session back/forward forget its position on every route.
+    let handBack = 0;
+    if (!isHistoryNav && "scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+      handBack = window.setTimeout(() => {
+        history.scrollRestoration = "auto";
+      }, 1000);
+    }
+    if (!isHistoryNav) window.scrollTo(0, 0);
 
     const instance = new Lenis({ autoRaf: false });
-    instance.scrollTo(0, { immediate: true, force: true });
+    if (!isHistoryNav) instance.scrollTo(0, { immediate: true, force: true });
     const tick = (time: number) => instance.raf(time * 1000);
     instance.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(tick);
@@ -59,6 +75,8 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     lenisRef.current = instance;
 
     return () => {
+      window.clearTimeout(handBack);
+      if ("scrollRestoration" in history) history.scrollRestoration = "auto";
       gsap.ticker.remove(tick);
       instance.destroy();
       lenisRef.current = null;
