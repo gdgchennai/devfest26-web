@@ -87,7 +87,7 @@ const BRACKETS: BracketConfig[] = [
 
 /** Shapes cycled through the rising parallax field. */
 const FLOATER_FILES = ["angle.svg", "dot.svg", "double_slash.svg", "small_plus.svg"];
-const FLOATER_COUNT = 16;
+const FLOATER_COUNT = 24;
 
 /**
  * Smooth pseudo-random value in ~[-1, 1], summed from two low, close, non-
@@ -364,11 +364,14 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
       }
     }
 
-    // --- Floaters: rise with the page like parallax and scroll out of view.
-    // No wrap and no fade — each is anchored to a point along the page and
-    // travels straight up and off the top as you scroll past it, entering
-    // from below. Every one moves at the same parallax rate.
-    const PF = 0.6; // parallax speed relative to the page (uniform for all)
+    // --- Floaters: rise up the frame like parallax and scroll out of view.
+    // Each is anchored to a point along the page and travels straight up and
+    // off the top as you scroll past it, entering from below. PF > 1 makes them
+    // rise FASTER than the page scrolls, so they read as moving up everywhere —
+    // including once the page scrolls normally after the pinned "What to expect"
+    // section (at PF < 1 the content overtook them and they looked like they
+    // reversed). Uniform for all.
+    const PF = 1.25; // parallax rise speed relative to the page
     const travel = maxScroll * PF;
     const ROT_RATE = 1.2; // radians turned per viewport
     const COLOR_RATE = 0.15; // palette units per viewport
