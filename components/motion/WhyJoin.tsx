@@ -12,13 +12,12 @@ import { prefersReducedMotion } from "@/lib/motion-prefs";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 /**
- * "Why join" — the section where the page hands off to the light theme.
+ * "Why join" — a plain content section. The site is dark-only; this component
+ * previously scrubbed a global --theme property to flip the page to a light
+ * theme from here down, and that has been removed (see the architecture doc).
  *
- * There's a single fixed background (BracketsField) coloured var(--ink), and
- * all text is var(--paper). Both resolve from --theme (0 = dark, 1 = light), so
- * scrubbing --theme from 0 → 1 as this section is reached turns the fixed
- * background white and every font black at once — and it stays light below
- * (the scrub clamps at 1). Scrolling back up returns the upper sections to dark.
+ * What remains is the page's one-shot ScrollTrigger refresh. That is NOT
+ * leftover from the theme flip — see the comment on it below.
  */
 export function WhyJoin() {
   const ref = useRef<HTMLDivElement>(null);
@@ -26,26 +25,28 @@ export function WhyJoin() {
   useGSAP(
     () => {
       if (prefersReducedMotion() || !ref.current) return;
-      gsap.fromTo(
-        document.documentElement,
-        { "--theme": 0 },
-        {
-          "--theme": 1,
-          ease: "none",
-          scrollTrigger: {
-            // Begin the flip only once the section's top reaches the middle of
-            // the viewport, and complete it over the next stretch of scroll.
-            trigger: ref.current,
-            start: "top 50%",
-            end: "top 10%",
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        },
-      );
-      // This section sits below the pinned "What to expect" panel, whose spacer
-      // sets our real scroll position. Recompute once everything's mounted so
-      // this trigger measures against the final (spaced) layout, not a stale one.
+      /*
+       * The only global ScrollTrigger.refresh() on first load, and load-bearing.
+       *
+       * Why it is needed: the pinned "What to expect" panel above inserts a pin
+       * spacer, which changes document height. HashTitle's spin is bound to
+       * absolute scroll bounds (0 → scrollHeight − innerHeight) with
+       * invalidateOnRefresh, so it measures short unless something recomputes
+       * after the spacer exists. MotionProvider does refresh, but only on route
+       * CHANGE — `previousPathname` starts equal to `pathname`, so its effect
+       * early-returns on the first render and never fires here.
+       *
+       * Why it belongs in this component: effects run children-before-parents
+       * and siblings in mount order, so by the time this runs, every trigger on
+       * the page has been created (ExpectShowcase and its HashTitle above, this
+       * section's own HashTitle below it in the tree). Nothing further down the
+       * page creates one. This is the last moment where a single refresh fixes
+       * everything at once.
+       *
+       * Why the reduced-motion guard stays: under reduced motion ExpectShowcase
+       * does not pin and HashTitle does not animate, so there is no spacer and
+       * no trigger — the refresh would have nothing to correct.
+       */
       ScrollTrigger.refresh();
     },
     { scope: ref },

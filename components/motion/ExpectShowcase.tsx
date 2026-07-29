@@ -54,8 +54,9 @@ export function ExpectShowcase() {
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          // Refresh before downstream triggers (e.g. WhyJoin's theme scrub) so
-          // this pin's spacer is in place when they measure their positions.
+          // Refresh before downstream triggers (e.g. HashTitle, whose spin is
+          // bound to the document's full scroll height) so this pin's spacer is
+          // in place when they measure their positions.
           refreshPriority: 1,
         },
       });

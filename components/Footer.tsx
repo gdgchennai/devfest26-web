@@ -21,7 +21,7 @@ export function Footer() {
 
       {/* Utility + legal strip. Kept below the brand lock-up so the Google
           disclaimer, Code of Conduct and lite toggle stay reachable without
-          crowding the mark. Light theme by the time the page reaches here. */}
+          crowding the mark. */}
       <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-4 text-center text-sm text-paper/70">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <a href="/code-of-conduct" className="underline-offset-4 hover:text-paper hover:underline">
@@ -32,11 +32,9 @@ export function Footer() {
           </a>
           <LiteToggle />
         </div>
-        {/* /70, not /50: the footer is the one block that renders in BOTH
-            themes (light on the homepage, dark everywhere else), and /50 over
-            the light theme's white is 3.95:1 — under WCAG AA. /70 clears it in
-            both (8.45:1 light, 8.83:1 dark). */}
-        <p className="max-w-2xl font-mono text-xs text-paper/70">{siteConfig.brandDisclaimer}</p>
+        {/* /50 is as muted as this may go: on the dark page it measures
+            4.76:1, and 12px legal text needs 4.5:1. Anything fainter fails. */}
+        <p className="max-w-2xl font-mono text-xs text-paper/50">{siteConfig.brandDisclaimer}</p>
       </div>
     </footer>
   );

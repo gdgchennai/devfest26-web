@@ -582,9 +582,9 @@ export function BracketsField() {
     };
   }, []);
 
-  // Fixed, full-viewport — the single background the whole page shares. Its
-  // colour is var(--ink), so it flips dark → light with --theme (see WhyJoin).
-  // Behind all content (z-0); content sits above via a z-10 wrapper.
+  // Fixed, full-viewport — the single background the whole page shares, at the
+  // fixed var(--ink). Behind all content (z-0); content sits above via a z-10
+  // wrapper.
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 bg-ink">
       <div ref={hostRef} className="absolute inset-0" />

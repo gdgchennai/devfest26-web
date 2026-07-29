@@ -6,23 +6,17 @@
  */
 :root {
   /*
-   * Greyscale, driven by --theme (0 = dark, 1 = light). A single scrubbed value
-   * flips the whole site's background and foreground together: the fixed
-   * backdrop reads var(--ink) and all text reads var(--paper), so animating
-   * --theme from 0 → 1 turns the page from dark to light. See WhyJoin.tsx, which
-   * scrubs --theme as the light section is reached.
+   * Greyscale. The site is dark-only and these are fixed: the single fixed
+   * backdrop reads var(--ink), all text reads var(--paper).
+   *
+   * There was briefly a --theme custom property that scrubbed both of these
+   * from dark to light partway down the homepage. It is gone deliberately —
+   * see "the site is dark-only" in the architecture doc. The intro loader's
+   * white field is unrelated to these tokens (it is a literal bg-white) and is
+   * the one place the site goes light, by design.
    */
-  --theme: 0;
-  --ink: color-mix(in srgb, var(--black), #ffffff calc(var(--theme) * 100%));
-  /*
-   * The light end is pure black rather than #1e1e1e so the site's muted text
-   * ramp survives the flip. Muting is done with alpha (text-paper/60 and
-   * friends), and alpha over white loses contrast fast: from #1e1e1e, /60 lands
-   * at 4.42:1 and fails WCAG AA. From #000 the same /60 is 5.74:1 and /70 is
-   * 8.45:1, so every muted style at /60 or above passes in both themes without
-   * touching the ~45 call sites. Dark mode is unaffected (--theme 0 → #f0f0f0).
-   */
-  --paper: color-mix(in srgb, #f0f0f0, var(--black) calc(var(--theme) * 100%));
+  --ink: #000;
+  --paper: #f0f0f0;
 
   /* Core */
   --blue: #4285f4;
