@@ -141,7 +141,11 @@ function buildGeometry(
   return geometry;
 }
 
-const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets.svg";
+// The -dark variant, for the same reason FooterLogo uses it: the supplied
+// lockup's wordmark is #1E1E1E and disappears against the dark page. buildLogo
+// groups paths by fill, and #F0F0F0 is still not one of the "plate" values, so
+// the wordmark keeps its deeper extrusion and only the white pill stays flat.
+const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-dark.svg";
 /** wo-brackets viewBox height, for proportional extrude depths. */
 const LOGO_VBH = 531;
 

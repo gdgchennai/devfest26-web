@@ -47,9 +47,13 @@ export function NotFoundRecovery() {
 
   return (
     <div className="min-h-[9.5rem]">
+      {/* Both steps moved up one: the "tried" label was /35 (2.77:1, below AA)
+          against a /50 path. Raising only the label would have flattened them to
+          the same value and lost the hierarchy, so the pair is now /50 label
+          (4.76:1) on a /70 path (8.83:1) — same relationship, both passing. */}
       {attempted && (
-        <p className="font-mono text-sm break-all text-paper/50">
-          <span className="text-paper/35">tried</span> {attempted}
+        <p className="font-mono text-sm break-all text-paper/70">
+          <span className="text-paper/50">tried</span> {attempted}
         </p>
       )}
 

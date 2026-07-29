@@ -18,6 +18,28 @@
   --ink: #000;
   --paper: #f0f0f0;
 
+  /*
+   * Card/panel surfaces. OPAQUE by construction, and that is the whole point.
+   *
+   * These were alpha washes (`bg-paper/[0.03]`), which look identical to these
+   * values over the flat page — but the page is not flat. BracketsField paints
+   * a fixed 3D layer of brand shapes behind everything, so a 97%-transparent
+   * card let an extruded bracket travel straight through the card and its text.
+   * Mixing into --ink instead of into `transparent` keeps the exact same
+   * appearance while making the surface actually occlude what is behind it.
+   *
+   * Any panel that carries text over the homepage backdrop uses one of these,
+   * never an alpha wash.
+   *
+   * Written as literals, like --ink and --paper above, rather than as
+   * color-mix(): Tailwind compiles a color-mix() token into an @supports block
+   * with `--surface: var(--paper)` as the pre-color-mix fallback, which would
+   * paint a near-white card under near-white text on any browser that lacks it.
+   * These are the exact values that mix produces — paper at 3% and 5% over ink.
+   */
+  --surface: #070707;
+  --surface-raised: #0c0c0c;
+
   /* Core */
   --blue: #4285f4;
   --green: #34a853;
@@ -41,6 +63,8 @@
 @theme inline {
   --color-ink: var(--ink);
   --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
 
   --color-blue: var(--blue);
   --color-red: var(--red);
@@ -401,8 +425,11 @@ body {
    * The torn-off half, lifted clear of the body so the perforation reads as a
    * real seam rather than a decorative dashed line. Costs contrast: every
    * label on this panel had to move up an opacity step to stay above 4.5:1.
+   *
+   * --surface-raised, not a 5%-into-transparent wash: same colour, but opaque,
+   * so the 3D backdrop cannot travel through the stub's labels.
    */
-  background: color-mix(in srgb, var(--paper) 5%, transparent);
+  background: var(--surface-raised);
 }
 
 /*

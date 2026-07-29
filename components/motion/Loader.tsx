@@ -359,7 +359,14 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
         type="button"
         onClick={handleEnter}
         style={{ visibility: "hidden" }}
-        className="rounded-full px-3 py-1 text-2xl text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/40 disabled:opacity-40 sm:text-3xl"
+        /*
+         * No `outline-none` here: this is the intro's only control, and the
+         * ring it used to substitute (ink at 40%) measures 2.85:1 on the white
+         * field — under the 3:1 WCAG 1.4.11 needs for a focus indicator. The
+         * global `:focus-visible` outline it was overriding is --blue, which is
+         * 3.56:1 on white and passes, so the fix is to stop overriding it.
+         */
+        className="rounded-full px-3 py-1 text-2xl text-ink disabled:opacity-40 sm:text-3xl"
         disabled={entered}
       >
         <RollingText>Enter the DevFest experience →</RollingText>

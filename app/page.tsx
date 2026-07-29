@@ -64,7 +64,7 @@ export default function Home() {
           </p>
           <Link
             href="/venue"
-            className="mt-3 inline-block text-sm text-blue underline-offset-4 hover:underline"
+            className="mt-3 inline-block text-sm text-blue underline underline-offset-4 hover:decoration-2"
           >
             Venue details & travel →
           </Link>

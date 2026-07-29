@@ -20,7 +20,10 @@ export function Card({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border border-paper/10 bg-paper/[0.03] p-5 ${className}`.trim()}
+      // bg-surface, not bg-paper/[0.03]: identical colour, but opaque. The
+      // alpha version let BracketsField's 3D brackets show straight through the
+      // card and across its text. See --surface in globals.css.
+      className={`relative overflow-hidden rounded-lg border border-paper/10 bg-surface p-5 ${className}`.trim()}
     >
       {accentClass && (
         <span aria-hidden className={`absolute inset-x-0 top-0 h-px ${accentClass}`} />

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { siteConfig } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { SkipLink } from "@/components/SkipLink";
 
 /*
@@ -100,6 +101,9 @@ export default function RootLayout({
             <circle cx="1312.5" cy="516.5" r="78.5" fill="#34a853" />
           </svg>
         </div>
+        {/* Takes the preloader above back down on every route. Must live here,
+            not in a page-level component — see BootPreloaderRelease. */}
+        <BootPreloaderRelease />
         <SkipLink />
         <MotionProvider>
           {/* Header intentionally removed — a new one is being designed. */}

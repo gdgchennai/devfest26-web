@@ -7,7 +7,8 @@ import { FooterBrackets } from "@/components/FooterBrackets";
 
 /*
  * The footer centrepiece: the official DevFest wordmark + "Chennai" pill
- * (brand-assets/devfest-logo-wo-brackets.svg), framed by the two brackets.
+ * (brand-assets/devfest-logo-wo-brackets-dark.svg — the dark-background variant;
+ * see the src below), framed by the two brackets.
  *
  * Two rendering modes, keyed off whether the 3D BracketsField is live (only on
  * the homepage, only with motion enabled):
@@ -28,8 +29,16 @@ import { FooterBrackets } from "@/components/FooterBrackets";
 // Fake extrusion for the fallback flat logo: a stack of identical 1px down-
 // right drop-shadows in a darker gold builds a solid diagonal side, then one
 // soft ambient shadow lifts it off the page.
-const EXTRUDE_COLOR = "#9a6a00";
-const LOGO_FILTER = `${Array.from({ length: 8 }, () => `drop-shadow(1px 1px 0 ${EXTRUDE_COLOR})`).join(" ")} drop-shadow(0 12px 16px rgba(30,30,30,0.22))`;
+//
+// Both colours are derived from tokens rather than written as hex. The gold was
+// literally `#9a6a00`, which is exactly var(--yellow) mixed 62% into black — the
+// same mix the social discs below already use — so this is the identical colour
+// expressed as the brand ramp instead of a hand-mixed shade. The ambient shadow
+// was `rgba(30,30,30,0.22)`, i.e. the OLD --ink (#1e1e1e), which stopped
+// matching the page when ink became #000.
+const EXTRUDE_COLOR = "color-mix(in srgb, var(--yellow) 62%, var(--black))";
+const AMBIENT_SHADOW = "color-mix(in srgb, var(--ink) 22%, transparent)";
+const LOGO_FILTER = `${Array.from({ length: 8 }, () => `drop-shadow(1px 1px 0 ${EXTRUDE_COLOR})`).join(" ")} drop-shadow(0 12px 16px ${AMBIENT_SHADOW})`;
 
 const ICONS: Record<string, React.ReactNode> = {
   X: (
@@ -85,7 +94,12 @@ export function FooterLogo({
             SVG measured by the motion layer; next/image adds nothing here. */}
         <img
           id="footer-logo"
-          src="/brand-assets/devfest-logo-wo-brackets.svg"
+          /* The -dark variant: the supplied lockup draws the DevFest wordmark
+             in #1E1E1E, which was legible while the page flipped to a light
+             theme behind the footer. The site is dark-only now, so on #000 the
+             wordmark rendered near-invisible — only its gold fake-extrusion
+             was showing. Same geometry, wordmark recoloured to --paper. */
+          src="/brand-assets/devfest-logo-wo-brackets-dark.svg"
           alt="DevFest Chennai"
           className="h-full w-full"
           // In 3D mode the WebGL lockup is the visible logo; keep this laid out
@@ -110,7 +124,7 @@ export function FooterLogo({
               <span
                 aria-hidden
                 className="absolute inset-0 translate-y-1 rounded-full"
-                style={{ background: "color-mix(in srgb, var(--yellow) 62%, #000)" }}
+                style={{ background: EXTRUDE_COLOR }}
               />
               <span className="absolute inset-0 rounded-full bg-yellow transition-transform duration-150 group-hover:-translate-y-0.5" />
               <svg

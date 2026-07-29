@@ -71,7 +71,7 @@ export function AgendaTimeline({ sessions }: { sessions: AgendaSession[] }) {
       <li className="relative pl-6 pt-2">
         <Link
           href="/agenda"
-          className="text-sm text-blue underline-offset-4 hover:underline"
+          className="text-sm text-blue underline underline-offset-4 hover:decoration-2"
         >
           View full agenda →
         </Link>
