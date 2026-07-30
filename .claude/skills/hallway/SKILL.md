@@ -280,14 +280,51 @@ Without that, all twelve pop in on a single frame.
 
 ## The baseline
 
-`shouldUseStaticBaseline()` (reduced motion, Save-Data, `?lite=1`) skips the
-hallway entirely: the hero falls back to `StaticHero`, `/memories` to its year
-grids. **That baseline is also what server-renders**, and the motion path only
-engages after hydration confirms it should. Do not invert this — mounting the
-motion hero first and downgrading after hydration unmounts an already-pinned
-ScrollTrigger and crashes React's reconciliation.
+`shouldUseStaticBaseline()` (reduced motion or `?lite=1` — **not** Save-Data;
+see `isSaveData` in `lib/motion-prefs.ts` for why that gate went) skips the
+hallway entirely: `/memories` falls back to its year grids. **That baseline is
+also what server-renders**, and the motion path only engages after hydration
+confirms it should. Do not invert this — mounting the motion hero first and
+downgrading after hydration unmounts an already-pinned ScrollTrigger and crashes
+React's reconciliation.
 
-Both hero variants share `HeroCopy.tsx`. Change the tagline or CTAs there, once.
+The hero has a second, narrower gate. `shouldSkipHeavyAssets()` (lite only)
+swaps `CurvedMarqueeHero` for `StaticHero`; reduced motion keeps the WebGL hero,
+rendered once instead of animated, because it is a vestibular preference and not
+a bandwidth one.
+
+**`StaticHero` is not optional polish — it is the only thing lite renders.**
+Everything visible in `CurvedMarqueeHero` (the photo strip *and* the title) is
+drawn in WebGL, so for a long while lite was a full black viewport containing an
+`sr-only` <h1> and two links. If you add anything to one hero, check the other
+still says it.
+
+Both hero variants read `components/motion/HeroCopy.tsx` — plain data derived
+from `site.config.ts` and `lib/cta.ts`, not a component, because one variant
+draws its title as extruded 3D text and the other as an `<h1>`, so they cannot
+share markup. Change the tagline, the date line or the CTAs there, once. Note
+this is **not** the animated hero-copy block described further down under "The
+copy belongs to the hero, not the tunnel" — that block and its
+`HALLWAY_RISE_CLASS` are currently unrendered.
+
+## The way out
+
+`<IntroEscape>` is the intro's only exit: Skip intro, the Escape key, and a
+"Lite version" opt-out that turns the motion layer off for good. It renders for
+exactly as long as `<Loader>` does.
+
+Two things about it are load-bearing:
+
+- It portals to `<body>` as a **sibling** of the loader, not inside it — the
+  loader's root is scaled 8× and faded to zero by the reveal zoom, which would
+  take the hatch with it exactly when the photos start flying.
+- Because of that, `<Loader>` must **not** carry `aria-modal` — modality hides
+  every sibling from assistive tech, which would leave the only accessible exit
+  unannounced. The comment on the loader says so; don't "fix" it back.
+
+It was written, then never rendered, and the gap lasted a while: the intro locks
+body scroll, stops Lenis and marks `#main` aria-busy, so with no hatch mounted
+there was no way to end it at all.
 
 ## The curtain opens onto the corridor, not onto a photo
 

@@ -5,7 +5,7 @@ import { Section } from "@/components/Section";
 import { Faq } from "@/components/Faq";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
-import { CurvedMarqueeHero } from "@/components/motion/CurvedMarqueeHero";
+import { StaticHero } from "@/components/motion/StaticHero";
 import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { WhyJoin } from "@/components/motion/WhyJoin";
@@ -24,8 +24,10 @@ export default function Home() {
 
       <div className="relative z-10">
         {/* If the motion hero throws at runtime, degrade to the static hero
-            instead of taking down the whole homepage. */}
-        <SectionBoundary label="hero" fallback={<CurvedMarqueeHero />}>
+            instead of taking down the whole homepage. The fallback is
+            StaticHero, not CurvedMarqueeHero: a fallback that itself needs
+            WebGL to show any content is no fallback at all. */}
+        <SectionBoundary label="hero" fallback={<StaticHero />}>
           <HeroSection />
         </SectionBoundary>
 

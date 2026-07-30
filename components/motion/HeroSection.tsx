@@ -5,7 +5,9 @@ import gsap from "gsap";
 import { archivePhotos, hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { Loader } from "@/components/motion/Loader";
+import { IntroEscape } from "@/components/motion/IntroEscape";
 import { CurvedMarqueeHero } from "@/components/motion/CurvedMarqueeHero";
+import { StaticHero } from "@/components/motion/StaticHero";
 import { useAssetsLoaded } from "@/components/motion/useAssetsLoaded";
 import {
   usePhotoHallway,
@@ -16,7 +18,7 @@ import {
   HALLWAY_BACKDROP_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
-import { INTRO_SEEN_KEY, shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { INTRO_SEEN_KEY, shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { clamp } from "@/lib/easing";
 
@@ -45,6 +47,11 @@ export function HeroSection() {
   // Defaults to the static baseline (matches SSR and the no-JS fallback) and
   // upgrades to the motion intro once confirmed on the client.
   const disableHallway = useClientValue(shouldUseStaticBaseline, true);
+  // Separate from `disableHallway` on purpose. Reduced-motion still gets the
+  // WebGL hero — rendered once instead of animated — because it is a vestibular
+  // preference, not a bandwidth one (see shouldSkipHeavyAssets). Only lite (and
+  // the server/no-JS render, hence the `true` default) drops to StaticHero.
+  const liteAssets = useClientValue(shouldSkipHeavyAssets, true);
   const isDesktop = useClientValue(() => window.matchMedia("(min-width: 1024px)").matches, true);
   const seenIntro = useClientValue(hasSeenIntro, true);
   // The bouncing preloader shows on EVERY non-baseline load/refresh (something
@@ -145,8 +152,16 @@ export function HeroSection() {
   // The preloader waits on the whole initial experience — fonts, the title
   // typeface, every archive image, and the 3D brackets backdrop — so the 4-dot
   // bounce keeps looping until it's all ready and nothing pops in unloaded.
+  //
+  // Two lists, because the two groups are fetched by different mechanisms and
+  // warming the wrong URL is the same as not warming at all:
+  //  • raw — the curved marquee (three.js TextureLoader) and ExpectShowcase
+  //    (plain <img>), neither of which can go through /_next/image;
+  //  • sized — the flythrough's <Frame>s, which DO go through the optimizer, so
+  //    they must be warmed at the exact widths `cardSizes` will ask for.
   const heroAssets = archivePhotos.map((p) => p.src);
-  const loadingComplete = useAssetsLoaded(heroAssets, !showLoader);
+  const flyAssets = flying.map((p, i) => ({ src: p.src, sizes: cardSizes(i, maxScale) }));
+  const loadingComplete = useAssetsLoaded(heroAssets, !showLoader, flyAssets);
 
   usePhotoHallway({
     containerRef: flythroughRef,
@@ -173,17 +188,21 @@ export function HeroSection() {
     gsap.set(heroWrapRef.current, { clearProps: "transform,opacity,visibility" });
   }, [revealDone]);
 
-  // The hero (CurvedMarqueeHero) is ALWAYS rendered here, in this exact tree
-  // position, whether or not the intro plays — so it never unmounts/remounts
-  // when the intro ends (releaseIntro writes intro-seen, which would otherwise
-  // flip `seenIntro` and swap render branches, tearing down its WebGL). Only
-  // the intro overlays below are conditional.
+  // The hero is ALWAYS rendered here, in this exact tree position, whether or
+  // not the intro plays — so it never unmounts/remounts when the intro ends
+  // (releaseIntro writes intro-seen, which would otherwise flip `seenIntro` and
+  // swap render branches, tearing down its WebGL). Only the intro overlays
+  // below are conditional.
+  //
+  // Which hero is safe to branch on, because `liteAssets` is read once on mount
+  // and cannot change without a reload (the toggle reloads the page) — unlike
+  // `seenIntro`, which flips mid-session and is what that rule is about.
   return (
     <>
       {/* Present the whole time. During the intro it starts hidden and zoomed
           out, then eases in as the flythrough ends (see onFlyProgress). */}
       <div ref={heroWrapRef} style={{ transformOrigin: "50% 50%", willChange: "transform, opacity" }}>
-        <CurvedMarqueeHero />
+        {liteAssets ? <StaticHero /> : <CurvedMarqueeHero />}
       </div>
 
       {/* The flythrough: a fixed overlay of photos flying past on black,
@@ -208,10 +227,25 @@ export function HeroSection() {
                     title={photo.title}
                     aspectRatio="auto"
                     sizes={cardSizes(i, maxScale)}
-                    // Serve the raw file, not a resized /_next/image variant, so
-                    // these hit the exact URLs the preloader warmed — otherwise
-                    // the flythrough fetches fresh and shows blank on slow links.
-                    unoptimized
+                    /*
+                     * Deliberately NOT `unoptimized`. That was added to make
+                     * these hit the same URLs the preloader warms, but it made
+                     * every card fetch the full 402 KB / 1920px original with
+                     * AVIF+WebP skipped — 3.34 MB across the ten cards. Frame's
+                     * <Image> is lazy, so none of it arrived before the cards
+                     * had flown past and every one showed its fallback panel
+                     * for the whole intro. Through the optimizer the same photo
+                     * is ~31 KB, and `sizes` above already accounts for the
+                     * peak zoom, so nothing is served too small.
+                     *
+                     * `preload` because Frame's <Image> is lazy by default
+                     * (next/image: isLazy = !priority && !preload && ...), and
+                     * lazy is simply wrong here — this section only mounts at
+                     * the moment these ten cards start flying at the camera, so
+                     * every one of them is about to be seen. Waiting for an
+                     * intersection callback is how they ended up still blank.
+                     */
+                    preload
                     className="h-full w-full"
                   />
                 </div>
@@ -228,6 +262,30 @@ export function HeroSection() {
           onEnter={enterExperience}
           onReveal={startFlythrough}
           onDismiss={releaseIntro}
+        />
+      )}
+
+      {/*
+       * The way out, for exactly as long as the intro owns the screen — same
+       * condition as the <Loader> above, because that is the thing covering the
+       * page. It was written for this and then never rendered: `releaseIntro`
+       * documents itself as "shared by the flythrough finishing and by a skip
+       * cutting it short", but no skip existed, so the intro locked scrolling
+       * (body overflow + lenis.stop) and marked #main aria-busy with no control
+       * to end it and no Escape-key handler mounted.
+       *
+       * Deliberately NOT inside <Loader>: that root gets scaled 8× and faded to
+       * zero during the reveal zoom, which would take the hatch with it at the
+       * precise moment the photos start flying.
+       */}
+      {showLoader && !revealDone && (
+        <IntroEscape
+          phase={entering ? "hallway" : "loading"}
+          // Dimmed while the loader's own "Enter" is the primary action; full
+          // once the flythrough is playing and this is the only control left.
+          // Keyboard users get full opacity either way, via focus-within.
+          emphasis={entering}
+          onSkip={releaseIntro}
         />
       )}
     </>

@@ -48,7 +48,22 @@ function TrackCard({ track }: { track: Track }) {
       style={{ "--spot-color": color.cssVar } as React.CSSProperties}
     >
       <Card accentClass={color.bg} className="h-full">
-        <h3 className={`font-mono text-sm uppercase tracking-wide ${color.text}`}>{track.name}</h3>
+        {/*
+         * The track's colour lives on the accent hairline above (accentClass),
+         * not on this text. It was `color.text`, and that one choice was what
+         * capped how much of the 3D backdrop these cards could let through:
+         * #ea4335 is the weakest brand colour at 5.35:1 on black, so a bracket
+         * drifting behind a red track card dragged its heading toward AA and
+         * held every card on the page to 8% bleed. On --paper the same cards
+         * clear 29%. Nothing is lost — the track is named in the text itself,
+         * and the hairline still carries the colour, which is the more correct
+         * place for it anyway (WCAG 1.4.1: colour shouldn't be doing
+         * identification work on its own).
+         *
+         * Deliberately not changed in lib/track-color.ts — AgendaTimeline still
+         * uses color.text, and /agenda has no BracketsField behind it.
+         */}
+        <h3 className="font-mono text-sm uppercase tracking-wide text-paper">{track.name}</h3>
         <p className="mt-2 text-sm text-paper/70">{track.description}</p>
       </Card>
     </div>

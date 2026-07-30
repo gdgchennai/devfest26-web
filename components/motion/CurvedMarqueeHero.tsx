@@ -8,9 +8,9 @@ import type * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
-import { siteConfig } from "@/site.config";
 import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
+import { heroCopy } from "@/components/motion/HeroCopy";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -65,7 +65,6 @@ export function CurvedMarqueeHero() {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const ticketHref = siteConfig.ticketing.url ?? "/agenda";
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -299,7 +298,7 @@ export function CurvedMarqueeHero() {
 
       new FontLoader().load("/fonts/google-sans-bold.typeface.json", (font) => {
         if (disposed) return;
-        geometry = new TextGeometry(siteConfig.shortName, {
+        geometry = new TextGeometry(heroCopy.title, {
           font,
           size: 1,
           depth: 0.32,
@@ -364,18 +363,28 @@ export function CurvedMarqueeHero() {
       {/* The title as extruded 3D text (WebGL), above the strip and the darken.
           An sr-only heading carries the same text for assistive tech. */}
       <div ref={textRef} className="pointer-events-none absolute inset-0 z-10" />
-      <h1 className="sr-only">{siteConfig.shortName}</h1>
+      <h1 className="sr-only">{heroCopy.title}</h1>
 
-      {/* Calls to action. */}
+      {/* Calls to action. Labels and destinations come from heroCopy so this
+          hero and StaticHero always say the same thing — and so the ticket CTA
+          obeys lib/cta.ts, which is what stopped the rest of the site from
+          rendering "Get Tickets" as a link to /agenda. */}
       <div
         className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper sm:gap-16 sm:text-xl"
         style={{ bottom: "16%" }}
       >
-        <Link href={ticketHref}>
-          <RollingText>Get Tickets →</RollingText>
-        </Link>
-        <Link href="/agenda">
-          <RollingText>See Agenda →</RollingText>
+        {heroCopy.ticket.available ? (
+          <Link href={heroCopy.ticket.href}>
+            <RollingText>{`${heroCopy.ticket.label} →`}</RollingText>
+          </Link>
+        ) : (
+          // Nowhere to go yet, so it is text rather than a link — but it keeps
+          // its place in the row so the composition does not shift when the
+          // ticketing URL lands.
+          <span className="text-paper/70">{heroCopy.ticket.label}</span>
+        )}
+        <Link href={heroCopy.agenda.href}>
+          <RollingText>{`${heroCopy.agenda.label} →`}</RollingText>
         </Link>
       </div>
     </section>

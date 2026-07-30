@@ -20,9 +20,11 @@ export function Card({
 }) {
   return (
     <div
-      // bg-surface, not bg-paper/[0.03]: identical colour, but opaque. The
-      // alpha version let BracketsField's 3D brackets show straight through the
-      // card and across its text. See --surface in globals.css.
+      // bg-surface, not bg-paper/[0.03]: the old wash was 97% transparent, so
+      // BracketsField's 3D brackets travelled straight through the card and
+      // across its text. --surface holds back 92% of it — enough that a bracket
+      // still reads as moving behind the card, not enough to pull the text
+      // under AA. The ratios are worked out at the token.
       className={`relative overflow-hidden rounded-lg border border-paper/10 bg-surface p-5 ${className}`.trim()}
     >
       {accentClass && (

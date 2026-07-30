@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { siteConfig } from "@/site.config";
+import { heroCopy } from "@/components/motion/HeroCopy";
 import { useClientValue } from "@/lib/useClientValue";
 
 export type IntroPhase = "loading" | "hallway";
@@ -66,17 +66,35 @@ export function IntroEscape({
 
       {phase === "loading" && (
         <>
-          <a href="/agenda" className="text-paper/70 hover:text-paper">
+          <a href={heroCopy.agenda.href} className="text-paper/70 hover:text-paper">
             Agenda
           </a>
-          <a
-            href={siteConfig.ticketing.url ?? "/agenda"}
-            className="text-paper/70 hover:text-paper"
-          >
-            Tickets
-          </a>
+          {/* Only when there is somewhere to go — see lib/cta.ts. */}
+          {heroCopy.ticket.available && (
+            <a href={heroCopy.ticket.href} className="text-paper/70 hover:text-paper">
+              Tickets
+            </a>
+          )}
         </>
       )}
+
+      {/*
+       * Two different exits, and the difference matters. "Skip intro" ends this
+       * playthrough; "Lite version" is the standing answer — it turns the whole
+       * motion layer off for good, and someone who is already regretting the
+       * flythrough should not have to scroll the length of the homepage to the
+       * footer toggle to find it.
+       *
+       * A plain anchor, not a button calling into motion-prefs: it works with
+       * no JS, it is the same `?lite=1` URL the footer toggle navigates to, and
+       * a full page load is what re-reads the preference anyway.
+       */}
+      <a
+        href="?lite=1"
+        className="rounded-full border border-paper/30 bg-ink/70 px-4 py-2 uppercase tracking-wide text-paper/80 hover:bg-paper/10 hover:text-paper"
+      >
+        Lite version
+      </a>
       <button
         type="button"
         onClick={onSkip}

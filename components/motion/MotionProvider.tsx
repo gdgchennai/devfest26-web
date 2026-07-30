@@ -66,6 +66,34 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     }
     if (!isHistoryNav) window.scrollTo(0, 0);
 
+    /*
+     * Smooth scrolling IS motion, and this used to run for everyone — so a
+     * visitor with `prefers-reduced-motion: reduce` still got momentum
+     * smoothing on every wheel tick, plus the knock-on effects: PageDown and
+     * arrow keys glide instead of jumping, and find-in-page/anchor jumps land
+     * somewhere other than where the browser put them. Reduced motion and lite
+     * both get the browser's own scroll instead.
+     *
+     * ScrollTrigger needs no replacement wiring for it. The `instance.on
+     * ("scroll", ScrollTrigger.update)` line below exists only because Lenis
+     * takes the scroll over; left alone, ScrollTrigger listens to native scroll
+     * events itself. `lagSmoothing(0)` is skipped for the same reason — it is
+     * there to keep Lenis and the ticker in step, and the default is the better
+     * behaviour without it.
+     *
+     * Read straight from the preference rather than from the `staticBaseline`
+     * render value on purpose: that value is the SSR default on the hydration
+     * pass and only settles a render later, which would build and immediately
+     * destroy a Lenis instance for every lite visitor. It cannot change without
+     * a reload, so reading it once here is safe.
+     */
+    if (shouldUseStaticBaseline()) {
+      return () => {
+        window.clearTimeout(handBack);
+        if ("scrollRestoration" in history) history.scrollRestoration = "auto";
+      };
+    }
+
     const instance = new Lenis({ autoRaf: false });
     if (!isHistoryNav) instance.scrollTo(0, { immediate: true, force: true });
     const tick = (time: number) => instance.raf(time * 1000);

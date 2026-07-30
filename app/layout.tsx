@@ -90,8 +90,12 @@ export default function RootLayout({
             __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}`,
           }}
         />
+        {/* Mirrors isLiteMode() in lib/motion-prefs.ts, including the `?lite=0`
+            opt-out — without that branch a stale stored preference would hide
+            the boot preloader on a ?lite=0 load that then plays the full intro.
+            Inlined rather than imported: it must run before any module does. */}
         <Script id="intro-bridge" strategy="beforeInteractive">
-          {`(function(){try{var p=new URLSearchParams(location.search);var lite=p.get('lite')==='1'||localStorage.getItem('devfest-lite')==='1';var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce||lite){document.documentElement.classList.add('no-boot');}}catch(e){}})();`}
+          {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce||lite){document.documentElement.classList.add('no-boot');}}catch(e){}})();`}
         </Script>
         <div id="boot-preloader" aria-hidden="true">
           <svg viewBox="0 250 1728 535" xmlns="http://www.w3.org/2000/svg">

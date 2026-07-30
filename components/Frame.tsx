@@ -17,6 +17,23 @@ const FALLBACK_BG: Record<FallbackColor, string> = {
   green: "bg-green-halftone",
 };
 
+/*
+ * A brand shape per fallback colour, so a frame without its photo reads as a
+ * designed panel rather than a flat swatch waiting for something. Paired to the
+ * colour it already carries in the kit (dot is green, the brackets gold, the
+ * slashes blue, the angle pink), so the panel stays one brand object.
+ *
+ * Used as a MASK, not an <img>: the source SVGs are drawn in their own brand
+ * colour, which would clash on a halftone ground. Masking lets the shape be
+ * tinted in ink — the same ink as the label — so the panel reads as one thing.
+ */
+const FALLBACK_SHAPE: Record<FallbackColor, string> = {
+  blue: "/brand-shapes/double_slash.svg",
+  red: "/brand-shapes/angle.svg",
+  yellow: "/brand-shapes/left_bracket.svg",
+  green: "/brand-shapes/dot.svg",
+};
+
 type FrameProps = {
   src: string | null;
   alt: string;
@@ -73,7 +90,26 @@ export function Frame({
         }`}
         aria-hidden={!showFallback}
       >
-        <span className="font-mono text-[0.75rem] text-ink tabular-nums">{title}</span>
+        {/* The brand mark. Centred and held at 18% so it reads as a watermark
+            behind the label rather than competing with it — the label sits
+            bottom-left, the mark centre, so they rarely overlap and the ink
+            label keeps its 7.0–11.7:1 against the halftone either way. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.18]"
+          style={{
+            background: "var(--ink)",
+            maskImage: `url("${FALLBACK_SHAPE[color]}")`,
+            WebkitMaskImage: `url("${FALLBACK_SHAPE[color]}")`,
+            maskRepeat: "no-repeat",
+            WebkitMaskRepeat: "no-repeat",
+            maskPosition: "center",
+            WebkitMaskPosition: "center",
+            maskSize: "42%",
+            WebkitMaskSize: "42%",
+          }}
+        />
+        <span className="relative font-mono text-[0.75rem] text-ink tabular-nums">{title}</span>
       </div>
 
       {src && (

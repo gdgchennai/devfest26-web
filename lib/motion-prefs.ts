@@ -23,16 +23,34 @@ export function isSaveData(): boolean {
   return connection.effectiveType === "2g" || connection.effectiveType === "slow-2g";
 }
 
+/**
+ * `?lite=1` turns it on, `?lite=0` turns it off, and either way the answer is
+ * remembered. Both directions matter: the toggle drives the preference through
+ * the URL so the choice is linkable, bookmarkable and testable — "open the site
+ * the way I see it" has to be something a visitor can send to someone else, and
+ * `?lite=0` is the only way back out of a stored preference on a shared machine.
+ *
+ * NOTE: this persists as a side effect of being read. Harmless (it writes the
+ * same value every time) but it is why the pre-paint script in app/layout.tsx
+ * inlines the same two rules rather than calling this — that script has to run
+ * before any module loads. Change one, change the other.
+ */
 export function isLiteMode(): boolean {
   if (typeof window === "undefined") return false;
   const params = new URLSearchParams(window.location.search);
-  if (params.get("lite") === "1") {
+  const param = params.get("lite");
+  if (param === "1") {
     window.localStorage.setItem(LITE_STORAGE_KEY, "1");
     return true;
+  }
+  if (param === "0") {
+    clearLiteMode();
+    return false;
   }
   return window.localStorage.getItem(LITE_STORAGE_KEY) === "1";
 }
 
+/** The one place that knows how to forget the preference. */
 export function clearLiteMode(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(LITE_STORAGE_KEY);

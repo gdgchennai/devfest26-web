@@ -35,10 +35,32 @@
    * color-mix(): Tailwind compiles a color-mix() token into an @supports block
    * with `--surface: var(--paper)` as the pre-color-mix fallback, which would
    * paint a near-white card under near-white text on any browser that lacks it.
-   * These are the exact values that mix produces — paper at 3% and 5% over ink.
+   * The rgb values are paper at 3% and 5% over ink.
+   *
+   * The 0.82 alpha is measured, not picked. Fully opaque killed the depth the
+   * 3D layer exists to create; too transparent and a bright bracket drifting
+   * behind a card drags its text under AA.
+   *
+   * What sets the ceiling is TEXT COLOUR, not this value. While the track
+   * headings were rendered in brand colours, #ea4335 (weakest at 5.35:1 on
+   * black) capped every card on the page at 8% bleed. Moving those headings to
+   * --paper (see TrackCards) raised the ceiling to 29%, so this is now chosen
+   * for how it looks rather than to scrape past a ratio:
+   *
+   *   18% bleed (0.82) -> 5.67:1   <- chosen, a full point of margin
+   *   29% bleed (0.71) -> 4.67:1   the actual ceiling
+   *
+   * At 18% a gold bracket behind a card renders rgb(51,37,6) against the card's
+   * rgb(7,7,7) — plainly readable as movement — while over the flat page the
+   * card is rgb(6,6,6), indistinguishable from opaque.
+   *
+   * Note what is NOT done here: the 3D shapes are left at full brightness.
+   * Dimming them buys bleed (13% at 60%) but degrades every open area of the
+   * page, where the brackets are the only visual interest and nothing is in
+   * front of them — trading the majority of the page to fix the minority.
    */
-  --surface: #070707;
-  --surface-raised: #0c0c0c;
+  --surface: rgb(7 7 7 / 0.82);
+  --surface-raised: rgb(12 12 12 / 0.82);
 
   /* Core */
   --blue: #4285f4;

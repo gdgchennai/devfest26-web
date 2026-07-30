@@ -8,14 +8,44 @@ import { whenReady, BRACKETS_READY } from "@/lib/assetReady";
  */
 const MIN_DURATION = 2000;
 /**
- * Last-resort hang failsafe. NOT a normal-path cap: every wait below settles on
- * its own (images/fonts/typeface resolve or reject; the 3D signal always fires,
- * success or failure — see BracketsField), so a real load — however slow —
- * hands off the moment it genuinely finishes. This only trips if a request
- * hangs open forever (never loads, never errors), so the visitor is never
- * trapped. Deliberately generous so it never cuts a legitimately slow load off.
+ * How long the bounce will wait before handing off regardless.
+ *
+ * Normally it never trips: every wait below settles on its own (images, fonts
+ * and the typeface all resolve or reject; the 3D signal fires on failure too —
+ * see BracketsField), so a load that finishes in 4s hands off at 4s. This is
+ * the ceiling for the case where something is merely very slow rather than
+ * broken — a phone on venue wifi — because a visitor staring at bouncing dots
+ * past ~15s has been abandoned, whatever the network is doing.
+ *
+ * Handing off early is safe by construction: <Frame> renders its brand-shape
+ * fallback panel for any image that has not arrived, and swaps each photo in as
+ * it decodes. So the intro degrades to "some panels, filling in" rather than
+ * stalling — no separate lite-mode branch needed for this path.
  */
-const MAX_DURATION = 90000;
+const MAX_DURATION = 15000;
+
+/**
+ * Next's default `images.deviceSizes` and quality. next/image builds its srcset
+ * from these, so mirroring them here lets the preloader hand the browser the
+ * SAME candidate list a <Frame> will render. The browser then applies its own
+ * selection to both, picks the identical URL, and the <Frame> gets a cache hit
+ * instead of a fresh fetch.
+ *
+ * This is the one place coupled to Next's defaults: if `images.deviceSizes` or
+ * a per-image `quality` is ever set in next.config, update these to match or
+ * the preloader silently warms URLs nothing asks for.
+ */
+const DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+const DEFAULT_QUALITY = 75;
+
+/** An image the optimizer serves, so it must be warmed at the same widths. */
+export type SizedAsset = { src: string; sizes: string };
+
+function optimizedSrcSet(src: string): string {
+  return DEVICE_SIZES.map(
+    (w) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=${DEFAULT_QUALITY} ${w}w`,
+  ).join(", ");
+}
 
 /** The 3D title's typeface, fetched here so the extruded wordmark is ready too. */
 const TITLE_TYPEFACE = "/fonts/google-sans-bold.typeface.json";
@@ -32,7 +62,18 @@ const TITLE_TYPEFACE = "/fonts/google-sans-bold.typeface.json";
  * reveal, and only bails via MAX_DURATION if a request truly hangs.
  * Deliberately does NOT wait on lazy / off-screen images.
  */
-export function useAssetsLoaded(assets: string[], disabled: boolean): boolean {
+export function useAssetsLoaded(
+  assets: string[],
+  disabled: boolean,
+  /**
+   * Images the OPTIMIZER serves (the flythrough's <Frame>s). Warmed through a
+   * matching srcset/sizes pair rather than by raw URL — warming the raw file
+   * would leave the balls bouncing on an asset the flythrough never requests,
+   * then hand off to cards that still have to fetch. That mismatch is exactly
+   * what made every card show its fallback panel for the whole intro.
+   */
+  sizedAssets: SizedAsset[] = [],
+): boolean {
   const [loaded, setLoaded] = useState(disabled);
 
   useEffect(() => {
@@ -59,13 +100,29 @@ export function useAssetsLoaded(assets: string[], disabled: boolean): boolean {
     // The 3D title's typeface (a JSON blob, not an <img>) — fetch to warm cache.
     waits.push(fetch(TITLE_TYPEFACE).then((r) => r.arrayBuffer()));
 
-    // Every critical image, decoded off-DOM (covers the flythrough + hero strip
-    // + curved marquee, some of which React only mounts after hydration). The
-    // flythrough <Frame>s render `unoptimized`, so these raw URLs are exactly
-    // what they request — a warm cache, not a fresh fetch.
+    // Every critical image, decoded off-DOM (covers the hero strip + curved
+    // marquee, which React only mounts after hydration).
+    //
+    // These are the RAW urls, and they are the ones that matter: the curved
+    // marquee loads them through three.js TextureLoader and ExpectShowcase
+    // through a plain <img>, neither of which can use /_next/image. The
+    // flythrough's <Frame>s go through the optimizer instead (see HeroSection)
+    // and fetch their own much smaller variants, so warming raw here is for
+    // those two consumers, not for the flythrough.
     assets.forEach((src) => {
       const img = new window.Image();
       img.src = src;
+      waits.push(img.decode ? img.decode() : Promise.resolve());
+    });
+
+    // Optimizer-served images. Setting sizes BEFORE srcset matters: the browser
+    // resolves the candidate at srcset-assignment time, and with no sizes yet it
+    // would default to 100vw and pick a wider (different, uncached) variant.
+    sizedAssets.forEach(({ src, sizes }) => {
+      const img = new window.Image();
+      img.sizes = sizes;
+      img.srcset = optimizedSrcSet(src);
+      img.src = src; // fallback for anything that ignores srcset
       waits.push(img.decode ? img.decode() : Promise.resolve());
     });
 

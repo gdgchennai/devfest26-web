@@ -123,13 +123,26 @@ type LoaderProps = {
  * portalled to <body> so it sits above the hallway and outside the hero's
  * stacking context.
  *
- * Exposed to assistive tech as a modal dialog rather than hidden: it holds the
- * only control that dismisses it (the enter CTA, which is also focused once it
- * appears), and it locks body scroll while it is up. Marking the container
- * aria-hidden while focusing a button inside it is the `aria-hidden-focus`
- * violation — the AT is told the subtree does not exist, then focus lands in
- * it, leaving a screen-reader user with no announced way forward. `aria-modal`
- * is what hides the (inert, scroll-locked) page beneath instead.
+ * Exposed to assistive tech as a dialog rather than hidden: it holds the enter
+ * CTA (which is also focused once it appears), and it locks body scroll while
+ * it is up. Marking the container aria-hidden while focusing a button inside it
+ * is the `aria-hidden-focus` violation — the AT is told the subtree does not
+ * exist, then focus lands in it, leaving a screen-reader user with no announced
+ * way forward.
+ *
+ * It carried `aria-modal="true"` as well, on the reasoning that it "holds the
+ * ONLY control that dismisses it" and modality is what hides the inert page
+ * beneath. That premise no longer holds: <IntroEscape> now renders alongside
+ * this (Skip intro, Escape key, and the lite opt-out), portalled to <body> as a
+ * sibling — and aria-modal hides every sibling from assistive tech, which would
+ * make the only accessible exit inaudible to the people most likely to need it.
+ * The trade is deliberate: a screen-reader user can now reach the covered page
+ * behind this overlay (it is scroll-locked, and #main is marked aria-busy),
+ * which is a smaller problem than an escape hatch that is not announced.
+ *
+ * The hatch cannot simply move inside here instead — this root is scaled 8× and
+ * faded to zero by the reveal zoom, so it would vanish exactly when the photos
+ * start flying.
  */
 export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismiss }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
@@ -322,7 +335,8 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     <div
       ref={rootRef}
       role="dialog"
-      aria-modal="true"
+      // No aria-modal — it would hide the sibling <IntroEscape> portal. See the
+      // docblock above; this is load-bearing, not an omission.
       aria-label={`${siteConfig.name} intro`}
       className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white will-change-transform"
     >
