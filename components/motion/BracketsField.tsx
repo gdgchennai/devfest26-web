@@ -141,11 +141,15 @@ function buildGeometry(
   return geometry;
 }
 
-// The -dark variant, for the same reason FooterLogo uses it: the supplied
-// lockup's wordmark is #1E1E1E and disappears against the dark page. buildLogo
-// groups paths by fill, and #F0F0F0 is still not one of the "plate" values, so
-// the wordmark keeps its deeper extrusion and only the white pill stays flat.
-const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-dark.svg";
+// The 3D lockup settles on the HOMEPAGE footer, which by then has flipped to
+// the light theme (see WhyJoin), so its wordmark must be dark on white. This is
+// the -light variant: the -dark file's #F0F0F0 wordmark recoloured to #000000
+// (the white pill and its black text are untouched). buildLogo groups paths by
+// fill, and #000000 is not a "plate" value, so the wordmark keeps its deeper
+// extrusion and only the white pill stays flat. The flat <img> in FooterLogo
+// stays on the -dark variant — it only shows on the dark footers of other
+// routes, where a light wordmark is what's wanted.
+const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-light.svg";
 /** wo-brackets viewBox height, for proportional extrude depths. */
 const LOGO_VBH = 531;
 
