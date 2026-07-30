@@ -26,7 +26,17 @@ import { heroCopy } from "@/components/motion/HeroCopy";
  * — this, `CurvedMarqueeHero`, and the `HeroSection` that chooses between them
  * — sit together.
  */
-export function StaticHero() {
+export function StaticHero({
+  /**
+   * Show the way back to the full experience. Only true when lite is actually
+   * on — this same component is the server/no-JS render and the error fallback,
+   * where offering to "switch to the full experience" would be meaningless or,
+   * in the error case, an invitation to re-break the page.
+   */
+  offerFullExperience = false,
+}: {
+  offerFullExperience?: boolean;
+}) {
   const { ticket, agenda } = heroCopy;
 
   return (
@@ -71,6 +81,22 @@ export function StaticHero() {
 
         {!ticket.available && (
           <p className="mt-3 font-mono text-xs text-paper/60">{ticket.note}</p>
+        )}
+
+        {/*
+         * Lite must be a preference, not a one-way door. The footer toggle can
+         * turn it off, but that is the bottom of a long page — someone who
+         * landed on a shared `?lite=1` link, or flipped it to get past the
+         * intro once, should be able to change their mind from where they are.
+         * Same `?lite=0` URL the toggle navigates to.
+         */}
+        {offerFullExperience && (
+          <a
+            href="?lite=0"
+            className="mt-8 font-mono text-xs uppercase tracking-wider text-paper/60 underline-offset-4 hover:text-paper hover:underline"
+          >
+            Switch to the full experience →
+          </a>
         )}
       </div>
     </section>

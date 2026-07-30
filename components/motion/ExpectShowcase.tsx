@@ -1,18 +1,41 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { siteConfig } from "@/site.config";
 import { archivePhotos } from "@/lib/content";
 import { HashTitle } from "@/components/motion/HashTitle";
-import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { FALLBACK_BG } from "@/components/Frame";
+import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
+import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const EXPECT_CARDS = siteConfig.whatYoullGet;
+/*
+ * Resolved once at module scope, not per render: every input is static config,
+ * and the running `previousColor` is a reassignment the React Compiler
+ * (correctly) rejects inside a render body.
+ *
+ * Colour is picked the same way <Frame> picks it — deterministic from the
+ * title, never repeating the previous card's — so lite's panels come out as
+ * four different brand colours in a fixed order rather than a run of one.
+ */
+const EXPECT_CARDS = (() => {
+  let previousColor: FallbackColor | undefined;
+  return siteConfig.whatYoullGet.map((item, i) => {
+    previousColor = fallbackColorFor(item.title, previousColor);
+    return {
+      item,
+      // Placeholder imagery for now — cycles the local archive photos.
+      photo: archivePhotos[i % archivePhotos.length],
+      panelColor: previousColor,
+    };
+  });
+})();
 
 /**
  * The dark "What to expect" section that follows the hero: a pinned panel whose
@@ -32,6 +55,10 @@ export function ExpectShowcase() {
 
   // Match SSR / no-JS with the static baseline, then upgrade on the client.
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
+  // Separate gate: reduced-motion keeps the photography (it is a vestibular
+  // preference, not a bandwidth one) and only loses the horizontal scrub above.
+  const liteAssets = useClientValue(shouldSkipHeavyAssets, true);
+
 
   useGSAP(
     () => {
@@ -78,9 +105,7 @@ export function ExpectShowcase() {
 
           <div className="overflow-hidden [scrollbar-width:none]">
             <div ref={trackRef} className="flex gap-10 px-8 will-change-transform sm:px-14">
-              {EXPECT_CARDS.map((item, i) => {
-                // Placeholder imagery for now — cycles the local archive photos.
-                const photo = archivePhotos[i % archivePhotos.length];
+              {EXPECT_CARDS.map(({ item, photo, panelColor }) => {
                 return (
                   <article
                     key={item.title}
@@ -94,14 +119,33 @@ export function ExpectShowcase() {
                         the zoom (scale) enlarges it enough to cover the slanted
                         corners of the parallelogram with no gaps at any size. */}
                     <div className="absolute inset-0 skew-x-[9deg] scale-[1.35]">
-                      {photo && (
-                        <img
-                          src={photo.src}
-                          alt=""
-                          aria-hidden
-                          loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
+                      {liteAssets ? (
+                        /*
+                         * Lite gets the brand halftone panel instead of the
+                         * photo — the same answer <Frame> gives any frame
+                         * without an image, so a lite card still reads as a
+                         * designed object rather than an empty one.
+                         *
+                         * These four were the single heaviest thing lite still
+                         * downloaded: raw archive originals, 366–505 KB each,
+                         * 1.76 MB in total, for imagery that is `aria-hidden`
+                         * and decorative.
+                         */
+                        <div aria-hidden className={`absolute inset-0 ${FALLBACK_BG[panelColor]}`} />
+                      ) : (
+                        photo && (
+                          // next/image, not <img>: the raw tag served the full
+                          // original at every viewport. Same `object-cover`
+                          // crop, a fraction of the bytes.
+                          <Image
+                            src={photo.src}
+                            alt=""
+                            aria-hidden
+                            fill
+                            sizes="(min-width: 1024px) 65vw, (min-width: 768px) 80vw, 115vw"
+                            className="object-cover"
+                          />
+                        )
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
                     </div>

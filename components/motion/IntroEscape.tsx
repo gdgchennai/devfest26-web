@@ -51,12 +51,34 @@ export function IntroEscape({
 
   if (!mounted) return null;
 
+  /*
+   * The two phases sit on opposite grounds and the controls have to follow.
+   * `loading` is the <Loader>'s white field; `hallway` is the photos on black.
+   * Styled for the dark ground alone, the loading phase rendered near-white
+   * links on white — "Agenda" was a ghost — and a translucent pill that washed
+   * out to light grey.
+   */
+  const onWhite = phase === "loading";
+  const linkClass = onWhite
+    ? "text-ink/70 hover:text-ink"
+    : "text-paper/70 hover:text-paper";
+  // Solid, not a wash: an alpha fill composites toward whatever is behind it,
+  // which is exactly what made this unreadable on the white field.
+  const pillClass = onWhite
+    ? "border-ink/25 bg-ink text-paper hover:bg-ink/85"
+    : "border-paper/30 bg-ink/70 text-paper hover:bg-paper/10";
+
   return createPortal(
     <div
       // Above the curtain (z-999) — this is the one thing that must stay
       // reachable while everything else is covered.
+      //
+      // The resting state is 80%, not the 45% this was written with: it is the
+      // only exit from a scroll-locked intro, and at 45% the label sat under
+      // the contrast floor on both grounds. Dimming it to "out of the way" is
+      // fine; dimming it to "hard to read" defeats the point.
       className={`fixed bottom-0 right-0 z-[1000] flex items-center gap-3 p-6 font-mono text-[0.8rem] transition-opacity duration-500 focus-within:opacity-100 sm:p-8 ${
-        emphasis ? "opacity-100" : "opacity-45"
+        emphasis ? "opacity-100" : "opacity-80"
       }`}
       style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
     >
@@ -66,12 +88,12 @@ export function IntroEscape({
 
       {phase === "loading" && (
         <>
-          <a href={heroCopy.agenda.href} className="text-paper/70 hover:text-paper">
+          <a href={heroCopy.agenda.href} className={linkClass}>
             Agenda
           </a>
           {/* Only when there is somewhere to go — see lib/cta.ts. */}
           {heroCopy.ticket.available && (
-            <a href={heroCopy.ticket.href} className="text-paper/70 hover:text-paper">
+            <a href={heroCopy.ticket.href} className={linkClass}>
               Tickets
             </a>
           )}
@@ -85,20 +107,28 @@ export function IntroEscape({
        * flythrough should not have to scroll the length of the homepage to the
        * footer toggle to find it.
        *
+       * Hallway phase only. During loading the same option sits directly under
+       * the loader's "Enter the DevFest experience" CTA, which is where the
+       * choice is actually being made; rendering it here too would put two lite
+       * links on one screen. Once the flythrough starts, that screen is gone and
+       * this corner is the only place left for it.
+       *
        * A plain anchor, not a button calling into motion-prefs: it works with
        * no JS, it is the same `?lite=1` URL the footer toggle navigates to, and
        * a full page load is what re-reads the preference anyway.
        */}
-      <a
-        href="?lite=1"
-        className="rounded-full border border-paper/30 bg-ink/70 px-4 py-2 uppercase tracking-wide text-paper/80 hover:bg-paper/10 hover:text-paper"
-      >
-        Lite version
-      </a>
+      {phase === "hallway" && (
+        <a
+          href="?lite=1"
+          className={`rounded-full border px-4 py-2 uppercase tracking-wide transition-colors ${pillClass}`}
+        >
+          Lite version
+        </a>
+      )}
       <button
         type="button"
         onClick={onSkip}
-        className="rounded-full border border-paper/30 bg-ink/70 px-4 py-2 uppercase tracking-wide text-paper hover:bg-paper/10"
+        className={`rounded-full border px-4 py-2 uppercase tracking-wide transition-colors ${pillClass}`}
       >
         Skip intro
       </button>

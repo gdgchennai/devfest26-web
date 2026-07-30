@@ -309,11 +309,31 @@ copy belongs to the hero, not the tunnel" — that block and its
 
 ## The way out
 
-`<IntroEscape>` is the intro's only exit: Skip intro, the Escape key, and a
-"Lite version" opt-out that turns the motion layer off for good. It renders for
-exactly as long as `<Loader>` does.
+The intro locks body scroll, stops Lenis and marks `#main` aria-busy, so it must
+always offer a way out. There are three, and **each is on screen exactly once**
+— check that before adding a fourth:
 
-Two things about it are load-bearing:
+| Where | What | When |
+| --- | --- | --- |
+| Under the loader's "Enter" CTA | "Use the lite version instead" | loading |
+| `<IntroEscape>`, bottom-right | "Skip intro" + Escape key | loading + hallway |
+| `<IntroEscape>`, bottom-right | "Lite version" | hallway only |
+| `<StaticHero>` | "Switch to the full experience" | lite |
+
+The lite option sits under the Enter CTA rather than in the corner because that
+is where the decision is actually being made — "enter the experience, or don't".
+It is **not** gated on `ctaReady` like the button above it: the visitor most
+likely to want it is the one still waiting on assets, i.e. before the CTA
+appears. `<IntroEscape>` therefore renders its own lite pill only in the hallway
+phase, once the loader screen is gone.
+
+`<StaticHero>`'s link is the return leg. Lite is a preference, not a one-way
+door, and the footer toggle is the bottom of a long page — someone who followed
+a shared `?lite=1` link needs to be able to change their mind from where they
+are. `?lite=0` clears the stored preference (see `isLiteMode`), so the round
+trip really is a round trip.
+
+Two things about `<IntroEscape>` are load-bearing:
 
 - It portals to `<body>` as a **sibling** of the loader, not inside it — the
   loader's root is scaled 8× and faded to zero by the reveal zoom, which would
@@ -322,9 +342,19 @@ Two things about it are load-bearing:
   every sibling from assistive tech, which would leave the only accessible exit
   unannounced. The comment on the loader says so; don't "fix" it back.
 
-It was written, then never rendered, and the gap lasted a while: the intro locks
-body scroll, stops Lenis and marks `#main` aria-busy, so with no hatch mounted
-there was no way to end it at all.
+It was written, then never rendered, and the gap lasted a while: with no hatch
+mounted there was no way to end the intro at all.
+
+## `HALLWAY_RISE_CLASS` is reserved, not dead
+
+`usePhotoHallway` looks up `.hallway-rise` and drives its opacity/translate, but
+nothing renders that class today — the hero copy moved out of the tunnel (see
+"The copy belongs to the hero, not the tunnel" above). The lookup is
+null-guarded, so it costs one `querySelector` and nothing else. **Left in
+deliberately**: removing it would mean edits to the most motion-critical file in
+the repo plus `globals.css` for zero runtime gain. If you decide the tunnel will
+never raise copy again, delete the class, the constant and the CSS rule
+together — not one of the three.
 
 ## The curtain opens onto the corridor, not onto a photo
 

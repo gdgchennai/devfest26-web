@@ -10,7 +10,7 @@ import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
  * — effectively invisible. Halftones rather than pastels so a panel awaiting a
  * photo doesn't flash near-white against the dark page.
  */
-const FALLBACK_BG: Record<FallbackColor, string> = {
+export const FALLBACK_BG: Record<FallbackColor, string> = {
   blue: "bg-blue-halftone",
   red: "bg-red-halftone",
   yellow: "bg-yellow-halftone",

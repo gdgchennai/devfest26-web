@@ -385,6 +385,28 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
       >
         <RollingText>Enter the DevFest experience →</RollingText>
       </button>
+
+      {/*
+       * The lite opt-out, directly under the CTA it is the alternative to.
+       * This is the decision point — "enter the experience, or don't" — and a
+       * pill in the far corner is not where anyone looks to answer that.
+       * <IntroEscape> keeps the corner copy for the hallway phase, once this
+       * screen is gone; between them the option is on screen the whole time
+       * without ever being on screen twice.
+       *
+       * Deliberately NOT gated on `ctaReady` like the button above: the visitor
+       * most likely to want it is the one still waiting for assets to decode,
+       * which is precisely before the CTA appears.
+       *
+       * A plain anchor to the same `?lite=1` URL the footer toggle uses, so it
+       * needs no JS and survives this overlay being torn down mid-animation.
+       */}
+      <a
+        href="?lite=1"
+        className="rounded-full px-3 py-1 font-mono text-xs uppercase tracking-wide text-ink/70 underline-offset-4 hover:text-ink hover:underline"
+      >
+        Use the lite version instead
+      </a>
     </div>,
     document.body,
   );

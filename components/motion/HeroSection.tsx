@@ -202,7 +202,7 @@ export function HeroSection() {
       {/* Present the whole time. During the intro it starts hidden and zoomed
           out, then eases in as the flythrough ends (see onFlyProgress). */}
       <div ref={heroWrapRef} style={{ transformOrigin: "50% 50%", willChange: "transform, opacity" }}>
-        {liteAssets ? <StaticHero /> : <CurvedMarqueeHero />}
+        {liteAssets ? <StaticHero offerFullExperience /> : <CurvedMarqueeHero />}
       </div>
 
       {/* The flythrough: a fixed overlay of photos flying past on black,
