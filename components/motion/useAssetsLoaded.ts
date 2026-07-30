@@ -85,6 +85,16 @@ const TITLE_TYPEFACE = "/fonts/google-sans-bold.typeface.json";
  * brackets backdrop built (three.js downloaded + meshes made) — but never
  * before MIN_DURATION.
  *
+ * **What blocks the bounce and what is merely warmed are two different
+ * questions**, and conflating them makes everyone wait for things nobody can
+ * see yet:
+ *
+ *   Blocking — no graceful fallback, so absence is a visible hole:
+ *     web fonts · the title typeface · the marquee textures · three.js
+ *   Warmed only — degrades gracefully AND not on screen at hand-off:
+ *     the flythrough's <Frame>s
+ *
+
  * This is the preloader's clock: the 4-dot bounce loops until this flips, then
  * hands off (morph → CTA on a first visit, or a plain fade-out on a refresh).
  * It waits for real completion of every source, so nothing pops in unloaded on
@@ -238,15 +248,31 @@ export function useAssetsLoaded(
       waits.push(watch(img.decode ? img.decode() : Promise.resolve(), `texture:${src}`));
     });
 
-    // Optimizer-served images. Setting sizes BEFORE srcset matters: the browser
-    // resolves the candidate at srcset-assignment time, and with no sizes yet it
-    // would default to 100vw and pick a wider (different, uncached) variant.
+    /*
+     * Optimizer-served images — WARMED BUT NOT AWAITED, and the difference is
+     * the whole point of this block.
+     *
+     * These are the flythrough's <Frame>s. Two reasons they must not hold the
+     * bounce: they are not on screen at hand-off (the flythrough only plays
+     * after the visitor clicks Enter, which is later still), and <Frame> renders
+     * its brand-shape panel and cross-fades each photo in on decode, so a late
+     * arrival degrades to "a panel that fills in" rather than to a hole.
+     *
+     * Blocking on them was making everyone — including fast connections — wait
+     * out ten decodes for pictures they could not yet see. Starting the fetch is
+     * the part that mattered; awaiting it never was.
+     *
+     * Setting sizes BEFORE srcset still matters: the browser resolves the
+     * candidate at srcset-assignment time, and with no sizes yet it would
+     * default to 100vw and pick a wider (different, uncached) variant.
+     */
     sizedAssets.forEach(({ src, sizes }) => {
       const img = new window.Image();
       img.sizes = sizes;
       img.srcset = optimizedSrcSet(src);
       img.src = src; // fallback for anything that ignores srcset
-      waits.push(watch(img.decode ? img.decode() : Promise.resolve(), `sized:${src}`));
+      // Swallow: an un-awaited rejection here is an unhandled promise rejection.
+      void img.decode?.().catch(() => {});
     });
 
     // The 3D brackets backdrop signals when three.js has downloaded and its
