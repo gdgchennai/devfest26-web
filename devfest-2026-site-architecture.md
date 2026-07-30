@@ -561,19 +561,29 @@ Four contrast constraints fall out of it, all measured:
   would score higher still but flash near-white against the dark page while a photo decodes.
 - **The hero scrim is `bg-ink/65`, not `/45`.** Over a blown-out area of a photo, `/45` against
   the lighter `#1E1E1E` ink measures 2.47:1 under the small date line; `/65` restores 4.54:1.
-- **The site is dark-only, and this is a decision — do not add a light theme.** A `--theme` custom
-  property once scrubbed `--ink`/`--paper` from dark to light partway down the homepage. It was
-  removed because the brand kit cannot support it: measured on white, the four core colours are
-  blue 3.56:1, red 3.92:1, green 3.06:1 and yellow **1.93:1**, all under the 4.5:1 needed for text.
-  That breaks `text-blue` links and all four `lib/track-color` track headings. There is no fix
-  inside the kit — as the first constraint above notes it has no darker shades, and both other
-  ramps (halftone, pastel) are *lighter*, not darker. On the dark page those same four measure
-  5.89 / 5.35 / 6.87 / 10.85:1 and all pass. Reviving a light theme means first commissioning
-  on-light brand variants; it is not a CSS change.
+- **The homepage flips dark → light at "Why join", driven by a scrubbed `--theme`.** A `--theme`
+  custom property (0 = dark, 1 = light) in `globals.css` drives `--ink`, `--paper`, and the
+  `--surface`/`--surface-raised` card tokens (the surfaces are mixed from `--paper`/`--ink`, so
+  they flip too). `WhyJoin.tsx` scrubs `--theme` 0 → 1 as that section reaches mid-viewport
+  (`start: "top 50%"`, `end: "top 10%"`), turning the single fixed backdrop white and all text ink,
+  eased by scroll; it clamps at 1 so the page stays light below and returns to dark above. The
+  `--paper` light end is pure black (not `#1E1E1E`) so the alpha-muted `text-paper/xx` ramp keeps
+  AA contrast on white. This was removed once as "dark-only" and then reinstated as a product
+  decision.
 
-  The **intro loader is the deliberate exception**: a full-screen white field, so the four brand
-  dots read at full saturation as they morph into the mark. It is a literal `bg-white` in
-  `Loader.tsx` and does not touch these tokens, so it is unaffected by the above.
+  **Known caveat (unresolved): the brand core colours fail text contrast on the light half.**
+  Measured on white the four core hues are blue 3.56:1, red 3.92:1, green 3.06:1, yellow **1.93:1**
+  — all under 4.5:1. Greyscale text is fine (it flips with `--theme`), but any element that stays a
+  brand colour in the light region is affected: today that is the `text-blue` links (e.g. the Venue
+  "details & travel" link) and would be the `lib/track-color` track headings if they were ever moved
+  back off `--paper`. On the dark half the same hues measure 5.89 / 5.35 / 6.87 / 10.85:1 and pass.
+  There is no fix inside the kit (no darker shades; the halftone/pastel ramps are *lighter*) — a
+  proper fix means commissioning on-light brand variants, or recolouring the affected text to
+  `--paper` in the light region. Flag before launch.
+
+  The **intro loader** is a separate full-screen white field (a literal `bg-white` in `Loader.tsx`)
+  so the brand dots read at full saturation as they morph into the mark; it does not touch these
+  tokens.
 
 ---
 

@@ -8,6 +8,14 @@ import { useClientValue } from "@/lib/useClientValue";
 export type IntroPhase = "loading" | "hallway";
 
 /**
+ * How long the loading screen may hold someone before it gives up and hands
+ * over the site. Comfortably past the preloader's own MIN_DURATION and the
+ * per-asset budget, so on any normal load this never fires — it is the guard
+ * for the case where something went wrong in a way nothing else caught.
+ */
+const AUTO_DISMISS_MS = 15000;
+
+/**
  * The persistent way out of the intro, and the only accessible one.
  *
  * Portalled to document.body rather than into the curtain: the curtain is
@@ -48,6 +56,27 @@ export function IntroEscape({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onSkip]);
+
+  /*
+   * Auto-dismiss: nobody may be left staring at a loading screen forever.
+   *
+   * DISMISS, never auto-enter. Starting a six-second flythrough on a timer
+   * would push motion onto someone who never asked for it — worst for exactly
+   * the visitors this component exists to protect — and would override a
+   * decision they may still be making. Dropping the overlay instead just hands
+   * them the site, which is the thing they came for.
+   *
+   * Only in the loading phase. Once the flythrough is running the visitor
+   * chose it, and yanking it away mid-play would be its own surprise.
+   *
+   * The timer starts on mount rather than on last input: the loading screen has
+   * nothing to interact with, so "idle" and "elapsed" are the same thing here.
+   */
+  useEffect(() => {
+    if (phase !== "loading") return;
+    const timer = window.setTimeout(onSkip, AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, onSkip]);
 
   if (!mounted) return null;
 

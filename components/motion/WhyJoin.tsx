@@ -12,12 +12,14 @@ import { prefersReducedMotion } from "@/lib/motion-prefs";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 /**
- * "Why join" — a plain content section. The site is dark-only; this component
- * previously scrubbed a global --theme property to flip the page to a light
- * theme from here down, and that has been removed (see the architecture doc).
+ * "Why join" — the section where the page hands off from dark to light.
  *
- * What remains is the page's one-shot ScrollTrigger refresh. That is NOT
- * leftover from the theme flip — see the comment on it below.
+ * The whole site's greyscale resolves from a single --theme value (0 = dark,
+ * 1 = light) in globals.css: the fixed backdrop is var(--ink), all text is
+ * var(--paper), and the card surfaces are mixed from those. Scrubbing --theme
+ * from 0 → 1 as this section reaches the middle of the viewport turns the fixed
+ * background white and every font ink at once, eased by the scroll. It clamps
+ * at 1, so the page stays light below and returns to dark when scrolled above.
  */
 export function WhyJoin() {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,6 +27,23 @@ export function WhyJoin() {
   useGSAP(
     () => {
       if (prefersReducedMotion() || !ref.current) return;
+      // Scrub the global theme from dark → light. Begin once this section's top
+      // reaches the middle of the viewport, and finish over the next stretch.
+      gsap.fromTo(
+        document.documentElement,
+        { "--theme": 0 },
+        {
+          "--theme": 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top 50%",
+            end: "top 10%",
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        },
+      );
       /*
        * The only global ScrollTrigger.refresh() on first load, and load-bearing.
        *

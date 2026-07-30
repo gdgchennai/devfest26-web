@@ -36,9 +36,11 @@ export default function Home() {
             hatch target); degrades to a static row under reduced-motion/lite. */}
         <ExpectShowcase />
 
-        {/* Also carries the page's one-shot ScrollTrigger.refresh() — it is the
-            last component here that creates any trigger, so it is where the
-            pinned panel's spacer can be accounted for. See the comment inside. */}
+        {/* From "Why join" down the page hands off to the light theme: WhyJoin
+            scrubs the global --theme 0 → 1, turning the single fixed background
+            white and all text ink, and it stays light for the sections below.
+            It also carries the page's one-shot ScrollTrigger.refresh() (see the
+            comment inside) — the last component here that creates a trigger. */}
         <WhyJoin />
 
         <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
