@@ -11,6 +11,7 @@ import { archivePhotos } from "@/lib/content";
 import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy } from "@/components/motion/HeroCopy";
+import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,7 +23,34 @@ gsap.registerPlugin(ScrollTrigger);
  * like a panorama and scrolls continuously behind the title.
  * ------------------------------------------------------------------ */
 
-const IMAGE_SRCS = archivePhotos.slice(0, 8).map((p) => p.src);
+/**
+ * Texture width. Must be one of Next's `deviceSizes` or the optimizer rejects
+ * it. The planes render roughly 300–400 CSS px wide at a 1440 viewport, so 1200
+ * is ~3× oversampled at 1x and still comfortable on a 2x display — and the
+ * strip is a moving, bent, dark-overlaid backdrop, not a gallery.
+ */
+const TEXTURE_WIDTH = 1200;
+
+/**
+ * The exact URLs this component will hand to TextureLoader — exported so the
+ * preloader can warm THESE, not something merely equivalent.
+ *
+ * This export is the guardrail. The preloader is only useful if it warms the
+ * identical URL the consumer later requests; when the two drift, the dots bounce
+ * on a file nothing wants and then hand off to a hero that still has to fetch —
+ * which has already been the bug here twice. A shared helper is not enough, since
+ * two call sites can still pass different widths. One array, owned by the
+ * consumer, imported by the warmer: drift becomes impossible rather than
+ * discouraged.
+ *
+ * These were raw originals until it was measured: 8 files at 230–505 KB each,
+ * warmed as part of ~5 MB on the default path. TextureLoader is just an <img>
+ * underneath, so it reads an optimizer URL fine and still gets AVIF/WebP by
+ * content negotiation — 86% smaller, same picture.
+ */
+export const MARQUEE_TEXTURES = archivePhotos
+  .slice(0, 8)
+  .map((p) => optimizedSrc(p.src, TEXTURE_WIDTH));
 
 /** Marquee speed, inter-plane gap (%), bend strength, scroll direction. */
 const OPTS = { speed: 22, gap: 24, curve: 14, direction: -1 };
@@ -100,7 +128,7 @@ export function CurvedMarqueeHero() {
 
       const geometry = new T.PlaneGeometry(1, 1, 20, 20);
       const loader = new T.TextureLoader();
-      const slideAmount = IMAGE_SRCS.length;
+      const slideAmount = MARQUEE_TEXTURES.length;
 
       let planes: THREE.Mesh[] = [];
       let materials: THREE.ShaderMaterial[] = [];
@@ -134,7 +162,7 @@ export function CurvedMarqueeHero() {
         const initialOffset = Math.ceil(view.clientWidth / (2 * planeSpacePx) - 0.5);
 
         for (let i = 0; i < total; i += 1) {
-          const src = IMAGE_SRCS[i % slideAmount];
+          const src = MARQUEE_TEXTURES[i % slideAmount];
           loader.load(src, (texture) => {
             // A texture can still arrive after teardown; dropping it here stops
             // it being added to a scene whose renderer is already disposed.

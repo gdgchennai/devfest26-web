@@ -9,7 +9,7 @@ import { useEffect, useRef } from "react";
 import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
-import { markReady, BRACKETS_READY } from "@/lib/assetReady";
+import { markReady, markFailed, BRACKETS_READY } from "@/lib/assetReady";
 
 /** The dynamically-imported three.js namespace, passed to the builders below. */
 type Three = typeof import("three");
@@ -576,8 +576,15 @@ export function BracketsField() {
       })
       .catch(() => {
         // three failed to load (offline chunk, etc.). Release the preloader
-        // anyway — it must never be trapped waiting on the 3D backdrop.
-        markReady(BRACKETS_READY);
+        // anyway — it must never be trapped waiting on the 3D backdrop — but
+        // release it as a FAILURE, not as success.
+        //
+        // This is the same dynamic import CurvedMarqueeHero uses, so if it
+        // failed here the hero's WebGL cannot render either. Reporting it lets
+        // useAssetsLoaded hand off to StaticHero instead of to a blank canvas.
+        // It over-triggers slightly (an SVGLoader-only failure would still
+        // leave the marquee working) and that is the safe direction to err.
+        markFailed(BRACKETS_READY);
       });
 
     return () => {

@@ -407,6 +407,132 @@ Things to know before changing it:
 
 ---
 
+## Asset payload & preloader failure policy
+
+**Status: implemented.** Numbers are from a headless-Chrome run against a production build at
+1440×900, counting `encodedDataLength` (over the wire).
+
+### The measurement
+
+Optimising lite was optimising the path almost nobody takes. **Main is the default** — a visitor
+with no stored preference gets the full experience — so main is where payload actually matters.
+
+| Path | JS | Images before | Images after |
+| --- | --- | --- | --- |
+| Main (first visit) | 511 KB | **5.76 MB** (5.04 MB of it raw `/archive/*.jpg`) | **1.08 MB**, zero raw |
+| Reduced motion | 502 KB | 3.30 MB | **0.60 MB** |
+| Lite | 316 KB | 0 KB | 0 KB (unchanged) |
+
+**~4.7 MB off every first visit**, with the hero visually identical — verified by screenshot at
+matched elapsed time, and by zero console errors/exceptions in all three modes.
+
+### Where the 5 MB comes from
+
+`useAssetsLoaded` warms its `assets` list by **raw URL**, and `HeroSection` passes
+`archivePhotos.map(p => p.src)` — **all 15 originals**, 230–505 KB each. The justifying comment
+says the raw list exists for two consumers that "cannot use `/_next/image`": the curved marquee's
+three.js `TextureLoader`, and `ExpectShowcase`'s plain `<img>`.
+
+Both halves of that are now false:
+
+1. **`ExpectShowcase` no longer uses raw** — it renders through `next/image` (and brand halftone
+   panels in lite). Its share of the raw warm is pure waste, and the page fetches optimised copies
+   on top of it.
+2. **`TextureLoader` can use `/_next/image` perfectly well.** It is a URL handed to an `Image`
+   element; the browser still content-negotiates AVIF/WebP. Measured on a real archive photo:
+   **517 KB raw → 72 KB at `w=1080`, an 86% reduction.**
+
+And only **8** of the 15 are ever used as textures (`IMAGE_SRCS` slices to 8), so ~7 images
+(~2 MB) are warmed and then rendered by nobody at that URL.
+
+### Options considered
+
+| | Approach | Verdict |
+| --- | --- | --- |
+| **A** | Marquee textures via `/_next/image`; narrow the warm list to exactly those 8 | **Chosen.** ~5.76 MB → ~1.3 MB, 3 files, reversible, no build-pipeline change |
+| B | Stop warming marquee textures at all; let the marquee fill in progressively | Rejected — contradicts the deliberate "preloader holds until everything is ready, nothing pops in unloaded" decision. That is a product call, not a perf tweak |
+| C | Build-time texture generation via a `scripts/` step, like `npm run fonts` / `npm run archive` | **Deferred, not dismissed.** Zero runtime optimiser cost, exact dimensions, no coupling to Next's image defaults, and warm/consumer URLs become literally the same static file. Costs a pipeline + committed binaries. Revisit if A's coupling causes trouble |
+| D | Progressive marquee — 2–3 textures first, stream the rest | Rejected — complexity, and visible gaps in the strip |
+| E | Single sprite atlas for all 8 textures | Rejected — best compression and 1 request, but needs UV maths changes inside the animation code. Too risky for the gain |
+
+### Guardrail 1 — warm/consumer URL drift
+
+The preloader is only useful if it warms **the exact URL the consumer later requests**. A mismatch
+is silent and expensive: the dots keep bouncing on an asset nothing wants, then hand off to cards
+that still have to fetch. That has already happened twice here (once for the flythrough's `Frame`s,
+once for `unoptimized`).
+
+A shared helper is not enough — two call sites can still pass different widths. **The consumer owns
+the list:** `CurvedMarqueeHero` exports `MARQUEE_TEXTURES`, the exact URL array it hands to
+`TextureLoader`, and `HeroSection` passes *that same array* to `useAssetsLoaded`. One array, no
+second source of truth, drift impossible by construction rather than by convention. The single-width
+URL builder (`optimizedSrc`) lives beside `DEVICE_SIZES` and `DEFAULT_QUALITY` in
+`useAssetsLoaded.ts`, so the coupling to Next's image defaults stays in one file.
+
+Optional dev-only check: after hand-off, compare each warmed URL against
+`performance.getEntriesByType("resource")` and warn when one appears exactly once (warmed, never
+consumed — a cache hit still logs a second entry). Development only, and advisory: entry counting
+is not guaranteed across browsers.
+
+### Guardrail 2 — fail fast, and fall back rather than hand off broken
+
+Current behaviour, stated accurately: `Promise.allSettled` means a **definitive** failure (a 404,
+a decode error) does *not* block — hand-off happens once every wait settles. `MAX_DURATION`
+(15 s) only trips when something genuinely **stalls**. Three gaps remain:
+
+1. **`fetch(TITLE_TYPEFACE)` cannot fail.** `fetch` rejects only on network failure; a 404 gives
+   `ok: false` and `.arrayBuffer()` happily resolves on the error body. A missing typeface is
+   therefore recorded as **success** — the preloader hands off and the 3D title silently never
+   renders. Needs an explicit `if (!r.ok) throw`.
+2. **No per-asset budget.** One stalled connection burns the whole 15 s even when everything else
+   settled in 2 s. Each wait should carry its own shorter budget and be treated as failed past it.
+3. **Nothing records *what* failed**, so nothing can distinguish "one minor image missing, carry
+   on" from "the experience this intro exists to introduce cannot render".
+
+Failure is now a **result**, not just an absence of waiting: `useAssetsLoaded` returns
+`{ ready, degraded }`, where `degraded` means a load-bearing asset definitively failed —
+the typeface, three.js, or *every* marquee texture. A single missing photo is deliberately not
+degradation. `HeroSection` then renders `StaticHero` instead of `CurvedMarqueeHero`, and skips
+`MIN_DURATION` (making someone watch a decorative beat before telling them the decoration is not
+coming is the wrong trade).
+
+This is newly worth doing **because `StaticHero` now exists**. Before it, "activate the fallback"
+meant a black screen with two links, so waiting out the timeout was genuinely the better of two bad
+options. It is not any more.
+
+`SectionBoundary` already covers the case where a motion component *throws*. This covers the other
+one: it did not throw, it just never arrived.
+
+Verified by blocking each asset class in the browser:
+
+| Injected fault | Hand-off | Hero shown |
+| --- | --- | --- |
+| none | 5.4 s | `CurvedMarqueeHero` |
+| typeface 404 | 4.3 s | `StaticHero` |
+| all marquee textures blocked | 4.3 s | `StaticHero` |
+| three.js chunks blocked | 4.2 s | `StaticHero` |
+| typeface stalls forever | 11.6 s | `StaticHero` |
+
+### The bug this uncovered: the gate was never wired
+
+`useAssetsLoaded` initialised its state with `useState(disabled)`. On the hydration render
+`shouldUseStaticBaseline()` returns its **server** value `true`, so `showLoader` is false, so
+`disabled` is true — and `ready` initialised to `true`. `useState` ignores later argument changes,
+so when `disabled` flipped false a render later, nothing set `ready` back.
+
+**The preloader therefore never waited for anything, and `MIN_DURATION` / `MAX_DURATION` were both
+dead code.** It looked convincing because the bounce only hands off on a cycle boundary and then
+plays a morph, so there were always a few plausible seconds of dots. It was caught by pausing the
+typeface request forever and watching hand-off happen on schedule anyway.
+
+`ready` is now derived (`disabled ? {ready:true} : state`) rather than seeded, so it tracks
+`disabled` instead of freezing at whatever the first render saw. **Consequence worth knowing:** the
+preloader now genuinely waits, so a slow connection sees a longer intro than it used to — which is
+the documented intent ("holds until everything is ready rather than downgrading slow visitors"),
+and is now bounded by `ASSET_BUDGET` per source rather than being unbounded.
+
+---
+
 ## Brand compliance
 
 DevFest and GDG branding is governed by Google's community program guidelines, and each year's

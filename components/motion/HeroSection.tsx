@@ -2,11 +2,11 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { archivePhotos, hallwayPhotos } from "@/lib/content";
+import { hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { Loader } from "@/components/motion/Loader";
 import { IntroEscape } from "@/components/motion/IntroEscape";
-import { CurvedMarqueeHero } from "@/components/motion/CurvedMarqueeHero";
+import { CurvedMarqueeHero, MARQUEE_TEXTURES } from "@/components/motion/CurvedMarqueeHero";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { useAssetsLoaded } from "@/components/motion/useAssetsLoaded";
 import {
@@ -155,13 +155,19 @@ export function HeroSection() {
   //
   // Two lists, because the two groups are fetched by different mechanisms and
   // warming the wrong URL is the same as not warming at all:
-  //  • raw — the curved marquee (three.js TextureLoader) and ExpectShowcase
-  //    (plain <img>), neither of which can go through /_next/image;
-  //  • sized — the flythrough's <Frame>s, which DO go through the optimizer, so
+  //  • single-URL — the curved marquee's textures. NOT rebuilt here: the
+  //    component exports the exact array it hands to TextureLoader, and we pass
+  //    that. Deriving it a second time is how the two drift apart, and this list
+  //    was `archivePhotos.map(p => p.src)` — all 15 raw originals, ~5 MB — to
+  //    serve a marquee that uses 8 of them at a fraction of the size.
+  //  • sized — the flythrough's <Frame>s, which go through the optimizer, so
   //    they must be warmed at the exact widths `cardSizes` will ask for.
-  const heroAssets = archivePhotos.map((p) => p.src);
   const flyAssets = flying.map((p, i) => ({ src: p.src, sizes: cardSizes(i, maxScale) }));
-  const loadingComplete = useAssetsLoaded(heroAssets, !showLoader, flyAssets);
+  const { ready: loadingComplete, degraded } = useAssetsLoaded(
+    MARQUEE_TEXTURES,
+    !showLoader,
+    flyAssets,
+  );
 
   usePhotoHallway({
     containerRef: flythroughRef,
@@ -202,7 +208,28 @@ export function HeroSection() {
       {/* Present the whole time. During the intro it starts hidden and zoomed
           out, then eases in as the flythrough ends (see onFlyProgress). */}
       <div ref={heroWrapRef} style={{ transformOrigin: "50% 50%", willChange: "transform, opacity" }}>
-        {liteAssets ? <StaticHero offerFullExperience /> : <CurvedMarqueeHero />}
+        {/*
+         * `degraded` is the second reason to show the static hero, and a very
+         * different one from lite: the visitor asked for the full experience and
+         * a load-bearing asset definitively failed (see useAssetsLoaded). Showing
+         * StaticHero gives them the title, date, venue and CTAs instead of an
+         * empty WebGL canvas.
+         *
+         * No `offerFullExperience` link in that case — it is not a preference
+         * they chose, and offering to "switch to the full experience" when the
+         * full experience is what just failed would send them in a circle. A
+         * reload is the real retry.
+         *
+         * <SectionBoundary> covers the case where a motion component throws;
+         * this covers the other one — nothing threw, the assets never arrived.
+         */}
+        {liteAssets ? (
+          <StaticHero offerFullExperience />
+        ) : degraded ? (
+          <StaticHero />
+        ) : (
+          <CurvedMarqueeHero />
+        )}
       </div>
 
       {/* The flythrough: a fixed overlay of photos flying past on black,

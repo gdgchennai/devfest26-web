@@ -345,6 +345,26 @@ Two things about `<IntroEscape>` are load-bearing:
 It was written, then never rendered, and the gap lasted a while: with no hatch
 mounted there was no way to end the intro at all.
 
+## The preloader warms URLs, and they must be the consumer's URLs
+
+`useAssetsLoaded` exists to make sure nothing pops in unloaded — which only works if it warms
+**the exact URL the consumer later requests**. Warm the raw file when the consumer asks the
+optimiser (or vice versa) and you get the worst of both: the dots bounce on an asset nothing
+wants, then hand off to cards that still have to fetch. That has already been the bug twice.
+
+Two live facts about this, both measured — see "Asset payload & preloader failure policy" in
+`devfest-2026-site-architecture.md` for the full write-up and the decision:
+
+- The raw warm list is currently **all 15 archive originals, ~5 MB**, on the default path. Only
+  8 are used (as marquee textures) and the marquee can read them through `/_next/image` —
+  86% smaller. `ExpectShowcase`, the other justification in that comment, no longer uses raw at all.
+- The preloader can hand off believing it succeeded when it did not: `fetch(TITLE_TYPEFACE)`
+  does not reject on a 404, so a missing typeface reads as success and the 3D title just never
+  appears.
+
+If you change what a consumer loads, change what gets warmed **in the same edit** — and prefer
+having the consumer export its URL list so there is only one array to change.
+
 ## `HALLWAY_RISE_CLASS` is reserved, not dead
 
 `usePhotoHallway` looks up `.hallway-rise` and drives its opacity/translate, but
