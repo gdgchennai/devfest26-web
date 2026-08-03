@@ -401,15 +401,10 @@ export function CurvedMarqueeHero() {
         className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper sm:gap-16 sm:text-xl"
         style={{ bottom: "16%" }}
       >
-        {heroCopy.ticket.available ? (
+        {heroCopy.ticket.available && (
           <Link href={heroCopy.ticket.href}>
-            <RollingText>{`${heroCopy.ticket.label} →`}</RollingText>
+            <RollingText>Get tickets →</RollingText>
           </Link>
-        ) : (
-          // Nowhere to go yet, so it is text rather than a link — but it keeps
-          // its place in the row so the composition does not shift when the
-          // ticketing URL lands.
-          <span className="text-paper/70">{heroCopy.ticket.label}</span>
         )}
         <Link href={heroCopy.agenda.href}>
           <RollingText>{`${heroCopy.agenda.label} →`}</RollingText>

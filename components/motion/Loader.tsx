@@ -130,19 +130,8 @@ type LoaderProps = {
  * exist, then focus lands in it, leaving a screen-reader user with no announced
  * way forward.
  *
- * It carried `aria-modal="true"` as well, on the reasoning that it "holds the
- * ONLY control that dismisses it" and modality is what hides the inert page
- * beneath. That premise no longer holds: <IntroEscape> now renders alongside
- * this (Skip intro, Escape key, and the lite opt-out), portalled to <body> as a
- * sibling — and aria-modal hides every sibling from assistive tech, which would
- * make the only accessible exit inaudible to the people most likely to need it.
- * The trade is deliberate: a screen-reader user can now reach the covered page
- * behind this overlay (it is scroll-locked, and #main is marked aria-busy),
- * which is a smaller problem than an escape hatch that is not announced.
- *
- * The hatch cannot simply move inside here instead — this root is scaled 8× and
- * faded to zero by the reveal zoom, so it would vanish exactly when the photos
- * start flying.
+ * It carries no aria-modal: modality would hide sibling content from assistive
+ * tech while this overlay is up.
  */
 export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismiss }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
@@ -335,8 +324,6 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     <div
       ref={rootRef}
       role="dialog"
-      // No aria-modal — it would hide the sibling <IntroEscape> portal. See the
-      // docblock above; this is load-bearing, not an omission.
       aria-label={`${siteConfig.name} intro`}
       className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white will-change-transform"
     >
@@ -385,28 +372,6 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
       >
         <RollingText>Enter the DevFest experience →</RollingText>
       </button>
-
-      {/*
-       * The lite opt-out, directly under the CTA it is the alternative to.
-       * This is the decision point — "enter the experience, or don't" — and a
-       * pill in the far corner is not where anyone looks to answer that.
-       * <IntroEscape> keeps the corner copy for the hallway phase, once this
-       * screen is gone; between them the option is on screen the whole time
-       * without ever being on screen twice.
-       *
-       * Deliberately NOT gated on `ctaReady` like the button above: the visitor
-       * most likely to want it is the one still waiting for assets to decode,
-       * which is precisely before the CTA appears.
-       *
-       * A plain anchor to the same `?lite=1` URL the footer toggle uses, so it
-       * needs no JS and survives this overlay being torn down mid-animation.
-       */}
-      <a
-        href="?lite=1"
-        className="rounded-full px-3 py-1 font-mono text-xs uppercase tracking-wide text-ink/70 underline-offset-4 hover:text-ink hover:underline"
-      >
-        Use the lite version instead
-      </a>
     </div>,
     document.body,
   );

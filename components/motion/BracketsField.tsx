@@ -78,12 +78,21 @@ type BracketConfig = {
   seed: number;
   /** Offset into the palette so the two show different colours at once. */
   colorOffset: number;
+  /** Starting angle on the shared orbit; the pair sit a half-turn apart. */
+  baseAngle: number;
+  /** Direction of the bracket's own-axis spin (1 / -1) — the two spin opposite. */
+  spinDir: 1 | -1;
 };
 
 const BRACKETS: BracketConfig[] = [
-  { file: "left_bracket.svg", side: -1, seed: 0, colorOffset: 0 },
-  { file: "right_bracket.svg", side: 1, seed: 4.7, colorOffset: 0.5 },
+  { file: "left_bracket.svg", side: -1, seed: 0, colorOffset: 0, baseAngle: Math.PI, spinDir: 1 },
+  { file: "right_bracket.svg", side: 1, seed: 4.7, colorOffset: 0.5, baseAngle: 0, spinDir: -1 },
 ];
+
+/** Revolutions the pair make around the centre across the whole page. */
+const BRACKET_REVOLVE = Math.PI * 2 * 1.25;
+/** Own-axis spins each bracket makes across the whole page. */
+const BRACKET_SPIN = Math.PI * 2 * 1.5;
 
 /** Shapes cycled through the rising parallax field. */
 const FLOATER_FILES = ["angle.svg", "dot.svg", "double_slash.svg", "small_plus.svg"];
@@ -141,11 +150,14 @@ function buildGeometry(
   return geometry;
 }
 
-// The -dark variant, for the same reason FooterLogo uses it: the supplied
-// lockup's wordmark is #1E1E1E and disappears against the dark page. buildLogo
-// groups paths by fill, and #F0F0F0 is still not one of the "plate" values, so
-// the wordmark keeps its deeper extrusion and only the white pill stays flat.
-const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-dark.svg";
+// The 3D lockup settles on the HOMEPAGE footer, which by then has flipped to
+// the light theme (see WhyJoin), so its wordmark must be dark on white. This
+// -light variant is the -dark file's #F0F0F0 wordmark recoloured to #131313
+// (the brand's --orig-black); the white pill and its black "Chennai" letters
+// are untouched. buildLogo groups paths by fill and gives each role its own
+// extrusion (see there). The flat <img> in FooterLogo stays on the -dark
+// variant — it only shows on the dark footers of other routes.
+const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-light.svg";
 /** wo-brackets viewBox height, for proportional extrude depths. */
 const LOGO_VBH = 531;
 
@@ -169,20 +181,31 @@ function buildLogo(T: Three, Loader: SvgLoaderCtor, paths: SvgPaths, targetH: nu
     byFill.set(fill, list);
   }
 
+  // Depth of the raised Chennai box (white pill), in wo-viewBox units. Its
+  // letters are lifted by the same amount so they sit on the box's front face.
+  const PILL_DEPTH = LOGO_VBH * 0.16;
+
   const built: { geo: THREE.ExtrudeGeometry; fill: string }[] = [];
   for (const [fill, ps] of byFill) {
     const shapes = ps.flatMap((p) => Loader.createShapes(p));
     if (shapes.length === 0) continue;
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
-    const depth = LOGO_VBH * (isPlate ? 0.055 : 0.09);
+    const isPillText = fill === "black" || fill === "#000" || fill === "#000000";
+    // The Chennai box is the deepest element (a distinctly raised 3D block); its
+    // "Chennai" letters are thin and ride on its front face; the DevFest
+    // wordmark keeps the base depth.
+    const depth = isPlate ? PILL_DEPTH : LOGO_VBH * (isPillText ? 0.05 : 0.09);
     const geo = new T.ExtrudeGeometry(shapes, {
       depth,
       bevelEnabled: true,
-      bevelThickness: LOGO_VBH * 0.004,
-      bevelSize: LOGO_VBH * 0.003,
-      bevelSegments: 3,
+      bevelThickness: LOGO_VBH * (isPlate ? 0.012 : 0.004),
+      bevelSize: LOGO_VBH * (isPlate ? 0.01 : 0.003),
+      bevelSegments: isPlate ? 4 : 3,
       curveSegments: 16,
     });
+    // Lift the letters onto the raised box so they stay proud instead of sinking
+    // into it (extrusion runs 0 → depth toward the camera, so back = box front).
+    if (isPillText) geo.translate(0, 0, PILL_DEPTH);
     geo.computeBoundingBox();
     built.push({ geo, fill });
   }
@@ -207,13 +230,14 @@ function buildLogo(T: Three, Loader: SvgLoaderCtor, paths: SvgPaths, targetH: nu
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
     const mat = new T.MeshStandardMaterial({
       color: new T.Color(fill),
-      roughness: isPlate ? 0.5 : 0.45,
-      metalness: isPlate ? 0 : 0.12,
-      // A gentle self-lit lift so the pill reads bright, but low enough that the
-      // scene lights still shade it and it keeps its 3D form (too high and it
-      // flattens into a blank white blob).
-      emissive: isPlate ? new T.Color(0xffffff) : new T.Color(0x000000),
-      emissiveIntensity: isPlate ? 0.05 : 0,
+      // The pill now reads its 3D form from scene shading rather than being
+      // self-lit flat: on the light footer a bright, un-shaded white box would
+      // vanish into the page, so drop the emissive lift and let its deep sides
+      // and bevel catch the light. A little metalness sharpens the edges.
+      roughness: isPlate ? 0.42 : 0.45,
+      metalness: isPlate ? 0.12 : 0.12,
+      emissive: new T.Color(0x000000),
+      emissiveIntensity: 0,
       side: T.DoubleSide,
       transparent: true,
       opacity: 0,
@@ -302,20 +326,29 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     const halfW0 = halfH0 * camera.aspect;
     const sPx = logo ? logo.width / WO_VBW : 0;
 
-    // --- Brackets: hold near the edges, gentle even drift/turn -------------
-    const spanFrac = 0.5 + 0.45 * widen; // wider mid-section, tighter at edges
+    // --- Brackets: revolve around the centre, spin on their own axis, and
+    // spread apart as you scroll — then the settle below reels them in onto the
+    // logo. The pair share one orbit a half-turn apart (so they stay opposite
+    // and their gap only grows), and spin in opposite directions. All a pure
+    // function of scroll `p`.
     for (const { group, mat, config } of bracketItems) {
       const s = config.seed;
-      const pathX = fbm(p, s + 0.1) * halfW * spanFrac;
-      const parkedX = config.side * (halfW + 1.4);
-      // Free-drift transform (settle = 0).
-      const driftX = parkedX + (pathX - parkedX) * reveal;
-      const driftY = fbm(p, s + 2.7) * halfH * (0.4 + 0.4 * widen) * reveal;
-      const driftZ = -1 + fbm(p, s + 5.1) * 0.9;
+      const angle = config.baseAngle + p * BRACKET_REVOLVE;
+      // Orbit radius grows with scroll (they move farther apart), a touch wider
+      // mid-section. Capped under the frame half-extents so they stay in view.
+      const rGrow = 0.4 + 0.5 * p + 0.08 * widen;
+      const orbitX = Math.cos(angle) * halfW * 0.9 * rGrow;
+      const orbitY = Math.sin(angle) * halfH * 0.62 * rGrow;
+      // Enter from the side: blend from parked off-screen into the orbit.
+      const parkedX = config.side * (halfW + 1.6);
+      const driftX = parkedX + (orbitX - parkedX) * reveal;
+      const driftY = orbitY * reveal;
+      const driftZ = -1 + Math.sin(p * Math.PI * 2 + s) * 1.1;
       const driftScale = 0.55 + 0.45 * reveal;
-      const driftRotY = fbm(p, s + 7.3) * (0.9 + 0.3 * widen);
-      const driftRotX = fbm(p, s + 9.9) * 0.32;
-      const driftRotZ = fbm(p, s + 12.4) * 0.32;
+      // Own-axis spin (opposite per bracket) + a little cross-axis tumble.
+      const driftRotZ = p * BRACKET_SPIN * config.spinDir + s;
+      const driftRotY = p * BRACKET_SPIN * 0.55 * config.spinDir;
+      const driftRotX = Math.sin(p * Math.PI * 2 + s) * 0.4;
 
       if (settleOn > 0 && logo) {
         // Settled transform: land flat, facing the camera, on the logo slot.
@@ -379,8 +412,13 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     const travel = maxScroll * PF;
     const ROT_RATE = 1.2; // radians turned per viewport
     const COLOR_RATE = 0.15; // palette units per viewport
+    // Clear the field out of the last section: fade every floater over the
+    // final ~1.4 viewports so nothing drifts behind the settling footer logo.
+    const clearBottom = clamp((maxScroll - scrollY) / (vh * 1.4));
     for (const { mesh, mat, i } of floaterItems) {
-      mesh.visible = true;
+      mesh.visible = clearBottom > 0.01;
+      mat.opacity = clearBottom;
+      if (!mesh.visible) continue;
       // Push each one back to its own depth, and size the frame to THAT depth
       // so it spans the screen properly rather than clustering near centre.
       const z = -2.2 - frac(i * 0.7311) * 3.5;
@@ -440,6 +478,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     for (let i = 0; i < FLOATER_COUNT; i += 1) {
       const geo = geoByFile[FLOATER_FILES[i % FLOATER_FILES.length]];
       const mat = material();
+      mat.transparent = true; // so they can fade out as the footer is reached
       const mesh = new T.Mesh(geo, mat);
       mesh.visible = false;
       scene.add(mesh);
@@ -593,9 +632,9 @@ export function BracketsField() {
     };
   }, []);
 
-  // Fixed, full-viewport — the single background the whole page shares, at the
-  // fixed var(--ink). Behind all content (z-0); content sits above via a z-10
-  // wrapper.
+  // Fixed, full-viewport — the single background the whole page shares. Its
+  // colour is var(--ink), which flips dark → light with --theme (see WhyJoin).
+  // Behind all content (z-0); content sits above via a z-10 wrapper.
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 bg-ink">
       <div ref={hostRef} className="absolute inset-0" />

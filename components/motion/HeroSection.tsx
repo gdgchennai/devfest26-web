@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { Loader } from "@/components/motion/Loader";
-import { IntroEscape } from "@/components/motion/IntroEscape";
 import { CurvedMarqueeHero, MARQUEE_TEXTURES } from "@/components/motion/CurvedMarqueeHero";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { useAssetsLoaded } from "@/components/motion/useAssetsLoaded";
@@ -292,29 +291,6 @@ export function HeroSection() {
         />
       )}
 
-      {/*
-       * The way out, for exactly as long as the intro owns the screen — same
-       * condition as the <Loader> above, because that is the thing covering the
-       * page. It was written for this and then never rendered: `releaseIntro`
-       * documents itself as "shared by the flythrough finishing and by a skip
-       * cutting it short", but no skip existed, so the intro locked scrolling
-       * (body overflow + lenis.stop) and marked #main aria-busy with no control
-       * to end it and no Escape-key handler mounted.
-       *
-       * Deliberately NOT inside <Loader>: that root gets scaled 8× and faded to
-       * zero during the reveal zoom, which would take the hatch with it at the
-       * precise moment the photos start flying.
-       */}
-      {showLoader && !revealDone && (
-        <IntroEscape
-          phase={entering ? "hallway" : "loading"}
-          // Dimmed while the loader's own "Enter" is the primary action; full
-          // once the flythrough is playing and this is the only control left.
-          // Keyboard users get full opacity either way, via focus-within.
-          emphasis={entering}
-          onSkip={releaseIntro}
-        />
-      )}
     </>
   );
 }

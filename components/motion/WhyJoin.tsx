@@ -12,42 +12,63 @@ import { prefersReducedMotion } from "@/lib/motion-prefs";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 /**
- * "Why join" — a plain content section. The site is dark-only; this component
- * previously scrubbed a global --theme property to flip the page to a light
- * theme from here down, and that has been removed (see the architecture doc).
+ * "Why join" — the section where the page hands off from dark to light.
  *
- * What remains is the page's one-shot ScrollTrigger refresh. That is NOT
- * leftover from the theme flip — see the comment on it below.
+ * The whole site's greyscale resolves from a single --theme value (0 = dark,
+ * 1 = light) in globals.css: the fixed backdrop is var(--ink), all text is
+ * var(--paper), and the card surfaces are mixed from those. Scrubbing --theme
+ * from 0 → 1 as this section reaches the middle of the viewport turns the fixed
+ * background white and every font ink at once, eased by the scroll. It clamps
+ * at 1, so the page stays light below and returns to dark when scrolled above.
  */
 export function WhyJoin() {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      if (prefersReducedMotion() || !ref.current) return;
-      /*
-       * The only global ScrollTrigger.refresh() on first load, and load-bearing.
-       *
-       * Why it is needed: the pinned "What to expect" panel above inserts a pin
-       * spacer, which changes document height. HashTitle's spin is bound to
-       * absolute scroll bounds (0 → scrollHeight − innerHeight) with
-       * invalidateOnRefresh, so it measures short unless something recomputes
-       * after the spacer exists. MotionProvider does refresh, but only on route
-       * CHANGE — `previousPathname` starts equal to `pathname`, so its effect
-       * early-returns on the first render and never fires here.
-       *
-       * Why it belongs in this component: effects run children-before-parents
-       * and siblings in mount order, so by the time this runs, every trigger on
-       * the page has been created (ExpectShowcase and its HashTitle above, this
-       * section's own HashTitle below it in the tree). Nothing further down the
-       * page creates one. This is the last moment where a single refresh fixes
-       * everything at once.
-       *
-       * Why the reduced-motion guard stays: under reduced motion ExpectShowcase
-       * does not pin and HashTitle does not animate, so there is no spacer and
-       * no trigger — the refresh would have nothing to correct.
-       */
-      ScrollTrigger.refresh();
+      if (!ref.current) return;
+
+      const root = document.documentElement;
+      const setTheme = gsap.quickSetter(root, "--theme");
+
+      // Scrub the global theme from dark → light. Begin once this section's top
+      // reaches the middle of the viewport, and finish over the next stretch.
+      // onUpdate + quickSetter rather than a fromTo tween: some builds were not
+      // applying the scrubbed custom property back to :root reliably.
+      ScrollTrigger.create({
+        trigger: ref.current,
+        start: "top 50%",
+        end: "top 10%",
+        scrub: true,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => setTheme(self.progress),
+      });
+
+      if (!prefersReducedMotion()) {
+        /*
+         * The only global ScrollTrigger.refresh() on first load, and load-bearing.
+         *
+         * Why it is needed: the pinned "What to expect" panel above inserts a pin
+         * spacer, which changes document height. HashTitle's spin is bound to
+         * absolute scroll bounds (0 → scrollHeight − innerHeight) with
+         * invalidateOnRefresh, so it measures short unless something recomputes
+         * after the spacer exists. MotionProvider does refresh, but only on route
+         * CHANGE — `previousPathname` starts equal to `pathname`, so its effect
+         * early-returns on the first render and never fires here.
+         *
+         * Why it belongs in this component: effects run children-before-parents
+         * and siblings in mount order, so by the time this runs, every trigger on
+         * the page has been created (ExpectShowcase and its HashTitle above, this
+         * section's own HashTitle below it in the tree). Nothing further down the
+         * page creates one. This is the last moment where a single refresh fixes
+         * everything at once.
+         *
+         * Why the reduced-motion guard stays: under reduced motion ExpectShowcase
+         * does not pin and HashTitle does not animate, so there is no spacer and
+         * no trigger — the refresh would have nothing to correct.
+         */
+        ScrollTrigger.refresh();
+      }
     },
     { scope: ref },
   );
