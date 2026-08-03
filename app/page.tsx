@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
+import { SectionBackdrop } from "@/components/motion/SectionBackdrop";
 import { WhyJoin } from "@/components/motion/WhyJoin";
 import { TrackCards } from "@/components/TrackCards";
 import { SpeakerWall } from "@/components/SpeakerWall";
@@ -23,6 +24,13 @@ export default function Home() {
       <BracketsField />
 
       <div className="relative z-10">
+        {/* Scroll-driven background cycle. Mounted first so its per-section
+            triggers exist before WhyJoin's ScrollTrigger.refresh() runs. It
+            renders nothing; it scrubs --page-bg (the backdrop colour) through
+            the pastel cycle configured in globals.css as each [data-bg-cycle]
+            section below reaches the viewport. */}
+        <SectionBackdrop />
+
         {/* If the motion hero throws at runtime, degrade to the static hero
             instead of taking down the whole homepage. The fallback is
             StaticHero, not CurvedMarqueeHero: a fallback that itself needs
@@ -43,25 +51,25 @@ export default function Home() {
             comment inside) — the last component here that creates a trigger. */}
         <WhyJoin />
 
-        <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
+        {/* <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
           <TrackCards tracks={siteConfig.tracks} />
-        </Section>
+        </Section> */}
 
         {/* Lineup, shown as open places while speakers.json is empty — the CFP
             pitch belongs where someone is already looking for speakers. */}
-        <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
+        {/* <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
           <p className="-mt-4 mb-6 text-sm text-paper/60">
             {speakers.length === 0
               ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
               : "More speakers still to be announced."}
           </p>
           <SpeakerWall />
-        </Section>
+        </Section> */}
 
         {/* No sponsors section: 2026 is not running sponsorship at all. The
             route and its data are gone too — see the architecture doc. */}
 
-        <Section eyebrow="Where" title="Venue" dotColor="red">
+        <Section eyebrow="Where" title="Venue" dotColor="red" cycleBg>
           <p className="max-w-xl text-paper/80">
             {siteConfig.venue.line1}, {siteConfig.venue.line2}
             {!siteConfig.venue.confirmed && " — pending final confirmation."}
@@ -74,11 +82,11 @@ export default function Home() {
           </Link>
         </Section>
 
-        <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
+        <Section eyebrow="Questions" title="FAQ" dotColor="yellow" cycleBg>
           <Faq />
         </Section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
+        <section data-bg-cycle className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
           <TicketStub />
         </section>
       </div>

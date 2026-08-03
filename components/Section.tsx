@@ -21,6 +21,8 @@ export function Section({
   children,
   /** The first section sits directly under the hero, which is its own boundary. */
   divider = true,
+  /** Opt this section into the scroll background cycle (see SectionBackdrop). */
+  cycleBg = false,
 }: {
   id?: string;
   eyebrow: string;
@@ -28,9 +30,14 @@ export function Section({
   dotColor?: DotColor;
   children: ReactNode;
   divider?: boolean;
+  cycleBg?: boolean;
 }) {
   return (
-    <section id={id} className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-8">
+    <section
+      id={id}
+      data-bg-cycle={cycleBg ? "" : undefined}
+      className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-8"
+    >
       {divider && <SectionDivider />}
       <div className={divider ? "pt-10" : ""}>
         <SectionHeading eyebrow={eyebrow} title={title} dotColor={dotColor} />

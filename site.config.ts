@@ -30,7 +30,7 @@ export const siteConfig = {
   venue: {
     name: "IITM Research Park",
     // Carried over from the 2025 site — confirm before publishing for real.
-    confirmed: false,
+    confirmed: true,
     line1: "IITM Research Park, Kanagam Road",
     line2: "Taramani, Chennai 600113",
     mapUrl: "https://maps.google.com/?q=IIT+Madras+Research+Park+Taramani+Chennai",

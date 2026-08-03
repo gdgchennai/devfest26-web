@@ -633,10 +633,11 @@ export function BracketsField() {
   }, []);
 
   // Fixed, full-viewport — the single background the whole page shares. Its
-  // colour is var(--ink), which flips dark → light with --theme (see WhyJoin).
-  // Behind all content (z-0); content sits above via a z-10 wrapper.
+  // colour is var(--page-bg): dark by default, scrubbed through the pastel cycle
+  // on scroll by SectionBackdrop (and falling back to the --ink greyscale with
+  // JS off). Behind all content (z-0); content sits above via a z-10 wrapper.
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 bg-ink">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 bg-page-bg">
       <div ref={hostRef} className="absolute inset-0" />
     </div>
   );
