@@ -123,12 +123,11 @@ type SvgPaths = ReturnType<InstanceType<SvgLoaderCtor>["parse"]>["paths"];
 /** Extrudes loaded SVG paths into a centred, upright geometry scaled to targetH. */
 function buildGeometry(
   T: Three,
-  Loader: SvgLoaderCtor,
   paths: SvgPaths,
   targetH: number,
   viewBoxH: number,
 ): THREE.ExtrudeGeometry {
-  const shapes = paths.flatMap((p) => Loader.createShapes(p));
+  const shapes = paths.flatMap((p) => p.toShapes(true));
   const depth = viewBoxH * 0.14;
   const geometry = new T.ExtrudeGeometry(shapes, {
     depth,
@@ -171,7 +170,7 @@ type LogoBuild = { group: THREE.Group; geos: THREE.BufferGeometry[]; mats: THREE
  * front face instead of z-fighting it. Built centred, upright (Y flipped) and
  * scaled to targetH; every material starts transparent (faded in on settle).
  */
-function buildLogo(T: Three, Loader: SvgLoaderCtor, paths: SvgPaths, targetH: number): LogoBuild {
+function buildLogo(T: Three, paths: SvgPaths, targetH: number): LogoBuild {
   const byFill = new Map<string, SvgPaths>();
   for (const p of paths) {
     const fill = ((p.userData as { style?: { fill?: string } } | undefined)?.style?.fill ?? "#000").toLowerCase();
@@ -187,7 +186,7 @@ function buildLogo(T: Three, Loader: SvgLoaderCtor, paths: SvgPaths, targetH: nu
 
   const built: { geo: THREE.ExtrudeGeometry; fill: string }[] = [];
   for (const [fill, ps] of byFill) {
-    const shapes = ps.flatMap((p) => Loader.createShapes(p));
+    const shapes = ps.flatMap((p) => p.toShapes(true));
     if (shapes.length === 0) continue;
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
     const isPillText = fill === "black" || fill === "#000" || fill === "#000000";
@@ -459,7 +458,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     for (const config of BRACKETS) {
       const paths = await loadPaths(config.file);
       if (disposed) return;
-      const geo = buildGeometry(T, Loader, paths, BRACKET_HEIGHT, VIEWBOX_H[config.file]);
+      const geo = buildGeometry(T, paths, BRACKET_HEIGHT, VIEWBOX_H[config.file]);
       const mat = material();
       const group = new T.Group();
       group.add(new T.Mesh(geo, mat));
@@ -471,7 +470,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     for (const file of FLOATER_FILES) {
       const paths = await loadPaths(file);
       if (disposed) return;
-      const geo = buildGeometry(T, Loader, paths, 1, VIEWBOX_H[file]);
+      const geo = buildGeometry(T, paths, 1, VIEWBOX_H[file]);
       geoByFile[file] = geo;
       floaterGeos.push(geo);
     }
@@ -502,7 +501,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
       loader.load(LOGO_FILE, (data) => resolve(data.paths), undefined, () => resolve([]));
     });
     if (disposed) return;
-    logoBuild = buildLogo(T, Loader, logoPaths, 1);
+    logoBuild = buildLogo(T, logoPaths, 1);
     scene.add(logoBuild.group);
 
     if (disposed) return;
