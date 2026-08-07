@@ -18,14 +18,10 @@ type SvgLoaderCtor = typeof import("three/addons/loaders/SVGLoader.js").SVGLoade
 
 /* ------------------------------------------------------------------ *
  * The 3D brand-shape backdrop: a FIXED, full-viewport black layer behind
- * the whole page (content scrolls over it). Two things live in it, both
- * built from the brand SVGs (public/brand-shapes) as extruded 3D meshes:
- *
- *  • Two brackets — a sticky pair that hold their place near the edges and
- *    drift/turn gently as you scroll (they never travel up the page).
- *  • A field of smaller shapes (angle, dot, double-slash, plus) that rise
- *    up the frame like parallax as you scroll, flipping/turning and cycling
- *    the brand palette.
+ * the whole page (content scrolls over it). It holds two brackets — a
+ * sticky pair, built from the brand SVGs (public/brand-shapes) as extruded
+ * 3D meshes, that hold their place near the edges and drift/turn gently as
+ * you scroll (they never travel up the page).
  *
  * Everything is a pure function of scroll position — nothing runs on a
  * clock — and every animated quantity advances at the same even rate, so
@@ -37,10 +33,6 @@ const SHAPE_BASE = "/brand-shapes/";
 const VIEWBOX_H: Record<string, number> = {
   "left_bracket.svg": 304,
   "right_bracket.svg": 304,
-  "angle.svg": 184,
-  "dot.svg": 102,
-  "double_slash.svg": 304,
-  "small_plus.svg": 169,
 };
 
 /**
@@ -94,10 +86,6 @@ const BRACKET_REVOLVE = Math.PI * 2 * 1.25;
 /** Own-axis spins each bracket makes across the whole page. */
 const BRACKET_SPIN = Math.PI * 2 * 1.5;
 
-/** Shapes cycled through the rising parallax field. */
-const FLOATER_FILES = ["angle.svg", "dot.svg", "double_slash.svg", "small_plus.svg"];
-const FLOATER_COUNT = 24;
-
 /**
  * Smooth pseudo-random value in ~[-1, 1], summed from two low, close, non-
  * harmonic frequencies: enough variety to feel unplanned, but the rate of
@@ -107,8 +95,6 @@ const FLOATER_COUNT = 24;
 function fbm(t: number, seed: number): number {
   return Math.sin(t * 4.2 + seed * 12.9898) * 0.7 + Math.sin(t * 7.3 + seed * 78.233) * 0.3;
 }
-
-const frac = (x: number) => x - Math.floor(x);
 
 /** Smoothly samples the wrapped palette at t (0..1). `stops` is built in the effect. */
 function colorAt(t: number, out: THREE.Color, stops: THREE.Color[]) {
@@ -280,10 +266,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
   scene.add(fill);
 
   type BracketItem = { group: THREE.Group; geo: THREE.BufferGeometry; mat: THREE.MeshStandardMaterial; config: BracketConfig };
-  type FloaterItem = { mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial; i: number };
   const bracketItems: BracketItem[] = [];
-  const floaterItems: FloaterItem[] = [];
-  const floaterGeos: THREE.BufferGeometry[] = [];
   // The 3D lockup that fades in on the footer settle (loaded async, below).
   let logoBuild: LogoBuild | null = null;
 
@@ -313,7 +296,6 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     logo: DOMRect | null,
   ) {
     const p = clamp(scrollY / maxScroll); // whole-page 0..1 (colour + bracket tumble)
-    const q = scrollY / vh; // viewports scrolled (parallax rise — uniform)
     const reveal = clamp((scrollY - vh * 0.12) / (vh * 0.6));
 
     // Settle only kicks in when there is a logo to land on.
@@ -399,48 +381,6 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
         logoBuild.group.visible = false;
       }
     }
-
-    // --- Floaters: rise up the frame like parallax and scroll out of view.
-    // Each is anchored to a point along the page and travels straight up and
-    // off the top as you scroll past it, entering from below. PF > 1 makes them
-    // rise FASTER than the page scrolls, so they read as moving up everywhere —
-    // including once the page scrolls normally after the pinned "What to expect"
-    // section (at PF < 1 the content overtook them and they looked like they
-    // reversed). Uniform for all.
-    const PF = 1.25; // parallax rise speed relative to the page
-    const travel = maxScroll * PF;
-    const ROT_RATE = 1.2; // radians turned per viewport
-    const COLOR_RATE = 0.15; // palette units per viewport
-    // Clear the field out of the last section: fade every floater over the
-    // final ~1.4 viewports so nothing drifts behind the settling footer logo.
-    const clearBottom = clamp((maxScroll - scrollY) / (vh * 1.4));
-    for (const { mesh, mat, i } of floaterItems) {
-      mesh.visible = clearBottom > 0.01;
-      mat.opacity = clearBottom;
-      if (!mesh.visible) continue;
-      // Push each one back to its own depth, and size the frame to THAT depth
-      // so it spans the screen properly rather than clustering near centre.
-      const z = -2.2 - frac(i * 0.7311) * 3.5;
-      const hH = tanHalfFov * (camera.position.z - z);
-      const hW = hH * camera.aspect;
-
-      const fx = (frac(i * 0.618) * 2 - 1) * hW * 0.92;
-      // Staggered home, starting below the first screen so nothing sits over
-      // the hero; maps px-from-top into world space at this depth.
-      const homeY = vh + frac(i * 0.4142 + 0.13) * (travel + vh);
-      const clientY = homeY - scrollY * PF;
-      const worldY = hH - (clientY / vh) * 2 * hH;
-      mesh.position.set(fx, worldY, z);
-      mesh.scale.setScalar(0.5 + frac(i * 0.271) * 0.6);
-
-      // Flip about X or Y (alternating), same angular velocity for all.
-      const turn = frac(i * 0.911) * Math.PI * 2 + q * ROT_RATE;
-      if (i % 2 === 0) mesh.rotation.set(turn, 0.3, 0);
-      else mesh.rotation.set(0.3, turn, 0);
-
-      colorAt(q * COLOR_RATE + frac(i * 0.317), tmpColor, paletteStops);
-      mat.color.copy(tmpColor);
-    }
   }
 
   // Load every shape from /public and build its meshes. Async, so the scene
@@ -466,27 +406,9 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
       bracketItems.push({ group, geo, mat, config });
     }
 
-    const geoByFile: Record<string, THREE.BufferGeometry> = {};
-    for (const file of FLOATER_FILES) {
-      const paths = await loadPaths(file);
-      if (disposed) return;
-      const geo = buildGeometry(T, paths, 1, VIEWBOX_H[file]);
-      geoByFile[file] = geo;
-      floaterGeos.push(geo);
-    }
-    for (let i = 0; i < FLOATER_COUNT; i += 1) {
-      const geo = geoByFile[FLOATER_FILES[i % FLOATER_FILES.length]];
-      const mat = material();
-      mat.transparent = true; // so they can fade out as the footer is reached
-      const mesh = new T.Mesh(geo, mat);
-      mesh.visible = false;
-      scene.add(mesh);
-      floaterItems.push({ mesh, mat, i });
-    }
-
-    // Brackets + floaters are built and three.js has finished downloading: the
-    // visible backdrop is ready, so release the preloader from waiting on 3D.
-    // (The footer logo below only matters at the page bottom — don't hold the
+    // Brackets are built and three.js has finished downloading: the visible
+    // backdrop is ready, so release the preloader from waiting on 3D. (The
+    // footer logo below only matters at the page bottom — don't hold the
     // reveal on it.)
     if (!disposed) {
       measure();
@@ -585,8 +507,6 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
       geo.dispose();
       mat.dispose();
     });
-    floaterItems.forEach(({ mat }) => mat.dispose());
-    floaterGeos.forEach((g) => g.dispose());
     logoBuild?.geos.forEach((g) => g.dispose());
     logoBuild?.mats.forEach((m) => m.dispose());
     renderer.dispose();
