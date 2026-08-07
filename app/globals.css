@@ -9,14 +9,25 @@
 
 /*
  * The colour of the single fixed backdrop (BracketsField). Registered as a
- * <color> so it can interpolate frame by frame while SectionBackdrop scrubs it
- * through the pastel cycle on scroll. Defaults below to var(--ink), so with
- * JavaScript off the page still falls back to the old dark → light handoff.
+ * <color> so it can interpolate frame by frame as VenueReveal scrubs --theme
+ * (and so --ink, which this defaults to) on scroll.
  */
 @property --page-bg {
   syntax: "<color>";
   inherits: true;
   initial-value: #000000;
+}
+
+/*
+ * Lets BracketsField's 3D layer be faded out by a section that needs the
+ * area behind it fully clear (e.g. VenueReveal, which paints its own opaque
+ * stage and doesn't want the brackets' silhouette showing through at its
+ * edges). Defaults to fully visible everywhere else.
+ */
+@property --brackets-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
 }
 
 /*
@@ -43,11 +54,8 @@
   --paper: color-mix(in srgb, #f0f0f0, var(--black) calc(var(--theme) * 100%));
 
   /*
-   * The single fixed backdrop reads this instead of --ink directly. It defaults
-   * to the theme-driven greyscale so the page degrades to the old behaviour with
-   * JS off; on the homepage SectionBackdrop.tsx scrubs it through the pastel
-   * cycle below as each section scrolls in. --theme still flips text to ink so
-   * copy stays readable over the light pastels.
+   * The single fixed backdrop reads this instead of --ink directly, defaulting
+   * to the theme-driven greyscale (see --theme above, scrubbed by VenueReveal).
    */
   --page-bg: var(--ink);
 
@@ -114,23 +122,6 @@
   --green-pastel: #ccf6c5;
   --yellow-pastel: #ffe7a5;
   --red-pastel: #f8d8d8;
-
-  /* ---------------------------------------------------------------------------
-   * Scroll background cycle   ← EDIT HERE to recolour the page
-   *
-   * From "Why join" down, each marked section fades the fixed backdrop to the
-   * next colour in this list as it scrolls into view (SectionBackdrop.tsx). The
-   * list wraps, so the 5th section reuses colour 1, the 6th reuses colour 2, and
-   * so on. To change the look, do any of:
-   *   - reorder these, or swap in other tokens (e.g. var(--blue-halftone));
-   *   - add --bg-cycle-5, --bg-cycle-6, … to lengthen the cycle;
-   *   - delete a line (they must stay numbered 1..N with no gap) to shorten it.
-   * The colours only ever move with the scroll — nothing animates on its own.
-   * ------------------------------------------------------------------------ */
-  --bg-cycle-1: var(--blue-pastel);
-  --bg-cycle-2: var(--green-pastel);
-  --bg-cycle-3: var(--red-pastel);
-  --bg-cycle-4: var(--yellow-pastel);
 }
 
 @theme inline {

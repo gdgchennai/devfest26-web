@@ -552,11 +552,17 @@ export function BracketsField() {
   }, []);
 
   // Fixed, full-viewport — the single background the whole page shares. Its
-  // colour is var(--page-bg): dark by default, scrubbed through the pastel cycle
-  // on scroll by SectionBackdrop (and falling back to the --ink greyscale with
-  // JS off). Behind all content (z-0); content sits above via a z-10 wrapper.
+  // colour is var(--page-bg): dark by default, falling back to the --ink
+  // greyscale, which VenueReveal scrubs dark → light on scroll (see there).
+  // Behind all content (z-0); content sits above via a z-10 wrapper.
+  // Opacity reads --brackets-opacity, which a section can scrub to 0 while it's
+  // in view (see VenueReveal) if it needs the area behind it fully clear.
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 bg-page-bg">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-0 bg-page-bg"
+      style={{ opacity: "var(--brackets-opacity)" }}
+    >
       <div ref={hostRef} className="absolute inset-0" />
     </div>
   );

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
 import { Section } from "@/components/Section";
@@ -8,8 +7,7 @@ import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
-import { SectionBackdrop } from "@/components/motion/SectionBackdrop";
-import { WhyJoin } from "@/components/motion/WhyJoin";
+import { VenueReveal } from "@/components/motion/VenueReveal";
 import { TrackCards } from "@/components/TrackCards";
 import { SpeakerWall } from "@/components/SpeakerWall";
 import { TicketStub } from "@/components/TicketStub";
@@ -24,13 +22,6 @@ export default function Home() {
       <BracketsField />
 
       <div className="relative z-10">
-        {/* Scroll-driven background cycle. Mounted first so its per-section
-            triggers exist before WhyJoin's ScrollTrigger.refresh() runs. It
-            renders nothing; it scrubs --page-bg (the backdrop colour) through
-            the pastel cycle configured in globals.css as each [data-bg-cycle]
-            section below reaches the viewport. */}
-        <SectionBackdrop />
-
         {/* If the motion hero throws at runtime, degrade to the static hero
             instead of taking down the whole homepage. The fallback is
             StaticHero, not CurvedMarqueeHero: a fallback that itself needs
@@ -44,12 +35,12 @@ export default function Home() {
             hatch target); degrades to a static row under reduced-motion/lite. */}
         <ExpectShowcase />
 
-        {/* From "Why join" down the page hands off to the light theme: WhyJoin
-            scrubs the global --theme 0 → 1, turning the single fixed background
-            white and all text ink, and it stays light for the sections below.
-            It also carries the page's one-shot ScrollTrigger.refresh() (see the
-            comment inside) — the last component here that creates a trigger. */}
-        <WhyJoin />
+        {/* "Why join" is folded into "About DevFest" above and not rendered
+            here — its reasons UI is unused, and its one load-bearing side
+            effect (the dark → light --theme scrub the sections below need for
+            readable text over their light backgrounds) now lives in
+            VenueReveal instead, timed to that section's own reveal rather
+            than firing the instant this point in the page is reached. */}
 
         {/* <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
           <TrackCards tracks={siteConfig.tracks} />
@@ -69,24 +60,18 @@ export default function Home() {
         {/* No sponsors section: 2026 is not running sponsorship at all. The
             route and its data are gone too — see the architecture doc. */}
 
-        <Section eyebrow="Where" title="Venue" dotColor="red" cycleBg>
-          <p className="max-w-xl text-paper/80">
-            {siteConfig.venue.line1}, {siteConfig.venue.line2}
-            {!siteConfig.venue.confirmed && " — pending final confirmation."}
-          </p>
-          <Link
-            href="/venue"
-            className="mt-3 inline-block text-sm text-blue underline underline-offset-4 hover:decoration-2"
-          >
-            Venue details & travel →
-          </Link>
-        </Section>
+        {/* The pinned "Location" reveal: heading settles up top while the
+            venue's hand-drawn outline draws itself in, then the real photo,
+            caption, and a save-the-date beat follow. Not built on <Section> —
+            it's a full-bleed stage, not a padded content block (see
+            VenueReveal for why <Section> itself is untouched). */}
+        <VenueReveal />
 
-        <Section eyebrow="Questions" title="FAQ" dotColor="yellow" cycleBg>
+        <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
           <Faq />
         </Section>
 
-        <section data-bg-cycle className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
+        <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
           <TicketStub />
         </section>
       </div>

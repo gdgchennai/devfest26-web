@@ -5,15 +5,15 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import { siteConfig } from "@/site.config";
 import { archivePhotos } from "@/lib/content";
-import { HashTitle } from "@/components/motion/HashTitle";
 import { FALLBACK_BG } from "@/components/Frame";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 /*
  * Resolved once at module scope, not per render: every input is static config,
@@ -50,8 +50,9 @@ const EXPECT_CARDS = (() => {
  */
 export function ExpectShowcase() {
   const wrapRef = useRef<HTMLElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   // Match SSR / no-JS with the static baseline, then upgrade on the client.
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
@@ -62,32 +63,110 @@ export function ExpectShowcase() {
 
   useGSAP(
     () => {
-      if (staticBaseline || !pinRef.current || !trackRef.current) return;
-      const track = trackRef.current;
-      const pin = pinRef.current;
+      if (staticBaseline) return;
 
-      // Pin + scroll-jack the row horizontally at every breakpoint (no mobile
-      // native-swipe exception). invalidateOnRefresh recomputes the distance on
-      // resize so it stays correct across widths.
+      // "About DevFest" rises into place, character by character, once as the
+      // stage scrolls into view close beneath the hero. `mask: "chars"` wraps
+      // each character in its own overflow-clip span so the rise reads as a
+      // reveal rather than characters sliding in from behind neighbouring text.
+      let split: SplitText | undefined;
+      if (headingRef.current) {
+        split = SplitText.create(headingRef.current, { type: "chars", mask: "chars" });
+        gsap.set(split.chars, { yPercent: 130, opacity: 0 });
+        ScrollTrigger.create({
+          trigger: wrapRef.current,
+          start: "top 85%",
+          once: true,
+          onEnter: () =>
+            gsap.to(split!.chars, {
+              yPercent: 0,
+              opacity: 1,
+              duration: 0.7,
+              stagger: 0.02,
+              ease: "power3.out",
+            }),
+        });
+      }
+
+      if (!stageRef.current || !trackRef.current) return () => split?.revert();
+      const stage = stageRef.current;
+      const track = trackRef.current;
+      const heading = headingRef.current;
       const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
-      const tween = gsap.to(track, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: pin,
-          start: "top top",
-          end: () => `+=${distance()}`,
-          scrub: 1,
-          pin: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          // Refresh before downstream triggers (e.g. HashTitle, whose spin is
-          // bound to the document's full scroll height) so this pin's spacer is
-          // in place when they measure their positions.
-          refreshPriority: 1,
+      const totalDistance = () => distance() + window.innerWidth;
+
+      // Before the pin, the heading (centred inside this full-height stage)
+      // rides the ordinary page scroll up from the bottom of the screen — the
+      // hero is genuinely still leaving above it — arriving at the vertical
+      // centre exactly as the stage's top reaches the top of the viewport.
+      // That is the instant this pins: the heading holds at centre while the
+      // card track, parked a full viewport off-screen right the whole time,
+      // slides in over it and continues into the normal scrub.
+      //
+      // Pinning `stage` itself (rather than manually fixing the card layer)
+      // is what makes GSAP release it cleanly back into normal flow the
+      // moment the scroll range ends — so the whole stage scrolls away with
+      // the rest of the page afterward instead of staying glued to the
+      // viewport, and stays inert, ordinary in-flow content (not a permanent
+      // full-screen overlay) at every point before its own turn arrives.
+      const tween = gsap.fromTo(
+        track,
+        { x: () => window.innerWidth },
+        {
+          x: () => -distance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: stage,
+            start: "top top",
+            end: () => `+=${totalDistance()}`,
+            scrub: 1,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            refreshPriority: 1,
+          },
         },
-      });
-      return () => tween.kill();
+      );
+
+      // The heading holds still while the first card is still approaching —
+      // then, the instant that card's leading edge actually reaches it, gets
+      // shoved out to the left instead of just sitting there getting covered.
+      // `overlapProgress` is exactly the scrub progress at which the card's
+      // left edge reaches the heading's right edge (both are pure functions of
+      // trackX, which moves in lockstep with progress since the card tween
+      // above is linear), so the two stay in sync without hard-coded numbers.
+      let headingExit: gsap.core.Tween | undefined;
+      if (heading) {
+        const overlapProgress = () => {
+          const total = totalDistance();
+          if (total <= 0) return 0;
+          return Math.min(1, Math.max(0, (window.innerWidth - heading.offsetWidth) / 2 / total));
+        };
+        headingExit = gsap.fromTo(
+          heading,
+          { x: 0 },
+          {
+            x: () => -(window.innerWidth / 2 + heading.offsetWidth / 2),
+            ease: (p: number) => {
+              const start = overlapProgress();
+              return p < start ? 0 : (p - start) / (1 - start);
+            },
+            scrollTrigger: {
+              trigger: stage,
+              start: "top top",
+              end: () => `+=${totalDistance()}`,
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      }
+
+      return () => {
+        tween.kill();
+        headingExit?.kill();
+        split?.revert();
+      };
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );
@@ -95,16 +174,28 @@ export function ExpectShowcase() {
   return (
     <section id="after-hero" ref={wrapRef} className="relative overflow-hidden text-paper">
       <div className="relative z-10">
-        <div
-          ref={pinRef}
-          className="flex min-h-[70vh] flex-col justify-center py-20 md:h-screen md:py-0"
-        >
-          <div className="mb-10 px-6 sm:px-10">
-            <HashTitle>What to expect</HashTitle>
+        <div ref={stageRef} className="relative h-screen">
+          {/* The title: centred inside the stage, alone until the card track
+              (below) slides in from off-screen right and, once in frame,
+              paints over it — so the heading only shows before/between
+              cards, never fighting them for attention. */}
+          <div className="absolute inset-0 flex items-center justify-center px-6 text-center sm:px-10">
+            <h2
+              ref={headingRef}
+              // Fluid, viewport-scaled size (not fixed breakpoint steps) so it
+              // reads at the same scale as the hero's WebGL "DevFest Chennai"
+              // title, which is sized off the 3D scene rather than a CSS class.
+              // font-bold, not the semibold every other heading uses: the hero's
+              // WebGL title is set in Google Sans Bold specifically, and this is
+              // the one heading meant to read at the same weight as it.
+              className="text-[clamp(3.5rem,12vw,10rem)] font-bold leading-none tracking-tight"
+            >
+              About DevFest
+            </h2>
           </div>
 
-          <div className="overflow-hidden [scrollbar-width:none]">
-            <div ref={trackRef} className="flex gap-10 px-8 will-change-transform sm:px-14">
+          <div className="absolute inset-0 flex items-center overflow-hidden [scrollbar-width:none]">
+            <div ref={trackRef} className="flex will-change-transform">
               {EXPECT_CARDS.map(({ item, photo, panelColor }) => {
                 return (
                   <article
@@ -112,8 +203,9 @@ export function ExpectShowcase() {
                     // Leaning parallelogram, sized so only ~1 (mobile) to ~1.5
                     // (desktop) cards fit at once, making the horizontal scroll
                     // read clearly. The slant is applied here and undone on the
-                    // inner layers so photo and text stay upright.
-                    className="relative h-[60vh] w-[84vw] shrink-0 skew-x-[-9deg] overflow-hidden rounded-2xl border border-paper/15 md:h-[70vh] md:w-[58vw] lg:w-[48vw]"
+                    // inner layers so photo and text stay upright. No gap and no
+                    // corner radius between cards — they sit flush, edge to edge.
+                    className="relative h-[60vh] w-[84vw] shrink-0 skew-x-[-9deg] overflow-hidden border border-paper/15 md:h-[70vh] md:w-[58vw] lg:w-[48vw]"
                   >
                     {/* Counter-skew keeps the photo upright (not sheared), and
                         the zoom (scale) enlarges it enough to cover the slanted
