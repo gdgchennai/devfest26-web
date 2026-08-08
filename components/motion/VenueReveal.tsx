@@ -24,6 +24,17 @@ const ART_RATIO = 1773 / 1167;
  *  (the rest comes off the bottom — plain roadway). */
 const TOP_CROP_BIAS = 0.15;
 
+/** The neon-glow wash, off and at full brightness — a plain colour (not a
+ *  filter) blended over the PHOTO now, not the sketch. It used to be a
+ *  drop-shadow filter on the sketch itself, which meant re-rasterizing and
+ *  blurring 2203 path segments across 49 <path>s every animated frame —
+ *  profiled at 100–167ms/frame (should be ~16ms). A photo is one bitmap
+ *  layer; blending a flat colour over it via mix-blend-mode is a
+ *  compositor-only operation regardless of how "glowy" it looks, so this
+ *  reads the same to the eye at a fraction of the cost. Whitish-blue to
+ *  match --blue-pastel, the page's own settled colour. */
+const GLOW_COLOR = "rgba(200,235,255,1)";
+
 const dateShort = siteConfig.date
   ? new Date(siteConfig.date).toLocaleDateString("en-IN", {
       month: "short",
@@ -96,7 +107,8 @@ function swapText(el: HTMLElement, newText: string) {
  *     scrubbed: the sketch is 49 pre-split <path> elements, and
  *     re-computing their stroke-dasharray on every scroll pixel was the
  *     actual source of choppiness, not the tween mechanism): the hand-drawn
- *     outline draws in and dissolves into the real photo. The "Location"
+ *     outline draws in, then the real photo wipes in bottom-up over it (a
+ *     clip-path reveal, not a cross-fade) at -20% exposure. The "Location"
  *     heading itself is NOT part of this reveal — it's visible from the
  *     moment the section is reached, not something that fades in with or
  *     after it.
@@ -128,6 +140,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
   const visualRef = useRef<HTMLDivElement>(null);
   const svgHostRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
   const captionTitleRef = useRef<HTMLHeadingElement>(null);
@@ -135,9 +148,15 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const particleTlRef = useRef<gsap.core.Timeline | null>(null);
   const particleActiveRef = useRef(false);
+  const alignReadoutRef = useRef<HTMLDivElement>(null);
 
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
   const [svgReady, setSvgReady] = useState(false);
+  // See the ?align=1 debug branch in the effect below — read once at mount,
+  // not on every render, since it only ever changes via a full page load.
+  const [alignDebug] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("align") === "1",
+  );
 
   // Fetched once, client-side, and injected as real DOM <path> elements —
   // DrawSVGPlugin needs to own their stroke-dasharray/-offset directly, which
@@ -291,27 +310,110 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const paths = svgHostRef.current?.querySelectorAll("path") ?? [];
       if (!svgReady || paths.length === 0) return;
 
+      // Debug aid — visit the page with ?align=1 (e.g.
+      // http://localhost:3000/?align=1#venue): forces a static, un-pinned,
+      // full-brightness overlay of the sketch (drawn in red, full opacity)
+      // and the photo (50% opacity) on top of each other, with nothing
+      // animated and no ScrollTrigger/pin created at all. Scroll to the
+      // section normally in your own browser and the mismatch — if any —
+      // is directly visible without fighting the reveal animation or the
+      // pinned hold to catch it mid-transition.
+      //
+      // Arrow keys nudge the sketch itself (translateX/Y in CSS px against
+      // the rendered, on-screen size — NOT SVG user-units, so the same
+      // keypress moves it the same visual distance regardless of how the
+      // cover-fit box happens to be scaled right now); +/- zoom both axes
+      // together, a/d and w/s stretch the axes independently (in case the
+      // mismatch is a slightly different aspect ratio, not just position or
+      // uniform scale), q/e rotate. Shift on any of them for a bigger step.
+      // The on-screen readout is the point: read the settled values off it
+      // and report them back rather than needing devtools at all.
+      if (alignDebug) {
+        gsap.set(stage, { opacity: 1 });
+        gsap.set(svgHostRef.current, { opacity: 1, transformOrigin: "50% 50%" });
+        gsap.set(paths, { drawSVG: "100%", attr: { stroke: "#ff2d55" } });
+        gsap.set(photoRef.current, { clipPath: "inset(0%)", filter: "brightness(100%)", opacity: 0.5 });
+
+        const svgHost = svgHostRef.current;
+        const readout = alignReadoutRef.current;
+        let x = 0;
+        let y = 0;
+        let scaleX = 1;
+        let scaleY = 1;
+        let rotation = 0;
+        const render = () => {
+          gsap.set(svgHost, { x, y, scaleX, scaleY, rotation });
+          if (readout) {
+            readout.textContent =
+              `translate(${x}px, ${y}px)  scaleX(${scaleX.toFixed(3)})  scaleY(${scaleY.toFixed(3)})  rotate(${rotation.toFixed(1)}deg)\n` +
+              `arrows: move · +/-: zoom both · a/d: scaleX · w/s: scaleY · q/e: rotate · shift: bigger step · 0: reset`;
+          }
+        };
+        render();
+        const onKey = (e: KeyboardEvent) => {
+          const step = e.shiftKey ? 10 : 1;
+          const scaleStep = e.shiftKey ? 0.01 : 0.002;
+          const rotateStep = e.shiftKey ? 1 : 0.1;
+          if (e.key === "ArrowLeft") x -= step;
+          else if (e.key === "ArrowRight") x += step;
+          else if (e.key === "ArrowUp") y -= step;
+          else if (e.key === "ArrowDown") y += step;
+          else if (e.key === "+" || e.key === "=") {
+            scaleX += scaleStep;
+            scaleY += scaleStep;
+          } else if (e.key === "-" || e.key === "_") {
+            scaleX -= scaleStep;
+            scaleY -= scaleStep;
+          } else if (e.key === "d") scaleX += scaleStep;
+          else if (e.key === "a") scaleX -= scaleStep;
+          else if (e.key === "w") scaleY += scaleStep;
+          else if (e.key === "s") scaleY -= scaleStep;
+          else if (e.key === "e") rotation += rotateStep;
+          else if (e.key === "q") rotation -= rotateStep;
+          else if (e.key === "0") {
+            x = 0;
+            y = 0;
+            scaleX = 1;
+            scaleY = 1;
+            rotation = 0;
+          } else return;
+          e.preventDefault();
+          render();
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }
+
       gsap.set(stage, { opacity: 0 });
       gsap.set(paths, { drawSVG: "0%" });
-      gsap.set(photoRef.current, { opacity: 0, scale: 1.015, filter: "blur(22px)" });
-      gsap.set(svgHostRef.current, { opacity: 1 });
+      gsap.set(photoRef.current, { opacity: 0, scale: 1.015, filter: "blur(16px) brightness(100%)" });
+      gsap.set(glowRef.current, { opacity: 0, scale: 0.97, transformOrigin: "50% 50%" });
+      // Static correction that lines the hand-drawn sketch up with
+      // venue.webp — dialled in by eye via the ?align=1 debug view's manual
+      // nudge controls (see the alignDebug branch above), then converted
+      // from the px/unitless readout there (translate(8px, 11px) scaleX
+      // 1.018 scaleY 0.962 at an 867×570.66 rendered box) into percentages
+      // of the sketch's own box so it holds up as the cover-fit box's size
+      // changes with viewport, not just at the one size it was tuned at.
+      // No wipe/clip-path anymore (see the reveal sequence below), so this
+      // transform no longer needs to worry about leaving edges uncovered —
+      // the sketch hides via its own opacity now, uniformly, regardless of
+      // where its transformed bounds land relative to the photo's.
+      gsap.set(svgHostRef.current, {
+        opacity: 1,
+        xPercent: 0.92,
+        yPercent: 1.93,
+        scaleX: 1.018,
+        scaleY: 0.962,
+        transformOrigin: "50% 50%",
+      });
       gsap.set(scrimRef.current, { opacity: 0 });
       gsap.set(captionRef.current, { opacity: 0, y: 14 });
-
       // A single autoplay sequence, matching venue-prototype.html's
-      // playReveal() as closely as this project allows. The heading is NOT
-      // part of this timeline — it's already
+      // playReveal() for the draw itself, then diverging for the handoff to
+      // the photo. The heading is NOT part of this timeline — it's already
       // visible (see the JSX) the moment the section is reached, rather than
-      // fading in with or after the sketch/photo reveal. Numbers for the
-      // parts shared with the prototype are its own, not reinvented: 0.6s per path
-      // staggered across a 1.0s spread for the draw, 0.7s for the photo
-      // settle, 0.7s for the scrim + caption. The draw uses the SAME 49
-      // pre-split paths the prototype does (public/venue-lines.svg was
-      // replaced with that exact pre-split copy — the version here before
-      // was an unsplit, 1-path export of the same artwork, which is why the
-      // draw was heavy regardless of scrub vs autoplay: one massive path's
-      // dasharray forces a full re-rasterize of all 2203 merged strokes
-      // every frame instead of 49 small ones).
+      // fading in with or after the sketch/photo reveal.
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
 
       tl.to(stage, { opacity: 1, duration: 0.4 });
@@ -324,12 +426,56 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       );
       tl.call(() => svgHostRef.current?.querySelector("svg")?.setAttribute("shape-rendering", "auto"));
 
+      // The handoff, in order — the glow now lives on the PHOTO, not the
+      // sketch (it used to be a drop-shadow filter on the sketch itself,
+      // which meant re-rasterizing and blurring 2203 path segments across 49
+      // <path>s every animated frame — profiled at 100–167ms/frame, should
+      // be ~16ms). Everything below only ever touches the photo (one bitmap
+      // layer, blur/opacity are compositor-only regardless of radius) and a
+      // single flat-colour div (glowRef, blended over it) — no per-frame
+      // vector rasterization anywhere in this beat:
+      //  1. Sketch fades out — plain opacity, nothing else animated on it.
+      //  2. Photo fades in already blurred, and sharpens as it settles.
+      //  3. The glow div (a flat whitish-blue rectangle, mix-blend-mode
+      //     "screen" so it lightens/blooms rather than just tinting) spikes
+      //     in then fades out, in the SAME beat as the photo sharpening —
+      //     that's the "neon" read: the image itself blooms into focus.
+      //  4. Exposure dip — -20%, i.e. brightness(80%) — applied to the photo
+      //     only once the glow/blur has fully settled.
+      //  5. THEN the caption fades in.
       tl.addLabel("drawDone", "draw+=1.6");
-      tl.to(photoRef.current, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.7 }, "drawDone");
-      tl.to(svgHostRef.current, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "drawDone+=0.7");
 
-      tl.addLabel("photoDone", "drawDone+=0.7");
-      tl.to(scrimRef.current, { opacity: 1, duration: 0.7 }, "photoDone+=0.1");
+      tl.addLabel("glowIn", "drawDone");
+      // Instant, not animated: profiling showed even a PLAIN opacity fade on
+      // this sketch is expensive in isolation (avg 55ms/frame, worst 83ms) —
+      // blending 2203 dense, overlapping stroke segments at intermediate
+      // alpha values is real per-pixel work, opacity or not, layer-promoted
+      // or not. A hard cut costs one repaint instead of ~35 (0.6s of them),
+      // and it's masked anyway: the photo fade-in and glow bloom both start
+      // in this exact same instant.
+      tl.set(svgHostRef.current, { opacity: 0 }, "glowIn");
+      tl.to(photoRef.current, { opacity: 1, scale: 1, filter: "blur(0px) brightness(100%)", duration: 0.85 }, "glowIn");
+      // The neon beat itself: a quick, punchy charge-up (0.28s, a slight
+      // scale-in for a bit of snap) to near-full bloom, THEN a long, gentle
+      // dissipation (1.0s, sine easing — the gentlest of GSAP's built-in
+      // eases, no acceleration bump in the middle the way power*.inOut has)
+      // with a slight scale-UP as it fades, like the glow is expanding and
+      // thinning out rather than just switching off. That asymmetry — fast
+      // in, slow lingering out — is what reads as "sci-fi energy reveal"
+      // rather than a flat pulse; it's also cheap regardless of duration,
+      // since it's still just opacity + transform on one flat div.
+      tl.fromTo(
+        glowRef.current,
+        { opacity: 0, scale: 0.97 },
+        { opacity: 0.95, scale: 1, duration: 0.28, ease: "power2.out" },
+        "glowIn",
+      );
+      tl.to(glowRef.current, { opacity: 0, scale: 1.05, duration: 1.0, ease: "sine.out" }, "glowIn+=0.28");
+
+      tl.addLabel("photoDone", "glowIn+=1.28");
+      tl.to(photoRef.current, { filter: "blur(0px) brightness(80%)", duration: 0.6 }, "photoDone");
+
+      tl.to(scrimRef.current, { opacity: 1, duration: 0.7 }, "photoDone+=0.3");
       tl.to(captionRef.current, { opacity: 1, y: 0, duration: 0.7 }, "<");
 
       // Arrival at the section is what starts the autoplay above AND pins
@@ -511,27 +657,38 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
               they stay pixel-aligned at any stage size. */}
           {!staticBaseline && (
             <div ref={visualRef} className="absolute left-0 top-0">
+              {/* Photo BEFORE the sketch in the stack (not after, as it used
+                  to be) — during the glow handoff (see the reveal timeline
+                  above) the glowing lines sit visually in front of the
+                  fading-in photo, not behind it. */}
+              <div ref={photoRef} className="absolute inset-0 overflow-hidden">
+                {/* venue.webp's native ratio (5425x3781) isn't quite
+                    ART_RATIO (1773x1167) — object-cover's crop (even
+                    biased) only ever gets the two CLOSE, never pixel-exact,
+                    because a crop can't fix a ratio mismatch, only hide it.
+                    The line art was traced against this photo at ART_RATIO,
+                    so the two are only guaranteed to line up if the photo
+                    fills the exact same box with no cropping at all —
+                    object-fill stretches it to do that (a ~6% width/height
+                    difference, imperceptible on a building facade) instead
+                    of cropping it. */}
+                <Image src="/venue.webp" alt="" fill className="object-fill" priority={false} />
+              </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)
                   property to an invalid colour, not stroke-width — Tailwind's
                   stroke-[...] is a colour utility. The arbitrary-property
                   syntax below is what actually sets stroke-width. */}
               <div ref={svgHostRef} className="absolute inset-0 [&_path]:fill-none [&_path]:[stroke-width:1.5px]" />
-              <div ref={photoRef} className="absolute inset-0">
-                {/* venue.webp's native ratio (5425x3781) isn't quite ART_RATIO
-                    (1773x1167) — object-cover's default centred crop trims
-                    top/bottom evenly, which lands a few % off from the crop
-                    the line art was traced against. Biasing the crop toward
-                    the bottom (keeping more of the top) is what lines the
-                    two up; found empirically by overlaying them. */}
-                <Image
-                  src="/venue.webp"
-                  alt=""
-                  fill
-                  className="object-cover"
-                  style={{ objectPosition: "50% 85%" }}
-                  priority={false}
-                />
-              </div>
+              {/* Neon bloom: a flat colour, blended over the photo with
+                  mix-blend-mode "screen" (lightens rather than tints) — see
+                  GLOW_COLOR's own comment for why this replaced a filter on
+                  the sketch. Purely decorative, hidden from assistive tech. */}
+              <div
+                ref={glowRef}
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{ backgroundColor: GLOW_COLOR, mixBlendMode: "screen" }}
+              />
             </div>
           )}
 
@@ -604,6 +761,16 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             }}
           />
         </div>
+      )}
+
+      {/* ?align=1 readout — see the debug branch in the effect above. Fixed
+          (not absolute) so it stays on screen regardless of where in the
+          section you've scrolled to. */}
+      {alignDebug && (
+        <div
+          ref={alignReadoutRef}
+          className="fixed left-2 top-2 z-50 whitespace-pre rounded bg-black/80 px-3 py-2 font-mono text-xs text-white"
+        />
       )}
     </section>
   );
