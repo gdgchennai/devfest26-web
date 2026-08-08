@@ -71,7 +71,7 @@ export default function RootLayout({
     // class on <html> before hydration, so the server and client class lists
     // differ by design (the standard pre-paint-script pattern).
     <html lang="en" suppressHydrationWarning className={`${googleSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-ink text-paper">
+      <body className="flex min-h-full flex-col bg-ink text-paper" suppressHydrationWarning>
         {/*
          * First-paint preloader. Server-rendered AND styled inline (below) so
          * the four dots bounce from the very first paint — before the JS bundle
