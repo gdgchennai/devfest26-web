@@ -11,6 +11,7 @@ import { siteConfig } from "@/site.config";
 import { EVENT_TIME_ZONE } from "@/lib/format";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { ParticleCover } from "@/components/motion/ParticleCover";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
@@ -120,7 +121,7 @@ function swapText(el: HTMLElement, newText: string) {
  * straight to their light/pastel values — no sketch, no pin, no overlay, no
  * swap. Those are motion embellishments, not information.
  */
-export function VenueReveal() {
+export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
   const wrapRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -132,6 +133,8 @@ export function VenueReveal() {
   const captionTitleRef = useRef<HTMLHeadingElement>(null);
   const directionsRef = useRef<HTMLAnchorElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const particleTlRef = useRef<gsap.core.Timeline | null>(null);
+  const particleActiveRef = useRef(false);
 
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
   const [svgReady, setSvgReady] = useState(false);
@@ -385,6 +388,16 @@ export function VenueReveal() {
       let swapChangedAt = performance.now();
       const SWAP_ANIM_MS = 950;
       const setOverlayY = gsap.quickSetter(overlayRef.current, "yPercent");
+      // The particle vortex only needs to render while the overlay panel is
+      // actually rising into view — pausing its timeline the rest of the
+      // time (panel parked off-screen at yPercent 100) avoids burning frames
+      // on a canvas nobody can see.
+      function setParticlesActive(active: boolean) {
+        if (particleActiveRef.current === active) return;
+        particleActiveRef.current = active;
+        if (active) particleTlRef.current?.play();
+        else particleTlRef.current?.pause();
+      }
       ScrollTrigger.create({
         trigger: wrapRef.current,
         start: "top top",
@@ -413,7 +426,9 @@ export function VenueReveal() {
 
           const scrollOverlayProgress = p < OVERLAY_AT ? 0 : (p - OVERLAY_AT) / (1 - OVERLAY_AT);
           const timeGate = Math.min((performance.now() - swapChangedAt) / SWAP_ANIM_MS, 1);
-          setOverlayY(gsap.utils.interpolate(100, 0, Math.min(scrollOverlayProgress, timeGate)));
+          const overlayY = gsap.utils.interpolate(100, 0, Math.min(scrollOverlayProgress, timeGate));
+          setOverlayY(overlayY);
+          setParticlesActive(overlayY < 99);
         },
         // onUpdate only fires while progress is inside [0, 1] — the instant
         // scroll carries it past either end, GSAP stops calling it (that's
@@ -428,6 +443,7 @@ export function VenueReveal() {
         // mid-flight, no matter how fast the scroll that got it there.
         onLeave: () => {
           setOverlayY(0);
+          setParticlesActive(true);
           swapState = "date";
           swapText(heading, "Save the Date");
           if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort);
@@ -435,6 +451,7 @@ export function VenueReveal() {
         },
         onLeaveBack: () => {
           setOverlayY(100);
+          setParticlesActive(false);
           swapState = "location";
           swapText(heading, "Location");
           if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name);
@@ -575,7 +592,18 @@ export function VenueReveal() {
           aria-hidden
           className="pointer-events-none absolute inset-0 z-30"
           style={{ backgroundColor: "var(--blue-pastel)" }}
-        />
+        >
+          {/* Brand-shape particle vortex, reskinned from GSAP's own "canvas
+              particles" demo — streams inward toward the center for as long
+              as this panel is up (see setParticlesActive above). */}
+          <ParticleCover
+            shapes={brandShapes}
+            className="absolute inset-0"
+            onReady={(tl) => {
+              particleTlRef.current = tl;
+            }}
+          />
+        </div>
       )}
     </section>
   );

@@ -1,5 +1,6 @@
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
+import { getBrandShapes } from "@/lib/brandShapes";
 import { Section } from "@/components/Section";
 import { Faq } from "@/components/Faq";
 import { SectionBoundary } from "@/components/SectionBoundary";
@@ -65,7 +66,7 @@ export default function Home() {
             caption, and a save-the-date beat follow. Not built on <Section> —
             it's a full-bleed stage, not a padded content block (see
             VenueReveal for why <Section> itself is untouched). */}
-        <VenueReveal />
+        <VenueReveal brandShapes={getBrandShapes()} />
 
         <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
           <Faq />
