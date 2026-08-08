@@ -12,6 +12,8 @@ import { EVENT_TIME_ZONE } from "@/lib/format";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { ParticleCover } from "@/components/motion/ParticleCover";
+import { useMotion } from "@/components/motion/MotionProvider";
+import { RollingText } from "@/components/motion/RollingText";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
@@ -67,8 +69,14 @@ function resolveColor(expr: string): string {
 const swapTargets = new WeakMap<HTMLElement, string>();
 
 /** Swaps `el`'s text with a rise-out/rise-in SplitText cut, matching the
- *  reveal beat "About DevFest" uses elsewhere on the homepage. */
-function swapText(el: HTMLElement, newText: string) {
+ *  reveal beat "About DevFest" uses elsewhere on the homepage. `direction`
+ *  is which way the roll reads: 1 (the default — forward, i.e. scrolling
+ *  down into "Save the Date") exits upward and enters from below, same as
+ *  before; -1 (reverse, i.e. scrolling back up into "Location") mirrors
+ *  that — exits downward, enters from above — so the text visibly rolls
+ *  the OPPOSITE way when you reverse, instead of replaying the same upward
+ *  roll regardless of which way the scroll that triggered it went. */
+function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
   if (swapTargets.get(el) === newText) return;
   swapTargets.set(el, newText);
   // Belt-and-braces: kill any tweens still running on this element's current
@@ -79,7 +87,7 @@ function swapText(el: HTMLElement, newText: string) {
 
   const outSplit = SplitText.create(el, { type: "chars", mask: "chars" });
   gsap.to(outSplit.chars, {
-    yPercent: -130,
+    yPercent: -130 * direction,
     opacity: 0,
     duration: 0.4,
     stagger: 0.015,
@@ -88,7 +96,7 @@ function swapText(el: HTMLElement, newText: string) {
       outSplit.revert();
       el.textContent = newText;
       const inSplit = SplitText.create(el, { type: "chars", mask: "chars" });
-      gsap.set(inSplit.chars, { yPercent: 130, opacity: 0 });
+      gsap.set(inSplit.chars, { yPercent: 130 * direction, opacity: 0 });
       gsap.to(inSplit.chars, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.02, ease: "power3.out" });
     },
   });
@@ -134,6 +142,7 @@ function swapText(el: HTMLElement, newText: string) {
  * swap. Those are motion embellishments, not information.
  */
 export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
+  const { lenisRef } = useMotion();
   const wrapRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -414,7 +423,16 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // the photo. The heading is NOT part of this timeline — it's already
       // visible (see the JSX) the moment the section is reached, rather than
       // fading in with or after the sketch/photo reveal.
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
+      // onComplete releases the scroll lock set below (see the reveal
+      // ScrollTrigger's onEnter) — the visitor can't scroll AT ALL from the
+      // moment the section is reached until this whole timeline (draw,
+      // glow/photo handoff, exposure, caption) has actually finished
+      // playing, then scrolling resumes exactly where the pin picks up.
+      const tl = gsap.timeline({
+        paused: true,
+        defaults: { ease: "power2.out" },
+        onComplete: () => lenisRef.current?.start(),
+      });
 
       tl.to(stage, { opacity: 1, duration: 0.4 });
 
@@ -481,32 +499,36 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // Arrival at the section is what starts the autoplay above AND pins
       // the section in the same breath — from the visitor's side, scrolling
       // into "Location" and having it lock in place is one continuous beat.
+      // lenisRef.stop() here (same mechanism HeroSection's intro uses) is
+      // what makes that hold literal: not just visually pinned but actually
+      // un-scrollable, so a fast/impatient scroll can't blow past the reveal
+      // mid-flight — tl's onComplete above is the only thing that calls
+      // start() again.
       ScrollTrigger.create({
         trigger: wrapRef.current,
         start: "top top",
         once: true,
-        onEnter: () => tl.play(),
+        onEnter: () => {
+          lenisRef.current?.stop();
+          tl.play();
+        },
       });
 
       // The held pin: "the entire section stays as is, vertical scroll
-      // waits." Scroll input while pinned doesn't move the page — it drives
-      // self.progress through three phases instead, spent (as a fraction of
-      // SETTLE_VH/SWAP_VH/OVERLAY_VH below) on:
-      //   1. SETTLE — a dead zone with room for the autoplay reveal above to
-      //      actually finish playing before anything reacts to further
-      //      scroll (autoplay is time-based, scrubbing is scroll-based —
-      //      this reconciles the two without literally locking the scroll).
-      //   2. SWAP — the instant this zone is entered, reversibly swaps
-      //      "Location" for "Save the Date" (and the venue name for the
-      //      date), exactly the same reversible swapText() mechanism as
-      //      before, just re-timed to live inside the pin instead of the
-      //      open page scroll. Firing at the START of the zone (not its
-      //      midpoint) is deliberate: swapText()'s rise-out/rise-in take
-      //      ~0.9s of real time, and this whole zone is the buffer that
-      //      covers it — firing midway only left half that room, so a
-      //      normal scroll speed could reach the OVERLAY zone before the
-      //      swap animation had actually finished, showing both mid-flight
-      //      at once.
+      // waits." Scroll is impossible at all until tl finishes (see the
+      // lenisRef.stop()/start() above), but that alone only guarantees the
+      // REVEAL is done before scrolling can resume — it doesn't give the
+      // visitor a moment to actually look at the settled result before the
+      // very first pixel of scroll flips it to "Save the Date". HOLD_VH
+      // below is that moment: scrolling works immediately once the lock
+      // lifts, but the swap doesn't fire until past it. Scroll input from
+      // here drives self.progress through three phases (as a fraction of
+      // HOLD_VH/SWAP_VH/OVERLAY_VH below):
+      //   1. HOLD — pure dead zone, "Location" stays on screen.
+      //   2. SWAP — reversibly swaps "Location" for "Save the Date" (and the
+      //      venue name for the date), exactly the same reversible
+      //      swapText() mechanism as before, just re-timed to live inside
+      //      the pin instead of the open page scroll.
       //   3. OVERLAY — "after this animation the image stays put... a[n]
       //      overlay will scroll" over it instead: a pastel-blue panel
       //      (matching the page's own settled backdrop — see body's
@@ -515,23 +537,33 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       //      once it does does the pin release, so FAQ (next in the page)
       //      resumes ordinary scrolling over a backdrop that already
       //      matches — no jump cut.
-      const SETTLE_VH = 20;
+      const HOLD_VH = 20;
       const SWAP_VH = 35;
       const OVERLAY_VH = 70;
-      const TOTAL_VH = SETTLE_VH + SWAP_VH + OVERLAY_VH;
-      const SWAP_AT = SETTLE_VH / TOTAL_VH;
-      const OVERLAY_AT = (SETTLE_VH + SWAP_VH) / TOTAL_VH;
-      // The SWAP_VH scroll buffer above is what covers swapText()'s ~0.9s
-      // rise-out/rise-in under NORMAL scroll speeds, but scroll distance and
-      // real time aren't the same thing — a fast enough flick can cover that
-      // whole buffer in well under 0.9s. swapChangedAt/swapState track the
-      // real time of the last swap direction change so the overlay is ALSO
-      // gated on elapsed time, not just scroll progress: whichever of the
-      // two (scroll-based or time-based) is further behind wins, so the
-      // overlay can never start rising while the swap animation it would be
-      // covering is still mid-flight, regardless of how fast someone scrolls.
+      const TOTAL_VH = HOLD_VH + SWAP_VH + OVERLAY_VH;
+      const SWAP_AT = HOLD_VH / TOTAL_VH;
+      const OVERLAY_AT = (HOLD_VH + SWAP_VH) / TOTAL_VH;
+      // swapText()'s rise-out/rise-in takes ~0.9s of real time, but scroll
+      // distance and real time aren't the same thing — a fast enough scroll
+      // can cover the ENTIRE rest of the pin (SWAP_VH + OVERLAY_VH) well
+      // under that, in a single update tick. A scroll-distance buffer alone
+      // (SWAP_VH) can't stop that: it only slows down a moderate scroll, and
+      // once progress blows past 1 in one tick, onLeave used to fire
+      // instantly (see its old comment below), snapping the swap AND the
+      // overlay to their finished states together — "no matter how hard I
+      // scroll" was the actual bug report. Real fix: the moment scroll
+      // crosses the swap threshold, in EITHER direction, clamp the scroll
+      // position back to exactly that checkpoint and hard-lock it there
+      // (lenisRef.stop(), same mechanism the reveal's own lock above uses)
+      // for exactly SWAP_ANIM_MS — so "Save the Date" (or "Location",
+      // scrolling back) is fully readable before the overlay can start
+      // rising over it, independent of how far the gesture that crossed the
+      // checkpoint actually wanted to go. Whatever's left of that gesture's
+      // momentum is simply lost when locked, same as the reveal lock above —
+      // scrolling past this point again afterwards is a fresh, ordinary
+      // scroll.
       let swapState: "location" | "date" = "location";
-      let swapChangedAt = performance.now();
+      let swapLocking = false;
       const SWAP_ANIM_MS = 950;
       const setOverlayY = gsap.quickSetter(overlayRef.current, "yPercent");
       // The particle vortex only needs to render while the overlay panel is
@@ -544,6 +576,22 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
         if (active) particleTlRef.current?.play();
         else particleTlRef.current?.pause();
       }
+      function applySwapVisuals(toDate: boolean) {
+        // Forward (toDate) rolls up, same as always; reverse (back to
+        // "Location") rolls down — the opposite direction, matching which
+        // way the scroll that triggered it actually went. See swapText()'s
+        // own doc comment for the mechanics.
+        const direction = toDate ? 1 : -1;
+        if (toDate) {
+          gsap.to(directionsRef.current, { opacity: 0, duration: 0.4 });
+          swapText(heading, "Save the Date", direction);
+          if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort, direction);
+        } else {
+          gsap.to(directionsRef.current, { opacity: 1, duration: 0.4 });
+          swapText(heading, "Location", direction);
+          if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name, direction);
+        }
+      }
       ScrollTrigger.create({
         trigger: wrapRef.current,
         start: "top top",
@@ -555,53 +603,48 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           const p = self.progress;
           const wantsDate = p >= SWAP_AT;
           const nextState = wantsDate ? "date" : "location";
-          if (nextState !== swapState) {
+
+          if (nextState !== swapState && !swapLocking) {
+            swapLocking = true;
             swapState = nextState;
-            swapChangedAt = performance.now();
+            // self, not a captured reference to the trigger created below —
+            // it's the exact same instance, but available immediately, no
+            // risk of reading it before its own `const` assignment finishes.
+            const checkpoint = self.start + (self.end - self.start) * SWAP_AT;
+            lenisRef.current?.scrollTo(checkpoint, { immediate: true });
+            lenisRef.current?.stop();
+            applySwapVisuals(wantsDate);
+            window.setTimeout(() => {
+              lenisRef.current?.start();
+              swapLocking = false;
+            }, SWAP_ANIM_MS);
           }
 
-          if (wantsDate) {
-            gsap.to(directionsRef.current, { opacity: 0, duration: 0.4 });
-            swapText(heading, "Save the Date");
-            if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort);
-          } else {
-            gsap.to(directionsRef.current, { opacity: 1, duration: 0.4 });
-            swapText(heading, "Location");
-            if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name);
-          }
-
-          const scrollOverlayProgress = p < OVERLAY_AT ? 0 : (p - OVERLAY_AT) / (1 - OVERLAY_AT);
-          const timeGate = Math.min((performance.now() - swapChangedAt) / SWAP_ANIM_MS, 1);
-          const overlayY = gsap.utils.interpolate(100, 0, Math.min(scrollOverlayProgress, timeGate));
+          const overlayProgress = p < OVERLAY_AT ? 0 : (p - OVERLAY_AT) / (1 - OVERLAY_AT);
+          const overlayY = gsap.utils.interpolate(100, 0, overlayProgress);
           setOverlayY(overlayY);
           setParticlesActive(overlayY < 99);
         },
         // onUpdate only fires while progress is inside [0, 1] — the instant
         // scroll carries it past either end, GSAP stops calling it (that's
-        // also the instant the pin itself releases). If the time gate above
-        // hadn't finished catching up to scroll yet at that exact moment,
-        // the overlay would be abandoned mid-rise forever: nothing left ever
-        // fires again to finish it, since the section is no longer pinned to
-        // scroll through. onLeave/onLeaveBack are the guarantee that doesn't
-        // depend on scroll speed — they force the fully-settled state for
-        // whichever side we just exited on, so the section can never scroll
-        // away (or back above the section) with the swap or overlay caught
-        // mid-flight, no matter how fast the scroll that got it there.
+        // also the instant the pin itself releases). onLeave/onLeaveBack are
+        // the guarantee that the section can never scroll away (or back
+        // above the section) with the swap or overlay caught mid-flight —
+        // the checkpoint lock above keeps the SWAP itself from ever being
+        // outrun, but the overlay's own scroll-linked rise can still be
+        // skipped past by a hard scroll (acceptable — only the swap needed
+        // to be guaranteed visible), so this is still the backstop for that.
         onLeave: () => {
           setOverlayY(0);
           setParticlesActive(true);
           swapState = "date";
-          swapText(heading, "Save the Date");
-          if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort);
-          gsap.set(directionsRef.current, { opacity: 0 });
+          applySwapVisuals(true);
         },
         onLeaveBack: () => {
           setOverlayY(100);
           setParticlesActive(false);
           swapState = "location";
-          swapText(heading, "Location");
-          if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name);
-          gsap.set(directionsRef.current, { opacity: 1 });
+          applySwapVisuals(false);
         },
       });
     },
@@ -727,9 +770,12 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 href={siteConfig.venue.mapUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 border-b border-white/40 pb-0.5 text-sm text-white/85 no-underline transition-colors hover:border-white/80 hover:text-white sm:text-base"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/85 no-underline transition-colors hover:text-white sm:text-base"
               >
-                Get directions →
+                {/* Same treatment as the Hero's "See Agenda →" — plain text,
+                    no border/underline chrome, RollingText owns the
+                    character-roll on hover. */}
+                <RollingText>Get directions →</RollingText>
               </a>
             )}
           </div>
