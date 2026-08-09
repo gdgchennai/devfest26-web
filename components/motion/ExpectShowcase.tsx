@@ -188,7 +188,16 @@ export function ExpectShowcase() {
               // font-bold, not the semibold every other heading uses: the hero's
               // WebGL title is set in Google Sans Bold specifically, and this is
               // the one heading meant to read at the same weight as it.
-              className="text-[clamp(3.5rem,12vw,10rem)] font-bold leading-none tracking-tight"
+              //
+              // whitespace-nowrap + a low clamp() floor (not the 3.5rem it used
+              // to be): on narrow phones the OLD floor was taller than the
+              // string could fit on one line at, so it wrapped to two —
+              // shrinking further via vw instead reads as one confident line
+              // running edge to edge, matching what this heading is going for,
+              // rather than an awkward two-line stack. 11vw (not 12) leaves a
+              // hair of breathing room against the section's own px-6/px-10
+              // padding so the text doesn't visually kiss the edge.
+              className="whitespace-nowrap text-[clamp(1.75rem,11vw,10rem)] font-bold leading-none tracking-tight"
             >
               About DevFest
             </h2>
