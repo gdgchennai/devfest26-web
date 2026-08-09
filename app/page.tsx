@@ -1,5 +1,5 @@
 import { siteConfig } from "@/site.config";
-import { speakers } from "@/lib/content";
+// import { speakers } from "@/lib/content";
 import { getBrandShapes } from "@/lib/brandShapes";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
@@ -8,8 +8,9 @@ import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { VenueReveal } from "@/components/motion/VenueReveal";
 import { MoodSection } from "@/components/motion/MoodSection";
-import { TrackCards } from "@/components/TrackCards";
-import { SpeakerWall } from "@/components/SpeakerWall";
+import { ShowMoodSection } from "@/components/motion/ShowMoodSection";
+// import { TrackCards } from "@/components/TrackCards";
+// import { SpeakerWall } from "@/components/SpeakerWall";
 import { TicketStub } from "@/components/TicketStub";
 
 export default function Home() {
@@ -69,9 +70,12 @@ export default function Home() {
 
         <MoodSection />
 
+        <ShowMoodSection />
+
+        {/* Hiding this for the time being. Don't remove. This needs to be repurposed differently
         <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
           <TicketStub />
-        </section>
+        </section> */}
       </div>
     </>
   );

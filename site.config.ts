@@ -40,7 +40,7 @@ export const siteConfig = {
 
   ticketing: {
     // Same platform as 2025 (KonfHub); URL is new for 2026 and still pending.
-    url: null as string | null,
+    url:"#",
     platform: "KonfHub",
   },
 
