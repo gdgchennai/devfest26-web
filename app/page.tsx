@@ -4,6 +4,7 @@ import { getBrandShapes } from "@/lib/brandShapes";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
+import { ReadySection } from "@/components/motion/ReadySection";
 import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { VenueReveal } from "@/components/motion/VenueReveal";
@@ -30,6 +31,10 @@ export default function Home() {
         <SectionBoundary label="hero" fallback={<StaticHero />}>
           <HeroSection />
         </SectionBoundary>
+
+        {/* A short beat between the hero and "About DevFest": a two-line
+            question wiped into view, line by line. */}
+        <ReadySection />
 
         {/* The dark "What to expect" section, over the 3D brand-shape backdrop.
             Carries the load-bearing `id="after-hero"` (skip link + hero escape

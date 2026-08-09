@@ -156,6 +156,19 @@ body {
 }
 
 /*
+ * Scrollbar is chrome the scroll-driven motion on this page doesn't want
+ * competing for attention. Mobile browsers already auto-hide theirs as an
+ * overlay, so this only changes anything on desktop/trackpad browsers.
+ */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/*
  * The first-paint preloader (#boot-preloader) is defined inline in the document
  * <head> (see app/layout.tsx), not here — it must apply at first paint without
  * waiting on this stylesheet to download, and be visible by default rather than

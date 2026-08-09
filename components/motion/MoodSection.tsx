@@ -49,13 +49,14 @@ const EXTRA_TRAVEL_VW = 0.3;
  * releases — --page-bg at black (it scrubs pastel blue → black in lockstep
  * with covering the Location frame) and --brackets-opacity at 0 (kept
  * there for its whole pinned run so nothing floats behind the photo/
- * overlay) — and fades BOTH up across the WHOLE pass here: --page-bg to
- * white, --brackets-opacity to 1, same duration, same start. That shared
- * timing is what makes it read as one continuous reveal (backdrop
- * brightening, brackets fading in together) instead of two separate cues,
- * and specifically avoids brackets snapping straight to visible the instant
- * this pin begins — opacity's CSS fallback for an unset custom property is
- * 1, so without this fade that's exactly what would happen.
+ * overlay) — and fades both up from there, but on deliberately DIFFERENT
+ * schedules: --page-bg finishes early (the first 0.4 of the text tween's 5
+ * — see its own comment) so the line reads clearly against white for
+ * nearly the whole crossing, legibility over lingering in the handoff;
+ * --brackets-opacity fades in gently across the WHOLE pass instead, so
+ * they still ease into view rather than snapping straight to visible the
+ * instant this pin begins (opacity's CSS fallback for an unset custom
+ * property is 1, so without that fade that's exactly what would happen).
  *
  * The black start value is a FIXED colour (resolved from --black), never a
  * snapshot of --page-bg's live value — reading the live value here was an
@@ -157,32 +158,40 @@ export function MoodSection() {
       // VenueReveal's own overlay scrub ends at (never a live/current
       // reading — see the doc comment above for why that went stale) so
       // the two hand off exactly, regardless of scroll direction or how
-      // many times the visitor has crossed back and forth over either. Same
-      // duration as the text tween (5) — NOT a quick early fade — so it
-      // reads as one continuous, gradual brightening across the whole pass
-      // rather than a flash: still fully black when the line starts
-      // arriving, still visibly mid-fade while it crosses, settled white
-      // only right as the pin itself releases.
+      // many times the visitor has crossed back and forth over either. A
+      // short duration (0.4 of the text tween's 5) so the backdrop is
+      // already white well before the line is legible — the line needs to
+      // read clearly as it crosses, not fight a still-dark backdrop for
+      // contrast. Short is deliberate, not a leftover: a full-pass fade
+      // here left the text hard to read against grey for most of the
+      // crossing.
       tl.fromTo(
         document.documentElement,
         { "--page-bg": blackResolved },
-        { "--page-bg": "#ffffff", ease: "none", duration: 5 },
+        { "--page-bg": "#ffffff", ease: "none", duration: 0.4 },
         0,
       );
       // BracketsField's 3D brackets fade in over the SAME span, 0 → 1 —
       // VenueReveal's own trigger hands off at exactly 0 when its pin
       // releases (see there), so this picks up from a clean, matching
-      // baseline. Without this they'd otherwise snap straight to fully
-      // visible the instant this pin begins (the CSS custom property's
-      // unset/guaranteed-invalid fallback is 1) — a hard pop right as the
-      // still-black backdrop appears. Fading them in alongside the black →
-      // white brightening instead reads as one continuous reveal.
-      tl.fromTo(
-        document.documentElement,
-        { "--brackets-opacity": 0 },
-        { "--brackets-opacity": 1, ease: "none", duration: 5 },
-        0,
-      );
+      // baseline.
+      //
+      // `.to()`, deliberately NOT `.fromTo()`: a `fromTo` here would default
+      // to `immediateRender: true` on its "from" (0) — applied the instant
+      // this component mounts, i.e. on page load, before the visitor has
+      // scrolled anywhere near VenueReveal. Since --brackets-opacity is a
+      // single global custom property shared by the whole page, that forced
+      // it to 0 site-wide from the very top of the page — the brackets
+      // backdrop was invisible everywhere above this section on a fresh
+      // load, only "fixed" once VenueReveal's own onLeaveBack happened to
+      // fire from scrolling back up past it. `.to()` instead picks up
+      // whatever the property's CURRENT value already is once this tween
+      // actually starts playing — which, in the normal top-to-bottom scroll
+      // order, is exactly the 0 VenueReveal's onLeave already set — without
+      // ever asserting 0 as a blanket default for scroll positions before
+      // that (the page's actual top, where it should stay the CSS
+      // default's 1).
+      tl.to(document.documentElement, { "--brackets-opacity": 1, ease: "none", duration: 5 }, 0);
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );

@@ -74,8 +74,13 @@ export function ExpectShowcase() {
         split = SplitText.create(headingRef.current, { type: "chars", mask: "chars" });
         gsap.set(split.chars, { yPercent: 130, opacity: 0 });
         ScrollTrigger.create({
-          trigger: wrapRef.current,
-          start: "top 85%",
+          // The heading itself, not the whole (full-screen-tall) section —
+          // it sits vertically centred inside `stage`, so triggering off the
+          // SECTION's top fired while the heading was still well below the
+          // viewport, and the reveal was long done by the time anyone
+          // actually scrolled to where the heading was visible.
+          trigger: headingRef.current,
+          start: "top 80%",
           once: true,
           onEnter: () =>
             gsap.to(split!.chars, {

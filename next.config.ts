@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-   allowedDevOrigins: ['192.168.1.37'],
+   allowedDevOrigins: ['192.168.1.*'],
   images: {
     /*
      * AVIF first, WebP as fallback. Measured on the archive photos at w=1200:
