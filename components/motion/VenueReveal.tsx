@@ -26,6 +26,16 @@ const ART_RATIO = 1773 / 1167;
  *  (the rest comes off the bottom — plain roadway). */
 const TOP_CROP_BIAS = 0.15;
 
+/** The pin's three held phases, in %-of-viewport scroll distance each
+ *  consumes — HOLD (dead zone), SWAP ("Location" ⇄ "Save the Date"), then
+ *  OVERLAY (the black panel's rise). Module-level (not effect-local)
+ *  because the brackets-fade ScrollTrigger needs TOTAL_VH too, and it's
+ *  created before the pin itself — see its own `end` for why. */
+const HOLD_VH = 20;
+const SWAP_VH = 35;
+const OVERLAY_VH = 70;
+const TOTAL_VH = HOLD_VH + SWAP_VH + OVERLAY_VH;
+
 /** The neon-glow wash, off and at full brightness — a plain colour (not a
  *  filter) blended over the PHOTO now, not the sketch. It used to be a
  *  drop-shadow filter on the sketch itself, which meant re-rasterizing and
@@ -125,16 +135,25 @@ function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
  *     a settle beat (room for the autoplay above to finish before anything
  *     else reacts to scroll), then the reversible "Location" ⇄
  *     "Save the Date" swap (scroll past it, see the date; scroll back, see
- *     "Location" again), then a pastel-blue overlay panel that rises up
- *     from the bottom and covers the still-pinned photo entirely.
- *  4. Only once that overlay fully covers the frame does the pin release —
- *     ordinary scrolling resumes with FAQ next, already over a matching
- *     pastel-blue backdrop, so the handoff reads as continuous rather than
- *     a jump cut.
+ *     "Location" again), then a BLACK overlay panel that rises up from the
+ *     bottom and covers the still-pinned (still pastel-blue) photo
+ *     entirely — a visible black-over-blue cover, not a blend. --page-bg
+ *     (the heading strip has no background of its own, so this is visible
+ *     the whole time, not just at the edges) stays pastel blue for as long
+ *     as the overlay hasn't COMPLETELY covered the frame yet, and flips to
+ *     match, black, the instant it has — reversible on every scroll tick,
+ *     forward or back.
+ *  4. Only once that overlay has completely covered the frame (and
+ *     --page-bg has flipped to match) does the pin release — ordinary
+ *     scrolling resumes with MoodSection next already over a matching
+ *     black backdrop, so the handoff reads as continuous, not a jump cut.
+ *     MoodSection picks the baton up from there for the black → white
+ *     handoff that closes it out.
  *
  * It also fades BracketsField's 3D brackets out for as long as this section
  * (including its whole pinned/overlay run) is anywhere near the viewport,
- * so they don't float behind the photo.
+ * so they don't float behind the photo or show through the blue heading
+ * strip while the section is active.
  *
  * Under reduced-motion / lite it degrades to the settled state: heading up
  * top, photo visible, venue caption visible, --theme/--page-bg jumped
@@ -267,13 +286,39 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // anywhere near the viewport, so it never floats behind the photo or
       // the flat backdrop this section otherwise leaves fully exposed (it
       // paints no background of its own — see the component doc comment).
+      //
+      // end is "bottom+=TOTAL_VH% top", NOT the plain "bottom top" a
+      // non-pinned trigger would use: wrapRef's own unpinned height is ONE
+      // viewport (h-dvh), but the pin below holds it on screen for a
+      // further TOTAL_VH% of scroll beyond that via a separate pin-spacer —
+      // extra distance this trigger's own geometry knows nothing about. A
+      // plain "bottom top" end is reached (and brackets restored to opacity
+      // 1) the moment wrapRef's un-pinned bottom would have passed the
+      // viewport, which happens WHILE the pin is still holding Location on
+      // screen (mid swap/overlay) — the brackets-floating-over-the-overlay
+      // bug this fixes. Percentage offsets in ScrollTrigger position
+      // strings resolve against the TRIGGER element's own height, which
+      // happens to equal one viewport height here (h-dvh again), so
+      // TOTAL_VH% of wrapRef's height is exactly TOTAL_VH% of the
+      // viewport — the same extra distance the pin itself consumes.
+      // onLeave hands off at 0, NOT 1: forcing straight to fully visible
+      // the instant the pin releases is exactly the "brackets suddenly pop
+      // in" jump this is meant to avoid. MoodSection's own pin picks up
+      // from this same 0 and eases --brackets-opacity up to 1 in lockstep
+      // with its black → white fade (see there) — so from the visitor's
+      // side the brackets fade into existence as the backdrop brightens,
+      // one continuous reveal, rather than snapping in ahead of it.
+      // onLeaveBack still restores 1 immediately: scrolling back UP past
+      // Location into the dark About section, brackets belong there at
+      // full visibility right away, no fade to wait for.
       const setBracketsOpacity = gsap.quickSetter(document.documentElement, "--brackets-opacity");
       ScrollTrigger.create({
         trigger: wrapRef.current,
         start: "top bottom",
-        end: "bottom top",
+        end: `bottom+=${TOTAL_VH}% top`,
+        invalidateOnRefresh: true,
         onUpdate: (self) => setBracketsOpacity(self.isActive ? 0 : 1),
-        onLeave: () => setBracketsOpacity(1),
+        onLeave: () => setBracketsOpacity(0),
         onLeaveBack: () => setBracketsOpacity(1),
       });
 
@@ -287,6 +332,14 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const setPageBg = gsap.quickSetter(document.documentElement, "--page-bg");
       const blueResolved = resolveColor("var(--blue-pastel)");
       const inkResolved = resolveColor("var(--ink)");
+      // The second handoff: --page-bg hard-flips to this the instant the
+      // pastel-blue overlay below has COMPLETELY covered the frame, and
+      // back to blueResolved for as long as it hasn't — see overlayProgress
+      // in the pin's onUpdate (and onLeave/onLeaveBack, which cover the
+      // two instants outside onUpdate's own [0,1] range). MoodSection.tsx
+      // picks up from exactly this value for its own black → white
+      // handoff.
+      const blackResolved = resolveColor("var(--black)");
       ScrollTrigger.create({
         trigger: wrapRef.current,
         start: "top bottom",
@@ -520,27 +573,22 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // REVEAL is done before scrolling can resume — it doesn't give the
       // visitor a moment to actually look at the settled result before the
       // very first pixel of scroll flips it to "Save the Date". HOLD_VH
-      // below is that moment: scrolling works immediately once the lock
-      // lifts, but the swap doesn't fire until past it. Scroll input from
-      // here drives self.progress through three phases (as a fraction of
-      // HOLD_VH/SWAP_VH/OVERLAY_VH below):
+      // (module-level, above) is that moment: scrolling works immediately
+      // once the lock lifts, but the swap doesn't fire until past it.
+      // Scroll input from here drives self.progress through three phases
+      // (as a fraction of HOLD_VH/SWAP_VH/OVERLAY_VH):
       //   1. HOLD — pure dead zone, "Location" stays on screen.
       //   2. SWAP — reversibly swaps "Location" for "Save the Date" (and the
       //      venue name for the date), exactly the same reversible
       //      swapText() mechanism as before, just re-timed to live inside
       //      the pin instead of the open page scroll.
       //   3. OVERLAY — "after this animation the image stays put... a[n]
-      //      overlay will scroll" over it instead: a pastel-blue panel
-      //      (matching the page's own settled backdrop — see body's
-      //      `background: var(--page-bg)` in globals.css) rises from the
-      //      bottom of the still-pinned frame and fully covers it. Only
-      //      once it does does the pin release, so FAQ (next in the page)
-      //      resumes ordinary scrolling over a backdrop that already
-      //      matches — no jump cut.
-      const HOLD_VH = 20;
-      const SWAP_VH = 35;
-      const OVERLAY_VH = 70;
-      const TOTAL_VH = HOLD_VH + SWAP_VH + OVERLAY_VH;
+      //      overlay will scroll" over it instead: a BLACK panel rises from
+      //      the bottom of the still-pinned frame and fully covers it (see
+      //      the overlay's own JSX for why black, not the page's pastel-
+      //      blue). Only once it does does the pin release, so MoodSection
+      //      (next in the page) resumes ordinary scrolling over a backdrop
+      //      that already matches — no jump cut.
       const SWAP_AT = HOLD_VH / TOTAL_VH;
       const OVERLAY_AT = (HOLD_VH + SWAP_VH) / TOTAL_VH;
       // swapText()'s rise-out/rise-in takes ~0.9s of real time, but scroll
@@ -624,6 +672,15 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           const overlayY = gsap.utils.interpolate(100, 0, overlayProgress);
           setOverlayY(overlayY);
           setParticlesActive(overlayY < 99);
+          // A hard flip, not a scrub: the heading strip up top has no
+          // background of its own (see the JSX) — it shows --page-bg
+          // straight through — so this stays visible (and has to stay
+          // correct) through the whole HOLD/SWAP run, not just at the two
+          // pin boundaries. Pastel blue for as long as the overlay hasn't
+          // COMPLETELY covered the frame yet, black the instant it has;
+          // reversible for free since this runs on every scroll tick,
+          // forward or back.
+          setPageBg(overlayProgress >= 1 ? blackResolved : blueResolved);
         },
         // onUpdate only fires while progress is inside [0, 1] — the instant
         // scroll carries it past either end, GSAP stops calling it (that's
@@ -639,12 +696,14 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           setParticlesActive(true);
           swapState = "date";
           applySwapVisuals(true);
+          setPageBg(blackResolved);
         },
         onLeaveBack: () => {
           setOverlayY(100);
           setParticlesActive(false);
           swapState = "location";
           applySwapVisuals(false);
+          setPageBg(blueResolved);
         },
       });
     },
@@ -784,17 +843,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
 
       {/* Overlay panel: rises from the bottom to fully cover the still-
           pinned frame at the end of the held sequence (see the pin's
-          OVERLAY phase in the effect above). Coloured to match the page's
-          own settled backdrop (body's `background: var(--page-bg)`) so
-          releasing the pin into ordinary FAQ scrolling reads as continuous,
-          not a jump cut. Purely a transition device — nothing here is
-          informational, so it's hidden from assistive tech. */}
+          OVERLAY phase in the effect above). BLACK — deliberately not
+          pastel blue like the rest of Location: this panel rising IS the
+          "turn black" cue, visibly covering the still-blue frame beneath
+          it (heading strip, photo) rather than blending into it. --page-bg
+          itself stays pastel blue for as long as this hasn't finished
+          covering (see overlayProgress in the pin's onUpdate) and only
+          flips to match, black, once it has. */}
       {!staticBaseline && (
         <div
           ref={overlayRef}
           aria-hidden
           className="pointer-events-none absolute inset-0 z-30"
-          style={{ backgroundColor: "var(--blue-pastel)" }}
+          style={{ backgroundColor: "var(--black)" }}
         >
           {/* Brand-shape particle vortex, reskinned from GSAP's own "canvas
               particles" demo — streams inward toward the center for as long

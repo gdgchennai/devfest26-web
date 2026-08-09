@@ -98,6 +98,21 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     if (!isHistoryNav) instance.scrollTo(0, { immediate: true, force: true });
     const tick = (time: number) => instance.raf(time * 1000);
     instance.on("scroll", ScrollTrigger.update);
+    // The other half of the integration, and it was missing: Lenis measures
+    // its own scroll limit (document height) once and caches it, and the
+    // homepage's pinned sections (VenueReveal, MoodSection, ExpectShowcase)
+    // each insert a pin-spacer — hundreds to thousands of px of NEW document
+    // height — dynamically, well after Lenis's first measurement. Without
+    // this, Lenis's cached limit goes stale the moment a spacer grows the
+    // page past it: it clamps scrolling to the stale (shorter) limit and
+    // stops responding to wheel/touch input, while the DOM's real
+    // scrollHeight is already taller — reading as "scrolling just stops
+    // working" partway down the page, worse the more pinned content
+    // precedes the stuck point. `refresh` fires on every ScrollTrigger
+    // recalculation (including each pin's own creation), so this keeps
+    // Lenis's limit in step continuously rather than once at load.
+    const onRefresh = () => instance.resize();
+    ScrollTrigger.addEventListener("refresh", onRefresh);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
     lenisRef.current = instance;
@@ -105,6 +120,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.clearTimeout(handBack);
       if ("scrollRestoration" in history) history.scrollRestoration = "auto";
+      ScrollTrigger.removeEventListener("refresh", onRefresh);
       gsap.ticker.remove(tick);
       instance.destroy();
       lenisRef.current = null;

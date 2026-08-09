@@ -1,14 +1,13 @@
 import { siteConfig } from "@/site.config";
 import { speakers } from "@/lib/content";
 import { getBrandShapes } from "@/lib/brandShapes";
-import { Section } from "@/components/Section";
-import { Faq } from "@/components/Faq";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { VenueReveal } from "@/components/motion/VenueReveal";
+import { MoodSection } from "@/components/motion/MoodSection";
 import { TrackCards } from "@/components/TrackCards";
 import { SpeakerWall } from "@/components/SpeakerWall";
 import { TicketStub } from "@/components/TicketStub";
@@ -68,9 +67,7 @@ export default function Home() {
             VenueReveal for why <Section> itself is untouched). */}
         <VenueReveal brandShapes={getBrandShapes()} />
 
-        <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
-          <Faq />
-        </Section>
+        <MoodSection />
 
         <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
           <TicketStub />
