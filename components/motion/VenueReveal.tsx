@@ -851,7 +851,8 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 href={siteConfig.venue.mapUrl}
                 target="_blank"
                 rel="noreferrer"
-                size="sm"
+                size="lg"
+                textClassName="text-white"
                 className="mt-3"
               >
                 <RollingText>Get directions →</RollingText>
