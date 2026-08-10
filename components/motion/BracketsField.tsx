@@ -135,14 +135,18 @@ function buildGeometry(
   return geometry;
 }
 
-// The 3D lockup settles on the HOMEPAGE footer, which by then has flipped to
-// the light theme (see WhyJoin), so its wordmark must be dark on white. This
-// -light variant is the -dark file's #F0F0F0 wordmark recoloured to #131313
-// (the brand's --orig-black); the white pill and its black "Chennai" letters
-// are untouched. buildLogo groups paths by fill and gives each role its own
-// extrusion (see there). The flat <img> in FooterLogo stays on the -dark
-// variant — it only shows on the dark footers of other routes.
-const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-light.svg";
+// The 3D lockup settles on the HOMEPAGE footer, which now stays on the
+// page's permanent black (see MoodSection's doc comment — the
+// black → white → pastel-yellow handoffs this settle was originally tuned
+// for are gone; --page-bg lands on black at Location and never moves
+// again), so its wordmark must be light on black. This -dark variant draws
+// it in #F0F0F0 (near-white); the white pill and its black "Chennai"
+// letters are untouched — same geometry either way, only the wordmark fill
+// differs between this and -light (#131313, for a light footer). buildLogo
+// groups paths by fill and gives each role its own extrusion (see there).
+// FooterLogo's own flat <img> fallback (other routes, reduced-motion/lite)
+// already uses this same -dark file for the same reason.
+const LOGO_FILE = "/brand-assets/devfest-logo-wo-brackets-dark.svg";
 /** wo-brackets viewBox height, for proportional extrude depths. */
 const LOGO_VBH = 531;
 

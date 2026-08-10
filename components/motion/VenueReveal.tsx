@@ -248,23 +248,24 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
     // re-run once that flips, or the cover-fit box never gets sized at all.
   }, [staticBaseline]);
 
-  // Reduced-motion / lite: no reveal will ever play to hang the handoff off
-  // of, so jump --theme and --page-bg straight to their settled values on
-  // mount instead of leaving the page stuck dark for FAQ/the ticket stub
-  // below, which need light text over a light backdrop.
+  // Reduced-motion / lite: no reveal will ever play to hang the --page-bg
+  // handoff off of, so pin it to --orig-black on mount instead of leaving it
+  // stuck on whatever the reveal's mid-scrub default would otherwise be.
+  // --theme is deliberately left alone (stays dark, 0) — lite keeps the
+  // site's normal dark backdrop rather than flipping to the reveal's settled
+  // light theme.
   //
   // Reads the preference straight from shouldUseStaticBaseline(), NOT from
   // the `staticBaseline` render value — that value is the SSR-safe `true`
   // default on the very first client render and only settles a render later
   // (see useClientValue / MotionProvider.tsx's own copy of this warning), so
-  // gating on it here would flash --theme/--page-bg to their settled values
-  // for EVERY visitor on every load, motion-enabled or not, before silently
-  // never undoing it (there's nothing to "undo" a style mutation once made).
+  // gating on it here would flash --page-bg to its settled value for EVERY
+  // visitor on every load, motion-enabled or not, before silently never
+  // undoing it (there's nothing to "undo" a style mutation once made).
   useEffect(() => {
     if (!shouldUseStaticBaseline()) return;
     const root = document.documentElement;
-    root.style.setProperty("--theme", "1");
-    root.style.setProperty("--page-bg", resolveColor("var(--blue-pastel)"));
+    root.style.setProperty("--page-bg", resolveColor("var(--orig-black)"));
   }, []);
 
   useGSAP(

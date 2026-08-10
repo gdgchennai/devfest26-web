@@ -124,6 +124,20 @@
   --red-pastel: #f8d8d8;
 }
 
+/*
+ * Lite mode's background: fully --orig-black (#131313), not the site's
+ * usual pure --ink black. `html.lite` is set by the pre-paint bridge script
+ * in app/layout.tsx (mirrors isLiteMode()) so this applies before first
+ * paint. --page-bg drives BracketsField's fixed backdrop; the body rule
+ * covers the same colour underneath it.
+ */
+html.lite {
+  --page-bg: var(--orig-black);
+}
+html.lite body {
+  background-color: var(--orig-black);
+}
+
 @theme inline {
   --color-ink: var(--ink);
   --color-paper: var(--paper);

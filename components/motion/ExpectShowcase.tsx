@@ -12,6 +12,7 @@ import { FALLBACK_BG } from "@/components/Frame";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -167,10 +168,31 @@ export function ExpectShowcase() {
         );
       }
 
+      // Publish this section's pin geometry for the floating scroll-cue button
+      // (see ScrollCueController): it shows a right-arrow instead of a
+      // down-arrow while this section is pinned, and needs to know how many
+      // cards there are and which absolute scrollY centres each one.
+      const trigger = tween.scrollTrigger!;
+      const cardCount = EXPECT_CARDS.length;
+      setHorizontalCue({
+        el: stage,
+        cardCount,
+        activeIndex: () => {
+          if (cardCount <= 1) return 0;
+          return Math.round(trigger.progress * (cardCount - 1));
+        },
+        scrollYForCard: (index) => {
+          if (cardCount <= 1) return trigger.start;
+          const clamped = Math.min(cardCount - 1, Math.max(0, index));
+          return trigger.start + (clamped / (cardCount - 1)) * (trigger.end - trigger.start);
+        },
+      });
+
       return () => {
         tween.kill();
         headingExit?.kill();
         split?.revert();
+        setHorizontalCue(null);
       };
     },
     { scope: wrapRef, dependencies: [staticBaseline] },

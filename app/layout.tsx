@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { siteConfig } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
+import { ScrollCueController } from "@/components/motion/ScrollCue";
 import { SkipLink } from "@/components/SkipLink";
 
 /*
@@ -95,7 +96,7 @@ export default function RootLayout({
             the boot preloader on a ?lite=0 load that then plays the full intro.
             Inlined rather than imported: it must run before any module does. */}
         <Script id="intro-bridge" strategy="beforeInteractive">
-          {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce||lite){document.documentElement.classList.add('no-boot');}}catch(e){}})();`}
+          {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce||lite){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
         </Script>
         <div id="boot-preloader" aria-hidden="true">
           <svg viewBox="0 250 1728 535" xmlns="http://www.w3.org/2000/svg">
@@ -115,6 +116,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <ScrollCueController />
         </MotionProvider>
       </body>
     </html>

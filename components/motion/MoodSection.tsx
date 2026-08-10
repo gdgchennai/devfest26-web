@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,21 +8,6 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-/** Resolves a `var(...)` (or any CSS colour expression) to the concrete
- *  colour the browser would paint it as, via a throwaway probe element —
- *  GSAP can only tween between concrete colours, not raw custom-property
- *  references. Same technique VenueReveal uses for its own ink → pastel-
- *  blue handoff. */
-function resolveColor(expr: string): string {
-  const probe = document.createElement("span");
-  probe.style.color = expr;
-  probe.style.display = "none";
-  document.body.appendChild(probe);
-  const resolved = getComputedStyle(probe).color;
-  document.body.removeChild(probe);
-  return resolved;
-}
 
 /** How much further the line keeps travelling left, past the point its
  *  trailing edge first touches the right side of the frame — a fraction of
@@ -44,34 +29,37 @@ const EXTRA_TRAVEL_VW = 0.3;
  *
  * No opaque backdrop of its own — deliberately. BracketsField's 3D brackets
  * are a fixed layer behind every section (see there); a section-local cover
- * would hide them. Instead this picks up TWO custom properties exactly
- * where VenueReveal's own pinned overlay leaves them the instant its pin
- * releases — --page-bg at black (it scrubs pastel blue → black in lockstep
- * with covering the Location frame) and --brackets-opacity at 0 (kept
- * there for its whole pinned run so nothing floats behind the photo/
- * overlay) — and fades both up from there, but on deliberately DIFFERENT
- * schedules: --page-bg finishes early (the first 0.4 of the text tween's 5
- * — see its own comment) so the line reads clearly against white for
- * nearly the whole crossing, legibility over lingering in the handoff;
- * --brackets-opacity fades in gently across the WHOLE pass instead, so
- * they still ease into view rather than snapping straight to visible the
- * instant this pin begins (opacity's CSS fallback for an unset custom
- * property is 1, so without that fade that's exactly what would happen).
+ * would hide them. --page-bg is left completely alone here: VenueReveal's
+ * own pinned overlay already lands it on black the instant its pin
+ * releases, and black is the SETTLED colour for the rest of the page now
+ * (MoodSection, ShowMoodSection, SeeYouThereSection, the footer) — there is
+ * no further --page-bg handoff to run.
  *
- * The black start value is a FIXED colour (resolved from --black), never a
- * snapshot of --page-bg's live value — reading the live value here was an
- * earlier bug: ScrollTrigger re-renders a scrubbed tween's start state
- * every time scroll crosses back over it, so a one-time snapshot went
- * stale the moment the visitor scrolled back up, permanently stamping
- * whatever it had captured over Location's blue.
+ * What this section DOES still own is --theme, and only for the reason
+ * --page-bg no longer needs owning: this section's own heading reads
+ * `text-paper`, and --theme is what --paper is mixed from (see
+ * globals.css) — at the --theme:1 VenueReveal's own light-backdrop scrub
+ * left it at (correct THERE: --paper is near-black, read over Location's
+ * pastel-blue photo), that same near-black would be unreadable against the
+ * black backdrop here. Flipping --theme back to 0 the instant this pin's
+ * scroll range is entered — reversible via onLeaveBack, exactly the same
+ * shape as VenueReveal's own --brackets-opacity onLeave/onLeaveBack pair —
+ * makes --paper near-white again for this section onward, and restores
+ * VenueReveal's own --theme:1 the moment the visitor scrolls back up past
+ * this point, so "Location"/"Save the Date" (also `text-paper`) stays
+ * correct if revisited. --brackets-opacity still fades in gently across
+ * the WHOLE pass (unrelated to either of these — see its own comment
+ * below), so the brackets still ease into view rather than snapping
+ * straight to visible the instant this pin begins.
  *
  * Sized/weighted to match "About DevFest" (see ExpectShowcase) exactly —
  * same clamp() and font-bold — so the two read as the same voice restated
  * later in the page.
  *
  * Under reduced-motion / lite: settled immediately, line centred and
- * static, --page-bg already white — motion embellishment only, nothing
- * informational.
+ * static. No --theme flip here either — VenueReveal's own reduced-motion
+ * path settles on pastel blue (not black), where --theme:1 is already the
+ * correct/readable state, so this is left untouched for that path.
  */
 export function MoodSection() {
   const wrapRef = useRef<HTMLElement>(null);
@@ -80,17 +68,6 @@ export function MoodSection() {
 
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
 
-  // Reduced-motion / lite: no scroll-driven pass will ever run to hang the
-  // --page-bg handoff off of, so jump it straight to white on mount instead
-  // of leaving the shared backdrop stuck at Location's pastel blue for
-  // every section from here on. Runs after VenueReveal's own mount-time
-  // jump to blue (VenueReveal is the earlier sibling, so its effect commits
-  // first), so white is what actually sticks.
-  useEffect(() => {
-    if (!shouldUseStaticBaseline()) return;
-    document.documentElement.style.setProperty("--page-bg", "#ffffff");
-  }, []);
-
   useGSAP(
     () => {
       if (staticBaseline) return;
@@ -98,12 +75,11 @@ export function MoodSection() {
       const stage = stageRef.current;
       const text = textRef.current;
 
-      // VenueReveal's own pinned overlay has already scrubbed --page-bg to
-      // this exact value by the time its pin releases (see there) — this is
-      // just where that scrub ends, not a fresh read of "whatever it
-      // currently is" (see the doc comment above for why that distinction
-      // is the whole fix).
-      const blackResolved = resolveColor("var(--black)");
+      // See the component doc comment above for why --theme, not --page-bg,
+      // is what this section owns now: flips to 0 (near-white --paper) the
+      // instant this pin's scroll range is entered, back to 1 (VenueReveal's
+      // own correct value) if scrolled back above it.
+      const setTheme = gsap.quickSetter(document.documentElement, "--theme");
 
       // The line starts fully off-screen right and travels its own
       // rendered width, plus a bit more (EXTRA_TRAVEL_VW) so it keeps
@@ -120,6 +96,8 @@ export function MoodSection() {
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          onEnter: () => setTheme(0),
+          onLeaveBack: () => setTheme(1),
         },
       });
 
@@ -152,23 +130,6 @@ export function MoodSection() {
           ease: "none",
           duration: 5,
         },
-        0,
-      );
-      // Black → white. Starts from the SAME fixed blackResolved constant
-      // VenueReveal's own overlay scrub ends at (never a live/current
-      // reading — see the doc comment above for why that went stale) so
-      // the two hand off exactly, regardless of scroll direction or how
-      // many times the visitor has crossed back and forth over either. A
-      // short duration (0.4 of the text tween's 5) so the backdrop is
-      // already white well before the line is legible — the line needs to
-      // read clearly as it crosses, not fight a still-dark backdrop for
-      // contrast. Short is deliberate, not a leftover: a full-pass fade
-      // here left the text hard to read against grey for most of the
-      // crossing.
-      tl.fromTo(
-        document.documentElement,
-        { "--page-bg": blackResolved },
-        { "--page-bg": "#ffffff", ease: "none", duration: 0.4 },
         0,
       );
       // BracketsField's 3D brackets fade in over the SAME span, 0 → 1 —

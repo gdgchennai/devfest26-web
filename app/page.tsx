@@ -29,18 +29,33 @@ export default function Home() {
             instead of taking down the whole homepage. The fallback is
             StaticHero, not CurvedMarqueeHero: a fallback that itself needs
             WebGL to show any content is no fallback at all. */}
-        <SectionBoundary label="hero" fallback={<StaticHero />}>
-          <HeroSection />
-        </SectionBoundary>
+        {/*
+         * `data-scroll-cue-section` on every top-level section below marks
+         * the boundaries ScrollCueController (see components/motion/ScrollCue.tsx)
+         * walks to find "the next section" for its floating down/right arrow.
+         * Plain wrapper divs, deliberately: they add no styling of their own
+         * and sit outside every section's internal refs, so GSAP's pinning
+         * (ExpectShowcase, VenueReveal, MoodSection all pin an element INSIDE
+         * their own <section>) is completely unaffected by their presence.
+         */}
+        <div data-scroll-cue-section>
+          <SectionBoundary label="hero" fallback={<StaticHero />}>
+            <HeroSection />
+          </SectionBoundary>
+        </div>
 
         {/* A short beat between the hero and "About DevFest": a two-line
             question wiped into view, line by line. */}
-        <ReadySection />
+        <div data-scroll-cue-section>
+          <ReadySection />
+        </div>
 
         {/* The dark "What to expect" section, over the 3D brand-shape backdrop.
             Carries the load-bearing `id="after-hero"` (skip link + hero escape
             hatch target); degrades to a static row under reduced-motion/lite. */}
-        <ExpectShowcase />
+        <div data-scroll-cue-section>
+          <ExpectShowcase />
+        </div>
 
         {/* "Why join" is folded into "About DevFest" above and not rendered
             here — its reasons UI is unused, and its one load-bearing side
@@ -72,13 +87,21 @@ export default function Home() {
             caption, and a save-the-date beat follow. Not built on <Section> —
             it's a full-bleed stage, not a padded content block (see
             VenueReveal for why <Section> itself is untouched). */}
-        <VenueReveal brandShapes={getBrandShapes()} />
+        <div data-scroll-cue-section>
+          <VenueReveal brandShapes={getBrandShapes()} />
+        </div>
 
-        <MoodSection />
+        <div data-scroll-cue-section>
+          <MoodSection />
+        </div>
 
-        <ShowMoodSection />
+        <div data-scroll-cue-section>
+          <ShowMoodSection />
+        </div>
 
-        <SeeYouThereSection />
+        <div data-scroll-cue-section>
+          <SeeYouThereSection />
+        </div>
 
         {/* Hiding this for the time being. Don't remove. This needs to be repurposed differently
         <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">

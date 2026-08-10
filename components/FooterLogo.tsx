@@ -96,10 +96,11 @@ export function FooterLogo({
         <img
           id="footer-logo"
           /* The -dark variant: the supplied lockup draws the DevFest wordmark
-             in #1E1E1E, which was legible while the page flipped to a light
-             theme behind the footer. The site is dark-only now, so on #000 the
-             wordmark rendered near-invisible — only its gold fake-extrusion
-             was showing. Same geometry, wordmark recoloured to --paper. */
+             in #F0F0F0 (near-white) — the file meant for a dark backdrop,
+             which is what the footer stays on now (--page-bg settles on
+             black at Location and never moves again). See BracketsField's
+             own LOGO_FILE for the -light counterpart (dark wordmark, for a
+             light footer) this deliberately does NOT use. */
           src="/brand-assets/devfest-logo-wo-brackets-dark.svg"
           alt="DevFest Chennai"
           className="h-full w-full"
