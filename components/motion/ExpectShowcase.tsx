@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -13,6 +13,7 @@ import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { GlowButton } from "@/components/GlowButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -38,6 +39,121 @@ const EXPECT_CARDS = (() => {
   });
 })();
 
+/** A single chevron, reused left/right by flipping it — same mark either way. */
+function ArrowGlyph({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      aria-hidden="true"
+      style={{ transform: direction === "left" ? "rotate(90deg)" : "rotate(-90deg)" }}
+    >
+      <path
+        d="M5 9l7 7 7-7"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Lite's version of this section: no GSAP, no scroll pin — a click-to-slide
+ * carousel of straight-edged cards, one in frame at a time. Photos are kept
+ * here (unlike the fallback-colour panels lite uses elsewhere): this is only
+ * four `next/image` requests, sized to the card rather than the raw
+ * originals, so the section reads as designed rather than flat colour.
+ */
+function ExpectCarousel() {
+  const [index, setIndex] = useState(0);
+
+  const canPrev = index > 0;
+  const canNext = index < EXPECT_CARDS.length - 1;
+
+  return (
+    <div className="relative z-10 mx-auto max-w-6xl px-6 py-24 sm:px-10">
+      <h2 className="text-left text-[clamp(1.75rem,8vw,5rem)] font-bold leading-none tracking-tight">
+        About DevFest
+      </h2>
+
+      <div className="relative mt-12">
+        <div className="overflow-hidden rounded-2xl border border-paper/15">
+          <div
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${index * 100}%)` }}
+          >
+            {EXPECT_CARDS.map(({ item, photo }) => (
+              <article key={item.title} className="relative h-[60vh] w-full shrink-0 overflow-hidden md:h-[70vh]">
+                <div className="absolute inset-0">
+                  {photo && (
+                    <Image
+                      src={photo.src}
+                      alt=""
+                      aria-hidden
+                      fill
+                      sizes="(min-width: 1024px) 65vw, (min-width: 768px) 80vw, 100vw"
+                      className="object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+                </div>
+                <div className="relative flex h-full flex-col justify-end p-8 sm:p-12">
+                  <h3 className="text-4xl font-semibold tracking-tight sm:text-5xl">{item.title}</h3>
+                  <p className="mt-3 max-w-md text-lg text-paper/85 sm:text-xl">{item.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <GlowButton
+            shape="circle"
+            size="md"
+            onClick={() => setIndex((i) => Math.max(0, i - 1))}
+            textClassName={canPrev ? "text-paper" : "text-paper/30"}
+            className={canPrev ? "" : "pointer-events-none"}
+          >
+            <span className="sr-only">Previous card</span>
+            <ArrowGlyph direction="left" />
+          </GlowButton>
+
+          <div className="flex items-center gap-2" role="tablist" aria-label="About DevFest cards">
+            {EXPECT_CARDS.map(({ item }, i) => (
+              <button
+                key={item.title}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={item.title}
+                onClick={() => setIndex(i)}
+                className={`h-2 w-2 rounded-full transition-colors ${
+                  i === index ? "bg-paper" : "bg-paper/30 hover:bg-paper/50"
+                }`}
+              />
+            ))}
+          </div>
+
+          <GlowButton
+            shape="circle"
+            size="md"
+            onClick={() => setIndex((i) => Math.min(EXPECT_CARDS.length - 1, i + 1))}
+            textClassName={canNext ? "text-paper" : "text-paper/30"}
+            className={canNext ? "" : "pointer-events-none"}
+          >
+            <span className="sr-only">Next card</span>
+            <ArrowGlyph direction="right" />
+          </GlowButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * The dark "What to expect" section that follows the hero: a pinned panel whose
  * leaning card row scrolls horizontally as the visitor scrolls down. This runs
@@ -47,7 +163,9 @@ const EXPECT_CARDS = (() => {
  * shows behind it.
  *
  * Carries the load-bearing `id="after-hero"` (skip link + hero escape target).
- * Under reduced-motion / lite / save-data it degrades to a static row.
+ * Under reduced-motion / lite / save-data it degrades to a static row — lite
+ * specifically swaps in `<ExpectCarousel>` (see above) instead of just
+ * freezing this section's own animated markup.
  */
 export function ExpectShowcase() {
   const wrapRef = useRef<HTMLElement>(null);
@@ -197,6 +315,14 @@ export function ExpectShowcase() {
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );
+
+  if (staticBaseline) {
+    return (
+      <section id="after-hero" className="relative overflow-hidden text-paper">
+        <ExpectCarousel />
+      </section>
+    );
+  }
 
   return (
     <section id="after-hero" ref={wrapRef} className="relative overflow-hidden text-paper">

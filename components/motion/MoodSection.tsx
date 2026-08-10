@@ -157,6 +157,11 @@ export function MoodSection() {
     { scope: wrapRef, dependencies: [staticBaseline] },
   );
 
+  // Reduced-motion/lite: this beat IS the scroll-scrubbed marquee — a static
+  // render is just the same six words sitting alone on an otherwise empty
+  // screen, so skip the section entirely instead.
+  if (staticBaseline) return null;
+
   return (
     <section ref={wrapRef} className="relative overflow-hidden">
       {/* h-dvh, NOT h-screen (100vh): on mobile, the browser chrome

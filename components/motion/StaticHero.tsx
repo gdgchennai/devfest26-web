@@ -1,5 +1,6 @@
-import { Button, inertButtonClasses } from "@/components/Button";
+import { inertButtonClasses } from "@/components/Button";
 import { Eyebrow } from "@/components/Eyebrow";
+import { GlowButton } from "@/components/GlowButton";
 import { heroCopy } from "@/components/motion/HeroCopy";
 
 /**
@@ -66,17 +67,17 @@ export function StaticHero({
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           {ticket.available ? (
-            <Button href={ticket.href} size="lg">
+            <GlowButton href={ticket.href} size="lg">
               {ticket.label}
-            </Button>
+            </GlowButton>
           ) : (
             // A statement, not a control — see inertButtonClasses. It holds the
             // primary CTA's place and weight without offering a dead tab stop.
             <p className={inertButtonClasses("lg")}>{ticket.label}</p>
           )}
-          <Button href={agenda.href} variant="secondary" size="lg">
+          <GlowButton href={agenda.href} size="lg">
             {agenda.label}
-          </Button>
+          </GlowButton>
         </div>
 
         {!ticket.available && (

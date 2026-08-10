@@ -10,7 +10,7 @@ export const siteConfig = {
   name: "DevFest Chennai 2026",
   shortName: "DevFest Chennai",
   chapter: "GDG Chennai",
-  tagline: "Build. Learn. Connect",
+  tagline: "Chennai's biggest tech festival",
 
   /*
    * THE event date. Change it here and it changes everywhere at once — the
@@ -54,11 +54,10 @@ export const siteConfig = {
   ] satisfies Track[],
 
   whatYoullGet: [
-    { title: "Talks", description: "Sessions across four tracks from practitioners building at scale." },
-    // Reworded when 2026 dropped sponsorship: there are no sponsor booths.
-    { title: "Hiring", description: "Meet engineering teams who are actively hiring, in person." },
+    { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects." },
+    { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations." },
     { title: "Workshops", description: "Hands-on sessions — bring a laptop, leave with working code." },
-    { title: "Community", description: "Meet the Chennai developer community behind the chapter." },
+    { title: "Community", description: "Join us as we celebrate the community while you find your tribe here." },
   ],
 
   // Four reasons, stated still — see architecture doc on cutting the 12-item marquee.

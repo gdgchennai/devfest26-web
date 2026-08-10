@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import { prefersReducedMotion } from "@/lib/motion-prefs";
+import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
 gsap.registerPlugin(useGSAP, SplitText);
 
@@ -39,7 +39,7 @@ export function RollingText({
   useGSAP(
     () => {
       const root = rootRef.current;
-      if (!root || prefersReducedMotion()) return;
+      if (!root || shouldUseStaticBaseline()) return;
 
       const top = root.querySelector<HTMLSpanElement>("[data-roll='top']");
       const bottom = root.querySelector<HTMLSpanElement>("[data-roll='bottom']");

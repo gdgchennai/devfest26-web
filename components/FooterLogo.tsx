@@ -27,20 +27,6 @@ import { GlowButton } from "@/components/GlowButton";
  * white pill carries a hairline border (in the SVG) so it reads on the page.
  */
 
-// Fake extrusion for the fallback flat logo: a stack of identical 1px down-
-// right drop-shadows in a darker gold builds a solid diagonal side, then one
-// soft ambient shadow lifts it off the page.
-//
-// Both colours are derived from tokens rather than written as hex. The gold was
-// literally `#9a6a00`, which is exactly var(--yellow) mixed 62% into black — the
-// same mix the social discs below already use — so this is the identical colour
-// expressed as the brand ramp instead of a hand-mixed shade. The ambient shadow
-// was `rgba(30,30,30,0.22)`, i.e. the OLD --ink (#1e1e1e), which stopped
-// matching the page when ink became #000.
-const EXTRUDE_COLOR = "color-mix(in srgb, var(--yellow) 62%, var(--black))";
-const AMBIENT_SHADOW = "color-mix(in srgb, var(--ink) 22%, transparent)";
-const LOGO_FILTER = `${Array.from({ length: 8 }, () => `drop-shadow(1px 1px 0 ${EXTRUDE_COLOR})`).join(" ")} drop-shadow(0 12px 16px ${AMBIENT_SHADOW})`;
-
 const ICONS: Record<string, React.ReactNode> = {
   X: (
     <path d="M18.9 2h3.3l-7.2 8.3L23.5 22h-6.6l-5.2-6.8L5.8 22H2.5l7.7-8.9L1.9 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20Z" />
@@ -105,8 +91,8 @@ export function FooterLogo({
           alt="DevFest Chennai"
           className="h-full w-full"
           // In 3D mode the WebGL lockup is the visible logo; keep this laid out
-          // for measurement but invisible. Otherwise show it with fake depth.
-          style={field3D ? { opacity: 0 } : { filter: LOGO_FILTER }}
+          // for measurement but invisible. Otherwise show it flat, no filter.
+          style={field3D ? { opacity: 0 } : undefined}
         />
       </div>
 

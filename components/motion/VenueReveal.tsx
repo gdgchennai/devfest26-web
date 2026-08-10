@@ -721,6 +721,12 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
     { scope: wrapRef, dependencies: [staticBaseline, svgReady], revertOnUpdate: true },
   );
 
+  // Reduced-motion/lite: this whole beat is the scroll-pinned reveal itself —
+  // there is no reveal to show statically, just a hand-drawn line-art draw and
+  // a "Location" → "Save the Date" swap gated on scroll — so skip it entirely
+  // rather than rendering an inert copy of the settled frame.
+  if (staticBaseline) return null;
+
   return (
     <section id="venue" ref={wrapRef} className="relative overflow-hidden">
       {/* flex column pinned to exactly one viewport tall: the heading is

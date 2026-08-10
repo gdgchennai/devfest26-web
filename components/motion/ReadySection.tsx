@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { prefersReducedMotion } from "@/lib/motion-prefs";
+import { prefersReducedMotion, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
@@ -39,10 +39,14 @@ export function ReadySection() {
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const skipMotion = useClientValue(prefersReducedMotion, true);
+  // Reduced-motion/lite: this beat is pure motion punctuation (a wipe reveal
+  // over text that says nothing the surrounding sections don't already say),
+  // so the static baseline skips it entirely rather than rendering it inert.
+  const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
 
   useGSAP(
     () => {
-      if (skipMotion) return;
+      if (skipMotion || staticBaseline) return;
       const lineEls = lineRefs.current.filter((el): el is HTMLDivElement => el !== null);
       if (lineEls.length === 0) return;
 
@@ -107,8 +111,10 @@ export function ReadySection() {
         split.revert();
       };
     },
-    { scope: wrapRef, dependencies: [skipMotion] },
+    { scope: wrapRef, dependencies: [skipMotion, staticBaseline] },
   );
+
+  if (staticBaseline) return null;
 
   return (
     <section

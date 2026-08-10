@@ -479,8 +479,19 @@ export function ShowMoodSection() {
   );
 
   return (
-    <section ref={wrapRef} className="relative h-dvh overflow-hidden">
-      {/* Desktop: left/right panels. Hidden below sm, where the top/bottom
+    <>
+      {/* Lite/reduced-motion loses MoodSection above (the scroll-scrubbed
+          "What's your DevFest mood?" marquee doesn't have a static form worth
+          rendering — see there), which otherwise leaves this section's two
+          panels with no lead-in. Static baseline only: full motion still gets
+          that line from MoodSection itself. */}
+      {staticBaseline && (
+        <h2 className="px-6 pb-8 pt-16 text-left text-paper text-[clamp(2rem,8vw,6rem)] font-bold leading-none tracking-tight sm:px-10">
+          What&rsquo;s your DevFest mood?
+        </h2>
+      )}
+      <section ref={wrapRef} className="relative h-dvh overflow-hidden">
+        {/* Desktop: left/right panels. Hidden below sm, where the top/bottom
           pair takes over instead. */}
       <div
         ref={(el) => {
@@ -568,6 +579,7 @@ export function ShowMoodSection() {
           direction="up"
         />
       </div>
-    </section>
+      </section>
+    </>
   );
 }
