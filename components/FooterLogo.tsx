@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { FooterBrackets } from "@/components/FooterBrackets";
+import { GlowButton } from "@/components/GlowButton";
 
 /*
  * The footer centrepiece: the official DevFest wordmark + "Chennai" pill
@@ -108,33 +109,19 @@ export function FooterLogo({
         />
       </div>
 
-      {/* Social buttons — raised gold discs. */}
+      {/* Social buttons — same glass/neon treatment as the site's other CTAs
+          (see components/GlowButton.tsx), circle-shaped for an icon-only
+          control. aria-label carries the accessible name since the visible
+          content is just the icon. */}
       {social.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-3">
           {social.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={link.label}
-              className="group relative inline-flex h-11 w-11 items-center justify-center"
-            >
-              {/* raised shadow disc */}
-              <span
-                aria-hidden
-                className="absolute inset-0 translate-y-1 rounded-full"
-                style={{ background: EXTRUDE_COLOR }}
-              />
-              <span className="absolute inset-0 rounded-full bg-yellow transition-transform duration-150 group-hover:-translate-y-0.5" />
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden
-                className="relative h-5 w-5 fill-black transition-transform duration-150 group-hover:-translate-y-0.5"
-              >
+            <GlowButton key={link.label} href={link.href} target="_blank" rel="noreferrer" shape="circle" size="sm">
+              <span className="sr-only">{link.label}</span>
+              <svg viewBox="0 0 24 24" aria-hidden className="relative h-5 w-5 fill-paper">
                 {ICONS[link.label] ?? null}
               </svg>
-            </a>
+            </GlowButton>
           ))}
         </div>
       )}

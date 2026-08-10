@@ -82,11 +82,11 @@ export const siteConfig = {
     instagram: "https://www.instagram.com/gdgchennai",
     youtube: "https://www.youtube.com/@GDGChennai",
     github: "https://github.com/gdg-chennai",
-    discord: null as string | null,
+    discord: "https://discord.com/invite/eSyuFW3ywQ",
   },
 
   contact: {
-    email: "chennai@gdgchennai.org",
+    email: "hello@gdgchennai.in",
   },
 
   // Header nav lived here as its own five-item list while the site had nine

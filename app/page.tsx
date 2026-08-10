@@ -10,6 +10,7 @@ import { BracketsField } from "@/components/motion/BracketsField";
 import { VenueReveal } from "@/components/motion/VenueReveal";
 import { MoodSection } from "@/components/motion/MoodSection";
 import { ShowMoodSection } from "@/components/motion/ShowMoodSection";
+import { SeeYouThereSection } from "@/components/motion/SeeYouThereSection";
 // import { TrackCards } from "@/components/TrackCards";
 // import { SpeakerWall } from "@/components/SpeakerWall";
 import { TicketStub } from "@/components/TicketStub";
@@ -76,6 +77,8 @@ export default function Home() {
         <MoodSection />
 
         <ShowMoodSection />
+
+        <SeeYouThereSection />
 
         {/* Hiding this for the time being. Don't remove. This needs to be repurposed differently
         <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">

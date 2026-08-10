@@ -3,16 +3,17 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { ticketCta, speakerCta } from "@/lib/cta";
 import { RollingText } from "@/components/motion/RollingText";
+import { GlowButton } from "@/components/GlowButton";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 /** Placeholder art — any two images work here; these are just two from
  *  public/archive already in the repo. Swap for the real CDN images later,
@@ -27,6 +28,12 @@ const TITLE_RIGHT = "Attend";
 const BODY_RIGHT =
   "Join in for the premier DevFest experience. Meet like minded folks. Developer? PM? Designer? Product? Marketing? Management? Student? Find your tribe here! We provide you the space and technology. You build for and build with the community!";
 
+/** Both panel CTAs sit on a full-bleed photo, not the flat page backdrop —
+ *  size="sm" is the mobile base; these scale it up on wider screens to match
+ *  the body copy's own clamp() growth, rather than staying one fixed size
+ *  across every viewport. */
+const PHOTO_BUTTON_SIZE = "sm:px-7 sm:py-3 sm:text-base lg:px-9 lg:py-4 lg:text-lg";
+
 /** Same source the header/hero/TicketStub all read from — never a hardcoded
  *  href here, for the exact reason lib/cta.ts exists (see there): a "Get
  *  tickets" link that quietly lands somewere wrong while ticketing.url is
@@ -34,29 +41,6 @@ const BODY_RIGHT =
  *  config, not client state), same as HeroCopy.tsx's own copy of this. */
 const ticket = ticketCta();
 const cfp = speakerCta();
-
-/** Same rolling-hover treatment as VenueReveal's "Get directions →" / the
- *  Hero's "See Agenda →", but as a solid pill button rather than plain text —
- *  same shape/sizing as the site's one shared <Button> (rounded-full), but
- *  built by hand here rather than reusing that component: Button doesn't
- *  support RollingText, a fluid clamp() size matched to this section's body
- *  copy, or a caller-supplied bg colour (only its own fixed
- *  primary/secondary variants), all of which this needs. Text is ink, not
- *  white/paper, on both colours — same reasoning as Button's own primary
- *  variant (see there): ink-on-blue is 5.89:1, paper-on-blue is 3.56:1, and
- *  this text is well under the 18px/bold size where 3:1 would be enough.
- *  Text size matches the body copy's own clamp() exactly, not a separate
- *  fixed step, so the two read as the same voice.
- *
- *  Deliberately does NOT include self-start/self-end or the colour here —
- *  those differ per instance (self-end + bg-green for the left/ticket link,
- *  self-start + bg-blue for the right/CFP one — see each call site) and a
- *  `self-*` baked into this SHARED constant is exactly what previously made
- *  the CFP link ignore its own panel's right-alignment: `self-*` always
- *  wins over a parent's `items-end`, so setting it here for one link set it
- *  for both. */
-const LINK_CLASSES =
-  "inline-flex items-center gap-1.5 skew-y-[0deg] sm:skew-x-[-25deg] sm:skew-y-0 px-6 py-3 text-[clamp(1.1rem,2.4vw,1.75rem)] font-medium text-ink no-underline transition-opacity hover:opacity-90";
 
 /** Width of the gap between the two panels, in real pixels — not a fraction
  *  of the panel size, so it reads the same regardless of screen size. Baked
@@ -115,10 +99,15 @@ const narrowClipBottom =
 
 /** Desktop text safe-width: the narrowest either panel ever gets, over its
  *  WHOLE height, is min(DESKTOP_SEAM_BOTTOM, 100 - DESKTOP_SEAM_TOP) — 40%
- *  here, since the two happen to be equal. A few points of margin below
- *  that keeps the text block off the diagonal at every height, not just
- *  the height its own anchor (top or bottom) happens to sit at. */
-const DESKTOP_TEXT_MAX_WIDTH = Math.min(DESKTOP_SEAM_BOTTOM, 100 - DESKTOP_SEAM_TOP) - 6;
+ *  here, since the two happen to be equal. A couple of points of margin
+ *  below that keeps the text block off the diagonal at every height, not
+ *  just the height its own anchor (top or bottom) happens to sit at — was
+ *  -6 (34%), which left the body copy wrapping tightly with plenty of
+ *  unused photo space still visible past it; -2 gives it noticeably more
+ *  room while keeping the same safety margin, just smaller. */
+const DESKTOP_TEXT_MAX_WIDTH = Math.min(DESKTOP_SEAM_BOTTOM, 100 - DESKTOP_SEAM_TOP) - 2;
+/** Same idea for the narrow (stacked) layout's panels — was a flat 85%. */
+const NARROW_TEXT_MAX_WIDTH = "92%";
 
 /** A dark pool under whichever corner the text sits in, so it reads clearly
  *  against busy/light photo content — the per-character drop-shadow on the
@@ -139,18 +128,35 @@ function TextScrim({ corner }: { corner: "top left" | "bottom right" }) {
   );
 }
 
-/** Title + body, over a photo — always white/drop-shadowed regardless of
- *  theme, same reasoning as VenueReveal's own caption (see there): this
- *  sits on the photo itself, not the flat --page-bg backdrop, so it needs
- *  to read the same however --theme happens to be scrubbed elsewhere on
- *  the page right now. `align="top"` renders the title first (so it's the
- *  upper element); `align="bottom"` renders it last (so it's the lower
- *  one, body above it) — matching "Present"'s title-then-body layout on
- *  the left and "Attend"'s body-then-title layout on the right.
- *  `maxWidth` is passed as an inline style, not a Tailwind class — a
- *  `w-[${n}%]` template string only ever exists at runtime, never as
- *  literal text in this file, so Tailwind's static build-time scan would
- *  never see it and would emit no CSS for it at all. */
+/**
+ * Title + body, over a photo — always white/drop-shadowed regardless of
+ * theme, same reasoning as VenueReveal's own caption (see there): this
+ * sits on the photo itself, not the flat --page-bg backdrop, so it needs
+ * to read the same however --theme happens to be scrubbed elsewhere on
+ * the page right now. `align="top"` renders the title first (so it's the
+ * upper element); `align="bottom"` renders it last (so it's the lower
+ * one, body above it) — matching "Present"'s title-then-body layout on
+ * the left and "Attend"'s body-then-title layout on the right.
+ * `maxWidth` is passed as an inline style, not a Tailwind class — a
+ * `w-[${n}%]` template string only ever exists at runtime, never as
+ * literal text in this file, so Tailwind's static build-time scan would
+ * never see it and would emit no CSS for it at all.
+ *
+ * The text (and the link) stay hidden behind their own masks until the
+ * panel's photo has fully flown in, then reveal once, via SplitText's
+ * `mask` option (the same per-line/char clipping-span technique
+ * VenueReveal's swapText and ExpectShowcase's char-rise both already use
+ * elsewhere on the page — see either) — content SLIDES inside a fixed,
+ * clipping wrapper rather than fading or flying in unclipped, which is
+ * what makes it read as a "reveal" rather than an "entrance". `direction`
+ * controls which way that reveal reads: "down" (the left panel) enters
+ * each line from below and stages top line first, so it cascades top →
+ * bottom; "up" (the right panel) enters each line from above and stages
+ * bottom line first, cascading bottom → top — a deliberate mirror, not
+ * just the same effect reused. The link gets the same idea on the
+ * horizontal axis: "down" slides its button in from the left (reveals
+ * left → right), "up" from the right (reveals right → left).
+ */
 function PanelCopy({
   title,
   body,
@@ -158,6 +164,9 @@ function PanelCopy({
   align,
   anchorClassName,
   maxWidth,
+  wrapRef,
+  startAt,
+  direction,
 }: {
   title: string;
   body: string;
@@ -169,36 +178,183 @@ function PanelCopy({
   align: "top" | "bottom";
   anchorClassName: string;
   maxWidth: string;
+  /** The section's own root — the reveal's ScrollTrigger watches this,
+   *  same trigger element the panel's photo fly-in already uses, just a
+   *  later point on it (see `startAt`). */
+  wrapRef: React.RefObject<HTMLElement | null>;
+  /** ScrollTrigger `start` value matching the exact point THIS panel's own
+   *  photo fly-in (see ShowMoodSection) finishes — the reveal has nothing
+   *  to sit in front of until the image it's captioning has actually
+   *  arrived. */
+  startAt: string;
+  /** "down" for the left/top panel (Present), "up" for the right/bottom
+   *  one (Attend) — see the component doc comment above for what each
+   *  actually does. */
+  direction: "down" | "up";
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const bodyRef = useRef<HTMLParagraphElement>(null);
+  const linkMaskRef = useRef<HTMLDivElement>(null);
+  // Tracks the live split instances across renders — see the defensive
+  // revert below for why this needs to survive between effect runs rather
+  // than living only as a local const inside the callback.
+  const splitsRef = useRef<{ heading: SplitText; body: SplitText } | null>(null);
+  const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
+
+  useGSAP(
+    () => {
+      if (staticBaseline) return;
+      if (!headingRef.current || !bodyRef.current || !wrapRef.current) return;
+
+      // Defensive: React (Strict Mode, dev-only) mounts this effect, runs
+      // its cleanup, then mounts it again — same DOM nodes both times. The
+      // cleanup below reverts the split it created, but if for any reason
+      // that hasn't run yet before this fires again, splitting an ALREADY-
+      // split, `mask`-wrapped element a second time recurses into its own
+      // nested masking spans — the actual cause of a "Maximum call stack
+      // size exceeded" crash here. Reverting the PREVIOUS instance (there's
+      // no static SplitText.revert(element) — only instance.revert())
+      // first makes each run start from plain text regardless of what ran
+      // before it.
+      splitsRef.current?.heading.revert();
+      splitsRef.current?.body.revert();
+
+      // "down" content rises up INTO place (masked from below, matching
+      // swapText's own default direction); "up" content drops down into
+      // place (masked from above) — the mirror image of that.
+      const fromY = direction === "down" ? 100 : -100;
+      const headingSplit = SplitText.create(headingRef.current, { type: "lines", mask: "lines" });
+      const bodySplit = SplitText.create(bodyRef.current, { type: "lines", mask: "lines" });
+      splitsRef.current = { heading: headingSplit, body: bodySplit };
+      gsap.set(headingSplit.lines, { yPercent: fromY, opacity: 0 });
+      gsap.set(bodySplit.lines, { yPercent: fromY, opacity: 0 });
+
+      const linkButton = linkMaskRef.current?.firstElementChild as HTMLElement | null;
+      // The button's own mask wrapper is sized exactly to it (inline-block,
+      // overflow-hidden — see the JSX), so sliding the button horizontally
+      // inside it reveals rather than just moves it: "down" panels slide
+      // the button in from the left (reads left → right), "up" panels from
+      // the right (reads right → left).
+      if (linkButton) gsap.set(linkButton, { xPercent: direction === "down" ? -100 : 100 });
+
+      const trigger = ScrollTrigger.create({
+        trigger: wrapRef.current,
+        start: startAt,
+        once: true,
+        onEnter: () => {
+          const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.7 } });
+          tl.to(headingSplit.lines, { yPercent: 0, opacity: 1, stagger: 0.05 });
+          tl.to(
+            bodySplit.lines,
+            { yPercent: 0, opacity: 1, stagger: { each: 0.05, from: direction === "down" ? "start" : "end" } },
+            "<0.15",
+          );
+          if (linkButton) {
+            tl.to(linkButton, { xPercent: 0, duration: 0.5 }, ">-0.25");
+            // The mask needs overflow-hidden DURING the slide (that's what
+            // makes it a reveal rather than just a move), but left on
+            // afterward it permanently clips GlowButton's halo/corner glow,
+            // which bleeds past the button's own box. Once the slide lands,
+            // there's nothing left to mask, so let the glow show in full.
+            tl.set(linkMaskRef.current, { overflow: "visible" });
+          }
+        },
+      });
+
+      return () => {
+        trigger.kill();
+        headingSplit.revert();
+        bodySplit.revert();
+      };
+    },
+    { scope: containerRef, dependencies: [staticBaseline] },
+  );
+
   const heading = (
-    // Fluid (vw-driven), not a fixed Tailwind step — same reason
-    // MoodSection/ExpectShowcase both size their own big display headings
-    // this way (see either): a fixed size that's big enough to look right
-    // on desktop is, at the same literal px value, wider than the entire
-    // mobile viewport for a single unbreakable word like "Attend" — it
-    // doesn't wrap (nothing TO wrap on one word), it just overflows the
-    // panel and gets sliced by the diagonal clip-path. clamp()'s middle
-    // (vw) term scales continuously with viewport width so it can be this
-    // large on desktop while still fitting a narrow phone, with the outer
-    // two values as hard floor/ceiling.
-    <h3 className="text-[clamp(3rem,13vw,7.5rem)] font-bold leading-none tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,1)]">
+    // Sized off ITS OWN BOX's width (cqw — container query units, relative
+    // to containerRef's content width, see its [container-type:inline-size]
+    // below), NOT the viewport (vw). This box is a fraction of the viewport
+    // — ~38% on desktop (DESKTOP_TEXT_MAX_WIDTH), ~92% on the narrow/stacked
+    // layout (NARROW_TEXT_MAX_WIDTH) — and those two fractions are too
+    // different for one vw-based clamp() to fit both: tuned to fit "Attend"
+    // on the wide desktop share, the same vw number is far too large for
+    // the much narrower mobile share, and vice versa. cqw sidesteps that
+    // entirely — 100cqw IS this box's own available width, at whatever
+    // breakpoint, so the same clamp() shrinks the word to fit progressively
+    // as ITS box narrows, rather than as the viewport does. 21cqw is tuned
+    // so "Present" (the longer of the two titles) comfortably fits 100cqw
+    // with room to spare, not right up against the edge.
+    //
+    // whitespace-nowrap stays as a backstop, not the primary fix: "Present"
+    // is one word with no break point regardless, and SplitText's `mask`
+    // wraps it in an overflow:clip span sized to this element's own box —
+    // if that box were ever forced narrower than the word's rendered width
+    // for some other reason, nowrap is what keeps the mask sized to the
+    // whole word (clipped only by the diagonal further out) instead of
+    // hard-clipping mid-word.
+    <h3
+      ref={headingRef}
+      className="whitespace-nowrap text-[clamp(1.5rem,21cqw,6rem)] font-bold leading-none tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,1)]"
+    >
       {title}
     </h3>
   );
   const paragraph = (
-    <p className="text-[clamp(1.1rem,2.4vw,1.75rem)] text-white/85 drop-shadow-[0_1px_12px_rgba(0,0,0,1)]">{body}</p>
+    <p
+      ref={bodyRef}
+      className="text-[clamp(1.1rem,2.4vw,1.75rem)] text-white/85 drop-shadow-[0_1px_12px_rgba(0,0,0,1)]"
+    >
+      {body}
+    </p>
+  );
+  // inline-block, sized to the button's own content — the mask the link
+  // slides inside (see the doc comment above). align-self matches what the
+  // link ITSELF actually carries (see cfpLink/ticketLink in ShowMoodSection:
+  // self-start + align="top" for CFP, self-end + align="bottom" for tickets)
+  // — that class alone has no effect once the link isn't a direct flex child
+  // anymore, so it has to live on this wrapper instead for the alignment to
+  // still apply.
+  //
+  // overflow is only "hidden" for the reveal animation itself (staticBaseline
+  // false): the button starts positioned off to the side and slides in, and
+  // hidden is what turns that into a reveal rather than a floating
+  // mispositioned button. Left permanently, it clips GlowButton's halo/corner
+  // glow, which bleeds past the button's own box — so the animated case turns
+  // it back to visible once the slide lands (see the tl.set() above), and the
+  // static-baseline case (no animation runs at all, see the early return
+  // above) never turns it hidden in the first place.
+  const linkMask = (
+    <div
+      ref={linkMaskRef}
+      className={`inline-block ${staticBaseline ? "overflow-visible" : "overflow-hidden"} ${align === "top" ? "self-start" : "self-end"}`}
+    >
+      {link}
+    </div>
   );
   return (
-    <div className={`absolute z-20 flex flex-col gap-4 p-6 sm:p-10 ${anchorClassName}`} style={{ maxWidth }}>
+    <div
+      ref={containerRef}
+      // w-full (NOT shrink-to-fit, its default as an absolutely-positioned
+      // box with only left/top/max-width set) is load-bearing together
+      // with [container-type:inline-size]: cqw units inside this box
+      // resolve against ITS width, but shrink-to-fit content ALSO resolves
+      // against its children's rendered width — a circular dependency the
+      // instant a child sizes itself in cqw. w-full breaks the cycle by
+      // resolving this box's width from its own (definite-sized, absolute
+      // inset-0) parent instead, capped at maxWidth same as before.
+      className={`absolute z-20 flex w-full flex-col gap-4 p-6 sm:p-10 [container-type:inline-size] ${anchorClassName}`}
+      style={{ maxWidth }}
+    >
       {align === "top" ? (
         <>
           {heading}
           {paragraph}
-          {link}
+          {linkMask}
         </>
       ) : (
         <>
-          {link}
+          {linkMask}
           {paragraph}
           {heading}
         </>
@@ -234,15 +390,17 @@ export function ShowMoodSection() {
   // self-start) and a leading arrow — right-aligned within the left panel,
   // by request, rather than matching the panel's own left-aligned title/body.
   const ticketLink = ticket.available ? (
-    ticket.external ? (
-      <a href={ticket.href} target="_blank" rel="noreferrer" className={`${LINK_CLASSES} self-end bg-green`}>
-        <RollingText className="skew-y-[0deg] sm:skew-x-[25deg] sm:skew-y-0">← Get tickets</RollingText>
-      </a>
-    ) : (
-      <Link href={ticket.href} className={`${LINK_CLASSES} self-end bg-green`}>
-        <RollingText className="skew-y-[0deg] sm:skew-x-[25deg] sm:skew-y-0">← Get tickets</RollingText>
-      </Link>
-    )
+    <GlowButton
+      href={ticket.href}
+      target={ticket.external ? "_blank" : undefined}
+      rel={ticket.external ? "noreferrer" : undefined}
+      className="self-end"
+      size="sm"
+      textClassName="text-white"
+      surfaceClassName={PHOTO_BUTTON_SIZE}
+    >
+      <RollingText>← Get tickets</RollingText>
+    </GlowButton>
   ) : null;
 
   // speakerCta() is always "available" (it falls back to the site's own
@@ -252,14 +410,18 @@ export function ShowMoodSection() {
   // rather than matching the panel's own right-aligned title/body.
   const cfpHref = cfp.available ? cfp.href : "/cfp";
   const cfpExternal = cfp.available && cfp.external;
-  const cfpLink = cfpExternal ? (
-    <a href={cfpHref} target="_blank" rel="noreferrer" className={`${LINK_CLASSES} self-start bg-blue`}>
-      <RollingText className="skew-y-[0deg] sm:skew-x-[25deg] sm:skew-y-0">Submit CFP →</RollingText>
-    </a>
-  ) : (
-    <Link href={cfpHref} className={`${LINK_CLASSES} self-start bg-blue`}>
-      <RollingText className="skew-y-[0deg] sm:skew-x-[25deg] sm:skew-y-0">Submit CFP →</RollingText>
-    </Link>
+  const cfpLink = (
+    <GlowButton
+      href={cfpHref}
+      target={cfpExternal ? "_blank" : undefined}
+      rel={cfpExternal ? "noreferrer" : undefined}
+      className="self-start"
+      size="sm"
+      textClassName="text-white"
+      surfaceClassName={PHOTO_BUTTON_SIZE}
+    >
+      <RollingText>Submit CFP →</RollingText>
+    </GlowButton>
   );
 
   useGSAP(
@@ -336,6 +498,9 @@ export function ShowMoodSection() {
           align="top"
           anchorClassName="left-0 top-0"
           maxWidth={`${DESKTOP_TEXT_MAX_WIDTH}%`}
+          wrapRef={wrapRef}
+          startAt="top center"
+          direction="down"
         />
       </div>
       <div
@@ -354,6 +519,9 @@ export function ShowMoodSection() {
           align="bottom"
           anchorClassName="bottom-0 right-0 items-end text-right"
           maxWidth={`${DESKTOP_TEXT_MAX_WIDTH}%`}
+          wrapRef={wrapRef}
+          startAt="top center"
+          direction="up"
         />
       </div>
 
@@ -373,7 +541,10 @@ export function ShowMoodSection() {
           link={cfpLink}
           align="top"
           anchorClassName="left-0 top-0"
-          maxWidth="85%"
+          maxWidth={NARROW_TEXT_MAX_WIDTH}
+          wrapRef={wrapRef}
+          startAt="top top"
+          direction="down"
         />
       </div>
       <div
@@ -391,7 +562,10 @@ export function ShowMoodSection() {
           link={ticketLink}
           align="bottom"
           anchorClassName="bottom-0 right-0 items-end text-right"
-          maxWidth="85%"
+          maxWidth={NARROW_TEXT_MAX_WIDTH}
+          wrapRef={wrapRef}
+          startAt="top top"
+          direction="up"
         />
       </div>
     </section>

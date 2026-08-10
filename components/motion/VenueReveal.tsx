@@ -14,6 +14,7 @@ import { useClientValue } from "@/lib/useClientValue";
 import { ParticleCover } from "@/components/motion/ParticleCover";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { RollingText } from "@/components/motion/RollingText";
+import { GlowButton } from "@/components/GlowButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
@@ -172,7 +173,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
   const scrimRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
   const captionTitleRef = useRef<HTMLHeadingElement>(null);
-  const directionsRef = useRef<HTMLAnchorElement>(null);
+  const directionsRef = useRef<HTMLSpanElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const particleTlRef = useRef<gsap.core.Timeline | null>(null);
   const particleActiveRef = useRef(false);
@@ -289,18 +290,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       //
       // end is "bottom+=TOTAL_VH% top", NOT the plain "bottom top" a
       // non-pinned trigger would use: wrapRef's own unpinned height is ONE
-      // viewport (h-dvh), but the pin below holds it on screen for a
-      // further TOTAL_VH% of scroll beyond that via a separate pin-spacer —
-      // extra distance this trigger's own geometry knows nothing about. A
-      // plain "bottom top" end is reached (and brackets restored to opacity
-      // 1) the moment wrapRef's un-pinned bottom would have passed the
-      // viewport, which happens WHILE the pin is still holding Location on
-      // screen (mid swap/overlay) — the brackets-floating-over-the-overlay
-      // bug this fixes. Percentage offsets in ScrollTrigger position
-      // strings resolve against the TRIGGER element's own height, which
-      // happens to equal one viewport height here (h-dvh again), so
-      // TOTAL_VH% of wrapRef's height is exactly TOTAL_VH% of the
-      // viewport — the same extra distance the pin itself consumes.
+      // viewport (h-[100lvh] on the frame inside it), but the pin below
+      // holds it on screen for a further TOTAL_VH% of scroll beyond that via
+      // a separate pin-spacer — extra distance this trigger's own geometry
+      // knows nothing about. A plain "bottom top" end is reached (and
+      // brackets restored to opacity 1) the moment wrapRef's un-pinned
+      // bottom would have passed the viewport, which happens WHILE the pin
+      // is still holding Location on screen (mid swap/overlay) — the
+      // brackets-floating-over-the-overlay bug this fixes. Percentage
+      // offsets in ScrollTrigger position strings resolve against the
+      // TRIGGER element's own height, which happens to equal one viewport
+      // height here (h-[100lvh] again), so TOTAL_VH% of wrapRef's height is
+      // exactly TOTAL_VH% of the viewport — the same extra distance the pin
+      // itself consumes.
       // onLeave hands off at 0, NOT 1: forcing straight to fully visible
       // the instant the pin releases is exactly the "brackets suddenly pop
       // in" jump this is meant to avoid. MoodSection's own pin picks up
@@ -730,12 +732,32 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           of the frame; the cover-fit crop in the resize effect below
           already handles however tall/narrow that leftover space ends up
           being; a viewport this tall relative to its width just crops more
-          off the sides. h-dvh (not vh) so mobile browser chrome showing/
-          hiding doesn't change the pinned budget mid-pin, and — since the
-          heading is shrink-0 — never leaves the stage negative space either,
-          just less of it, on wide-but-short screens (landscape laptops,
-          16:9 or shorter). */}
-      <div className="relative z-10 flex h-dvh flex-col">
+          off the sides.
+
+          h-[100lvh], deliberately NOT h-dvh: this section is pinned via
+          `position: fixed` for part of its life (see the pin below), and on
+          real phones a `dvh`-sized fixed element was observed to render
+          shorter than the actual screen once the address bar auto-hid mid-
+          scroll — the browser doesn't reliably grow it back — leaving a
+          strip of bare --page-bg below the photo. `lvh` is the "large
+          viewport height" unit: it's pinned to the address-bar-hidden
+          height and, unlike `dvh`, never changes as the bar shows/hides, so
+          there's nothing for a fixed-position element to fail to track. The
+          trade this makes is accepting that the frame can render slightly
+          TALLER than the currently-visible area while the bar IS showing —
+          harmless: unpinned it's just a little extra (invisible until you
+          scroll to it, same as any 100vh section always has been on
+          mobile), and pinned/fixed it means a sliver of the photo's bottom
+          edge sits below the visible fold rather than a gap ever showing
+          above it. Chasing exact-current-viewport tightness with JS here
+          (measuring `visualViewport`, writing an inline pixel height, then
+          calling `ScrollTrigger.refresh()` so the pin's own scroll-distance
+          math stayed in sync) was tried and reverted: refreshing on every
+          address-bar toggle intermittently desynced this section's own
+          pinned/scrubbed state (the swap lock, the overlay's rise, the
+          particle vortex) from actual scroll position. A stable CSS unit
+          that needs no JS and no refresh has no such window. */}
+      <div className="relative z-10 flex h-[100lvh] flex-col">
         {/* Heading: lives above the image stage, not overlaid on it — no
             animated move, only a fade-in — so the sketch draw is what draws
             the eye. Sitting in normal flow (not absolutely over the photo)
@@ -745,7 +767,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             a fixed colour) so it reads white against the black backdrop
             before the theme handoff and ink afterward, over the light
             backdrop. */}
-        <div className="relative z-20 flex shrink-0 items-center justify-center px-6 py-6 text-center min-h-[16vh] sm:min-h-[20vh] sm:py-8">
+        <div className="relative z-20 flex shrink-0 items-center justify-center px-6 py-6 text-center min-h-[16%] sm:min-h-[20%] sm:py-8">
           <h2
             ref={headingRef}
             className="text-paper text-[clamp(3rem,10vw,8rem)] font-bold leading-none tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]"
@@ -815,7 +837,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           />
           <div
             ref={captionRef}
-            className={`absolute inset-x-0 bottom-[12%] z-20 px-6 text-center ${staticBaseline ? "" : "opacity-0"}`}
+            className={`absolute inset-x-0 bottom-[28%] z-20 px-6 text-center sm:bottom-[12%] ${staticBaseline ? "" : "opacity-0"}`}
           >
             <h3
               ref={captionTitleRef}
@@ -824,18 +846,16 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
               {siteConfig.venue.name}
             </h3>
             {!staticBaseline && (
-              <a
+              <GlowButton
                 ref={directionsRef}
                 href={siteConfig.venue.mapUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/85 no-underline transition-colors hover:text-white sm:text-base"
+                size="sm"
+                className="mt-3"
               >
-                {/* Same treatment as the Hero's "See Agenda →" — plain text,
-                    no border/underline chrome, RollingText owns the
-                    character-roll on hover. */}
                 <RollingText>Get directions →</RollingText>
-              </a>
+              </GlowButton>
             )}
           </div>
         </div>

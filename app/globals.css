@@ -658,3 +658,188 @@ html::-webkit-scrollbar {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
+
+/* ---------------------------------------------------------------------------
+ * Glow button (components/GlowButton.tsx)
+ *
+ * A glassmorphism control with a neon four-colour border that reads as one
+ * smooth gradient wrapping the shape, not four flat corners. Two layers share
+ * the same conic-gradient so the crisp ring and its soft bleed stay in
+ * registration as the angle rotates:
+ *   ::before - a 1.5px ring, cut down with the classic padding + mask-XOR
+ *              trick so only the outline itself is visible.
+ *   ::after  - the same gradient, enlarged and blurred, behind the glass
+ *              surface as the halo.
+ * `--glow-angle` is a registered <angle> so it animates smoothly rather than
+ * snapping; `glow-rotate` turns it for the "smooth" look the brief asked for.
+ * A press adds .glow-btn--burst (see GlowButton's `burst()`), which spikes
+ * the halo's blur/opacity/reach and eases back — the energy-dispersing
+ * moment — without touching the rotation, so the two animations never fight
+ * over the same property. Both animations are gated on
+ * prefers-reduced-motion; reduced-motion users still get the burst's opacity
+ * change since that reads as feedback, not motion.
+ *
+ * `.glow-btn__corners` is a third, separate layer (::before/::after are
+ * already spoken for) for the corner "pooling" look from the reference
+ * asset: light gathers noticeably brighter at the rounded ends than along
+ * the straight edges. A conic-gradient ring alone doesn't produce that — it
+ * spreads colour evenly by angle — so four radial blooms sit at the
+ * bounding-box corners instead, each a brand colour, blurred heavily. Shared
+ * by all three shapes, "circle" included — its square bounding box still has
+ * four corners even though the visible ring is round, so the same four
+ * blooms read as light gathering at the diagonals.
+ * ------------------------------------------------------------------------ */
+@property --glow-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+.glow-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  --glow-angle: 0deg;
+}
+
+.glow-btn::before,
+.glow-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--red),
+    var(--yellow),
+    var(--green),
+    var(--blue),
+    var(--red)
+  );
+  pointer-events: none;
+}
+
+.glow-btn::before {
+  z-index: 1;
+  padding: 1.5px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.glow-btn::after {
+  z-index: -1;
+  inset: -10px;
+  filter: blur(18px);
+  /* Hidden at rest — this layer is the click-triggered energy burst, not an
+     ambient glow. The always-on look comes entirely from the ring
+     (::before) and the corner pooling (.glow-btn__corners) below. */
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow-btn {
+    animation: glow-rotate 6s linear infinite;
+  }
+}
+
+@keyframes glow-rotate {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.glow-btn--burst::after {
+  animation: glow-burst 900ms ease-in-out;
+}
+
+@keyframes glow-burst {
+  0% {
+    opacity: 0;
+    filter: blur(18px);
+    inset: -10px;
+  }
+  35% {
+    /* Gentle, not a flash — a soft breath of light from behind the button,
+       barely spreading past its idle bounds. */
+    opacity: 0.2;
+    filter: blur(19px);
+    inset: -11px;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(18px);
+    inset: -10px;
+  }
+}
+
+.glow-btn__corners {
+  content: "";
+  position: absolute;
+  /*
+   * z-index: 3 — above the z-index: 2 glass surface, not below it. This is
+   * meant to read as the top-most layer, sitting on the button rather than
+   * bleeding out from underneath it (that's what the click ::after burst is
+   * for). pointer-events: none keeps it from blocking clicks on the surface
+   * beneath.
+   */
+  inset: -22px;
+  z-index: 3;
+  pointer-events: none;
+  /* Milder than the first pass — this is the always-on accent, not the
+     click glow, so it should read as a soft trim rather than compete with it. */
+  opacity: 0.5;
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  transition: opacity 200ms ease, filter 200ms ease;
+  background:
+    radial-gradient(closest-side, var(--red), transparent 70%) 0% 0% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--yellow), transparent 70%) 100% 0% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--blue), transparent 70%) 100% 100% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--green), transparent 70%) 0% 100% / 55% 100% no-repeat;
+}
+
+.glow-btn--burst .glow-btn__corners {
+  animation: corner-burst 650ms ease-out;
+}
+
+@keyframes corner-burst {
+  0% {
+    opacity: 0.5;
+    filter: blur(12px);
+    inset: -22px;
+  }
+  30% {
+    opacity: 0.85;
+    filter: blur(22px);
+    inset: -32px;
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(12px);
+    inset: -22px;
+  }
+}
+
+.glow-btn__surface {
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--paper) 10%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper) 25%, transparent),
+    inset 0 -6px 16px color-mix(in srgb, var(--ink) 35%, transparent);
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.glow-btn__surface:hover {
+  background: color-mix(in srgb, var(--paper) 16%, transparent);
+}
+
+.glow-btn__surface:active {
+  transform: scale(0.96);
+}
+
+.glow-btn__label {
+  position: relative;
+}
