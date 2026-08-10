@@ -477,7 +477,7 @@ export function CurvedMarqueeHero() {
           </GlowButton>
         )}
         <GlowButton href={heroCopy.agenda.href}>
-          <RollingText>{`${heroCopy.agenda.label} →`}</RollingText>
+          <RollingText>{`${heroCopy.agenda.label}`}</RollingText>
         </GlowButton>
       </div>
     </section>

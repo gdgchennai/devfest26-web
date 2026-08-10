@@ -27,5 +27,5 @@ export const heroCopy = {
   venueLabel: siteConfig.venue.name,
   venueConfirmed: siteConfig.venue.confirmed,
   ticket: ticketCta(),
-  agenda: { href: siteConfig.agendaUrl, label: "See Agenda" },
+  agenda: { href: siteConfig.agendaUrl, label: "See Agenda →" },
 } as const;
