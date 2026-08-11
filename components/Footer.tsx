@@ -2,14 +2,20 @@ import { siteConfig } from "@/site.config";
 import { LiteToggle } from "@/components/motion/LiteToggle";
 import { FooterLogo } from "@/components/FooterLogo";
 
-const socialLinks = [
+// Annotated rather than inferred: `siteConfig` is `as const`, so each `href`
+// is a string *literal* type, and the array would otherwise not match the
+// `{ label: string; href: string }[]` FooterLogo asks for. This also replaced
+// a `.filter(Boolean)` on `href` that could never drop anything — every URL
+// here is a non-empty literal — and whose type predicate widened the literal
+// back to `string`, which is what broke the build.
+const socialLinks: { label: string; href: string }[] = [
   { label: "X", href: siteConfig.social.x },
   { label: "Instagram", href: siteConfig.social.instagram },
   { label: "LinkedIn", href: siteConfig.social.linkedin },
   { label: "YouTube", href: siteConfig.social.youtube },
   { label: "GitHub", href: siteConfig.social.github },
   { label: "Discord", href: siteConfig.social.discord },
-].filter((link): link is { label: string; href: string } => Boolean(link.href));
+];
 
 export function Footer() {
   return (

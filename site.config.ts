@@ -25,7 +25,7 @@ export const siteConfig = {
    * If you move this, move the session dates in content/agenda.json with it —
    * they are the same day and nothing enforces that automatically.
    */
-  date: "2026-10-10" as string | null,
+  date: "2026-10-17" as string | null,
 
   venue: {
     name: "IITM Research Park",
@@ -40,7 +40,14 @@ export const siteConfig = {
 
   ticketing: {
     // Same platform as 2025 (KonfHub); URL is new for 2026 and still pending.
-    url:"#",
+    //
+    // Must stay `null` until the real URL exists — NOT "#". `ticketCta()` in
+    // lib/cta.ts branches on `if (url)`, and "#" is truthy, so a placeholder
+    // there renders a live, external-styled "Get Tickets →" button on the
+    // hero, the ticket stub, the 404 highlights and ShowMoodSection, all
+    // landing nowhere. That is the exact failure lib/cta.ts exists to stop.
+    // `null` gives the honest "Tickets open soon" state instead.
+    url: null as string | null,
     platform: "KonfHub",
   },
 

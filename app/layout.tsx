@@ -8,6 +8,7 @@ import { MotionProvider } from "@/components/motion/MotionProvider";
 import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { ScrollCueController } from "@/components/motion/ScrollCue";
 import { SkipLink } from "@/components/SkipLink";
+import { Header } from "@/components/Header";
 
 /*
  * A subset WOFF2, not the raw TTF. `next/font/local` copies the file verbatim —
@@ -111,7 +112,11 @@ export default function RootLayout({
         <BootPreloaderRelease />
         <SkipLink />
         <MotionProvider>
-          {/* Header intentionally removed — a new one is being designed. */}
+          {/* Minimal nav off `navRoutes` — see components/Header.tsx. Fixed,
+              so it adds nothing to the document flow the ScrollTrigger pins
+              below are measured against. Replaces the removed header; the
+              redesign can swap this file out without touching anything else. */}
+          <Header />
           <main id="main" className="flex-1">
             {children}
           </main>

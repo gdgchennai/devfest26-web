@@ -113,7 +113,11 @@ function buildGeometry(
   targetH: number,
   viewBoxH: number,
 ): THREE.ExtrudeGeometry {
-  const shapes = paths.flatMap((p) => p.toShapes(true));
+  // toShapes() takes no arguments in three 0.185 — the old `isCCW` flag was
+  // removed upstream, and hole winding is now resolved from the path data
+  // itself. Passing it was a silent no-op at runtime but a build-breaking
+  // type error. Same change in buildLogo below.
+  const shapes = paths.flatMap((p) => p.toShapes());
   const depth = viewBoxH * 0.14;
   const geometry = new T.ExtrudeGeometry(shapes, {
     depth,
@@ -176,7 +180,7 @@ function buildLogo(T: Three, paths: SvgPaths, targetH: number): LogoBuild {
 
   const built: { geo: THREE.ExtrudeGeometry; fill: string }[] = [];
   for (const [fill, ps] of byFill) {
-    const shapes = ps.flatMap((p) => p.toShapes(true));
+    const shapes = ps.flatMap((p) => p.toShapes());
     if (shapes.length === 0) continue;
     const isPlate = fill === "white" || fill === "#ffffff" || fill === "#fff";
     const isPillText = fill === "black" || fill === "#000" || fill === "#000000";

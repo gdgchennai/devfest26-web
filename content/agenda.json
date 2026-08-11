@@ -1,8 +1,8 @@
 [
   {
     "track": "web",
-    "start": "2026-10-10T09:00:00+05:30",
-    "end": "2026-10-10T09:30:00+05:30",
+    "start": "2026-10-17T09:00:00+05:30",
+    "end": "2026-10-17T09:30:00+05:30",
     "title": "Opening Keynote",
     "speakerSlug": null,
     "hall": "Main Hall",
@@ -10,8 +10,8 @@
   },
   {
     "track": "ai",
-    "start": "2026-10-10T09:45:00+05:30",
-    "end": "2026-10-10T10:30:00+05:30",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:30:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall A",
@@ -19,8 +19,8 @@
   },
   {
     "track": "cloud",
-    "start": "2026-10-10T09:45:00+05:30",
-    "end": "2026-10-10T10:30:00+05:30",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:30:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall B",
@@ -28,8 +28,8 @@
   },
   {
     "track": "mobile",
-    "start": "2026-10-10T09:45:00+05:30",
-    "end": "2026-10-10T10:30:00+05:30",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:30:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall C",
@@ -37,8 +37,8 @@
   },
   {
     "track": "web",
-    "start": "2026-10-10T10:30:00+05:30",
-    "end": "2026-10-10T11:00:00+05:30",
+    "start": "2026-10-17T10:30:00+05:30",
+    "end": "2026-10-17T11:00:00+05:30",
     "title": "Tea Break",
     "speakerSlug": null,
     "hall": "Foyer",

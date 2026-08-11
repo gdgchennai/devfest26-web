@@ -46,6 +46,10 @@ Home   Agenda   Speakers   Venue   About            [Get Tickets]
 It is the only conversion on the site. On mobile it stays pinned in the header while the rest
 collapses into a menu.
 
+> **As built:** `components/Header.tsx` ships the five links off `navRoutes`, but neither the
+> tickets button nor the mobile menu — see "Open issues" at the end of this doc for why, and what
+> a redesign has to preserve.
+
 ---
 
 ## Routes
@@ -268,7 +272,7 @@ Almost everything about 2026 is undecided, so build for absence explicitly:
   that silently lands on `/agenda`.
 - `site.config.ts` supports `date: null`, which renders "Date to be announced" everywhere at once.
   One switch, one truth, no possibility of the 2025 contradiction repeating. **The 2026 date is
-  `2026-10-10`.** Change that one field and the hero, the agenda header and the ticket stub all
+  `2026-10-17`.** Change that one field and the hero, the agenda header and the ticket stub all
   follow; the session dates in `content/agenda.json` are the one thing that does *not*, so move
   them by hand at the same time. The FAQ deliberately no longer states the date — that is exactly
   the hand-written second copy that broke in 2025.
@@ -584,3 +588,98 @@ Four contrast constraints fall out of it, all measured:
   will be reconciling two of them in the last week.
 - **`/` and `/memories`** — the motion work, following the entry-animation prompt.
 - **`/agenda` and `/speakers`** — Sheets pipeline, Zod schemas, service worker, empty states.
+
+---
+
+## Open issues — audit, 2026-08-11
+
+A full-repo audit ran on 2026-08-11. Four items were fixed in that pass; the rest are recorded
+here rather than fixed, so they are tracked instead of rediscovered. Ranked roughly by cost of
+leaving them.
+
+### Fixed in that pass
+
+- **Build was failing on three type errors.** `components/Footer.tsx` filtered `socialLinks` with
+  a type predicate that widened `siteConfig`'s `as const` literal hrefs back to `string`; the
+  filter could never drop anything anyway and is gone. `BracketsField.tsx` called
+  `ShapePath.toShapes(true)` in two places — three 0.185 removed that argument, so it was a
+  runtime no-op and a build-breaking type error. `npm run build` and `npx tsc --noEmit` are clean.
+- **`ticketing.url` was `"#"`, not `null`.** `ticketCta()` branches on `if (url)` and `"#"` is
+  truthy, so every "Get Tickets →" on the site was a live button to nowhere — the exact failure
+  `lib/cta.ts` was written to prevent. Back to `null`; the honest "Tickets open soon" state
+  renders again. See the warning comment now in `site.config.ts`.
+- **The site had no navigation.** See below.
+- **`content/agenda.json` was still on `2026-10-10`** after the config moved to `2026-10-17`.
+  Synced. This is the hazard the `site.config.ts` date comment warns about and nothing enforces
+  it — check it every time the date moves.
+
+### The header is minimal, not the specced one
+
+`components/Header.tsx` now ships, reading `navRoutes` from `lib/routes.ts` (exported for this
+and previously consumed by nothing). It is deliberately smaller than the spec in
+"Should it be multi-page with nav?" above:
+
+- **No persistent `[Get Tickets]` button.** Correct for now — `ticketing.url` is `null`, so per
+  the "never render a label the config cannot honour" rule there is nothing to link. Add it in the
+  same change that sets the real URL.
+- **No mobile menu.** Five short labels scroll horizontally in a pill instead of collapsing into a
+  hamburger. Revisit when a sixth item or the tickets button lands.
+- **Fixed, not in flow, on purpose.** The homepage is a chain of ScrollTrigger pins measured off
+  real element heights. A header in normal flow shifts all of them. Any redesign must stay out of
+  flow or re-verify every pin.
+
+### Investigated and deliberately not changed
+
+- **`VenueReveal` returning `null` under reduced-motion/lite is correct.** The audit first flagged
+  this as reduced-motion visitors losing the date, the venue and the map link. That was wrong:
+  `HeroSection` drops to `StaticHero` for exactly those visitors, and `StaticHero` renders
+  `heroCopy.dateLabel` and `heroCopy.venueLabel` at the top of the homepage, with the "unconfirmed"
+  hedge. They lose the venue *photo* and the "Get directions" link — and `/venue`, which carries
+  both, is now one click away in the header. Removing the `null` would also make every
+  motion-enabled visitor flash the static photo for one render, because `staticBaseline`
+  SSR-defaults to `true` and only settles a render later. **Leave it.** The doc comment above it
+  still describes a static degradation that the `null` pre-empts; the dead `staticBaseline`
+  branches in its JSX are the leftovers of that.
+
+### Not fixed — correctness
+
+- **Five ESLint errors in `components/motion/ScrollCue.tsx`** (one `setState` in an effect, four
+  ref reads during render). Not style nits: the component computes the cue's direction from
+  `sectionsRef.current` and `getHorizontalCue()` in the render body, so the arrow can point the
+  wrong way until an unrelated state change re-renders it. The `forceTick` hack exists because of
+  this. Fix by holding `sections.length` and the horizontal-cue snapshot in state.
+- **Three unused-variable warnings** — `siteConfig` and `TicketStub` in `app/page.tsx` (both
+  imports for commented-out JSX that page.tsx says to keep), `fbm` in `BracketsField.tsx`.
+
+### Not fixed — content contradictions
+
+These are mostly invisible today because **the FAQ is rendered nowhere** — `content/faq.json` is
+parsed and exported by `lib/content.ts`, and `components/Faq.tsx` has no consumer. They go live
+the moment it is wired up.
+
+- FAQ says "the Call for Proposals is open on the CFP page". `/cfp` renders **"Opening soon"**,
+  because `cfp.opensAt` is `null`.
+- `/contact` invites "sponsorship" enquiries while the FAQ says there is no sponsorship programme
+  for 2026, `/sponsors` is a retired route, and the tiers are gone from config.
+- **The Code of Conduct ships flagged as a placeholder** (`isPlaceholder: true`), rendering a
+  "pending review" banner on the one page attendees are told to trust. Needs an organiser review,
+  not a code change.
+- **`venue.confirmed: true` sits directly under a comment saying to confirm it before publishing.**
+  As written the `!confirmed` warning banner on `/venue` can never fire, and `StaticHero`'s
+  "· unconfirmed" hedge never shows.
+
+### Not fixed — hygiene
+
+- **31 MB of unused static fonts are tracked in git.** `.gitignore` lists `/Google_Sans/static`
+  but the files predate it, and gitignore does not untrack. Only the variable source is read by
+  `scripts/subset-fonts.mjs`; only the 40 KB subset WOFF2 ships. `git rm -r --cached
+  Google_Sans/static` clears HEAD.
+- **`README.md` is still create-next-app boilerplate** and talks about Geist. This doc is the real
+  documentation.
+- **No `sitemap.ts`, no `robots.ts`, no `metadataBase`, no OG image.** Deferred until the domain is
+  confirmed (see the comment in `app/layout.tsx`), which is defensible — but it means the agenda
+  link that circulates in WhatsApp has no social card at all. A placeholder OG image is worth
+  shipping before the domain lands.
+- **`public/venue-lines.svg` is 586 KB**, fetched client-side on every homepage visit for a
+  decorative draw-in the reduced-motion path never uses. An SVGO pass over its 2203 path segments
+  would likely halve it.
