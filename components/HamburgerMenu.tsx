@@ -8,6 +8,7 @@ import gsap from "gsap";
 import { navRoutes } from "@/lib/routes";
 import { speakerCta, ticketCta } from "@/lib/cta";
 import { RollingText } from "@/components/motion/RollingText";
+import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
 gsap.registerPlugin(useGSAP);
@@ -143,6 +144,57 @@ export function HamburgerMenu() {
     closeMenu();
   });
 
+  // Snaps the menu shut with no animation — reset, not a transition, because
+  // the moment this runs the screen is already fully covered by
+  // MotionProvider's route-transition curtain (app/../MotionProvider.tsx), so
+  // there's nothing visible for an animation to do.
+  const closeInstant = contextSafe(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const items = gsap.utils.toArray<HTMLElement>("[data-menu-item]", panel);
+    gsap.set(panel, { autoAlpha: 0, clipPath: "circle(0px at 0px 0px)" });
+    gsap.set(items, { x: -48, autoAlpha: 0 });
+    gsap.set([barTopRef.current, barBottomRef.current], { rotate: 0, y: 0 });
+    setOpen(false);
+  });
+
+  // For internal nav clicks, let the curtain be the thing that visually
+  // hides the menu — it draws in OVER the still-open panel — rather than the
+  // panel vanishing on its own a beat before the curtain even appears. It's
+  // reset only once the curtain has fully covered the screen, timed off the
+  // same TRANSITION_IN_MS the curtain itself sweeps on, so by the time it
+  // sweeps back out the menu is already gone and the new page is what's
+  // revealed underneath.
+  //
+  // This has to run in the CAPTURE phase (not `close` on <Link>'s onClick,
+  // a bubble-phase React handler): MotionProvider's curtain listens on
+  // `document` in the capture phase and calls stopPropagation() before any
+  // bubble-phase handler runs, so relying on onClick alone left the panel
+  // open with no close ever firing. Effects run child-before-parent, and
+  // HamburgerMenu is a child of MotionProvider, so this listener attaches
+  // (and therefore runs) first on the same document target.
+  useEffect(() => {
+    function onClickCapture(event: MouseEvent) {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const target = event.target as HTMLElement | null;
+      if (!target || !panel.contains(target)) return;
+      const anchor = target.closest("a");
+      const href = anchor?.getAttribute("href");
+      // Same "will the curtain intercept this?" check MotionProvider itself
+      // uses — an external link (Get tickets, Submit CFP's Sessionize form)
+      // isn't touched by the curtain, so it keeps the normal animated
+      // `close` from its own onClick instead.
+      if (href && href.startsWith("/") && !href.startsWith("//") && anchor?.target !== "_blank") {
+        window.setTimeout(closeInstant, TRANSITION_IN_MS);
+      }
+    }
+
+    document.addEventListener("click", onClickCapture, true);
+    return () => document.removeEventListener("click", onClickCapture, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!open) return;
 
@@ -159,6 +211,18 @@ export function HamburgerMenu() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Belt-and-suspenders: the capture listener above handles the normal case,
+  // but closing instantly on the route actually changing means the menu
+  // can't get stuck open after a navigation no matter how it was triggered.
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (pathname !== prevPathnameRef.current) {
+      prevPathnameRef.current = pathname;
+      if (open) closeInstant();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   const ticket = ticketCta();
   const speaker = speakerCta();

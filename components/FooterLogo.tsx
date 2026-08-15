@@ -5,6 +5,7 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { FooterBrackets } from "@/components/FooterBrackets";
 import { GlowButton } from "@/components/GlowButton";
+import { BRACKETS_FIELD_ROUTES } from "@/components/motion/BracketsField";
 
 /*
  * The footer centrepiece: the official DevFest wordmark + "Chennai" pill
@@ -64,9 +65,10 @@ export function FooterLogo({
 }) {
   const pathname = usePathname();
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
-  // The 3D field extrudes and settles the lockup itself only here; otherwise
-  // the flat SVG is the logo.
-  const field3D = pathname === "/" && !staticBaseline;
+  // The 3D field extrudes and settles the lockup itself only on routes that
+  // mount <BracketsField/> (see BRACKETS_FIELD_ROUTES). Everywhere else the
+  // flat SVG is the logo.
+  const field3D = BRACKETS_FIELD_ROUTES.includes(pathname) && !staticBaseline;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-10">

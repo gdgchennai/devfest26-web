@@ -22,6 +22,7 @@ export const siteRoutes: SiteRoute[] = [
   { href: "/speakers", label: "Speakers", description: "The lineup, and how to get on it.", inNav: true },
   { href: "/cfp", label: "Call for Proposals", description: "Submit a talk.", inNav: false },
   { href: "/venue", label: "Venue", description: "Location, travel and amenities.", inNav: true },
+  { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
   { href: "/about", label: "About", description: "Who runs DevFest Chennai.", inNav: true },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },

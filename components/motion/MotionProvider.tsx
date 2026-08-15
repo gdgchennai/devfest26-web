@@ -29,8 +29,31 @@ export function useMotion() {
   return ctx;
 }
 
-const TRANSITION_IN_MS = 500;
+// Exported so other fixed overlays that need to disappear behind the curtain
+// rather than compete with it visually (the hamburger menu's full-screen
+// panel) can time their own reset to land exactly when the curtain has
+// finished covering the screen.
+export const TRANSITION_IN_MS = 500;
 const TRANSITION_OUT_MS = 600;
+
+/**
+ * The CSS custom properties homepage sections scrub directly onto <html>
+ * via gsap.quickSetter as the visitor scrolls (VenueReveal's --theme,
+ * --page-bg, --brackets-opacity; MoodSection's own --theme write). quickSetter
+ * writes bypass GSAP's tween tracking, so killing/reverting the ScrollTrigger
+ * that owns one (which happens automatically when its component unmounts —
+ * i.e. any route change away from the page it's on) does NOT undo the value
+ * already written; it's just left on <html> as an inline style, overriding
+ * the CSS defaults for every page after it, until something removes it.
+ * removeProperty (not a hardcoded value) so each falls back to its real
+ * :root default (--theme: 0, --page-bg: var(--ink), --brackets-opacity: 1).
+ */
+function resetScrubbedTheme() {
+  const root = document.documentElement;
+  root.style.removeProperty("--theme");
+  root.style.removeProperty("--page-bg");
+  root.style.removeProperty("--brackets-opacity");
+}
 
 export function MotionProvider({ children }: { children: React.ReactNode }) {
   const [curtainEl, setCurtainEl] = useState<HTMLDivElement | null>(null);
@@ -151,6 +174,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       e.preventDefault();
       e.stopPropagation();
       if (transitioningRef.current || !curtainRef.current) {
+        resetScrubbedTheme();
         router.push(href);
         return;
       }
@@ -164,6 +188,16 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         ease: EASE_CURTAIN,
         onComplete: () => {
           lenisRef.current?.scrollTo(0, { immediate: true });
+          // The screen is now fully covered, so this is the point to reset
+          // the CSS custom properties VenueReveal/MoodSection scrub directly
+          // onto <html> as the visitor scrolls (--theme, --page-bg,
+          // --brackets-opacity — see resetScrubbedTheme). Those are
+          // gsap.quickSetter writes, not tweens, so nothing about a
+          // ScrollTrigger dying on unmount ever puts them back — leave a
+          // visitor mid-scroll through the pastel-blue Location section,
+          // click a menu link, and the new page inherited that blue
+          // permanently (until a hard refresh reset the inline styles).
+          resetScrubbedTheme();
           router.push(href);
         },
       });
@@ -177,6 +211,13 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (previousPathname.current === pathname) return;
     previousPathname.current = pathname;
+
+    // Fallback for route changes the click handler above never saw — browser
+    // back/forward chiefly. No curtain to hide behind there, but this still
+    // needs to run: a stuck --theme/--page-bg from the page just left is
+    // wrong for the one just arrived at regardless of how the visitor got
+    // there. Harmless if onClick's own call already handled it.
+    resetScrubbedTheme();
 
     if (transitioningRef.current && curtainRef.current) {
       gsap.to(curtainRef.current, {
@@ -201,7 +242,12 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
           setCurtainEl(el);
         }}
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-[999] bg-ink"
+        // Literal black, not bg-ink: --ink is theme-driven and interpolates
+        // toward white as VenueReveal scrubs --theme through the pastel-blue
+        // Location section (see resetScrubbedTheme below) — a curtain tied
+        // to it would itself draw light there instead of covering the page
+        // in black.
+        className="pointer-events-none fixed inset-0 z-[999] bg-black"
         style={{ clipPath: "inset(0 0 100% 0)" }}
       />
       {children}

@@ -249,8 +249,17 @@ function buildLogo(T: Three, paths: SvgPaths, targetH: number): LogoBuild {
  * Split out of the component so the effect can `await import("three")` and
  * hand the namespace in: keeping this inline would force a static import and
  * pull the entire library into the homepage's initial JS.
+ *
+ * `mode`: "scroll" (default) is the homepage's usual behaviour — brackets
+ * drift/orbit and only ease onto the footer logo over the last ~0.85
+ * viewport of scroll. "settled" pins them onto the footer logo permanently
+ * (settle forced to 1 on every frame, never ramped from scroll position) —
+ * for pages that want the framed-logo look without the homepage's drift
+ * choreography preceding it. Positions are still recomputed on scroll/resize
+ * (the footer logo's on-screen rect moves as the page scrolls), just never
+ * un-settled.
  */
-function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => void {
+function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scroll" | "settled" = "scroll"): () => void {
   let disposed = false;
 
   const scene = new T.Scene();
@@ -470,9 +479,16 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
 
     // Settle ramps over the last ~0.85 viewport of scroll, easing to 1 at the
-    // very bottom where the footer logo comes to rest.
-    const raw = clamp(1 - (maxScroll - scrollY) / (vh * 0.85));
-    const settle = raw * raw * (3 - 2 * raw); // smoothstep
+    // very bottom where the footer logo comes to rest — except in "settled"
+    // mode, which skips the ramp and stays at 1 always (see mount()'s doc
+    // comment).
+    let settle: number;
+    if (mode === "settled") {
+      settle = 1;
+    } else {
+      const raw = clamp(1 - (maxScroll - scrollY) / (vh * 0.85));
+      settle = raw * raw * (3 - 2 * raw); // smoothstep
+    }
     let logoRect: DOMRect | null = null;
     if (settle > 0) {
       if (!logoEl) logoEl = document.getElementById("footer-logo");
@@ -522,7 +538,19 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor): () => voi
   };
 }
 
-export function BracketsField() {
+/**
+ * Every route that mounts <BracketsField/> — the single source of truth
+ * FooterLogo.tsx and FooterBrackets.tsx both check to decide whether the 3D
+ * field is going to provide the footer's brackets/logo itself, or whether
+ * they need to fall back to the flat SVG pair. Keeping this list in one
+ * place (rather than each of those three files hardcoding its own pathname
+ * check) is what stops a new route like this one from silently getting
+ * doubled-up brackets — the flat pair rendering on top of a 3D pair that's
+ * already there.
+ */
+export const BRACKETS_FIELD_ROUTES = ["/", "/tickets"];
+
+export function BracketsField({ mode = "scroll" }: { mode?: "scroll" | "settled" } = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -538,7 +566,7 @@ export function BracketsField() {
       .then(([T, { SVGLoader }]) => {
         // The effect may already have been cleaned up while this was in flight.
         if (cancelled) return;
-        teardown = mount(host, T, SVGLoader);
+        teardown = mount(host, T, SVGLoader, mode);
       })
       .catch(() => {
         // three failed to load (offline chunk, etc.). Release the preloader
@@ -557,7 +585,7 @@ export function BracketsField() {
       cancelled = true;
       teardown?.();
     };
-  }, []);
+  }, [mode]);
 
   // Fixed, full-viewport — the single background the whole page shares. Its
   // colour is var(--page-bg): dark by default, falling back to the --ink

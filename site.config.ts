@@ -6,6 +6,15 @@ export type Track = {
   description: string;
 };
 
+export type SubEvent = {
+  slug: string;
+  title: string;
+  /** Pre-formatted for display — these are all placeholders, not `date` above. */
+  date: string;
+  description: string;
+  ctaLabel: string;
+};
+
 export const siteConfig = {
   name: "DevFest Chennai 2026",
   shortName: "DevFest Chennai",
@@ -59,6 +68,67 @@ export const siteConfig = {
     { slug: "mobile", name: "Mobile", description: "Android, iOS, and cross-platform app development." },
     { slug: "web", name: "Web", description: "Frontend frameworks, performance, and the modern web platform." },
   ] satisfies Track[],
+
+  // The community events feeding into the main festival, for the /tickets
+  // "Pick your event" page. Every field below — names, dates, copy, CTA
+  // labels — is a placeholder stand-in until the chapter finalises this
+  // year's satellite-event lineup; edit them here before publishing rather
+  // than hunting through components for hardcoded event copy.
+  //
+  // The flagship event itself (DevFest 2026) is NOT in this list — TicketsList
+  // builds that card from the `date`/`venue`/`ticketing` fields above plus
+  // ticketCta(), so its date and "Get tickets" link stay real instead of a
+  // copy here that can drift out of sync.
+  subEvents: [
+    {
+      slug: "code-for-communities",
+      title: "Code for communities",
+      date: "Aug 29, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Join waitlist",
+    },
+    {
+      slug: "ai-for-science",
+      title: "AI for Science",
+      date: "Sept 5, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Register Now",
+    },
+    {
+      slug: "road-to-idex",
+      title: "Road to IDeX",
+      date: "Sept 15, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Register Now",
+    },
+    {
+      slug: "devfest-on-campus",
+      title: "DevFest on Campus",
+      date: "Sept 30, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Coming Soon",
+    },
+    {
+      slug: "build-with-ai-wtm",
+      title: "Build with AI - WTM edition",
+      date: "Aug 29, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Join waitlist",
+    },
+    {
+      slug: "hardware-tinkering-labs",
+      title: "Hardware Tinkering Labs",
+      date: "Sept 5, 2026",
+      description:
+        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+      ctaLabel: "Register Now",
+    },
+  ] satisfies SubEvent[],
 
   whatYoullGet: [
     { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects." },

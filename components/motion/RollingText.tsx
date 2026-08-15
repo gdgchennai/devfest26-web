@@ -76,8 +76,18 @@ export function RollingText({
         {children}
       </span>
       {/* The incoming copy, stacked directly over the first. Hidden from
-          assistive tech so the label isn't announced twice. */}
-      <span data-roll="bottom" aria-hidden className="absolute left-0 top-0 inline-block">
+          assistive tech so the label isn't announced twice, and from the
+          mouse too — pointer-events-none, since without it this decorative
+          clone (not the visible text under it) is what actually receives
+          clicks: it paints on top and its own box isn't what GSAP offsets
+          on hover, only its per-character spans are. That silently ate
+          clicks on every RollingText-wrapped link (e.g. the hamburger
+          menu's nav items). */}
+      <span
+        data-roll="bottom"
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-0 inline-block"
+      >
         {children}
       </span>
     </span>
