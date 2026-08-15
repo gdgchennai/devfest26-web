@@ -16,12 +16,17 @@ type Size = "sm" | "md" | "lg";
 
 /*
  * Ink label on the core colours, not paper. Paper on #4285F4 is 3.56:1 and this
- * label is 14px, which needs 4.5:1 — ink gives 4.68:1. The brand palette has no
+ * label is 14px, which needs 4.5:1 — ink gives 5.89:1. The brand palette has no
  * darker blue to reach 4.5 with a light label, so the label is what changes.
+ * (That figure was 4.68:1 while --ink was #1e1e1e; it improved when ink went
+ * to #000, so the reasoning stands and the margin is now wider.)
  */
 const VARIANT: Record<Variant, string> = {
   primary: "bg-blue text-ink hover:opacity-90",
-  secondary: "border border-paper/30 text-paper hover:bg-paper/10",
+  // border-paper/45, not /30: this button has no fill, so its border is the
+  // only thing that identifies the control's bounds — WCAG 1.4.11 wants 3:1 for
+  // that. /30 measured 2.30:1; /45 is 3.94:1.
+  secondary: "border border-paper/45 text-paper hover:bg-paper/10",
 };
 
 const SIZE: Record<Size, string> = {

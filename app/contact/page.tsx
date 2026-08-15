@@ -13,7 +13,7 @@ export default function ContactPage() {
       </p>
       <a
         href={`mailto:${siteConfig.contact.email}`}
-        className="mt-6 inline-block text-lg text-blue underline-offset-4 hover:underline"
+        className="mt-6 inline-block text-lg text-blue underline underline-offset-4 hover:decoration-2"
       >
         {siteConfig.contact.email}
       </a>

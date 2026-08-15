@@ -46,6 +46,10 @@ Home   Agenda   Speakers   Venue   About            [Get Tickets]
 It is the only conversion on the site. On mobile it stays pinned in the header while the rest
 collapses into a menu.
 
+> **As built:** `components/Header.tsx` ships the five links off `navRoutes`, but neither the
+> tickets button nor the mobile menu — see "Open issues" at the end of this doc for why, and what
+> a redesign has to preserve.
+
 ---
 
 ## Routes
@@ -268,7 +272,7 @@ Almost everything about 2026 is undecided, so build for absence explicitly:
   that silently lands on `/agenda`.
 - `site.config.ts` supports `date: null`, which renders "Date to be announced" everywhere at once.
   One switch, one truth, no possibility of the 2025 contradiction repeating. **The 2026 date is
-  `2026-10-10`.** Change that one field and the hero, the agenda header and the ticket stub all
+  `2026-10-17`.** Change that one field and the hero, the agenda header and the ticket stub all
   follow; the session dates in `content/agenda.json` are the one thing that does *not*, so move
   them by hand at the same time. The FAQ deliberately no longer states the date — that is exactly
   the hand-written second copy that broke in 2025.
@@ -297,9 +301,15 @@ Non-negotiable:
   are actually looking for.
 - Minimum 16px body, high contrast, generous tap targets.
 - Test on a mid-range Android over throttled 3G before the event, not on your laptop.
-- Reachable in one tap from the loader's escape-hatch row and from the header on every route. The
-  path from "landed on the site" to "reading the agenda" should never require finishing an
-  animation.
+- The path from "landed on the site" to "reading the agenda" should never require finishing an
+  animation. **Currently unmet — this is a known gap, not a satisfied requirement:**
+  - There is no header. `components/Header.tsx` and `HeaderNav.tsx` were removed pending a
+    redesign, so `navRoutes` in `lib/routes.ts` currently has no consumer and `/agenda`, `/about`,
+    `/cfp`, `/memories` and `/speakers` are reachable only from whatever links a given page
+    happens to carry. Restoring site-wide navigation is the blocking item.
+  - There is no skip control. `components/motion/IntroEscape.tsx` still exists and still handles
+    both the "Skip intro" button and the Escape key, but nothing renders it — the intro can only
+    be dismissed via the loader's "Enter" button. Mounting it is the fix; the component is done.
 
 ---
 
@@ -308,12 +318,56 @@ Non-negotiable:
 Built once in the root layout, consumed everywhere. **This lands before anything else.**
 
 - **`<Frame>`** — every image on every route, including speaker headshots and sponsor logos.
-- **The ink curtain** — intro mode on first session load, transition mode on route change.
-- **One Lenis instance** — created in the layout, never per-page.
+- **The ink curtain** — route-transition sweeps between pages. The first-visit intro is its own
+  full-screen white loader overlay (`components/motion/Loader.tsx`): the four brand dots bounce in
+  a loop while assets decode, then morph into the DevFest `> <` mark, and an "Enter the DevFest
+  experience" button hands off to a simulated smooth scroll through the hallway.
+- **One Lenis instance** — created in the layout, never per-page, and **not created at all** for
+  reduced-motion or lite. Smooth scrolling is motion: it used to run for everyone, so a visitor
+  who had asked for no motion still got momentum smoothing, gliding PageDown/arrow keys, and
+  find-in-page jumps that landed off-target. Without it ScrollTrigger simply reads native scroll
+  events; the `lenis.on("scroll", ScrollTrigger.update)` wiring exists only because Lenis takes
+  the scroll over.
 - **`site.config.ts`** — single source of truth for every fact.
-- **Lite mode** — `?lite=1` plus a persisted preference, exposed as a "Lite version" link in the
-  footer of every route. Shares its rendering path with reduced-motion and no-JS; see Part 4 of
-  the motion spec. Site-wide, not a homepage feature.
+- **Lite mode** — `?lite=1` on, `?lite=0` off, either way persisted. The toggle drives the
+  preference through the URL so the choice is linkable, testable and reversible. Shares its
+  rendering path with reduced-motion and no-JS; see Part 4 of the motion spec. Site-wide, not a
+  homepage feature.
+  - **Reachable in four places, each on screen once** — under the loader's "Enter" CTA (where the
+    choice is actually made), in `<IntroEscape>`'s corner during the flythrough, as the footer
+    toggle (`aria-pressed`, visible on/off state) on every route, and — going the other way — a
+    "Switch to the full experience" link in `<StaticHero>`. Lite is a preference, not a one-way
+    door: verified end to end that `?lite=0` clears the stored value and the WebGL hero returns.
+  - **What lite drops:** three.js (marquee + 3D title), the hallway, the preloader/intro, Lenis,
+    and every photo — measured at **0 image requests vs 5.7 MB**, and 316 KB of JS vs 511 KB.
+    `ExpectShowcase` renders brand halftone panels instead of its decorative archive photos,
+    which alone were 1.76 MB of raw originals.
+  - **Switching modes is always a full page load, never a client-side swap.** The footer toggle
+    sets `window.location.href`; every other lite control is a plain `<a href="?lite=…">`, and
+    `MotionProvider`'s link interceptor only hijacks hrefs starting with `/`, so these are never
+    caught. That means there is nothing to tear down when you switch: the old document's GSAP
+    tickers, Lenis instance, WebGL contexts and module registry all die with it, and the new
+    document decides from scratch. Going lite → full cannot "crash from too many imports" — it is
+    byte-for-byte a first visit. Verified end to end (canvases 3 → 0 → 3, no exceptions).
+    - The dangerous pattern is the opposite one: flipping the preference *mid-session* and
+      swapping components while a ScrollTrigger is pinned. That is what the hallway skill warns
+      about. Nothing does it — the preference is read once per document.
+  - **Known, deliberately not fixed:** roughly **125 KB of lite's 316 KB** is GSAP + ScrollTrigger
+    + Lenis + the homepage's motion components, statically imported and never executed. Removing
+    it is not a small change: `MotionProvider` lives in the **root layout**, so it reaches every
+    route, and the homepage additionally imports eight components that pull GSAP at module scope.
+    A real fix therefore needs both a dynamic import inside `MotionProvider` *and* a server-side
+    branch in `app/page.tsx` — which means `cookies()` (giving up static prerendering for
+    everyone) or a proxy rewrite plus a duplicate route tree.
+    - **Not worth it right now.** The bandwidth argument is already won elsewhere: lite dropped
+      **5.7 MB of images to zero**, ~45× the JS in question, and the JS is gzipped, cached once,
+      and reused across every route. The cost lands on the root layout — the single
+      highest-blast-radius file, holding the Lenis/ScrollTrigger wiring the whole site's motion
+      depends on.
+    - If it is ever picked up, do it in this order: (1) dynamic-import GSAP/Lenis inside
+      `MotionProvider`'s effect, which is contained to one file and already sits behind a
+      `shouldUseStaticBaseline()` early return; (2) only then consider the page-level branch.
+      Step 1 alone buys the non-homepage routes; the homepage needs step 2.
 - **Metadata** — per-route `generateMetadata`, one OG template with the route title composited in.
 - **Fonts** — `public/fonts/google-sans-latin.woff2`, generated by `npm run fonts`. Never point
   `next/font/local` at the raw TTF in `Google_Sans/`: it copies the file byte for byte, so the
@@ -350,9 +404,136 @@ Things to know before changing it:
 - **The render loop is driven by a scrubbed proxy tween, not `onUpdate(self.progress)`.** A
   scrubbed ScrollTrigger only interpolates smoothly when it drives an actual animation; reading
   progress directly steps with every wheel notch. Do not "simplify" this away.
-- **Reduced motion, Save-Data and lite mode skip it entirely** via `shouldUseStaticBaseline()` —
-  the hero falls back to `StaticHero`, `/memories` to its year grids. That baseline is also what
-  server-renders, so the motion path never unmounts a live pinned trigger after hydration.
+- **Reduced motion and lite mode skip it entirely** via `shouldUseStaticBaseline()` — the hero
+  falls back to `StaticHero`, `/memories` to its year grids. (Save-Data does *not*: see
+  `isSaveData` in `lib/motion-prefs.ts` for why that gate was removed.) That baseline is also
+  what server-renders, so the motion path never unmounts a live pinned trigger after hydration.
+
+---
+
+## Asset payload & preloader failure policy
+
+**Status: implemented.** Numbers are from a headless-Chrome run against a production build at
+1440×900, counting `encodedDataLength` (over the wire).
+
+### The measurement
+
+Optimising lite was optimising the path almost nobody takes. **Main is the default** — a visitor
+with no stored preference gets the full experience — so main is where payload actually matters.
+
+| Path | JS | Images before | Images after |
+| --- | --- | --- | --- |
+| Main (first visit) | 511 KB | **5.76 MB** (5.04 MB of it raw `/archive/*.jpg`) | **1.08 MB**, zero raw |
+| Reduced motion | 502 KB | 3.30 MB | **0.60 MB** |
+| Lite | 316 KB | 0 KB | 0 KB (unchanged) |
+
+**~4.7 MB off every first visit**, with the hero visually identical — verified by screenshot at
+matched elapsed time, and by zero console errors/exceptions in all three modes.
+
+### Where the 5 MB comes from
+
+`useAssetsLoaded` warms its `assets` list by **raw URL**, and `HeroSection` passes
+`archivePhotos.map(p => p.src)` — **all 15 originals**, 230–505 KB each. The justifying comment
+says the raw list exists for two consumers that "cannot use `/_next/image`": the curved marquee's
+three.js `TextureLoader`, and `ExpectShowcase`'s plain `<img>`.
+
+Both halves of that are now false:
+
+1. **`ExpectShowcase` no longer uses raw** — it renders through `next/image` (and brand halftone
+   panels in lite). Its share of the raw warm is pure waste, and the page fetches optimised copies
+   on top of it.
+2. **`TextureLoader` can use `/_next/image` perfectly well.** It is a URL handed to an `Image`
+   element; the browser still content-negotiates AVIF/WebP. Measured on a real archive photo:
+   **517 KB raw → 72 KB at `w=1080`, an 86% reduction.**
+
+And only **8** of the 15 are ever used as textures (`IMAGE_SRCS` slices to 8), so ~7 images
+(~2 MB) are warmed and then rendered by nobody at that URL.
+
+### Options considered
+
+| | Approach | Verdict |
+| --- | --- | --- |
+| **A** | Marquee textures via `/_next/image`; narrow the warm list to exactly those 8 | **Chosen.** ~5.76 MB → ~1.3 MB, 3 files, reversible, no build-pipeline change |
+| B | Stop warming marquee textures at all; let the marquee fill in progressively | Rejected — contradicts the deliberate "preloader holds until everything is ready, nothing pops in unloaded" decision. That is a product call, not a perf tweak |
+| C | Build-time texture generation via a `scripts/` step, like `npm run fonts` / `npm run archive` | **Deferred, not dismissed.** Zero runtime optimiser cost, exact dimensions, no coupling to Next's image defaults, and warm/consumer URLs become literally the same static file. Costs a pipeline + committed binaries. Revisit if A's coupling causes trouble |
+| D | Progressive marquee — 2–3 textures first, stream the rest | Rejected — complexity, and visible gaps in the strip |
+| E | Single sprite atlas for all 8 textures | Rejected — best compression and 1 request, but needs UV maths changes inside the animation code. Too risky for the gain |
+
+### Guardrail 1 — warm/consumer URL drift
+
+The preloader is only useful if it warms **the exact URL the consumer later requests**. A mismatch
+is silent and expensive: the dots keep bouncing on an asset nothing wants, then hand off to cards
+that still have to fetch. That has already happened twice here (once for the flythrough's `Frame`s,
+once for `unoptimized`).
+
+A shared helper is not enough — two call sites can still pass different widths. **The consumer owns
+the list:** `CurvedMarqueeHero` exports `MARQUEE_TEXTURES`, the exact URL array it hands to
+`TextureLoader`, and `HeroSection` passes *that same array* to `useAssetsLoaded`. One array, no
+second source of truth, drift impossible by construction rather than by convention. The single-width
+URL builder (`optimizedSrc`) lives beside `DEVICE_SIZES` and `DEFAULT_QUALITY` in
+`useAssetsLoaded.ts`, so the coupling to Next's image defaults stays in one file.
+
+Optional dev-only check: after hand-off, compare each warmed URL against
+`performance.getEntriesByType("resource")` and warn when one appears exactly once (warmed, never
+consumed — a cache hit still logs a second entry). Development only, and advisory: entry counting
+is not guaranteed across browsers.
+
+### Guardrail 2 — fail fast, and fall back rather than hand off broken
+
+Current behaviour, stated accurately: `Promise.allSettled` means a **definitive** failure (a 404,
+a decode error) does *not* block — hand-off happens once every wait settles. `MAX_DURATION`
+(15 s) only trips when something genuinely **stalls**. Three gaps remain:
+
+1. **`fetch(TITLE_TYPEFACE)` cannot fail.** `fetch` rejects only on network failure; a 404 gives
+   `ok: false` and `.arrayBuffer()` happily resolves on the error body. A missing typeface is
+   therefore recorded as **success** — the preloader hands off and the 3D title silently never
+   renders. Needs an explicit `if (!r.ok) throw`.
+2. **No per-asset budget.** One stalled connection burns the whole 15 s even when everything else
+   settled in 2 s. Each wait should carry its own shorter budget and be treated as failed past it.
+3. **Nothing records *what* failed**, so nothing can distinguish "one minor image missing, carry
+   on" from "the experience this intro exists to introduce cannot render".
+
+Failure is now a **result**, not just an absence of waiting: `useAssetsLoaded` returns
+`{ ready, degraded }`, where `degraded` means a load-bearing asset definitively failed —
+the typeface, three.js, or *every* marquee texture. A single missing photo is deliberately not
+degradation. `HeroSection` then renders `StaticHero` instead of `CurvedMarqueeHero`, and skips
+`MIN_DURATION` (making someone watch a decorative beat before telling them the decoration is not
+coming is the wrong trade).
+
+This is newly worth doing **because `StaticHero` now exists**. Before it, "activate the fallback"
+meant a black screen with two links, so waiting out the timeout was genuinely the better of two bad
+options. It is not any more.
+
+`SectionBoundary` already covers the case where a motion component *throws*. This covers the other
+one: it did not throw, it just never arrived.
+
+Verified by blocking each asset class in the browser:
+
+| Injected fault | Hand-off | Hero shown |
+| --- | --- | --- |
+| none | 5.4 s | `CurvedMarqueeHero` |
+| typeface 404 | 4.3 s | `StaticHero` |
+| all marquee textures blocked | 4.3 s | `StaticHero` |
+| three.js chunks blocked | 4.2 s | `StaticHero` |
+| typeface stalls forever | 11.6 s | `StaticHero` |
+
+### The bug this uncovered: the gate was never wired
+
+`useAssetsLoaded` initialised its state with `useState(disabled)`. On the hydration render
+`shouldUseStaticBaseline()` returns its **server** value `true`, so `showLoader` is false, so
+`disabled` is true — and `ready` initialised to `true`. `useState` ignores later argument changes,
+so when `disabled` flipped false a render later, nothing set `ready` back.
+
+**The preloader therefore never waited for anything, and `MIN_DURATION` / `MAX_DURATION` were both
+dead code.** It looked convincing because the bounce only hands off on a cycle boundary and then
+plays a morph, so there were always a few plausible seconds of dots. It was caught by pausing the
+typeface request forever and watching hand-off happen on schedule anyway.
+
+`ready` is now derived (`disabled ? {ready:true} : state`) rather than seeded, so it tracks
+`disabled` instead of freezing at whatever the first render saw. **Consequence worth knowing:** the
+preloader now genuinely waits, so a slow connection sees a longer intro than it used to — which is
+the documented intent ("holds until everything is ready rather than downgrading slow visitors"),
+and is now bounded by `ASSET_BUDGET` per source rather than being unbounded.
 
 ---
 
@@ -365,17 +546,17 @@ design — community events are typically required to state plainly that they're
 rather than a Google product, and there are usually constraints on how the four Google colours and
 the Google logo may be used.
 
-This matters practically because the loader dot and the fallback panels both lean on those four
-colours. If the kit restricts that usage, those are the two places to adapt, and it is much
+This matters practically because the loader mark (all four dots/pills) and the fallback panels
+both lean on those four colours. If the kit restricts that usage, those are the two places to adapt, and it is much
 cheaper to know now.
 
 ### The palette, as implemented
 
 All four ramps live in `app/globals.css` as tokens. **Do not hand-mix new shades — pick from
 these.** Core `#4285F4 #34A853 #F9AB00 #EA4335`, halftones `#57CAFF #5CDB6D #FFD427 #FF7DAF`,
-pastels `#C3ECF6 #CCF6C5 #FFE7A5 #F8D8D8`, greyscale `--paper #F0F0F0` / `--ink #1E1E1E`.
+pastels `#C3ECF6 #CCF6C5 #FFE7A5 #F8D8D8`, greyscale `--paper #F0F0F0` / `--ink #000`.
 
-Three contrast constraints fall out of it, all measured:
+Four contrast constraints fall out of it, all measured:
 
 - **Button labels are ink, not paper.** Paper on `#4285F4` is 3.56:1 and the label is 14px, which
   needs 4.5:1. Ink gives 4.68:1. The palette has no darker blue, so the label is what changes.
@@ -384,6 +565,19 @@ Three contrast constraints fall out of it, all measured:
   would score higher still but flash near-white against the dark page while a photo decodes.
 - **The hero scrim is `bg-ink/65`, not `/45`.** Over a blown-out area of a photo, `/45` against
   the lighter `#1E1E1E` ink measures 2.47:1 under the small date line; `/65` restores 4.54:1.
+- **The site is dark-only, and this is a decision — do not add a light theme.** A `--theme` custom
+  property once scrubbed `--ink`/`--paper` from dark to light partway down the homepage. It was
+  removed because the brand kit cannot support it: measured on white, the four core colours are
+  blue 3.56:1, red 3.92:1, green 3.06:1 and yellow **1.93:1**, all under the 4.5:1 needed for text.
+  That breaks `text-blue` links and all four `lib/track-color` track headings. There is no fix
+  inside the kit — as the first constraint above notes it has no darker shades, and both other
+  ramps (halftone, pastel) are *lighter*, not darker. On the dark page those same four measure
+  5.89 / 5.35 / 6.87 / 10.85:1 and all pass. Reviving a light theme means first commissioning
+  on-light brand variants; it is not a CSS change.
+
+  The **intro loader is the deliberate exception**: a full-screen white field, so the four brand
+  dots read at full saturation as they morph into the mark. It is a literal `bg-white` in
+  `Loader.tsx` and does not touch these tokens, so it is unaffected by the above.
 
 ---
 
@@ -394,3 +588,98 @@ Three contrast constraints fall out of it, all measured:
   will be reconciling two of them in the last week.
 - **`/` and `/memories`** — the motion work, following the entry-animation prompt.
 - **`/agenda` and `/speakers`** — Sheets pipeline, Zod schemas, service worker, empty states.
+
+---
+
+## Open issues — audit, 2026-08-11
+
+A full-repo audit ran on 2026-08-11. Four items were fixed in that pass; the rest are recorded
+here rather than fixed, so they are tracked instead of rediscovered. Ranked roughly by cost of
+leaving them.
+
+### Fixed in that pass
+
+- **Build was failing on three type errors.** `components/Footer.tsx` filtered `socialLinks` with
+  a type predicate that widened `siteConfig`'s `as const` literal hrefs back to `string`; the
+  filter could never drop anything anyway and is gone. `BracketsField.tsx` called
+  `ShapePath.toShapes(true)` in two places — three 0.185 removed that argument, so it was a
+  runtime no-op and a build-breaking type error. `npm run build` and `npx tsc --noEmit` are clean.
+- **`ticketing.url` was `"#"`, not `null`.** `ticketCta()` branches on `if (url)` and `"#"` is
+  truthy, so every "Get Tickets →" on the site was a live button to nowhere — the exact failure
+  `lib/cta.ts` was written to prevent. Back to `null`; the honest "Tickets open soon" state
+  renders again. See the warning comment now in `site.config.ts`.
+- **The site had no navigation.** See below.
+- **`content/agenda.json` was still on `2026-10-10`** after the config moved to `2026-10-17`.
+  Synced. This is the hazard the `site.config.ts` date comment warns about and nothing enforces
+  it — check it every time the date moves.
+
+### The header is minimal, not the specced one
+
+`components/Header.tsx` now ships, reading `navRoutes` from `lib/routes.ts` (exported for this
+and previously consumed by nothing). It is deliberately smaller than the spec in
+"Should it be multi-page with nav?" above:
+
+- **No persistent `[Get Tickets]` button.** Correct for now — `ticketing.url` is `null`, so per
+  the "never render a label the config cannot honour" rule there is nothing to link. Add it in the
+  same change that sets the real URL.
+- **No mobile menu.** Five short labels scroll horizontally in a pill instead of collapsing into a
+  hamburger. Revisit when a sixth item or the tickets button lands.
+- **Fixed, not in flow, on purpose.** The homepage is a chain of ScrollTrigger pins measured off
+  real element heights. A header in normal flow shifts all of them. Any redesign must stay out of
+  flow or re-verify every pin.
+
+### Investigated and deliberately not changed
+
+- **`VenueReveal` returning `null` under reduced-motion/lite is correct.** The audit first flagged
+  this as reduced-motion visitors losing the date, the venue and the map link. That was wrong:
+  `HeroSection` drops to `StaticHero` for exactly those visitors, and `StaticHero` renders
+  `heroCopy.dateLabel` and `heroCopy.venueLabel` at the top of the homepage, with the "unconfirmed"
+  hedge. They lose the venue *photo* and the "Get directions" link — and `/venue`, which carries
+  both, is now one click away in the header. Removing the `null` would also make every
+  motion-enabled visitor flash the static photo for one render, because `staticBaseline`
+  SSR-defaults to `true` and only settles a render later. **Leave it.** The doc comment above it
+  still describes a static degradation that the `null` pre-empts; the dead `staticBaseline`
+  branches in its JSX are the leftovers of that.
+
+### Not fixed — correctness
+
+- **Five ESLint errors in `components/motion/ScrollCue.tsx`** (one `setState` in an effect, four
+  ref reads during render). Not style nits: the component computes the cue's direction from
+  `sectionsRef.current` and `getHorizontalCue()` in the render body, so the arrow can point the
+  wrong way until an unrelated state change re-renders it. The `forceTick` hack exists because of
+  this. Fix by holding `sections.length` and the horizontal-cue snapshot in state.
+- **Three unused-variable warnings** — `siteConfig` and `TicketStub` in `app/page.tsx` (both
+  imports for commented-out JSX that page.tsx says to keep), `fbm` in `BracketsField.tsx`.
+
+### Not fixed — content contradictions
+
+These are mostly invisible today because **the FAQ is rendered nowhere** — `content/faq.json` is
+parsed and exported by `lib/content.ts`, and `components/Faq.tsx` has no consumer. They go live
+the moment it is wired up.
+
+- FAQ says "the Call for Proposals is open on the CFP page". `/cfp` renders **"Opening soon"**,
+  because `cfp.opensAt` is `null`.
+- `/contact` invites "sponsorship" enquiries while the FAQ says there is no sponsorship programme
+  for 2026, `/sponsors` is a retired route, and the tiers are gone from config.
+- **The Code of Conduct ships flagged as a placeholder** (`isPlaceholder: true`), rendering a
+  "pending review" banner on the one page attendees are told to trust. Needs an organiser review,
+  not a code change.
+- **`venue.confirmed: true` sits directly under a comment saying to confirm it before publishing.**
+  As written the `!confirmed` warning banner on `/venue` can never fire, and `StaticHero`'s
+  "· unconfirmed" hedge never shows.
+
+### Not fixed — hygiene
+
+- **31 MB of unused static fonts are tracked in git.** `.gitignore` lists `/Google_Sans/static`
+  but the files predate it, and gitignore does not untrack. Only the variable source is read by
+  `scripts/subset-fonts.mjs`; only the 40 KB subset WOFF2 ships. `git rm -r --cached
+  Google_Sans/static` clears HEAD.
+- **`README.md` is still create-next-app boilerplate** and talks about Geist. This doc is the real
+  documentation.
+- **No `sitemap.ts`, no `robots.ts`, no `metadataBase`, no OG image.** Deferred until the domain is
+  confirmed (see the comment in `app/layout.tsx`), which is defensible — but it means the agenda
+  link that circulates in WhatsApp has no social card at all. A placeholder OG image is worth
+  shipping before the domain lands.
+- **`public/venue-lines.svg` is 586 KB**, fetched client-side on every homepage visit for a
+  decorative draw-in the reduced-motion path never uses. An SVGO pass over its 2203 path segments
+  would likely halve it.

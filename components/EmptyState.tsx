@@ -13,7 +13,7 @@ export function EmptyState({ message, linkHref, linkLabel }: EmptyStateProps) {
       {linkHref && linkLabel && (
         <Link
           href={linkHref}
-          className="mt-3 inline-block text-sm text-blue underline-offset-4 hover:underline"
+          className="mt-3 inline-block text-sm text-blue underline underline-offset-4 hover:decoration-2"
         >
           {linkLabel}
         </Link>

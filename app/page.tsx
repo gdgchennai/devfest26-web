@@ -1,103 +1,113 @@
-import Link from "next/link";
 import { siteConfig } from "@/site.config";
-import { agenda, speakers } from "@/lib/content";
-import { Card } from "@/components/Card";
-import { Section } from "@/components/Section";
-import { Faq } from "@/components/Faq";
+// import { speakers } from "@/lib/content";
+import { getBrandShapes } from "@/lib/brandShapes";
 import { SectionBoundary } from "@/components/SectionBoundary";
-import { HeroSection, StaticHero } from "@/components/motion/HeroSection";
-import { TrackCards } from "@/components/TrackCards";
-import { AgendaTimeline } from "@/components/AgendaTimeline";
-import { SpeakerWall } from "@/components/SpeakerWall";
+import { HeroSection } from "@/components/motion/HeroSection";
+import { StaticHero } from "@/components/motion/StaticHero";
+import { ReadySection } from "@/components/motion/ReadySection";
+import { ExpectShowcase } from "@/components/motion/ExpectShowcase";
+import { BracketsField } from "@/components/motion/BracketsField";
+import { VenueReveal } from "@/components/motion/VenueReveal";
+import { MoodSection } from "@/components/motion/MoodSection";
+import { ShowMoodSection } from "@/components/motion/ShowMoodSection";
+import { SeeYouThereSection } from "@/components/motion/SeeYouThereSection";
+// import { TrackCards } from "@/components/TrackCards";
+// import { SpeakerWall } from "@/components/SpeakerWall";
 import { TicketStub } from "@/components/TicketStub";
 
 export default function Home() {
-  const previewSessions = agenda.slice(0, 4);
-
   return (
     <>
-      {/* If the motion hero throws at runtime, degrade to the static hero
-          instead of taking down the whole homepage. */}
-      <SectionBoundary label="hero" fallback={<StaticHero />}>
-        <HeroSection />
-      </SectionBoundary>
+      {/* The sticky 3D brackets backdrop: a fixed black layer behind the whole
+          homepage (z-0). It never scrolls — content below slides over it — and
+          the hero covers it until the visitor scrolls down off the first
+          screen. All page content is lifted above it by the z-10 wrapper. */}
+      <BracketsField />
 
-      {/* `id` is load-bearing: the skip link and the hero's escape hatch both
-          target it. No divider — the hero is already its own boundary. */}
-      <Section
-        id="after-hero"
-        eyebrow="Why come"
-        title="What you'll get"
-        dotColor="blue"
-        divider={false}
-      >
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {siteConfig.whatYoullGet.map((item) => (
-            <Card key={item.title} className="h-full">
-              <h3 className="font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm text-paper/70">{item.description}</p>
-            </Card>
-          ))}
+      <div className="relative z-10">
+        {/* If the motion hero throws at runtime, degrade to the static hero
+            instead of taking down the whole homepage. The fallback is
+            StaticHero, not CurvedMarqueeHero: a fallback that itself needs
+            WebGL to show any content is no fallback at all. */}
+        {/*
+         * `data-scroll-cue-section` on every top-level section below marks
+         * the boundaries ScrollCueController (see components/motion/ScrollCue.tsx)
+         * walks to find "the next section" for its floating down/right arrow.
+         * Plain wrapper divs, deliberately: they add no styling of their own
+         * and sit outside every section's internal refs, so GSAP's pinning
+         * (ExpectShowcase, VenueReveal, MoodSection all pin an element INSIDE
+         * their own <section>) is completely unaffected by their presence.
+         */}
+        <div data-scroll-cue-section>
+          <SectionBoundary label="hero" fallback={<StaticHero />}>
+            <HeroSection />
+          </SectionBoundary>
         </div>
-      </Section>
 
-      {/* Why join us — 4 items, stated still (cut from 2025's 12-item marquee) */}
-      <Section eyebrow="The pitch" title="Why join us" dotColor="red">
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {siteConfig.whyJoinUs.map((reason) => (
-            <li key={reason}>
-              <Card className="h-full text-paper/85">{reason}</Card>
-            </li>
-          ))}
-        </ul>
-      </Section>
+        {/* A short beat between the hero and "About DevFest": a two-line
+            question wiped into view, line by line. */}
+        <div data-scroll-cue-section>
+          <ReadySection />
+        </div>
 
-      <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
-        <TrackCards tracks={siteConfig.tracks} />
-      </Section>
+        {/* The dark "What to expect" section, over the 3D brand-shape backdrop.
+            Carries the load-bearing `id="after-hero"` (skip link + hero escape
+            hatch target); degrades to a static row under reduced-motion/lite. */}
+        <div data-scroll-cue-section>
+          <ExpectShowcase />
+        </div>
 
-      <Section eyebrow="Sample schedule" title="Agenda preview" dotColor="green">
-        <p className="-mt-4 mb-6 text-sm text-paper/60">
-          Final sessions and speakers are still being confirmed — this is a placeholder shape of
-          the day.
-        </p>
-        <AgendaTimeline sessions={previewSessions} />
-      </Section>
+        {/* "Why join" is folded into "About DevFest" above and not rendered
+            here — its reasons UI is unused, and its one load-bearing side
+            effect (the dark → light --theme scrub the sections below need for
+            readable text over their light backgrounds) now lives in
+            VenueReveal instead, timed to that section's own reveal rather
+            than firing the instant this point in the page is reached. */}
 
-      {/* Lineup, shown as open places while speakers.json is empty — the CFP
-          pitch belongs where someone is already looking for speakers. */}
-      <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
-        <p className="-mt-4 mb-6 text-sm text-paper/60">
-          {speakers.length === 0
-            ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
-            : "More speakers still to be announced."}
-        </p>
-        <SpeakerWall />
-      </Section>
+        {/* <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
+          <TrackCards tracks={siteConfig.tracks} />
+        </Section> */}
 
-      {/* No sponsors section: 2026 is not running sponsorship at all. The
-          route and its data are gone too — see the architecture doc. */}
+        {/* Lineup, shown as open places while speakers.json is empty — the CFP
+            pitch belongs where someone is already looking for speakers. */}
+        {/* <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
+          <p className="-mt-4 mb-6 text-sm text-paper/60">
+            {speakers.length === 0
+              ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
+              : "More speakers still to be announced."}
+          </p>
+          <SpeakerWall />
+        </Section> */}
 
-      <Section eyebrow="Where" title="Venue" dotColor="red">
-        <p className="max-w-xl text-paper/80">
-          {siteConfig.venue.line1}, {siteConfig.venue.line2}
-          {!siteConfig.venue.confirmed && " — pending final confirmation."}
-        </p>
-        <Link
-          href="/venue"
-          className="mt-3 inline-block text-sm text-blue underline-offset-4 hover:underline"
-        >
-          Venue details & travel →
-        </Link>
-      </Section>
+        {/* No sponsors section: 2026 is not running sponsorship at all. The
+            route and its data are gone too — see the architecture doc. */}
 
-      <Section eyebrow="Questions" title="FAQ" dotColor="yellow">
-        <Faq />
-      </Section>
+        {/* The pinned "Location" reveal: heading settles up top while the
+            venue's hand-drawn outline draws itself in, then the real photo,
+            caption, and a save-the-date beat follow. Not built on <Section> —
+            it's a full-bleed stage, not a padded content block (see
+            VenueReveal for why <Section> itself is untouched). */}
+        <div data-scroll-cue-section>
+          <VenueReveal brandShapes={getBrandShapes()} />
+        </div>
 
-      <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
-        <TicketStub />
-      </section>
+        <div data-scroll-cue-section>
+          <MoodSection />
+        </div>
+
+        <div data-scroll-cue-section>
+          <ShowMoodSection />
+        </div>
+
+        <div data-scroll-cue-section>
+          <SeeYouThereSection />
+        </div>
+
+        {/* Hiding this for the time being. Don't remove. This needs to be repurposed differently
+        <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
+          <TicketStub />
+        </section> */}
+      </div>
     </>
   );
 }

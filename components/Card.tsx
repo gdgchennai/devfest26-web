@@ -20,7 +20,12 @@ export function Card({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border border-paper/10 bg-paper/[0.03] p-5 ${className}`.trim()}
+      // bg-surface, not bg-paper/[0.03]: the old wash was 97% transparent, so
+      // BracketsField's 3D brackets travelled straight through the card and
+      // across its text. --surface holds back 92% of it — enough that a bracket
+      // still reads as moving behind the card, not enough to pull the text
+      // under AA. The ratios are worked out at the token.
+      className={`relative overflow-hidden rounded-lg border border-paper/10 bg-surface p-5 ${className}`.trim()}
     >
       {accentClass && (
         <span aria-hidden className={`absolute inset-x-0 top-0 h-px ${accentClass}`} />

@@ -1,0 +1,81 @@
+"use client";
+
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { prefersReducedMotion } from "@/lib/motion-prefs";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+/** Turns of rotation per viewport of page scrolled. */
+const TURNS_PER_VIEWPORT = 1.5;
+
+/**
+ * A section heading fronted by the brand's green hash mark (brand-assets/
+ * title_hash.svg, inlined so it can be transformed directly). The hash spins
+ * continuously off the WHOLE-PAGE scroll — scrubbed — so it keeps turning
+ * whenever the visitor scrolls anywhere there's scrollable content, vertical
+ * scroll and the pinned horizontal section alike, and reverses on the way back.
+ *
+ * The SVG carries `aria-hidden`; the visible text is the accessible label.
+ */
+export function HashTitle({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const hashRef = useRef<SVGSVGElement>(null);
+
+  useGSAP(
+    () => {
+      if (prefersReducedMotion() || !hashRef.current) return;
+      gsap.to(hashRef.current, {
+        // Total turns scale with how many viewports the page can scroll, so the
+        // angular rate per pixel is constant regardless of page length.
+        rotate: () => {
+          const vh = window.innerHeight || 1;
+          const maxScroll = document.documentElement.scrollHeight - vh;
+          return (maxScroll / vh) * 360 * TURNS_PER_VIEWPORT;
+        },
+        ease: "none",
+        transformOrigin: "50% 50%",
+        // No trigger element — the scroller itself can't be a valid trigger.
+        // Absolute scroll bounds (0 → max) map the whole page to the spin.
+        scrollTrigger: {
+          start: 0,
+          end: () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight),
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
+    },
+    { scope: rowRef },
+  );
+
+  return (
+    <div ref={rowRef} className={`flex items-center gap-4 sm:gap-6 ${className}`.trim()}>
+      <svg
+        ref={hashRef}
+        aria-hidden
+        viewBox="0 0 47 46"
+        fill="none"
+        className="h-11 w-11 shrink-0 sm:h-16 sm:w-16 lg:h-24 lg:w-24"
+        style={{ willChange: "transform" }}
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M46.2168 19.7068H40.02V26.2932H46.2168C46.6495 26.2932 47 26.6417 47 27.072V38.6484C47 39.0787 46.6495 39.4272 46.2168 39.4272H40.02V45.2212C40.02 45.6515 39.6695 46 39.2368 46H27.595C27.1623 46 26.8118 45.6515 26.8118 45.2212V39.4272H20.1882V45.2212C20.1882 45.6515 19.8377 46 19.405 46H7.76317C7.33047 46 6.98 45.6515 6.98 45.2212V39.4272H0.78317C0.352427 39.4272 0 39.0787 0 38.6484V27.072C0 26.6417 0.352427 26.2932 0.78317 26.2932H6.98V19.7068H0.78317C0.352427 19.7068 0 19.3583 0 18.928V7.35159C0 6.92132 0.352427 6.57282 0.78317 6.57282H6.98V0.77877C6.98 0.3485 7.33047 0 7.76317 0H19.405C19.8377 0 20.1882 0.3485 20.1882 0.77877V6.57282H26.8118V0.77877C26.8118 0.3485 27.1623 0 27.595 0H39.2368C39.6695 0 40.02 0.3485 40.02 0.77877V6.57282H46.2168C46.6495 6.57282 47 6.92132 47 7.35159V18.928C47 19.3583 46.6495 19.7068 46.2168 19.7068ZM26.8118 19.7068H20.1882V26.2932H26.8118V19.7068Z"
+          fill="var(--green)"
+        />
+      </svg>
+      <span className="text-5xl font-semibold leading-none tracking-tight sm:text-7xl lg:text-8xl">
+        {children}
+      </span>
+    </div>
+  );
+}

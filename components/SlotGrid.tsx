@@ -75,7 +75,7 @@ export function SlotGrid({
         <li key={`ghost-${i}`}>
           <div
             aria-hidden
-            className={`rounded-lg border border-dashed border-paper/10 bg-paper/[0.015] ${slotClassName}`}
+            className={`rounded-lg border border-dashed border-paper/10 bg-surface ${slotClassName}`}
           />
         </li>
       ))}
@@ -90,7 +90,7 @@ export function SlotGrid({
  * inside it.
  */
 const FILLED_BASE =
-  "relative block overflow-hidden rounded-lg border border-paper/10 bg-paper/[0.03] transition-colors";
+  "relative block overflow-hidden rounded-lg border border-paper/10 bg-surface transition-colors";
 
 function Filled({ slot, slotClassName }: { slot: FilledSlot; slotClassName: string }) {
   const classes = `${FILLED_BASE} ${slotClassName}`;

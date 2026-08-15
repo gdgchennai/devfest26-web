@@ -45,7 +45,11 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
     // No permanent background: the backdrop below fades in as the hallway takes
     // the viewport and out as it releases, so this stops being a hard-edged
     // black block sitting in the middle of the page.
-    <section ref={sectionRef} className="relative mb-12 min-h-[100vh] overflow-hidden rounded-lg">
+    //
+    // z-[500] matches HeroSection's flythrough overlay — both sit above the
+    // fixed hamburger button (z-50) so the pinned hallway covers it while
+    // it's playing, same as the homepage intro does.
+    <section ref={sectionRef} className="relative z-[500] mb-12 min-h-[100vh] overflow-hidden rounded-lg">
       <div className={HALLWAY_BACKDROP_CLASS} />
       <div className={HALLWAY_BEACON_CLASS} />
       <div className="absolute inset-0">

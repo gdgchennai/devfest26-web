@@ -296,6 +296,34 @@ export type HallwayOptions = {
   /** Fires when the row finishes landing, and again if scrolling back up undoes it. */
   onPhaseChange?: (phase: HallwayPhase) => void;
   disabled?: boolean;
+  /**
+   * Play the fly-through on its own clock instead of scrubbing it with scroll —
+   * no pin, no ScrollTrigger. Used by the homepage intro, which auto-plays the
+   * flythrough as a fixed overlay (no scrolling), then hands off to the hero.
+   */
+  autoplay?: boolean;
+  /** Seconds the autoplay run takes at 1× (ignored unless `autoplay`). */
+  autoplayDuration?: number;
+  /**
+   * Playback rate the autoplay run STARTS at. The homepage begins slow (~0.25×)
+   * so the photos drift gently behind the loader's mask holes during the
+   * portal zoom, then ramps to 1× once the white clears (via the tween handed
+   * to `onAutoplayReady`).
+   */
+  autoplayInitialTimeScale?: number;
+  /** Receives the autoplay tween so the caller can retime it (e.g. slow → 1×). */
+  onAutoplayReady?: (tween: gsap.core.Tween) => void;
+  /**
+   * Progress value the autoplay run stops at (default 1). The homepage stops
+   * early (~0.8): the flying photos have all passed by ~0.72, so the remaining
+   * scroll budget is an empty tail — ending there lets the hero fill the space
+   * with no dead gap.
+   */
+  autoplayTo?: number;
+  /** Per-frame progress (0→1) during autoplay, for syncing an external element. */
+  onAutoplayProgress?: (p: number) => void;
+  /** Fires once the autoplay run reaches the end. */
+  onAutoplayComplete?: () => void;
 };
 
 export function usePhotoHallway({
@@ -307,6 +335,13 @@ export function usePhotoHallway({
   riseToTop = false,
   onPhaseChange,
   disabled = false,
+  autoplay = false,
+  autoplayDuration = 4,
+  autoplayTo = 1,
+  autoplayInitialTimeScale = 1,
+  onAutoplayReady,
+  onAutoplayProgress,
+  onAutoplayComplete,
 }: HallwayOptions) {
   useGSAP(() => {
     if (disabled || !containerRef.current) return;
@@ -550,11 +585,34 @@ export function usePhotoHallway({
       }
     }
 
-    // A scrubbed ScrollTrigger only interpolates smoothly when it drives an
-    // ANIMATION — rendering straight from onUpdate(self.progress) steps with
-    // each wheel notch. So scrub a one-unit proxy tween and render from its
-    // smoothed playhead instead.
     const proxy = { p: 0 };
+
+    // Autoplay: run the fly-through on its own clock as an overlay. No pin, no
+    // ScrollTrigger — nothing scrolls. The homepage intro uses this and syncs a
+    // hero zoom-in off onAutoplayProgress.
+    if (autoplay) {
+      measure();
+      render(0);
+      const tween = gsap.to(proxy, {
+        p: autoplayTo,
+        duration: autoplayDuration,
+        ease: "none",
+        onUpdate: () => {
+          render(proxy.p);
+          onAutoplayProgress?.(proxy.p);
+        },
+        onComplete: () => onAutoplayComplete?.(),
+      });
+      // Start slow (drifting behind the mask holes); the caller ramps to 1×.
+      tween.timeScale(autoplayInitialTimeScale);
+      onAutoplayReady?.(tween);
+      return;
+    }
+
+    // Scroll-scrubbed (the /memories path). A scrubbed ScrollTrigger only
+    // interpolates smoothly when it drives an ANIMATION — rendering straight
+    // from onUpdate(self.progress) steps with each wheel notch. So scrub a
+    // one-unit proxy tween and render from its smoothed playhead instead.
     const tl = gsap.timeline({ paused: true }).to(proxy, { p: 1, duration: 1, ease: "none" });
     tl.eventCallback("onUpdate", () => render(proxy.p));
 
@@ -573,7 +631,7 @@ export function usePhotoHallway({
     render(0);
   }, {
     scope: containerRef,
-    dependencies: [flyCount, stackCount, maxScale, perItemVh, riseToTop, disabled],
+    dependencies: [flyCount, stackCount, maxScale, perItemVh, riseToTop, disabled, autoplay, autoplayDuration, autoplayTo, autoplayInitialTimeScale],
     revertOnUpdate: true,
   });
 }

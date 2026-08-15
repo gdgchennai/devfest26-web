@@ -47,17 +47,17 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
 
       <div className="mt-6 flex gap-4 text-sm">
         {speaker.links.twitter && (
-          <a href={speaker.links.twitter} className="text-blue hover:underline">
+          <a href={speaker.links.twitter} className="text-blue underline underline-offset-4 hover:decoration-2">
             X
           </a>
         )}
         {speaker.links.linkedin && (
-          <a href={speaker.links.linkedin} className="text-blue hover:underline">
+          <a href={speaker.links.linkedin} className="text-blue underline underline-offset-4 hover:decoration-2">
             LinkedIn
           </a>
         )}
         {speaker.links.github && (
-          <a href={speaker.links.github} className="text-blue hover:underline">
+          <a href={speaker.links.github} className="text-blue underline underline-offset-4 hover:decoration-2">
             GitHub
           </a>
         )}

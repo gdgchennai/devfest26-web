@@ -280,14 +280,101 @@ Without that, all twelve pop in on a single frame.
 
 ## The baseline
 
-`shouldUseStaticBaseline()` (reduced motion, Save-Data, `?lite=1`) skips the
-hallway entirely: the hero falls back to `StaticHero`, `/memories` to its year
-grids. **That baseline is also what server-renders**, and the motion path only
-engages after hydration confirms it should. Do not invert this — mounting the
-motion hero first and downgrading after hydration unmounts an already-pinned
-ScrollTrigger and crashes React's reconciliation.
+`shouldUseStaticBaseline()` (reduced motion or `?lite=1` — **not** Save-Data;
+see `isSaveData` in `lib/motion-prefs.ts` for why that gate went) skips the
+hallway entirely: `/memories` falls back to its year grids. **That baseline is
+also what server-renders**, and the motion path only engages after hydration
+confirms it should. Do not invert this — mounting the motion hero first and
+downgrading after hydration unmounts an already-pinned ScrollTrigger and crashes
+React's reconciliation.
 
-Both hero variants share `HeroCopy.tsx`. Change the tagline or CTAs there, once.
+The hero has a second, narrower gate. `shouldSkipHeavyAssets()` (lite only)
+swaps `CurvedMarqueeHero` for `StaticHero`; reduced motion keeps the WebGL hero,
+rendered once instead of animated, because it is a vestibular preference and not
+a bandwidth one.
+
+**`StaticHero` is not optional polish — it is the only thing lite renders.**
+Everything visible in `CurvedMarqueeHero` (the photo strip *and* the title) is
+drawn in WebGL, so for a long while lite was a full black viewport containing an
+`sr-only` <h1> and two links. If you add anything to one hero, check the other
+still says it.
+
+Both hero variants read `components/motion/HeroCopy.tsx` — plain data derived
+from `site.config.ts` and `lib/cta.ts`, not a component, because one variant
+draws its title as extruded 3D text and the other as an `<h1>`, so they cannot
+share markup. Change the tagline, the date line or the CTAs there, once. Note
+this is **not** the animated hero-copy block described further down under "The
+copy belongs to the hero, not the tunnel" — that block and its
+`HALLWAY_RISE_CLASS` are currently unrendered.
+
+## The way out
+
+The intro locks body scroll, stops Lenis and marks `#main` aria-busy, so it must
+always offer a way out. There are three, and **each is on screen exactly once**
+— check that before adding a fourth:
+
+| Where | What | When |
+| --- | --- | --- |
+| Under the loader's "Enter" CTA | "Use the lite version instead" | loading |
+| `<IntroEscape>`, bottom-right | "Skip intro" + Escape key | loading + hallway |
+| `<IntroEscape>`, bottom-right | "Lite version" | hallway only |
+| `<StaticHero>` | "Switch to the full experience" | lite |
+
+The lite option sits under the Enter CTA rather than in the corner because that
+is where the decision is actually being made — "enter the experience, or don't".
+It is **not** gated on `ctaReady` like the button above it: the visitor most
+likely to want it is the one still waiting on assets, i.e. before the CTA
+appears. `<IntroEscape>` therefore renders its own lite pill only in the hallway
+phase, once the loader screen is gone.
+
+`<StaticHero>`'s link is the return leg. Lite is a preference, not a one-way
+door, and the footer toggle is the bottom of a long page — someone who followed
+a shared `?lite=1` link needs to be able to change their mind from where they
+are. `?lite=0` clears the stored preference (see `isLiteMode`), so the round
+trip really is a round trip.
+
+Two things about `<IntroEscape>` are load-bearing:
+
+- It portals to `<body>` as a **sibling** of the loader, not inside it — the
+  loader's root is scaled 8× and faded to zero by the reveal zoom, which would
+  take the hatch with it exactly when the photos start flying.
+- Because of that, `<Loader>` must **not** carry `aria-modal` — modality hides
+  every sibling from assistive tech, which would leave the only accessible exit
+  unannounced. The comment on the loader says so; don't "fix" it back.
+
+It was written, then never rendered, and the gap lasted a while: with no hatch
+mounted there was no way to end the intro at all.
+
+## The preloader warms URLs, and they must be the consumer's URLs
+
+`useAssetsLoaded` exists to make sure nothing pops in unloaded — which only works if it warms
+**the exact URL the consumer later requests**. Warm the raw file when the consumer asks the
+optimiser (or vice versa) and you get the worst of both: the dots bounce on an asset nothing
+wants, then hand off to cards that still have to fetch. That has already been the bug twice.
+
+Two live facts about this, both measured — see "Asset payload & preloader failure policy" in
+`devfest-2026-site-architecture.md` for the full write-up and the decision:
+
+- The raw warm list is currently **all 15 archive originals, ~5 MB**, on the default path. Only
+  8 are used (as marquee textures) and the marquee can read them through `/_next/image` —
+  86% smaller. `ExpectShowcase`, the other justification in that comment, no longer uses raw at all.
+- The preloader can hand off believing it succeeded when it did not: `fetch(TITLE_TYPEFACE)`
+  does not reject on a 404, so a missing typeface reads as success and the 3D title just never
+  appears.
+
+If you change what a consumer loads, change what gets warmed **in the same edit** — and prefer
+having the consumer export its URL list so there is only one array to change.
+
+## `HALLWAY_RISE_CLASS` is reserved, not dead
+
+`usePhotoHallway` looks up `.hallway-rise` and drives its opacity/translate, but
+nothing renders that class today — the hero copy moved out of the tunnel (see
+"The copy belongs to the hero, not the tunnel" above). The lookup is
+null-guarded, so it costs one `querySelector` and nothing else. **Left in
+deliberately**: removing it would mean edits to the most motion-critical file in
+the repo plus `globals.css` for zero runtime gain. If you decide the tunnel will
+never raise copy again, delete the class, the constant and the CSS rule
+together — not one of the three.
 
 ## The curtain opens onto the corridor, not onto a photo
 

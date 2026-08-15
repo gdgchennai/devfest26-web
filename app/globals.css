@@ -1,19 +1,115 @@
 @import "tailwindcss";
 
+/* Lets the browser interpolate --theme as WhyJoin scrubs it on scroll. */
+@property --theme {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/*
+ * The colour of the single fixed backdrop (BracketsField). Registered as a
+ * <color> so it can interpolate frame by frame as VenueReveal scrubs --theme
+ * (and so --ink, which this defaults to) on scroll.
+ */
+@property --page-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000000;
+}
+
+/*
+ * Lets BracketsField's 3D layer be faded out by a section that needs the
+ * area behind it fully clear (e.g. VenueReveal, which paints its own opaque
+ * stage and doesn't want the brackets' silhouette showing through at its
+ * edges). Defaults to fully visible everywhere else.
+ */
+@property --brackets-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
 /*
  * DevFest Chennai brand palette. Core, halftone, pastel and greyscale ramps as
  * supplied by the brand kit — do not hand-mix new shades; pick from these.
  */
 :root {
-  /* Greyscale */
-  --ink: #1e1e1e;
-  --paper: #f0f0f0;
+  /*
+   * Greyscale, driven by --theme (0 = dark, 1 = light). A single scrubbed value
+   * flips the whole site's background and foreground together: the fixed
+   * backdrop reads var(--ink), all text reads var(--paper), and the card
+   * surfaces below are mixed from these two — so animating --theme from 0 → 1
+   * turns the page from dark to light in one pass. WhyJoin.tsx scrubs it as that
+   * section is reached; it clamps at 1, so the page stays light below and
+   * returns to dark above.
+   *
+   * The light end of --paper is pure black (var(--black)), not #1e1e1e, so the
+   * muted text ramp (text-paper/60 and friends, done with alpha) keeps contrast
+   * over white: /60 from #000 is 5.74:1 (passes AA) where #1e1e1e would fail.
+   * Dark mode is unaffected (--theme 0 → #f0f0f0).
+   */
+  --theme: 0;
+  --ink: color-mix(in srgb, var(--black), #ffffff calc(var(--theme) * 100%));
+  --paper: color-mix(in srgb, #f0f0f0, var(--black) calc(var(--theme) * 100%));
+
+  /*
+   * The single fixed backdrop reads this instead of --ink directly, defaulting
+   * to the theme-driven greyscale (see --theme above, scrubbed by VenueReveal).
+   */
+  --page-bg: var(--ink);
+
+  /*
+   * Card/panel surfaces. OPAQUE by construction, and that is the whole point.
+   *
+   * These were alpha washes (`bg-paper/[0.03]`), which look identical to these
+   * values over the flat page — but the page is not flat. BracketsField paints
+   * a fixed 3D layer of brand shapes behind everything, so a 97%-transparent
+   * card let an extruded bracket travel straight through the card and its text.
+   * Mixing into --ink instead of into `transparent` keeps the exact same
+   * appearance while making the surface actually occlude what is behind it.
+   *
+   * Any panel that carries text over the homepage backdrop uses one of these,
+   * never an alpha wash.
+   *
+   * Mixed from --paper and --ink (3% and 5% paper over ink) so they flip with
+   * --theme along with everything else: dark → rgb(7,7,7) / rgb(12,12,12),
+   * exactly as before; light → the same tints inverted (near-white cards over
+   * the white page). The outer mix with `transparent 18%` is the 0.82 alpha
+   * discussed below.
+   *
+   * The 0.82 alpha is measured, not picked. Fully opaque killed the depth the
+   * 3D layer exists to create; too transparent and a bright bracket drifting
+   * behind a card drags its text under AA.
+   *
+   * What sets the ceiling is TEXT COLOUR, not this value. While the track
+   * headings were rendered in brand colours, #ea4335 (weakest at 5.35:1 on
+   * black) capped every card on the page at 8% bleed. Moving those headings to
+   * --paper (see TrackCards) raised the ceiling to 29%, so this is now chosen
+   * for how it looks rather than to scrape past a ratio:
+   *
+   *   18% bleed (0.82) -> 5.67:1   <- chosen, a full point of margin
+   *   29% bleed (0.71) -> 4.67:1   the actual ceiling
+   *
+   * At 18% a gold bracket behind a card renders rgb(51,37,6) against the card's
+   * rgb(7,7,7) — plainly readable as movement — while over the flat page the
+   * card is rgb(6,6,6), indistinguishable from opaque.
+   *
+   * Note what is NOT done here: the 3D shapes are left at full brightness.
+   * Dimming them buys bleed (13% at 60%) but degrades every open area of the
+   * page, where the brackets are the only visual interest and nothing is in
+   * front of them — trading the majority of the page to fix the minority.
+   */
+  --surface: color-mix(in srgb, color-mix(in srgb, var(--paper) 3%, var(--ink)), transparent 18%);
+  --surface-raised: color-mix(in srgb, color-mix(in srgb, var(--paper) 5%, var(--ink)), transparent 18%);
 
   /* Core */
   --blue: #4285f4;
   --green: #34a853;
   --yellow: #f9ab00;
   --red: #ea4335;
+  --black: #000;
+  --orig-black: #131313;
 
   /* Halftones — mid-tones, legible under ink text */
   --blue-halftone: #57caff;
@@ -28,9 +124,47 @@
   --red-pastel: #f8d8d8;
 }
 
+/*
+ * Lite mode's background: fully --orig-black (#131313), not the site's
+ * usual pure --ink black. `html.lite` is set by the pre-paint bridge script
+ * in app/layout.tsx (mirrors isLiteMode()) so this applies before first
+ * paint. --page-bg drives BracketsField's fixed backdrop; the body rule
+ * covers the same colour underneath it.
+ */
+html.lite {
+  --page-bg: var(--orig-black);
+}
+html.lite body {
+  background-color: var(--orig-black);
+}
+
+/*
+ * Which nav renders is decided by the same `html.lite` class, not React
+ * state — it's set pre-paint by the bridge script in app/layout.tsx, so
+ * gating on it here means the right nav is present from first paint with no
+ * hydration flash. Full mode gets the hamburger (nav-hamburger-only); lite
+ * mode gets the old pill bar (nav-lite-only), since the hamburger's expanding
+ * panel leans on motion lite mode is meant to skip.
+ */
+.nav-hamburger-only {
+  display: none;
+}
+html:not(.lite) .nav-hamburger-only {
+  display: block;
+}
+.nav-lite-only {
+  display: none;
+}
+html.lite .nav-lite-only {
+  display: flex;
+}
+
 @theme inline {
   --color-ink: var(--ink);
   --color-paper: var(--paper);
+  --color-page-bg: var(--page-bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
 
   --color-blue: var(--blue);
   --color-red: var(--red);
@@ -51,14 +185,35 @@
 }
 
 body {
-  background: var(--ink);
+  background: var(--page-bg);
   color: var(--paper);
   font-family: var(--font-google-sans), system-ui, sans-serif;
 }
 
+/*
+ * Scrollbar is chrome the scroll-driven motion on this page doesn't want
+ * competing for attention. Mobile browsers already auto-hide theirs as an
+ * overlay, so this only changes anything on desktop/trackpad browsers.
+ */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * The first-paint preloader (#boot-preloader) is defined inline in the document
+ * <head> (see app/layout.tsx), not here — it must apply at first paint without
+ * waiting on this stylesheet to download, and be visible by default rather than
+ * gated on a script-added class (which lands a frame late in dev).
+ */
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
 
 /*
  * Content that rises into place as the picture row lands. Starts hidden in CSS
@@ -383,13 +538,17 @@ body {
    * The torn-off half, lifted clear of the body so the perforation reads as a
    * real seam rather than a decorative dashed line. Costs contrast: every
    * label on this panel had to move up an opacity step to stay above 4.5:1.
+   *
+   * --surface-raised, not a 5%-into-transparent wash: same colour, but opaque,
+   * so the 3D backdrop cannot travel through the stub's labels.
    */
-  background: color-mix(in srgb, var(--paper) 5%, transparent);
+  background: var(--surface-raised);
 }
 
 /*
  * The seam. `currentColor` is not used here because the notches must match the
- * page behind the stub exactly, not the text.
+ * page behind the stub exactly, not the text — so they read as var(--page-bg)
+ * (the scroll-cycled backdrop colour), not the old fixed --ink.
  */
 .ticket-stub__perf {
   position: relative;
@@ -405,7 +564,7 @@ body {
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--page-bg);
   border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
 }
 
@@ -533,4 +692,189 @@ body {
 :focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Glow button (components/GlowButton.tsx)
+ *
+ * A glassmorphism control with a neon four-colour border that reads as one
+ * smooth gradient wrapping the shape, not four flat corners. Two layers share
+ * the same conic-gradient so the crisp ring and its soft bleed stay in
+ * registration as the angle rotates:
+ *   ::before - a 1.5px ring, cut down with the classic padding + mask-XOR
+ *              trick so only the outline itself is visible.
+ *   ::after  - the same gradient, enlarged and blurred, behind the glass
+ *              surface as the halo.
+ * `--glow-angle` is a registered <angle> so it animates smoothly rather than
+ * snapping; `glow-rotate` turns it for the "smooth" look the brief asked for.
+ * A press adds .glow-btn--burst (see GlowButton's `burst()`), which spikes
+ * the halo's blur/opacity/reach and eases back — the energy-dispersing
+ * moment — without touching the rotation, so the two animations never fight
+ * over the same property. Both animations are gated on
+ * prefers-reduced-motion; reduced-motion users still get the burst's opacity
+ * change since that reads as feedback, not motion.
+ *
+ * `.glow-btn__corners` is a third, separate layer (::before/::after are
+ * already spoken for) for the corner "pooling" look from the reference
+ * asset: light gathers noticeably brighter at the rounded ends than along
+ * the straight edges. A conic-gradient ring alone doesn't produce that — it
+ * spreads colour evenly by angle — so four radial blooms sit at the
+ * bounding-box corners instead, each a brand colour, blurred heavily. Shared
+ * by all three shapes, "circle" included — its square bounding box still has
+ * four corners even though the visible ring is round, so the same four
+ * blooms read as light gathering at the diagonals.
+ * ------------------------------------------------------------------------ */
+@property --glow-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+.glow-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  --glow-angle: 0deg;
+}
+
+.glow-btn::before,
+.glow-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--red),
+    var(--yellow),
+    var(--green),
+    var(--blue),
+    var(--red)
+  );
+  pointer-events: none;
+}
+
+.glow-btn::before {
+  z-index: 1;
+  padding: 1.5px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.glow-btn::after {
+  z-index: -1;
+  inset: -10px;
+  filter: blur(18px);
+  /* Hidden at rest — this layer is the click-triggered energy burst, not an
+     ambient glow. The always-on look comes entirely from the ring
+     (::before) and the corner pooling (.glow-btn__corners) below. */
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow-btn {
+    animation: glow-rotate 6s linear infinite;
+  }
+}
+
+@keyframes glow-rotate {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.glow-btn--burst::after {
+  animation: glow-burst 900ms ease-in-out;
+}
+
+@keyframes glow-burst {
+  0% {
+    opacity: 0;
+    filter: blur(18px);
+    inset: -10px;
+  }
+  35% {
+    /* Gentle, not a flash — a soft breath of light from behind the button,
+       barely spreading past its idle bounds. */
+    opacity: 0.2;
+    filter: blur(19px);
+    inset: -11px;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(18px);
+    inset: -10px;
+  }
+}
+
+.glow-btn__corners {
+  content: "";
+  position: absolute;
+  /*
+   * z-index: 3 — above the z-index: 2 glass surface, not below it. This is
+   * meant to read as the top-most layer, sitting on the button rather than
+   * bleeding out from underneath it (that's what the click ::after burst is
+   * for). pointer-events: none keeps it from blocking clicks on the surface
+   * beneath.
+   */
+  inset: -22px;
+  z-index: 3;
+  pointer-events: none;
+  /* Milder than the first pass — this is the always-on accent, not the
+     click glow, so it should read as a soft trim rather than compete with it. */
+  opacity: 0.5;
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  transition: opacity 200ms ease, filter 200ms ease;
+  background:
+    radial-gradient(closest-side, var(--red), transparent 70%) 0% 0% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--yellow), transparent 70%) 100% 0% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--blue), transparent 70%) 100% 100% / 55% 100% no-repeat,
+    radial-gradient(closest-side, var(--green), transparent 70%) 0% 100% / 55% 100% no-repeat;
+}
+
+.glow-btn--burst .glow-btn__corners {
+  animation: corner-burst 650ms ease-out;
+}
+
+@keyframes corner-burst {
+  0% {
+    opacity: 0.5;
+    filter: blur(12px);
+    inset: -22px;
+  }
+  30% {
+    opacity: 0.85;
+    filter: blur(22px);
+    inset: -32px;
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(12px);
+    inset: -22px;
+  }
+}
+
+.glow-btn__surface {
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--paper) 10%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--paper) 25%, transparent),
+    inset 0 -6px 16px color-mix(in srgb, var(--ink) 35%, transparent);
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.glow-btn__surface:hover {
+  background: color-mix(in srgb, var(--paper) 16%, transparent);
+}
+
+.glow-btn__surface:active {
+  transform: scale(0.96);
+}
+
+.glow-btn__label {
+  position: relative;
 }

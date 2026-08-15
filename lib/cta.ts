@@ -17,10 +17,10 @@ export type Cta =
  */
 export function ticketCta(): Cta {
   const url = siteConfig.ticketing.url;
-  if (url) return { available: true, href: url, label: "Get Tickets", external: true };
+  if (url) return { available: true, href: url, label: siteConfig.ticketing.availableLabel, external: true };
   return {
     available: false,
-    label: "Tickets open soon",
+    label: siteConfig.ticketing.comingSoonLabel,
     note: `Sold via ${siteConfig.ticketing.platform}.`,
   };
 }
