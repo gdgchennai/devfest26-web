@@ -7,7 +7,6 @@ import { siteConfig } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { ScrollCueController } from "@/components/motion/ScrollCue";
-import { SkipLink } from "@/components/SkipLink";
 import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 
@@ -111,7 +110,6 @@ export default function RootLayout({
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
-        <SkipLink />
         <MotionProvider>
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
