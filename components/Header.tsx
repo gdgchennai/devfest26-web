@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { navRoutes } from "@/lib/routes";
 
 /**
- * The site's navigation. Minimal on purpose — the previous header was removed
- * ("a new one is being designed") and nothing replaced it, which left eight of
- * the nine routes unreachable from each other: the 404 page was the only
- * surface on the site that offered a route index. This is the smallest thing
- * that fixes that, not the final design.
+ * The site's navigation for lite mode. Full mode now uses the hamburger menu
+ * (components/HamburgerMenu.tsx) instead — its expanding panel leans on
+ * transitions lite mode is meant to skip, so this plain pill bar is what lite
+ * visitors get. Which one renders is decided purely by CSS (`.nav-lite-only`,
+ * gated on `html.lite`), not JS, so there's no hydration flash — see
+ * app/globals.css.
  *
  * Reads `navRoutes` (lib/routes.ts), which was already exported for exactly
  * this and had zero consumers. That list and the 404's rescue grid are now the
@@ -31,7 +32,7 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 py-3 sm:px-8">
+    <header className="nav-lite-only pointer-events-none fixed inset-x-0 top-0 z-50 justify-center px-4 py-3 sm:px-8">
       {/*
        * bg-surface, not an alpha wash: BracketsField paints a fixed 3D layer
        * behind the whole homepage, and globals.css is explicit that any panel

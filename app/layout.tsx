@@ -9,6 +9,7 @@ import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { ScrollCueController } from "@/components/motion/ScrollCue";
 import { SkipLink } from "@/components/SkipLink";
 import { Header } from "@/components/Header";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 
 /*
  * A subset WOFF2, not the raw TTF. `next/font/local` copies the file verbatim —
@@ -112,11 +113,15 @@ export default function RootLayout({
         <BootPreloaderRelease />
         <SkipLink />
         <MotionProvider>
-          {/* Minimal nav off `navRoutes` — see components/Header.tsx. Fixed,
-              so it adds nothing to the document flow the ScrollTrigger pins
-              below are measured against. Replaces the removed header; the
-              redesign can swap this file out without touching anything else. */}
+          {/* Both mount unconditionally; which one is visible is a pure CSS
+              gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
+              app/globals.css) so there's no hydration flash. Full mode gets
+              the hamburger (components/HamburgerMenu.tsx); lite mode gets
+              the plain pill bar (components/Header.tsx). Fixed, so neither
+              adds anything to the document flow the ScrollTrigger pins below
+              are measured against. */}
           <Header />
+          <HamburgerMenu />
           <main id="main" className="flex-1">
             {children}
           </main>

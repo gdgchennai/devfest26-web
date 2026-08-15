@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
@@ -231,10 +232,25 @@ export function HeroSection() {
         )}
       </div>
 
-      {/* The flythrough: a fixed overlay of photos flying past on black,
-          auto-played (no scroll), fading out as the hero lands beneath it. */}
-      {playIntro && entering && !revealDone && (
-        <section ref={flythroughRef} aria-hidden className="fixed inset-0 z-[500] overflow-hidden">
+      {/*
+       * The flythrough: a fixed overlay of photos flying past on black,
+       * auto-played (no scroll), fading out as the hero lands beneath it.
+       *
+       * Portalled to document.body rather than rendered in place: this whole
+       * tree sits inside page.tsx's `<div className="relative z-10">`
+       * wrapper, which is itself a stacking context. A z-[500] on a normal
+       * descendant only wins locally inside that z-10 context — against
+       * anything outside it (the hamburger button, fixed at z-50 on body)
+       * the whole wrapper only counts as z-10 and loses. Portalling escapes
+       * that containment so z-[500] is compared where it's written: at the
+       * root, above the button, same as it already was for BootPreloader/
+       * <Loader> (z-995/z-1000).
+       */}
+      {playIntro &&
+        entering &&
+        !revealDone &&
+        createPortal(
+          <section ref={flythroughRef} aria-hidden className="fixed inset-0 z-[500] overflow-hidden">
           <div className="absolute inset-0">
             <div className={HALLWAY_BACKDROP_CLASS} />
             <div className={HALLWAY_CORRIDOR_CLASS}>
@@ -278,7 +294,8 @@ export function HeroSection() {
               ))}
             </div>
           </div>
-        </section>
+        </section>,
+        document.body,
       )}
 
       {showLoader && !revealDone && (
