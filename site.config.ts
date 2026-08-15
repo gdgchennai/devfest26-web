@@ -9,7 +9,15 @@ export type Track = {
 export type SubEvent = {
   slug: string;
   title: string;
-  /** Pre-formatted for display — these are all placeholders, not `date` above. */
+  /** Plain `YYYY-MM-DD`, same convention as `date` above — run through
+   *  `shortEventDate()` at render time (see TicketsList.tsx), not
+   *  pre-formatted here. It used to be a hand-typed display string ("Aug 29,
+   *  2026"), a different convention from the flagship card's date (which
+   *  goes through `shortEventDate` and read "17 October 2026") — two
+   *  formats on the same page for what's supposed to be the same kind of
+   *  data. One function producing both is what actually guarantees they
+   *  match, rather than two hardcoded strings that merely happened to look
+   *  similar. */
   date: string;
   description: string;
   ctaLabel: string;
@@ -55,9 +63,14 @@ export const siteConfig = {
     // there renders a live, external-styled "Get Tickets →" button on the
     // hero, the ticket stub, the 404 highlights and ShowMoodSection, all
     // landing nowhere. That is the exact failure lib/cta.ts exists to stop.
-    // `null` gives the honest "Tickets open soon" state instead.
+    // `null` gives the honest "Coming Soon" state instead.
     url: null as string | null,
     platform: "KonfHub",
+    // What the CTA says in each of ticketCta()'s two states — kept here,
+    // not hardcoded in lib/cta.ts, so every editable piece of copy lives in
+    // one place (same reasoning as `subEvents` below).
+    availableLabel: "Get Tickets →",
+    comingSoonLabel: "Coming Soon",
   },
 
   agendaUrl: "/agenda",
@@ -83,7 +96,7 @@ export const siteConfig = {
     {
       slug: "code-for-communities",
       title: "Code for communities",
-      date: "Aug 29, 2026",
+      date: "2026-08-29",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Join waitlist",
@@ -91,7 +104,7 @@ export const siteConfig = {
     {
       slug: "ai-for-science",
       title: "AI for Science",
-      date: "Sept 5, 2026",
+      date: "2026-09-05",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Register Now",
@@ -99,7 +112,7 @@ export const siteConfig = {
     {
       slug: "road-to-idex",
       title: "Road to IDeX",
-      date: "Sept 15, 2026",
+      date: "2026-09-15",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Register Now",
@@ -107,7 +120,7 @@ export const siteConfig = {
     {
       slug: "devfest-on-campus",
       title: "DevFest on Campus",
-      date: "Sept 30, 2026",
+      date: "2026-09-30",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Coming Soon",
@@ -115,7 +128,7 @@ export const siteConfig = {
     {
       slug: "build-with-ai-wtm",
       title: "Build with AI - WTM edition",
-      date: "Aug 29, 2026",
+      date: "2026-08-29",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Join waitlist",
@@ -123,7 +136,7 @@ export const siteConfig = {
     {
       slug: "hardware-tinkering-labs",
       title: "Hardware Tinkering Labs",
-      date: "Sept 5, 2026",
+      date: "2026-09-05",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
       ctaLabel: "Register Now",
@@ -186,6 +199,19 @@ export function formatEventDate(date: string | null): string {
     // Without this the build server's zone decides the day. Vercel builds in
     // UTC, and any negative-offset zone renders a date-only string as the day
     // before. See EVENT_TIME_ZONE.
+    timeZone: EVENT_TIME_ZONE,
+  });
+}
+
+/** "Oct 17, 2026" — abbreviated month, day, comma, year. en-US, not en-IN:
+ *  en-IN orders day before month with no comma ("17 Oct 2026"); en-US is
+ *  what actually produces this "Mon DD, YYYY" pattern. */
+export function shortEventDate(date: string | null): string {
+  if (!date) return "Date to be announced";
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
     timeZone: EVENT_TIME_ZONE,
   });
 }
