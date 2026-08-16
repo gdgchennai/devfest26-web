@@ -53,7 +53,7 @@ export const siteConfig = {
     mapUrl: "https://maps.google.com/?q=IIT+Madras+Research+Park+Taramani+Chennai",
   },
 
-  capacityClaim: null as string | null, // e.g. "1500+ developers" — update with 2025's real number
+  capacityClaim: "1200+ enthusiasts", // e.g. "1500+ developers" — update with 2025's real number
 
   ticketing: {
     // Same platform as 2025 (KonfHub); URL is new for 2026 and still pending.
@@ -99,7 +99,7 @@ export const siteConfig = {
       date: "2026-08-29",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Join waitlist",
+      ctaLabel: "Coming soon",
     },
     {
       slug: "ai-for-science",
@@ -107,7 +107,7 @@ export const siteConfig = {
       date: "2026-09-05",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Register Now",
+      ctaLabel: "Coming soon",
     },
     {
       slug: "road-to-idex",
@@ -115,7 +115,7 @@ export const siteConfig = {
       date: "2026-09-15",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Register Now",
+      ctaLabel: "Coming soon",
     },
     {
       slug: "devfest-on-campus",
@@ -123,7 +123,7 @@ export const siteConfig = {
       date: "2026-09-30",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming Soon",
+      ctaLabel: "Coming soon",
     },
     {
       slug: "build-with-ai-wtm",
@@ -131,7 +131,7 @@ export const siteConfig = {
       date: "2026-08-29",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Join waitlist",
+      ctaLabel: "Coming soon",
     },
     {
       slug: "hardware-tinkering-labs",
@@ -139,7 +139,7 @@ export const siteConfig = {
       date: "2026-09-05",
       description:
         "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Register Now",
+      ctaLabel: "Coming soon",
     },
   ] satisfies SubEvent[],
 

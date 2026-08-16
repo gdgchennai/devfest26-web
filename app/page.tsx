@@ -1,5 +1,4 @@
 import { siteConfig } from "@/site.config";
-// import { speakers } from "@/lib/content";
 import { getBrandShapes } from "@/lib/brandShapes";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
@@ -11,9 +10,6 @@ import { VenueReveal } from "@/components/motion/VenueReveal";
 import { MoodSection } from "@/components/motion/MoodSection";
 import { ShowMoodSection } from "@/components/motion/ShowMoodSection";
 import { SeeYouThereSection } from "@/components/motion/SeeYouThereSection";
-// import { TrackCards } from "@/components/TrackCards";
-// import { SpeakerWall } from "@/components/SpeakerWall";
-import { TicketStub } from "@/components/TicketStub";
 
 export default function Home() {
   return (
@@ -57,36 +53,6 @@ export default function Home() {
           <ExpectShowcase />
         </div>
 
-        {/* "Why join" is folded into "About DevFest" above and not rendered
-            here — its reasons UI is unused, and its one load-bearing side
-            effect (the dark → light --theme scrub the sections below need for
-            readable text over their light backgrounds) now lives in
-            VenueReveal instead, timed to that section's own reveal rather
-            than firing the instant this point in the page is reached. */}
-
-        {/* <Section eyebrow="Four lanes" title="Tracks" dotColor="yellow">
-          <TrackCards tracks={siteConfig.tracks} />
-        </Section> */}
-
-        {/* Lineup, shown as open places while speakers.json is empty — the CFP
-            pitch belongs where someone is already looking for speakers. */}
-        {/* <Section eyebrow="Lineup" title="Speakers" dotColor="blue">
-          <p className="-mt-4 mb-6 text-sm text-paper/60">
-            {speakers.length === 0
-              ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
-              : "More speakers still to be announced."}
-          </p>
-          <SpeakerWall />
-        </Section> */}
-
-        {/* No sponsors section: 2026 is not running sponsorship at all. The
-            route and its data are gone too — see the architecture doc. */}
-
-        {/* The pinned "Location" reveal: heading settles up top while the
-            venue's hand-drawn outline draws itself in, then the real photo,
-            caption, and a save-the-date beat follow. Not built on <Section> —
-            it's a full-bleed stage, not a padded content block (see
-            VenueReveal for why <Section> itself is untouched). */}
         <div data-scroll-cue-section>
           <VenueReveal brandShapes={getBrandShapes()} />
         </div>
@@ -103,10 +69,6 @@ export default function Home() {
           <SeeYouThereSection />
         </div>
 
-        {/* Hiding this for the time being. Don't remove. This needs to be repurposed differently
-        <section className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-8">
-          <TicketStub />
-        </section> */}
       </div>
     </>
   );

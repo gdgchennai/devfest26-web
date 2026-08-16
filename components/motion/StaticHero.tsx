@@ -15,9 +15,9 @@ import { heroCopy } from "@/components/motion/HeroCopy";
  * the name.
  *
  * Built entirely from the existing design system — `Eyebrow`, `Button`, the
- * `HashTitle` display scale, the `TicketStub` mono field treatment — so it
- * reads as the same site rather than as a stripped-down apology for it. No new
- * tokens, no hand-mixed shades.
+ * `TicketStub` mono field treatment — so it reads as the same site rather
+ * than as a stripped-down apology for it. No new tokens, no hand-mixed
+ * shades.
  *
  * Normal flow, not the absolute positioning the WebGL hero uses for its CTA
  * row: this variant has to survive 200% zoom and long translated strings, and
@@ -45,8 +45,6 @@ export function StaticHero({
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
         <Eyebrow dotColor="blue">{heroCopy.eyebrow}</Eyebrow>
 
-        {/* Same display scale as HashTitle, so the page's two largest pieces of
-            type are the same size rather than nearly the same size. */}
         <h1 className="mt-5 text-5xl font-semibold leading-none tracking-tight sm:text-7xl lg:text-8xl">
           {heroCopy.title}
         </h1>

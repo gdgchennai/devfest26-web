@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Lets the browser interpolate --theme as WhyJoin scrubs it on scroll. */
+/* Lets the browser interpolate --theme as VenueReveal scrubs it on scroll. */
 @property --theme {
   syntax: "<number>";
   inherits: true;
@@ -40,8 +40,8 @@
    * flips the whole site's background and foreground together: the fixed
    * backdrop reads var(--ink), all text reads var(--paper), and the card
    * surfaces below are mixed from these two — so animating --theme from 0 → 1
-   * turns the page from dark to light in one pass. WhyJoin.tsx scrubs it as that
-   * section is reached; it clamps at 1, so the page stays light below and
+   * turns the page from dark to light in one pass. VenueReveal.tsx scrubs it as
+   * that section is reached; it clamps at 1, so the page stays light below and
    * returns to dark above.
    *
    * The light end of --paper is pure black (var(--black)), not #1e1e1e, so the
