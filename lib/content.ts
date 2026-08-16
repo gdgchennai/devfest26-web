@@ -1,6 +1,5 @@
 import agendaData from "@/content/agenda.json";
 import speakersData from "@/content/speakers.json";
-import aboutData from "@/content/about.json";
 import cocData from "@/content/coc.json";
 import archiveData from "@/content/archive.json";
 import {
@@ -34,7 +33,6 @@ export const hallwayPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role 
 
 /** Photos waiting at the end of it. Disjoint from the above by construction. */
 export const stackPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "stack");
-export const about = aboutData as { body: string };
 export const codeOfConduct = cocData as {
   isPlaceholder: boolean;
   sections: { heading: string; body: string }[];

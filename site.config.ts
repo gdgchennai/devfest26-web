@@ -56,21 +56,15 @@ export const siteConfig = {
   capacityClaim: "1200+ enthusiasts", // e.g. "1500+ developers" — update with 2025's real number
 
   ticketing: {
-    // Same platform as 2025 (KonfHub); URL is new for 2026 and still pending.
-    //
-    // Must stay `null` until the real URL exists — NOT "#". `ticketCta()` in
-    // lib/cta.ts branches on `if (url)`, and "#" is truthy, so a placeholder
-    // there renders a live, external-styled "Get Tickets →" button on the
-    // hero, the ticket stub, the 404 highlights and ShowMoodSection, all
-    // landing nowhere. That is the exact failure lib/cta.ts exists to stop.
-    // `null` gives the honest "Coming Soon" state instead.
-    url: null as string | null,
-    platform: "KonfHub",
-    // What the CTA says in each of ticketCta()'s two states — kept here,
-    // not hardcoded in lib/cta.ts, so every editable piece of copy lives in
-    // one place (same reasoning as `subEvents` below).
+    // Sold through our own /tickets page — no external ticketing platform.
+    // `ticketCta()` in lib/cta.ts always points here now, so every "Get
+    // Tickets" CTA site-wide (hero, header, ticket stub, 404 highlights,
+    // ShowMoodSection) lands on a real page rather than an unset external
+    // URL. The label stays here, not hardcoded in lib/cta.ts, so every
+    // editable piece of copy lives in one place (same reasoning as
+    // `subEvents` below).
+    href: "/tickets",
     availableLabel: "Get Tickets →",
-    comingSoonLabel: "Coming Soon",
   },
 
   agendaUrl: "/agenda",
@@ -159,10 +153,11 @@ export const siteConfig = {
   ],
 
   cfp: {
-    // `null` renders "Opening soon" — set ISO timestamps once dates are locked.
-    opensAt: null as string | null,
-    closesAt: null as string | null,
-    formUrl: null as string | null,
+    // Every "Submit CFP" CTA site-wide goes straight here, in a new tab —
+    // see speakerCta() in lib/cta.ts, which every consumer reads through.
+    // There's no local CFP page/form to fall back to (see lib/routes.ts's
+    // retiredRoutes["/cfp"]), so unlike ticketing this isn't nullable.
+    formUrl: "https://sessionize.com/gdgchennai",
   },
 
   social: {

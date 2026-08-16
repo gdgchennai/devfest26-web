@@ -1,4 +1,4 @@
-import { Button, inertButtonClasses } from "@/components/Button";
+import { Button } from "@/components/Button";
 import { TiltCard } from "@/components/TiltCard";
 import { siteConfig, formatEventDate } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
@@ -53,16 +53,9 @@ export function TicketStub() {
       <div className="ticket-stub__end">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/65">Admit one</p>
 
-        {cta.available ? (
-          <Button href={cta.href} size="lg" className="mt-4">
-            {cta.label}
-          </Button>
-        ) : (
-          <>
-            <p className={`mt-4 ${inertButtonClasses("lg")}`}>{cta.label}</p>
-            <p className="mt-2 font-mono text-[0.6875rem] text-paper/60">{cta.note}</p>
-          </>
-        )}
+        <Button href={cta.href} size="lg" className="mt-4">
+          {cta.label}
+        </Button>
       </div>
     </TiltCard>
   );

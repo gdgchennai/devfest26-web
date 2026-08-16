@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { GlowButton } from "@/components/GlowButton";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { getHorizontalCue, subscribeHorizontalCue } from "@/components/motion/scrollCueRegistry";
@@ -97,6 +98,7 @@ const BACK_TO_TOP_THRESHOLD_VH = 0.6;
  */
 export function ScrollCueController() {
   const { lenisRef, staticBaseline } = useMotion();
+  const pathname = usePathname();
   const sectionsRef = useRef<HTMLElement[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -110,7 +112,18 @@ export function ScrollCueController() {
   // component WOULD otherwise attempt a full render on the server.
   useEffect(() => setMounted(true), []);
 
+  // Re-runs on every route change, not just once: this controller lives in
+  // the root layout and never unmounts across client-side navigation, so
+  // without `pathname` in the deps it kept whichever homepage section (and
+  // `activeIndex`) was active when you clicked away — e.g. the forward
+  // "Scroll to next section" cue would still render on /tickets, which has
+  // no `data-scroll-cue-section` markers at all, because the stale index
+  // from "/" never got cleared. Resetting first, unconditionally, is what
+  // makes a section-less page correctly show no forward cue rather than
+  // whatever it last was.
   useEffect(() => {
+    sectionsRef.current = [];
+    setActiveIndex(-1);
     if (staticBaseline) return;
 
     const sections = Array.from(document.querySelectorAll<HTMLElement>(SECTION_SELECTOR));
@@ -133,7 +146,7 @@ export function ScrollCueController() {
     sections.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [staticBaseline]);
+  }, [staticBaseline, pathname]);
 
   useEffect(() => {
     if (staticBaseline) return;

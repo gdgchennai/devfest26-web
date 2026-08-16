@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { whenReady, didFail, BRACKETS_READY } from "@/lib/assetReady";
+import imagekitLoader, { IMAGEKIT_QUALITY } from "@/lib/imagekit-loader";
 
 /**
  * Minimum time the preloader stays up even on an instant (cached) load — a
@@ -39,18 +40,17 @@ const MAX_DURATION = 15000;
 const ASSET_BUDGET = 8000;
 
 /**
- * Next's default `images.deviceSizes` and quality. next/image builds its srcset
- * from these, so mirroring them here lets the preloader hand the browser the
- * SAME candidate list a <Frame> will render. The browser then applies its own
+ * Next's default `images.deviceSizes`. next/image builds its srcset from
+ * these, so mirroring the list here lets the preloader hand the browser the
+ * SAME candidates a <Frame> will render. The browser then applies its own
  * selection to both, picks the identical URL, and the <Frame> gets a cache hit
  * instead of a fresh fetch.
  *
- * This is the one place coupled to Next's defaults: if `images.deviceSizes` or
- * a per-image `quality` is ever set in next.config, update these to match or
- * the preloader silently warms URLs nothing asks for.
+ * This is the one place coupled to Next's defaults: if `images.deviceSizes`
+ * is ever set in next.config, update this to match or the preloader silently
+ * warms URLs nothing asks for.
  */
 const DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
-const DEFAULT_QUALITY = 75;
 
 /** An image the optimizer serves, so it must be warmed at the same widths. */
 export type SizedAsset = { src: string; sizes: string };
@@ -60,20 +60,36 @@ function optimizedSrcSet(src: string): string {
 }
 
 /**
+ * Next's own default quality (v16: `qualities: [75]`) — the built-in
+ * optimizer rejects a quality outside its configured set, same constraint as
+ * DEVICE_SIZES above.
+ */
+const DEV_QUALITY = 75;
+
+/**
  * One optimizer URL at one width — for consumers that cannot use a srcset
  * because they are not an <img>: chiefly three.js `TextureLoader`, which takes
  * a single URL string.
  *
- * Exported from here, next to DEVICE_SIZES and DEFAULT_QUALITY, so the coupling
- * to Next's image defaults stays in exactly one file. A consumer that builds
- * this URL by hand somewhere else is how the preloader ends up warming a URL
- * nothing requests.
+ * Branches the same way next.config.ts does: dev keeps Next's built-in
+ * `/_next/image` optimizer, prod goes through the custom ImageKit loader.
+ * This has to mirror that branch exactly, not just call the ImageKit loader
+ * unconditionally — this function is a plain JS call, not something routed
+ * through next/image's own loader resolution, so nothing else keeps it in
+ * sync automatically. Get this wrong (as it briefly was, calling
+ * imagekitLoader() in both environments) and the preloader warms ImageKit
+ * URLs in dev while every real <Image>/<Frame> requests /_next/image —
+ * exactly the "warmed URL ≠ consumer URL" bug this file's other comments
+ * already warn about.
  *
  * `w` must be one of DEVICE_SIZES — the optimizer rejects widths outside the
  * configured set.
  */
 export function optimizedSrc(src: string, width: number): string {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEFAULT_QUALITY}`;
+  if (process.env.NODE_ENV === "production") {
+    return imagekitLoader({ src, width, quality: IMAGEKIT_QUALITY });
+  }
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEV_QUALITY}`;
 }
 
 /** The 3D title's typeface, fetched here so the extruded wordmark is ready too. */

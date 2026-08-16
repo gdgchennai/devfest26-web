@@ -471,11 +471,9 @@ export function CurvedMarqueeHero() {
       <div
         className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper max-sm:bottom-[24%] sm:gap-16 sm:bottom-[16%] sm:text-xl"
       >
-        {heroCopy.ticket.available && (
-          <GlowButton href={heroCopy.ticket.href}>
-            <RollingText>Get tickets →</RollingText>
-          </GlowButton>
-        )}
+        <GlowButton href={heroCopy.ticket.href}>
+          <RollingText>Get tickets →</RollingText>
+        </GlowButton>
         <GlowButton href={heroCopy.agenda.href}>
           <RollingText>{`${heroCopy.agenda.label}`}</RollingText>
         </GlowButton>

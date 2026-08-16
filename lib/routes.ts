@@ -20,11 +20,8 @@ export const siteRoutes: SiteRoute[] = [
   { href: "/", label: "Home", description: "Tracks, schedule preview and the lineup.", inNav: true },
   { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },
   { href: "/speakers", label: "Speakers", description: "The lineup, and how to get on it.", inNav: true },
-  { href: "/cfp", label: "Call for Proposals", description: "Submit a talk.", inNav: false },
-  { href: "/venue", label: "Venue", description: "Location, travel and amenities.", inNav: true },
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
-  { href: "/about", label: "About", description: "Who runs DevFest Chennai.", inNav: true },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },
   {
     href: "/code-of-conduct",
@@ -47,5 +44,9 @@ export const retiredRoutes: Record<string, { reason: string; goto: string }> = {
     reason:
       "DevFest Chennai 2026 isn't running a sponsorship programme, so this page is gone. The link may have come from the 2025 brochure.",
     goto: "/contact",
+  },
+  "/about": {
+    reason: "This page is gone — the chapter info it held now lives in the footer.",
+    goto: "/",
   },
 };

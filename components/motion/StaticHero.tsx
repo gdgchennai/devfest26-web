@@ -1,4 +1,3 @@
-import { inertButtonClasses } from "@/components/Button";
 import { Eyebrow } from "@/components/Eyebrow";
 import { GlowButton } from "@/components/GlowButton";
 import { heroCopy } from "@/components/motion/HeroCopy";
@@ -64,23 +63,13 @@ export function StaticHero({
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          {ticket.available ? (
-            <GlowButton href={ticket.href} size="lg">
-              {ticket.label}
-            </GlowButton>
-          ) : (
-            // A statement, not a control — see inertButtonClasses. It holds the
-            // primary CTA's place and weight without offering a dead tab stop.
-            <p className={inertButtonClasses("lg")}>{ticket.label}</p>
-          )}
+          <GlowButton href={ticket.href} size="lg">
+            {ticket.label}
+          </GlowButton>
           <GlowButton href={agenda.href} size="lg">
             {agenda.label}
           </GlowButton>
         </div>
-
-        {!ticket.available && (
-          <p className="mt-3 font-mono text-xs text-paper/60">{ticket.note}</p>
-        )}
 
         {/*
          * Lite must be a preference, not a one-way door. The footer toggle can
