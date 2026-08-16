@@ -53,6 +53,7 @@ const GLOW_COLOR = "rgba(200,235,255,1)";
 const ticket = ticketCta();
 
 const ROADSHOWS_TEXT = "Roadshows and Meetups from Aug 29th onwards";
+const DISCLAIMER_TEXT = "Note: Roadshow and meetup venues differ and tickets sold separately.";
 
 const dateShort = siteConfig.date
   ? new Date(siteConfig.date).toLocaleDateString("en-IN", {
@@ -397,6 +398,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       swapTargets.set(heading, "Location");
       if (captionTitleRef.current) swapTargets.set(captionTitleRef.current, siteConfig.venue.name);
       if (roadshowsRef.current) swapTargets.set(roadshowsRef.current, "");
+      if (disclaimerRef.current) swapTargets.set(disclaimerRef.current, "");
 
       gsap.set(overlayRef.current, { yPercent: 100 });
 
@@ -671,17 +673,17 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           // visible/hidden pointer-events toggle.
           gsap.to(directionsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
-          gsap.to(disclaimerRef.current, { opacity: 1, duration: 0.4 });
           swapText(heading, "Save the Date", direction);
           if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, ROADSHOWS_TEXT, direction);
+          if (disclaimerRef.current) swapText(disclaimerRef.current, DISCLAIMER_TEXT, direction);
         } else {
           gsap.to(directionsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
-          gsap.to(disclaimerRef.current, { opacity: 0, duration: 0.4 });
           swapText(heading, "Location", direction);
           if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, "", direction);
+          if (disclaimerRef.current) swapText(disclaimerRef.current, "", direction);
         }
       }
       ScrollTrigger.create({
@@ -902,16 +904,13 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
               ref={roadshowsRef}
               className="mt-2 text-xl font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-3xl"
             />
-            {/* Fine print under the roadshows line — a plain opacity fade
-                (not swapText()'s char roll, which is for the headline-level
-                swaps only), toggled the same toDate/!toDate way as
-                ticketsRef below. */}
+            {/* Fine print under the roadshows line — same empty-start,
+                swapText()-driven roll as roadshowsRef above, just smaller
+                type. */}
             <p
               ref={disclaimerRef}
-              className="mt-2 text-xs text-white/60 opacity-0 sm:text-sm"
-            >
-              Note: Roadshow and meetup venues differ and tickets sold separately.
-            </p>
+              className="mt-2 text-xs text-white/60 sm:text-sm"
+            />
             {!staticBaseline && (
               // Both buttons occupy the same grid cell (place-items-center on
               // a shared cell, not two separately-flowed elements) so the
