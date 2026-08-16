@@ -4,15 +4,12 @@ const nextConfig: NextConfig = {
    allowedDevOrigins: ['192.168.1.*'],
   images: {
     /*
-     * AVIF first, WebP as fallback. Measured on the archive photos at w=1200:
-     * 30→25 KB, 56→46 KB, 87→82 KB — roughly 14% off for browsers that support
-     * it, and no browser is worse off. The cost is a slower first encode per
-     * variant and both formats held in cache.
-     *
-     * Next's default is WebP only, which meant AVIF-capable browsers were
-     * being served WebP.
+     * Custom loader hands resizing/format negotiation to ImageKit in prod
+     * (Cloudflare Pages doesn't run Next's built-in Node/sharp optimizer).
+     * The loader itself falls back to unmodified /public paths in dev.
      */
-    formats: ["image/avif", "image/webp"],
+    loader: "custom",
+    loaderFile: "./lib/imagekit-loader.ts",
   },
 };
 

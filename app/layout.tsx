@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Google_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
@@ -10,22 +10,19 @@ import { ScrollCueController } from "@/components/motion/ScrollCue";
 import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 
-/*
- * A subset WOFF2, not the raw TTF. `next/font/local` copies the file verbatim —
- * it neither transcodes nor subsets — so pointing this at the 4.6 MB source
- * shipped 4.6 MB to every visitor, roughly nine times the entire hero photo
- * payload. `npm run fonts` regenerates it; see scripts/subset-fonts.mjs.
- *
- * No italic face. Nothing in the site renders italic, and the 4.8 MB italic
- * source was one stray <em> away from being downloaded. If italic is ever
- * genuinely needed, subset that source too rather than pointing at the raw file.
- */
-const googleSans = localFont({
-  src: "../public/fonts/google-sans-latin.woff2",
-  weight: "100 900",
+// Self-hosted at build time by next/font/google — no runtime request to
+// Google. Only `normal` style: nothing in the site renders italic.
+// adjustFontFallback: false — Next only ships fallback-font metrics for its
+// own curated font list, which doesn't include Google Sans; leaving the
+// default on just produces a "failed to find override values" warning with
+// no fallback ever generated.
+const googleSans = Google_Sans({
+  subsets: ["latin"],
+  weight: "variable",
   style: "normal",
   variable: "--font-google-sans",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
