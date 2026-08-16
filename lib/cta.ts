@@ -3,37 +3,36 @@ import { siteConfig } from "@/site.config";
 /**
  * What the site's two recruiting call-to-actions should actually say, given
  * how much of `siteConfig` is still unconfirmed. Both follow the same rule:
- * never render a label that promises something the config cannot deliver.
+ * never render a label that promises something the config cannot deliver —
+ * which is also why both always resolve to a real destination now (ticketing
+ * through our own /tickets page, speaking through Sessionize) rather than
+ * ever needing a "nowhere to send you yet" state.
  */
-
-export type Cta =
-  | { available: true; href: string; label: string; external: boolean }
-  | { available: false; label: string; note: string };
+export type Cta = { available: true; href: string; label: string; external: boolean };
 
 /**
- * A "Get Tickets" button that quietly lands on /agenda is a lie, and it was
- * rendered that way in both the header and the homepage CTA while
- * `ticketing.url` is null. When there is nowhere to buy, we say so.
+ * Tickets are sold through our own /tickets page, not an external platform —
+ * always available, since that page exists regardless of anything else being
+ * confirmed yet. (It was previously gated on an external ticketing URL, in
+ * the same spirit as speakerCta() below: a "Get Tickets" button that quietly
+ * lands somewhere unset is a lie, and it was rendered that way in both the
+ * header and the homepage CTA before this existed.)
  */
 export function ticketCta(): Cta {
-  const url = siteConfig.ticketing.url;
-  if (url) return { available: true, href: url, label: siteConfig.ticketing.availableLabel, external: true };
   return {
-    available: false,
-    label: siteConfig.ticketing.comingSoonLabel,
-    note: `Sold via ${siteConfig.ticketing.platform}.`,
+    available: true,
+    href: siteConfig.ticketing.href,
+    label: siteConfig.ticketing.availableLabel,
+    external: false,
   };
 }
 
 /**
- * The speaker pitch. Prefers the external CFP form (Sessionize) when its URL
- * is set, and otherwise points at /cfp — which already renders the
- * open / closed / opening-soon states from the same config. Set
- * `siteConfig.cfp.formUrl` and every "this could be you" slot on the site
- * starts pointing straight at the form.
+ * The speaker pitch — always the external CFP form (Sessionize). There's no
+ * local /cfp page to fall back to (see lib/routes.ts's retiredRoutes), so
+ * every "this could be you" slot on the site points straight at the form,
+ * in a new tab.
  */
 export function speakerCta(): Cta {
-  const url = siteConfig.cfp.formUrl;
-  if (url) return { available: true, href: url, label: "Submit a talk", external: true };
-  return { available: true, href: "/cfp", label: "Submit a talk", external: false };
+  return { available: true, href: siteConfig.cfp.formUrl, label: "Submit a talk", external: true };
 }

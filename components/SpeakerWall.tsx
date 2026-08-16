@@ -51,8 +51,8 @@ export function SpeakerWall({ limit = SLOTS }: { limit?: number }) {
       slots={Math.max(limit, shown.length + 1)}
       filled={filled}
       invite={{
-        href: cta.available ? cta.href : "/cfp",
-        external: cta.available && cta.external,
+        href: cta.href,
+        external: cta.external,
         label: "This could be you",
         srLabel: "submit a talk to the call for proposals",
         ornament: <SpeakerSilhouette />,

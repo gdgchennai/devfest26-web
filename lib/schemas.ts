@@ -39,13 +39,6 @@ export const speakerSchema = z.object({
 
 export type Speaker = z.infer<typeof speakerSchema>;
 
-export const faqItemSchema = z.object({
-  question: z.string().min(1),
-  answer: z.string().min(1),
-});
-
-export type FaqItem = z.infer<typeof faqItemSchema>;
-
 export const archivePhotoSchema = z.object({
   src: z.string(),
   title: z.string(),

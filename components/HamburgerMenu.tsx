@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { navRoutes } from "@/lib/routes";
-import { speakerCta, ticketCta } from "@/lib/cta";
+import { speakerCta } from "@/lib/cta";
 import { RollingText } from "@/components/motion/RollingText";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -224,7 +224,6 @@ export function HamburgerMenu() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const ticket = ticketCta();
   const speaker = speakerCta();
 
   return (
@@ -316,38 +315,17 @@ export function HamburgerMenu() {
               </Link>
             </div>
           ))}
-        {ticket.available ? (
-          <div data-menu-item>
-            <a
-              href={ticket.href}
-              target="_blank"
-              rel="noreferrer"
-              onClick={close}
-              className="text-paper/90 hover:text-paper"
-            >
-              <RollingText>Get tickets</RollingText> →
-            </a>
-          </div>
-        ) : null}
-        {speaker.available && speaker.external ? (
-          <div data-menu-item>
-            <a
-              href={speaker.href}
-              target="_blank"
-              rel="noreferrer"
-              onClick={close}
-              className="text-paper/90 hover:text-paper"
-            >
-              <RollingText>Submit CFP</RollingText> →
-            </a>
-          </div>
-        ) : speaker.available ? (
-          <div data-menu-item>
-            <Link href={speaker.href} onClick={close} className="text-paper/90 hover:text-paper">
-              <RollingText>Submit CFP</RollingText> →
-            </Link>
-          </div>
-        ) : null}
+        <div data-menu-item>
+          <a
+            href={speaker.href}
+            target="_blank"
+            rel="noreferrer"
+            onClick={close}
+            className="text-paper/90 hover:text-paper"
+          >
+            <RollingText>Submit CFP</RollingText> →
+          </a>
+        </div>
       </div>
     </div>
   );

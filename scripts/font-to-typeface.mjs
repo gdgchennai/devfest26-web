@@ -8,8 +8,8 @@
  * The conversion is ported verbatim from three's TTFLoader `convert()` so the
  * output is guaranteed compatible with FontLoader — but run here at build time
  * (against a locally installed opentype.js) so we never pull opentype from a
- * CDN at runtime, and the committed JSON is subset to A–Z/a–z + space, a few KB
- * rather than the whole font.
+ * CDN at runtime, and the committed JSON is subset to A–Z/a–z/0–9 + space, a
+ * few KB rather than the whole font.
  */
 import opentype from "opentype.js";
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
@@ -23,6 +23,7 @@ const OUT = join(root, "public/fonts/google-sans-bold.typeface.json");
 const allowed = new Set([" "]);
 for (let c = 65; c <= 90; c += 1) allowed.add(String.fromCharCode(c)); // A–Z
 for (let c = 97; c <= 122; c += 1) allowed.add(String.fromCharCode(c)); // a–z
+for (let c = 48; c <= 57; c += 1) allowed.add(String.fromCharCode(c)); // 0–9
 
 const round = Math.round;
 

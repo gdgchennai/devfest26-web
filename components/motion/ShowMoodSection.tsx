@@ -36,9 +36,9 @@ const PHOTO_BUTTON_SIZE = "sm:px-7 sm:py-3 sm:text-base lg:px-9 lg:py-4 lg:text-
 
 /** Same source the header/hero/TicketStub all read from — never a hardcoded
  *  href here, for the exact reason lib/cta.ts exists (see there): a "Get
- *  tickets" link that quietly lands somewere wrong while ticketing.url is
- *  still null. Computed once at module scope (plain data derived from
- *  config, not client state), same as HeroCopy.tsx's own copy of this. */
+ *  tickets" link that quietly lands somewhere wrong. Computed once at module
+ *  scope (plain data derived from config, not client state), same as
+ *  HeroCopy.tsx's own copy of this. */
 const ticket = ticketCta();
 const cfp = speakerCta();
 
@@ -56,12 +56,27 @@ const GAP_PX = 4;
  *  the bottom edge. */
 const DESKTOP_SEAM_TOP = 60;
 const DESKTOP_SEAM_BOTTOM = 40;
-const desktopClipLeft =
-  `polygon(0 0, calc(${DESKTOP_SEAM_TOP}% - ${GAP_PX}px) 0, ` +
-  `calc(${DESKTOP_SEAM_BOTTOM}% - ${GAP_PX}px) 100%, 0 100%)`;
-const desktopClipRight =
-  `polygon(calc(${DESKTOP_SEAM_TOP}% + ${GAP_PX}px) 0, 100% 0, 100% 100%, ` +
-  `calc(${DESKTOP_SEAM_BOTTOM}% + ${GAP_PX}px) 100%)`;
+
+/**
+ * Builds one `calc(N% ± GAP_PXpx)` seam point. Every clip-path below used to
+ * inline this as two `${GAP_PX}px}`-interpolated template literals joined
+ * with `+` — Turbopack's production minifier constant-folds that (every
+ * value involved is a static module-level number) and, with the same
+ * interpolated substring appearing twice in the folded expression, corrupts
+ * the merged string: `calc(60% + 4px) 0, 100% 0, 100% 100%, calc(40% + 4px)`
+ * shipped as `calc(60% + 4calc(40% + 4px)` in the actual SSR HTML, silently
+ * dropping the invalid clip-path (browser falls back to `none`) — dev builds
+ * never hit the minifier, so this only ever showed up in prod. Routing every
+ * seam point through one function call, rather than repeating the same
+ * interpolation inline, sidesteps whatever in the folder's CSE keys off the
+ * literal duplicate text.
+ */
+function seamCalc(pct: number, sign: "+" | "-"): string {
+  return `calc(${pct}% ${sign} ${GAP_PX}px)`;
+}
+
+const desktopClipLeft = `polygon(0 0, ${seamCalc(DESKTOP_SEAM_TOP, "-")} 0, ${seamCalc(DESKTOP_SEAM_BOTTOM, "-")} 100%, 0 100%)`;
+const desktopClipRight = `polygon(${seamCalc(DESKTOP_SEAM_TOP, "+")} 0, 100% 0, 100% 100%, ${seamCalc(DESKTOP_SEAM_BOTTOM, "+")} 100%)`;
 
 /** Narrow: split top/bottom along a diagonal seam that runs from
  *  NARROW_SEAM_LEFT (a % of height) at the left edge to NARROW_SEAM_RIGHT at
@@ -70,12 +85,8 @@ const desktopClipRight =
  *  averaged to 65, leaving the top panel visibly taller than the bottom. */
 const NARROW_SEAM_LEFT = 55;
 const NARROW_SEAM_RIGHT = 45;
-const narrowClipTop =
-  `polygon(0 0, 100% 0, 100% calc(${NARROW_SEAM_RIGHT}% - ${GAP_PX}px), ` +
-  `0 calc(${NARROW_SEAM_LEFT}% - ${GAP_PX}px))`;
-const narrowClipBottom =
-  `polygon(0 calc(${NARROW_SEAM_LEFT}% + ${GAP_PX}px), 100% calc(${NARROW_SEAM_RIGHT}% + ${GAP_PX}px), ` +
-  `100% 100%, 0 100%)`;
+const narrowClipTop = `polygon(0 0, 100% 0, 100% ${seamCalc(NARROW_SEAM_RIGHT, "-")}, 0 ${seamCalc(NARROW_SEAM_LEFT, "-")})`;
+const narrowClipBottom = `polygon(0 ${seamCalc(NARROW_SEAM_LEFT, "+")}, 100% ${seamCalc(NARROW_SEAM_RIGHT, "+")}, 100% 100%, 0 100%)`;
 
 /**
  * Both panels' Images fill the WHOLE section (inset-0, same box, same
@@ -383,17 +394,12 @@ export function ShowMoodSection() {
 
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
 
-  // Only rendered when there's actually somewhere to send someone — same
-  // rule CurvedMarqueeHero's own "Get tickets →" follows (see there): while
-  // ticketing.url is null there's nothing to link to, so this omits the
-  // link entirely rather than pointing it at the wrong place. self-end (not
-  // self-start) and a leading arrow — right-aligned within the left panel,
-  // by request, rather than matching the panel's own left-aligned title/body.
-  const ticketLink = ticket.available ? (
+  // self-end (not self-start) and a leading arrow — right-aligned within the
+  // left panel, by request, rather than matching the panel's own
+  // left-aligned title/body.
+  const ticketLink = (
     <GlowButton
       href={ticket.href}
-      target={ticket.external ? "_blank" : undefined}
-      rel={ticket.external ? "noreferrer" : undefined}
       className="self-end"
       size="sm"
       textClassName="text-white"
@@ -401,20 +407,17 @@ export function ShowMoodSection() {
     >
       <RollingText>← Get tickets</RollingText>
     </GlowButton>
-  ) : null;
+  );
 
-  // speakerCta() is always "available" (it falls back to the site's own
-  // /cfp route when no external form URL is set — see lib/cta.ts), so
-  // unlike the ticket link this one always renders. self-start and a
-  // trailing arrow — left-aligned within the right panel, by request,
-  // rather than matching the panel's own right-aligned title/body.
-  const cfpHref = cfp.available ? cfp.href : "/cfp";
-  const cfpExternal = cfp.available && cfp.external;
+  // speakerCta() always points at Sessionize, in a new tab — see lib/cta.ts.
+  // self-start and a trailing arrow — left-aligned within the right panel,
+  // by request, rather than matching the panel's own right-aligned
+  // title/body.
   const cfpLink = (
     <GlowButton
-      href={cfpHref}
-      target={cfpExternal ? "_blank" : undefined}
-      rel={cfpExternal ? "noreferrer" : undefined}
+      href={cfp.href}
+      target="_blank"
+      rel="noreferrer"
       className="self-start"
       size="sm"
       textClassName="text-white"

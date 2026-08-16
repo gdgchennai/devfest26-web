@@ -46,9 +46,11 @@ Home   Agenda   Speakers   Venue   About            [Get Tickets]
 It is the only conversion on the site. On mobile it stays pinned in the header while the rest
 collapses into a menu.
 
-> **As built:** `components/Header.tsx` ships the five links off `navRoutes`, but neither the
-> tickets button nor the mobile menu — see "Open issues" at the end of this doc for why, and what
-> a redesign has to preserve.
+> **As built:** `components/Header.tsx` ships the five links off `navRoutes`, with
+> `components/HamburgerMenu.tsx` collapsing them on mobile. Still missing the persistent
+> `[Get Tickets]` button — correct for now, since `ticketing.url` is still `null` and there is
+> nothing to link (see "Never render a label the config cannot honour" below). Add it in the same
+> change that sets the real ticket URL.
 
 ---
 
@@ -175,35 +177,28 @@ visitor gets the full route list and no false lead.
 | Social footer — X, LinkedIn, Instagram, YouTube, GitHub, Discord | Keep |
 | _New:_ Speakers | Added for 2026. A roster with visible open places; the CFP invitation sits in the lineup |
 
-The 2026 homepage runs: hero → What you'll get → Why join us → Tracks → Agenda preview →
-Speakers → Venue → FAQ → ticket stub. Every one is wrapped in `components/Section.tsx`, which
-owns the shared `max-w-6xl` container, and all but the first are separated by a drawn divider
-(`components/SectionDivider.tsx`).
+**As built, this diverged from the plan above.** The table describes the intended 2025→2026 carry
+list; the live homepage did not end up assembling itself from a generic `Section.tsx` wrapper.
+`components/Section.tsx` and `components/SectionHeading.tsx` were deleted as dead code — nothing
+imported them outside a commented-out block. The homepage today (`app/page.tsx`) actually renders:
+`BracketsField` (backdrop) → `HeroSection`/`StaticHero` → `ReadySection` → `ExpectShowcase` →
+`VenueReveal` → `MoodSection` → `ShowMoodSection` → `SeeYouThereSection`. Tracks, "Why join us",
+the Speakers lineup, FAQ, and the ticket stub are not currently wired into the page — the code for
+several of them (`TrackCards`, `TicketStub`, `TiltCard`) still exists but is unreferenced; `Faq.tsx`
+and `WhyJoin.tsx` have been removed outright. Reviving any of these sections means re-deciding how
+they're wrapped (`Section`/`SectionHeading` are gone) rather than assuming the container from this
+plan is still there.
 
-**The divider is a bare hairline — no dot, no chapter number.** It carried both briefly and both
-were wrong. The dot repeated the coloured dot in the SectionHeading's eyebrow two rows below it:
-same colour, same size, no new information. The number was worse — the first section sits under
-the hero and has no divider, so the first index a reader ever saw was "02", and the only fix
-would have been to put a rule in the one place it doesn't belong. What remains is the draw
-itself, which was the part doing the work. Section colour still comes through, once, via the
-eyebrow.
-
-**On the ticket stub:** the closing CTA is printed as a perforated ticket with mono `DATE` and
-`VENUE` fields. This is deliberate given the section below — when `siteConfig.date` is null and
-`ticketing.url` is null, "TBA" on a ticket reads as a ticket not yet issued, where the same fact
-as body copy reads as an unfinished page.
-
-Its colour is split in two on purpose. The four brand colours run at **full strength along a 2px
-top edge**, where no text sits on them, and as an **8% wash** across the body. A saturated
-four-hue gradient behind body copy makes contrast vary by region and reads like a generic SaaS
-hero rather than DevFest; the edge lets the palette be unapologetic where it costs nothing. The
-torn half is lifted 5% lighter than the body so the perforation reads as a real seam rather than
-a dashed line.
-
-`components/TiltCard.tsx` gives it a small pointer-tracked tilt and a foil sheen, both opted into
-in CSS behind `hover: hover` and `prefers-reduced-motion: no-preference`. **The tilt is capped at
-3.5°** — this is the site's one conversion element, and a card that swings far enough to move its
-own button out from under an approaching cursor costs more than the effect is worth.
+**On the ticket stub (unwired, but the design rationale still applies if it comes back):** the
+closing CTA was designed as a perforated ticket with mono `DATE` and `VENUE` fields, deliberate
+given the section below it — when `siteConfig.date` is null and `ticketing.url` is null, "TBA" on
+a ticket reads as a ticket not yet issued, where the same fact as body copy reads as an unfinished
+page. Its colour was split in two on purpose: the four brand colours at **full strength along a
+2px top edge**, where no text sits on them, and as an **8% wash** across the body — a saturated
+four-hue gradient behind body copy makes contrast vary by region and reads like a generic SaaS hero
+rather than DevFest. `components/TiltCard.tsx` gives it a small pointer-tracked tilt and a foil
+sheen, opted into behind `hover: hover` and `prefers-reduced-motion: no-preference`, **capped at
+3.5°** so the card can't swing its own button out from under an approaching cursor.
 
 ### Contrast floor
 
@@ -302,14 +297,11 @@ Non-negotiable:
 - Minimum 16px body, high contrast, generous tap targets.
 - Test on a mid-range Android over throttled 3G before the event, not on your laptop.
 - The path from "landed on the site" to "reading the agenda" should never require finishing an
-  animation. **Currently unmet — this is a known gap, not a satisfied requirement:**
-  - There is no header. `components/Header.tsx` and `HeaderNav.tsx` were removed pending a
-    redesign, so `navRoutes` in `lib/routes.ts` currently has no consumer and `/agenda`, `/about`,
-    `/cfp`, `/memories` and `/speakers` are reachable only from whatever links a given page
-    happens to carry. Restoring site-wide navigation is the blocking item.
-  - There is no skip control. `components/motion/IntroEscape.tsx` still exists and still handles
-    both the "Skip intro" button and the Escape key, but nothing renders it — the intro can only
-    be dismissed via the loader's "Enter" button. Mounting it is the fix; the component is done.
+  animation. **Met:** `components/Header.tsx` ships site-wide, reading `navRoutes` from
+  `lib/routes.ts`, so `/agenda` and every other route is reachable in one click from anywhere
+  without touching the homepage intro. `components/motion/IntroEscape.tsx` has since been removed
+  entirely (it was dead code — nothing rendered it); skip is handled via the loader's own controls
+  instead.
 
 ---
 
@@ -333,11 +325,12 @@ Built once in the root layout, consumed everywhere. **This lands before anything
   preference through the URL so the choice is linkable, testable and reversible. Shares its
   rendering path with reduced-motion and no-JS; see Part 4 of the motion spec. Site-wide, not a
   homepage feature.
-  - **Reachable in four places, each on screen once** — under the loader's "Enter" CTA (where the
-    choice is actually made), in `<IntroEscape>`'s corner during the flythrough, as the footer
-    toggle (`aria-pressed`, visible on/off state) on every route, and — going the other way — a
-    "Switch to the full experience" link in `<StaticHero>`. Lite is a preference, not a one-way
-    door: verified end to end that `?lite=0` clears the stored value and the WebGL hero returns.
+  - **Reachable under the loader's "Enter" CTA** (where the choice is actually made), as the
+    footer toggle (`aria-pressed`, visible on/off state) on every route, and — going the other way
+    — a "Switch to the full experience" link in `<StaticHero>`. (`<IntroEscape>` used to offer a
+    fourth entry point during the flythrough; it was dead code — nothing rendered it — and has
+    since been removed.) Lite is a preference, not a one-way door: verified end to end that
+    `?lite=0` clears the stored value and the WebGL hero returns.
   - **What lite drops:** three.js (marquee + 3D title), the hallway, the preloader/intro, Lenis,
     and every photo — measured at **0 image requests vs 5.7 MB**, and 316 KB of JS vs 511 KB.
     `ExpectShowcase` renders brand halftone panels instead of its decorative archive photos,
@@ -613,17 +606,15 @@ leaving them.
   Synced. This is the hazard the `site.config.ts` date comment warns about and nothing enforces
   it — check it every time the date moves.
 
-### The header is minimal, not the specced one
+### The header, as it stands now
 
-`components/Header.tsx` now ships, reading `navRoutes` from `lib/routes.ts` (exported for this
-and previously consumed by nothing). It is deliberately smaller than the spec in
-"Should it be multi-page with nav?" above:
+`components/Header.tsx` ships, reading `navRoutes` from `lib/routes.ts`, with
+`components/HamburgerMenu.tsx` collapsing the five links on mobile — the "no mobile menu" gap
+noted in an earlier pass of this audit has since been closed.
 
-- **No persistent `[Get Tickets]` button.** Correct for now — `ticketing.url` is `null`, so per
-  the "never render a label the config cannot honour" rule there is nothing to link. Add it in the
-  same change that sets the real URL.
-- **No mobile menu.** Five short labels scroll horizontally in a pill instead of collapsing into a
-  hamburger. Revisit when a sixth item or the tickets button lands.
+- **Still no persistent `[Get Tickets]` button.** Correct for now — `ticketing.url` is `null`, so
+  per the "never render a label the config cannot honour" rule there is nothing to link. Add it in
+  the same change that sets the real URL.
 - **Fixed, not in flow, on purpose.** The homepage is a chain of ScrollTrigger pins measured off
   real element heights. A header in normal flow shifts all of them. Any redesign must stay out of
   flow or re-verify every pin.
@@ -648,19 +639,20 @@ and previously consumed by nothing). It is deliberately smaller than the spec in
   `sectionsRef.current` and `getHorizontalCue()` in the render body, so the arrow can point the
   wrong way until an unrelated state change re-renders it. The `forceTick` hack exists because of
   this. Fix by holding `sections.length` and the horizontal-cue snapshot in state.
-- **Three unused-variable warnings** — `siteConfig` and `TicketStub` in `app/page.tsx` (both
-  imports for commented-out JSX that page.tsx says to keep), `fbm` in `BracketsField.tsx`.
+- **`fbm` unused-variable warning in `BracketsField.tsx`.** (The `siteConfig`/`TicketStub`
+  warnings previously noted here were from commented-out JSX in `app/page.tsx`; that block has
+  since been removed along with the dead imports.)
 
 ### Not fixed — content contradictions
 
-These are mostly invisible today because **the FAQ is rendered nowhere** — `content/faq.json` is
-parsed and exported by `lib/content.ts`, and `components/Faq.tsx` has no consumer. They go live
-the moment it is wired up.
+`components/Faq.tsx` and its `lib/content.ts` export have since been deleted outright (it was
+unconsumed dead code), so the FAQ/CFP contradiction noted in an earlier pass of this audit no
+longer applies — there's no rendered FAQ to contradict anything. `content/faq.json` itself is
+still sitting in the repo, unread by any code; revisit it only if the FAQ section gets rebuilt.
 
-- FAQ says "the Call for Proposals is open on the CFP page". `/cfp` renders **"Opening soon"**,
-  because `cfp.opensAt` is `null`.
-- `/contact` invites "sponsorship" enquiries while the FAQ says there is no sponsorship programme
-  for 2026, `/sponsors` is a retired route, and the tiers are gone from config.
+- **`/contact` still invites "sponsorship" enquiries** (`app/contact/page.tsx`) even though there
+  is no 2026 sponsorship programme, `/sponsors` is a retired route, and the tiers are gone from
+  config. This one is independent of the FAQ and still live — worth a copy fix.
 - **The Code of Conduct ships flagged as a placeholder** (`isPlaceholder: true`), rendering a
   "pending review" banner on the one page attendees are told to trust. Needs an organiser review,
   not a code change.
@@ -670,10 +662,6 @@ the moment it is wired up.
 
 ### Not fixed — hygiene
 
-- **31 MB of unused static fonts are tracked in git.** `.gitignore` lists `/Google_Sans/static`
-  but the files predate it, and gitignore does not untrack. Only the variable source is read by
-  `scripts/subset-fonts.mjs`; only the 40 KB subset WOFF2 ships. `git rm -r --cached
-  Google_Sans/static` clears HEAD.
 - **`README.md` is still create-next-app boilerplate** and talks about Geist. This doc is the real
   documentation.
 - **No `sitemap.ts`, no `robots.ts`, no `metadataBase`, no OG image.** Deferred until the domain is

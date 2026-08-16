@@ -43,8 +43,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# 31MB of static font weights nothing references — the variable source next to
-# them is the only file scripts/subset-fonts.mjs reads.
-/Google_Sans/static
-
 .vscode

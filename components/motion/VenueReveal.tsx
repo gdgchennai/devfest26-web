@@ -9,6 +9,7 @@ import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { SplitText } from "gsap/SplitText";
 import { siteConfig } from "@/site.config";
 import { EVENT_TIME_ZONE } from "@/lib/format";
+import { ticketCta } from "@/lib/cta";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { ParticleCover } from "@/components/motion/ParticleCover";
@@ -48,6 +49,12 @@ const TOTAL_VH = HOLD_VH + SWAP_VH + OVERLAY_VH;
  *  match --blue-pastel, the page's own settled colour. */
 const GLOW_COLOR = "rgba(200,235,255,1)";
 
+/** Same source the header/hero/TicketStub all read from — see lib/cta.ts. */
+const ticket = ticketCta();
+
+const ROADSHOWS_TEXT = "Roadshows and Meetups from Aug 29th onwards";
+const DISCLAIMER_TEXT = "Note: Roadshow and meetup venues differ and tickets sold separately.";
+
 const dateShort = siteConfig.date
   ? new Date(siteConfig.date).toLocaleDateString("en-IN", {
       month: "short",
@@ -79,6 +86,15 @@ function resolveColor(expr: string): string {
  *  is a safe no-op instead of corrupting the in-flight animation. */
 const swapTargets = new WeakMap<HTMLElement, string>();
 
+/** Rolls `el`'s (non-empty) content in, entrance half of swapText() below —
+ *  factored out because it's also the WHOLE of a swap that starts from
+ *  empty text, where there's nothing to roll out first (see there). */
+function rollIn(el: HTMLElement, direction: 1 | -1) {
+  const inSplit = SplitText.create(el, { type: "chars", mask: "chars" });
+  gsap.set(inSplit.chars, { yPercent: 130 * direction, opacity: 0 });
+  gsap.to(inSplit.chars, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.02, ease: "power3.out" });
+}
+
 /** Swaps `el`'s text with a rise-out/rise-in SplitText cut, matching the
  *  reveal beat "About DevFest" uses elsewhere on the homepage. `direction`
  *  is which way the roll reads: 1 (the default — forward, i.e. scrolling
@@ -86,7 +102,14 @@ const swapTargets = new WeakMap<HTMLElement, string>();
  *  before; -1 (reverse, i.e. scrolling back up into "Location") mirrors
  *  that — exits downward, enters from above — so the text visibly rolls
  *  the OPPOSITE way when you reverse, instead of replaying the same upward
- *  roll regardless of which way the scroll that triggered it went. */
+ *  roll regardless of which way the scroll that triggered it went.
+ *
+ *  Both ends can be empty (roadshowsRef starts at "" and swaps back to it —
+ *  see applySwapVisuals), and SplitText on an empty element produces zero
+ *  chars: handing THAT to gsap.to()/set() is what "GSAP target  not found"
+ *  came from. Guarded on both sides below rather than only skipping the
+ *  call, since an empty `el.textContent` also means there is nothing to
+ *  roll OUT — the whole exit half is skippable, not just its tween. */
 function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
   if (swapTargets.get(el) === newText) return;
   swapTargets.set(el, newText);
@@ -95,6 +118,12 @@ function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
   // (different target text arriving mid-swap) can't leave two SplitText
   // instances animating the same DOM nodes at once.
   gsap.killTweensOf(el.querySelectorAll("*"));
+
+  if (!el.textContent) {
+    el.textContent = newText;
+    if (newText) rollIn(el, direction);
+    return;
+  }
 
   const outSplit = SplitText.create(el, { type: "chars", mask: "chars" });
   gsap.to(outSplit.chars, {
@@ -106,9 +135,7 @@ function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
     onComplete: () => {
       outSplit.revert();
       el.textContent = newText;
-      const inSplit = SplitText.create(el, { type: "chars", mask: "chars" });
-      gsap.set(inSplit.chars, { yPercent: 130 * direction, opacity: 0 });
-      gsap.to(inSplit.chars, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.02, ease: "power3.out" });
+      if (newText) rollIn(el, direction);
     },
   });
 }
@@ -173,7 +200,10 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
   const scrimRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
   const captionTitleRef = useRef<HTMLHeadingElement>(null);
+  const roadshowsRef = useRef<HTMLParagraphElement>(null);
+  const disclaimerRef = useRef<HTMLParagraphElement>(null);
   const directionsRef = useRef<HTMLSpanElement>(null);
+  const ticketsRef = useRef<HTMLSpanElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const particleTlRef = useRef<gsap.core.Timeline | null>(null);
   const particleActiveRef = useRef(false);
@@ -367,6 +397,8 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // needlessly replaying it on text that never actually changed.
       swapTargets.set(heading, "Location");
       if (captionTitleRef.current) swapTargets.set(captionTitleRef.current, siteConfig.venue.name);
+      if (roadshowsRef.current) swapTargets.set(roadshowsRef.current, "");
+      if (disclaimerRef.current) swapTargets.set(disclaimerRef.current, "");
 
       gsap.set(overlayRef.current, { yPercent: 100 });
 
@@ -634,13 +666,24 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
         // own doc comment for the mechanics.
         const direction = toDate ? 1 : -1;
         if (toDate) {
-          gsap.to(directionsRef.current, { opacity: 0, duration: 0.4 });
+          // pointerEvents rides along with each opacity tween (GSAP just
+          // sets non-tweenable string props immediately) so the invisible
+          // button of the pair can't still eat clicks or keyboard focus
+          // while it's faded out — same reasoning as ScrollCueButton's own
+          // visible/hidden pointer-events toggle.
+          gsap.to(directionsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
+          gsap.to(ticketsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
           swapText(heading, "Save the Date", direction);
           if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort, direction);
+          if (roadshowsRef.current) swapText(roadshowsRef.current, ROADSHOWS_TEXT, direction);
+          if (disclaimerRef.current) swapText(disclaimerRef.current, DISCLAIMER_TEXT, direction);
         } else {
-          gsap.to(directionsRef.current, { opacity: 1, duration: 0.4 });
+          gsap.to(directionsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
+          gsap.to(ticketsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
           swapText(heading, "Location", direction);
           if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name, direction);
+          if (roadshowsRef.current) swapText(roadshowsRef.current, "", direction);
+          if (disclaimerRef.current) swapText(disclaimerRef.current, "", direction);
         }
       }
       ScrollTrigger.create({
@@ -852,18 +895,52 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             >
               {siteConfig.venue.name}
             </h3>
+            {/* Date-state only: starts empty and is swapped in/out by
+                swapText() in applySwapVisuals, same rise-out/rise-in
+                mechanism as captionTitleRef's own venue-name/date swap
+                above — not a separate opacity tween, so the reveal reads as
+                the same character roll rather than a plain fade. */}
+            <p
+              ref={roadshowsRef}
+              className="mt-2 text-xl font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-3xl"
+            />
+            {/* Fine print under the roadshows line — same empty-start,
+                swapText()-driven roll as roadshowsRef above, just smaller
+                type. */}
+            <p
+              ref={disclaimerRef}
+              className="mt-2 text-xs text-white/60 sm:text-sm"
+            />
             {!staticBaseline && (
-              <GlowButton
-                ref={directionsRef}
-                href={siteConfig.venue.mapUrl}
-                target="_blank"
-                rel="noreferrer"
-                size="lg"
-                textClassName="text-white"
-                className="mt-3"
-              >
-                <RollingText>Get directions →</RollingText>
-              </GlowButton>
+              // Both buttons occupy the same grid cell (place-items-center on
+              // a shared cell, not two separately-flowed elements) so the
+              // Location→date crossfade never opens a gap or jump between
+              // them — only their opacity changes, driven by applySwapVisuals
+              // above. ticketsRef starts at opacity-0: "Location" is the
+              // section's opening state, so "Get tickets" (the date-state
+              // CTA) must start hidden, not mid-fade.
+              <div className="relative mt-3 grid place-items-center">
+                <GlowButton
+                  ref={directionsRef}
+                  href={siteConfig.venue.mapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  size="lg"
+                  textClassName="text-white"
+                  className="col-start-1 row-start-1"
+                >
+                  <RollingText>Get directions →</RollingText>
+                </GlowButton>
+                <GlowButton
+                  ref={ticketsRef}
+                  href={ticket.href}
+                  size="lg"
+                  textClassName="text-white"
+                  className="pointer-events-none col-start-1 row-start-1 opacity-0"
+                >
+                  <RollingText>Get tickets →</RollingText>
+                </GlowButton>
+              </div>
             )}
           </div>
         </div>

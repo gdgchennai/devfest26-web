@@ -11,17 +11,15 @@ import { ticketCta, speakerCta } from "@/lib/cta";
  * These sit above it and carry the weight.
  *
  * Ticketing goes through `ticketCta()` for the same reason it does in the
- * header: while `siteConfig.ticketing.url` is null there is nowhere to buy, so
- * this renders as a dashed non-link that says so rather than a card that
- * pretends to be a destination.
+ * header: every "Get Tickets" CTA site-wide reads from the one place, so
+ * it can't drift out of sync with where tickets are actually sold.
  */
 type Highlight = {
   eyebrow: string;
   title: string;
   description: string;
-  href: string | null;
+  href: string;
   external?: boolean;
-  note?: string;
 };
 
 export function NotFoundHighlights() {
@@ -35,27 +33,19 @@ export function NotFoundHighlights() {
       description: "Four tracks, one day. The full schedule as it firms up.",
       href: "/agenda",
     },
-    tickets.available
-      ? {
-          eyebrow: "Get in",
-          title: tickets.label,
-          description: "Book your place at DevFest Chennai 2026.",
-          href: tickets.href,
-          external: true,
-        }
-      : {
-          eyebrow: "Get in",
-          title: tickets.label,
-          description: "No link to give you yet — it goes live here the moment there is one.",
-          href: null,
-          note: tickets.note,
-        },
+    {
+      eyebrow: "Get in",
+      title: tickets.label,
+      description: "Book your place at DevFest Chennai 2026.",
+      href: tickets.href,
+      external: tickets.external,
+    },
     {
       eyebrow: "Get on stage",
       title: "Speak at DevFest",
       description: "First-time speakers as welcome as conference regulars.",
-      href: speaking.available ? speaking.href : "/cfp",
-      external: speaking.available && speaking.external,
+      href: speaking.href,
+      external: speaking.external,
     },
   ];
 
@@ -78,22 +68,11 @@ function HighlightCard({ item }: { item: Highlight }) {
       </span>
       <span className="mt-2 block text-lg font-semibold">
         {item.title}
-        {item.href && <span aria-hidden> →</span>}
+        <span aria-hidden> →</span>
       </span>
       <span className="mt-1 block text-sm text-paper/70">{item.description}</span>
-      {item.note && (
-        <span className="mt-2 block font-mono text-[0.6875rem] text-paper/60">{item.note}</span>
-      )}
     </>
   );
-
-  if (!item.href) {
-    return (
-      <div className="h-full rounded-lg border border-dashed border-paper/20 bg-paper/[0.015] p-5">
-        {body}
-      </div>
-    );
-  }
 
   const className = "block h-full";
   const card = (

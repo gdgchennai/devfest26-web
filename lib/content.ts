@@ -1,17 +1,13 @@
 import agendaData from "@/content/agenda.json";
 import speakersData from "@/content/speakers.json";
-import faqData from "@/content/faq.json";
-import aboutData from "@/content/about.json";
 import cocData from "@/content/coc.json";
 import archiveData from "@/content/archive.json";
 import {
   agendaSchema,
   speakerSchema,
-  faqItemSchema,
   archivePhotoSchema,
   type AgendaSession,
   type Speaker,
-  type FaqItem,
   type ArchivePhoto,
 } from "@/lib/schemas";
 import { z } from "zod";
@@ -26,7 +22,6 @@ function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown, label: string): T 
 
 export const agenda: AgendaSession[] = parseOrThrow(agendaSchema, agendaData, "content/agenda.json");
 export const speakers: Speaker[] = parseOrThrow(z.array(speakerSchema), speakersData, "content/speakers.json");
-export const faq: FaqItem[] = parseOrThrow(z.array(faqItemSchema), faqData, "content/faq.json");
 export const archivePhotos: ArchivePhoto[] = parseOrThrow(
   z.array(archivePhotoSchema),
   archiveData,
@@ -38,7 +33,6 @@ export const hallwayPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role 
 
 /** Photos waiting at the end of it. Disjoint from the above by construction. */
 export const stackPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "stack");
-export const about = aboutData as { body: string };
 export const codeOfConduct = cocData as {
   isPlaceholder: boolean;
   sections: { heading: string; body: string }[];

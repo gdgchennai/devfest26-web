@@ -8,8 +8,8 @@ import type { ReactNode } from "react";
  *
  * Renders whichever element the destination calls for: a `<button>` when given
  * an onClick, a `<Link>` for in-site routes, a plain `<a>` for external URLs
- * (ticketing and the CFP form live off-site, and `siteConfig.ticketing.url`
- * falls back to an internal route when it is not set yet).
+ * (the CFP form falls back to an internal route when no external one is set;
+ * ticketing is always internal — see `siteConfig.ticketing`).
  */
 type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg";
@@ -39,18 +39,6 @@ const BASE = "inline-block rounded-full text-sm font-medium";
 
 function classesFor(variant: Variant, size: Size, className: string) {
   return `${BASE} ${VARIANT[variant]} ${SIZE[size]} ${className}`.trim();
-}
-
-/*
- * The same pill, minus the interactivity. Used where there is nothing to link
- * to yet — chiefly the ticket CTA while `siteConfig.ticketing.url` is null,
- * which must still occupy the CTA's space and weight without pretending to be
- * a destination. Exported rather than added as a `disabled` prop because the
- * result is not a disabled control: it is a statement, and rendering it as a
- * real <button disabled> would put an unreachable tab stop in the header.
- */
-export function inertButtonClasses(size: Size = "md", className = "") {
-  return `${BASE} ${SIZE[size]} border border-dashed border-paper/25 text-paper/60 ${className}`.trim();
 }
 
 /** In-site destinations get client navigation; anything else is a real anchor. */

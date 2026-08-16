@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -153,6 +154,26 @@ export function MoodSection() {
       // that (the page's actual top, where it should stay the CSS
       // default's 1).
       tl.to(document.documentElement, { "--brackets-opacity": 1, ease: "none", duration: 5 }, 0);
+
+      // Publish this section's pin geometry for the floating scroll-cue
+      // button (see ScrollCueController): it shows a right-arrow instead of
+      // a down-arrow while this section is pinned, same as ExpectShowcase's
+      // own horizontal cards — except there's only one destination here (the
+      // marquee's fully-arrived end), not a row of cards, so this is a
+      // 2-position cue rather than a per-card one: index 0 is "just
+      // entered" (trigger.start), index 1 is "line fully arrived"
+      // (trigger.end). ScrollCueController's existing "next card" logic
+      // (index 0 → 1) is exactly "scroll to the end of this pin", so nothing
+      // about ITS code has to know MoodSection isn't card-based.
+      const trigger = tl.scrollTrigger!;
+      setHorizontalCue({
+        el: stage,
+        cardCount: 2,
+        activeIndex: () => (trigger.progress >= 0.99 ? 1 : 0),
+        scrollYForCard: (index) => (index <= 0 ? trigger.start : trigger.end),
+      });
+
+      return () => setHorizontalCue(null);
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );

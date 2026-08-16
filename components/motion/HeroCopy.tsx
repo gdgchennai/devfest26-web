@@ -12,8 +12,8 @@ import { ticketCta } from "@/lib/cta";
  *
  * `ticket` comes from `ticketCta()` rather than being written out, because the
  * hero was the last place still rendering a "Get Tickets" link that quietly
- * landed on /agenda while `siteConfig.ticketing.url` is null — the exact thing
- * lib/cta.ts was written to stop.
+ * landed on /agenda instead of the real ticketing destination — the exact
+ * thing lib/cta.ts was written to stop.
  *
  * Not a component and deliberately not "use client": it is plain data derived
  * from config at module scope, so it costs the lite bundle nothing.
