@@ -82,17 +82,49 @@ const SECTION_SELECTOR = "[data-scroll-cue-section]";
  *  since both fire the same Lenis "scroll" event stream. */
 const SETTLE_MS = 150;
 
+/**
+ * Explicit seconds for the forward cue's "jump to next card" scroll, when
+ * inside a horizontal-cue section (ExpectShowcase's cards, MoodSection's
+ * marquee). Deliberately NOT left to Lenis's default (calling `.scrollTo()`
+ * with no `duration` makes it lerp-follow instead of tween on a fixed
+ * clock) — lerp covers a FIXED FRACTION of the remaining distance every
+ * frame, so it moves faster, not slower, the longer the jump is. A normal
+ * "next section" hop is short and reads fine that way; jumping to the end of
+ * a whole pinned card row or marquee is a much longer distance, and lerp
+ * made it feel like a snap-cut rather than something readable while it
+ * moves. An explicit duration keeps pace independent of distance instead.
+ * Tune by feel — there's no "default" pace to measure this against.
+ */
+const HORIZONTAL_CUE_SCROLL_SECONDS = 4;
+
+/**
+ * Passing a `duration` without an `easing` makes Lenis fall back to its own
+ * default — `1.001 - 2**(-10t)`, an exponential ease-OUT that races through
+ * most of the distance early and spends a long tail crawling the last bit.
+ * That reads as "fast, then slows down" — the opposite of the point here,
+ * which is to hold a readable, CONSTANT pace across the whole jump so
+ * there's no fast stretch to blink through. Linear is what "constant pace"
+ * literally means; nothing fancier is needed for a single fixed-distance
+ * scroll like this.
+ */
+const LINEAR_EASING = (t: number) => t;
+
 /** Below this scrollY, "back to top" has nowhere useful left to send you. */
 const BACK_TO_TOP_THRESHOLD_VH = 0.6;
 
 /**
  * The site's one floating scroll-cue: a "forward" button (down-arrow, or
- * right-arrow while the pinned About-DevFest card row is the active section)
- * bottom-center, and a "back to top" button (up-arrow, or left-arrow in that
- * same section) bottom-right. Both trigger an ordinary Lenis `scrollTo` — no
- * `immediate`/forced duration — so the motion is the exact same smoothing a
- * visitor's own wheel/trackpad scroll gets, not a hard cut to the next
- * section. Renders nothing under reduced-motion/lite: there is no Lenis
+ * right-arrow while a horizontal-cue section — the pinned About-DevFest card
+ * row, or MoodSection's marquee — is the active section) bottom-center, and
+ * a "back to top" button (up-arrow, or left-arrow in that same section)
+ * bottom-right. The plain "next section" hop is an ordinary Lenis
+ * `scrollTo` — no forced duration, so the motion is the exact same
+ * smoothing a visitor's own wheel/trackpad scroll gets, not a hard cut. The
+ * horizontal-cue "next card" hop is the one exception, on an explicit
+ * duration instead (see HORIZONTAL_CUE_SCROLL_SECONDS) — that jump can cover
+ * a whole pinned card row or marquee's width, long enough that Lenis's
+ * default lerp-follow read as a snap rather than something readable while it
+ * moves. Renders nothing under reduced-motion/lite: there is no Lenis
  * instance in that world, and a button promising "smooth" scroll would be
  * lying about the very thing it's for.
  */
@@ -200,12 +232,24 @@ export function ScrollCueController() {
     if (inHorizontal && cue) {
       const cardIndex = cue.activeIndex();
       if (cardIndex < cue.cardCount - 1) {
-        lenis.scrollTo(cue.scrollYForCard(cardIndex + 1));
+        lenis.scrollTo(cue.scrollYForCard(cardIndex + 1), {
+          duration: HORIZONTAL_CUE_SCROLL_SECONDS,
+          easing: LINEAR_EASING,
+        });
         return;
       }
     }
     const next = sectionsRef.current[activeIndex + 1];
-    if (next) lenis.scrollTo(next);
+    if (next) {
+      lenis.scrollTo(next);
+      return;
+    }
+    // No further tracked section — SeeYouThereSection is the last
+    // `data-scroll-cue-section` in app/page.tsx, but the Footer beneath it
+    // is rendered in the root layout, not that page, so it was never part
+    // of `sections`. On the last section, "forward" has to mean "the actual
+    // bottom of the document" (the footer) rather than a no-op.
+    lenis.scrollTo(document.documentElement.scrollHeight);
   }, [activeIndex, lenisRef]);
 
   const scrollToTop = useCallback(() => {
@@ -223,7 +267,13 @@ export function ScrollCueController() {
 
   const forwardDirection: ScrollCueDirection = inHorizontal && !onLastCard ? "right" : "down";
   const isLastSection = activeIndex !== -1 && activeIndex === sections.length - 1;
-  const forwardHasTarget = forwardDirection === "right" || !isLastSection;
+  // On the last tracked section, "forward" still has somewhere to go — the
+  // footer, past the end of `sections` (see scrollToNext) — right up until
+  // scroll has actually reached the bottom of the document. Only then is
+  // there genuinely nowhere further, same reasoning as backVisible's own
+  // "nowhere useful left to send you" threshold below.
+  const atPageBottom = scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
+  const forwardHasTarget = forwardDirection === "right" || !isLastSection || !atPageBottom;
   const forwardVisible = !isScrolling && activeIndex !== -1 && forwardHasTarget;
 
   const backDirection: ScrollCueDirection = inHorizontal ? "left" : "up";
