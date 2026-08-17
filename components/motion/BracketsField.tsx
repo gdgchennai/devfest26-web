@@ -269,12 +269,32 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
   const lowPower = isLowPowerDevice();
   const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
   renderer.setSize(host.clientWidth, host.clientHeight);
-  // Supersample to at least 2× even on 1× (non-retina) displays: WebGL's MSAA
-  // alone leaves the high-contrast shape edges looking jagged against the
-  // crisp DOM text, and this renders on scroll only, so the cost is fine.
-  // Low-power devices skip the supersample — a full-viewport quad at 2x is
-  // the single biggest fill-rate cost in this scene.
-  renderer.setPixelRatio(lowPower ? 1 : Math.min(Math.max(window.devicePixelRatio, 2), 2));
+  // Two resolutions, swapped live (see poll() below): full quality at rest,
+  // reduced while actively re-rendering every frame during a scroll.
+  //
+  // Used to render at a flat, forced-minimum 2× pixel ratio always, on the
+  // premise that "this renders on scroll only, so the cost is fine." That
+  // premise no longer holds: renderNow() now runs on every animation frame
+  // during a scroll (see poll() below, added to fix the WebGL layer
+  // freezing mid-fling on touch devices), not just on scroll events — so a
+  // full-viewport render at 2× is now paid ~60 times a second while
+  // scrolling, not a handful. On anything short of a flagship GPU that's
+  // enough to drop real frames — most visible on the footer logo, which
+  // fades in (transparent, overlapping bevelled geometry — real overdraw
+  // cost) exactly during that same scroll-near-the-bottom stretch, and
+  // sits pixel-locked over a live DOM element, so a dropped frame there
+  // reads as a stutter/step. The brackets are present the entire time and
+  // don't push things over budget on their own, and have no fixed
+  // reference to reveal a dropped frame against — so they read as smooth
+  // even under the exact same frame drops.
+  //
+  // Trading resolution for frame rate specifically during the demanding
+  // continuous-render phase (and only there — a still frame costs nothing
+  // extra to render at full quality) addresses that without needing to
+  // strip detail all the time.
+  const fullRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 2);
+  const activeRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 1);
+  renderer.setPixelRatio(fullRatio);
   host.appendChild(renderer.domElement);
 
   scene.add(new T.AmbientLight(0xffffff, 0.9));
@@ -471,9 +491,13 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
   // effect can run before it is queryable on the very first paint.
   let logoEl: HTMLElement | null = null;
 
-  // Render on scroll (and resize) only — never on a clock. Lenis fires a
-  // scroll event every frame while it's animating, so this stays smooth, and
-  // the page is free to go idle the moment scrolling stops.
+  // Low-pass filter on the settle ramp (see below). Persists across
+  // renderNow() calls in this closure. `settleSettled` tracks whether the
+  // filter has actually caught up to its target yet — see poll() below for
+  // why that has to keep the render loop alive even once scrollY is static.
+  let smoothedSettle = 0;
+  let settleSettled = true;
+
   function renderNow() {
     if (disposed) return;
     const vh = window.innerHeight || 1;
@@ -485,34 +509,105 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
     // very bottom where the footer logo comes to rest — except in "settled"
     // mode, which skips the ramp and stays at 1 always (see mount()'s doc
     // comment).
+    //
+    // On mobile, `vh` (window.innerHeight) is not a stable input near the
+    // bottom of the page: the browser's dynamic address bar animates its
+    // height in and out as you scroll/interact there, and mid-animation
+    // `scrollY` and `vh` can be transiently inconsistent with each other
+    // (the compensating scroll adjustment lags a frame or two behind the
+    // toolbar's own height change). Because `raw` is fed straight into a
+    // smoothstep and then gates the whole settled-vs-orbiting pose, a
+    // single noisy frame was enough to snap the brackets from fully
+    // wrapped around the logo to fully flung open and back — reading as
+    // the logo "getting stuck"/glitching while the page itself barely
+    // moved. Low-pass filtering the ramp (a few frames' worth of lag)
+    // absorbs that single-frame noise while still tracking a real,
+    // sustained scroll within a handful of frames.
     let settle: number;
     if (mode === "settled") {
       settle = 1;
+      smoothedSettle = 1;
+      settleSettled = true;
     } else {
       const raw = clamp(1 - (maxScroll - scrollY) / (vh * 0.85));
-      settle = raw * raw * (3 - 2 * raw); // smoothstep
+      const target = raw * raw * (3 - 2 * raw); // smoothstep
+      smoothedSettle += (target - smoothedSettle) * 0.25;
+      // Exponential smoothing only ever asymptotically approaches its
+      // target — it never quite reaches exactly 1 (or 0). Left alone, a
+      // fast scroll to the bottom would stop moving before the filter had
+      // caught up, freezing on whatever fractional value it happened to be
+      // on when scrollY went static — a different leftover fraction every
+      // time, which (since the un-settled drift rotation is scaled by
+      // `1 - settle`) showed up as the brackets landing in a different
+      // residual orientation on every visit. Snapping once the gap is
+      // negligible, and flagging that so poll() below keeps calling this
+      // even while scrollY is unchanged, guarantees it always finishes at
+      // exactly the same resting pose.
+      if (Math.abs(target - smoothedSettle) < 0.001) smoothedSettle = target;
+      settle = smoothedSettle;
+      settleSettled = settle === target;
     }
-    let logoRect: DOMRect | null = null;
-    if (settle > 0) {
-      if (!logoEl) logoEl = document.getElementById("footer-logo");
-      const r = logoEl?.getBoundingClientRect();
-      if (r && r.width > 0) logoRect = r;
-    }
+    // Always measured, not gated on `settle > 0`: gating it meant a single
+    // frame where the (noisy, pre-smoothing) ramp dipped to exactly 0 would
+    // leave `logoRect` null for that frame, and apply() treats a null logo
+    // as "no settle target" regardless of `settle` — forcing an immediate,
+    // un-eased snap to the fully-orbiting pose that the smoothing above
+    // can't help with. The lookup itself is a single cached-element
+    // getBoundingClientRect() call, cheap enough to just always do.
+    if (!logoEl) logoEl = document.getElementById("footer-logo");
+    const r = logoEl?.getBoundingClientRect();
+    const logoRect = r && r.width > 0 ? r : null;
 
     apply(scrollY, vh, vw, maxScroll, sectionWiden(vh), settle, logoRect);
     renderer.render(scene, camera);
   }
 
-  // Deliberately synchronous, not rAF-batched: Lenis already dispatches at
-  // most one "scroll" event per animation frame (it drives scrollTop from
-  // inside gsap.ticker), so deferring to a further rAF here just adds a
-  // second frame of latency on top of that — invisible on the drifting
-  // brackets, but very visible on the footer logo, which is drawn exactly
-  // over its (invisible) real DOM counterpart: the WebGL logo would lag the
-  // live scroll position by a frame and only catch up once scrolling
-  // stopped, reading as it sliding into place instead of tracking directly.
+  // Polled on every animation frame rather than driven by any scroll event —
+  // native or GSAP's. Both were tried and both have the same failure mode on
+  // touch devices: mobile browsers throttle (often to near-zero) `scroll`
+  // event dispatch during momentum/inertial fling scrolling to keep the
+  // compositor thread free, and Lenis's own "scroll" relay (which feeds
+  // ScrollTrigger.update()) is ultimately fed by that same native event on
+  // touch. The WebGL logo/brackets would freeze mid-fling and only catch up
+  // once a slow manual drag produced a "real" event — reading as stuck until
+  // nudged, independent of device GPU power. Reading `scrollY`/`innerHeight`
+  // every rAF tick sidesteps event dispatch entirely: those are plain
+  // property reads (near-zero cost), so the loop stays cheap while idle and
+  // only pays for an actual `renderer.render()` call on frames where the
+  // scroll position or viewport (e.g. a mobile address bar collapsing)
+  // actually changed.
+  let lastScrollY = NaN;
+  let lastInnerHeight = NaN;
+  let pollRaf = 0;
+  // Tracks whether the previous tick rendered, so the transition INTO idle
+  // gets one render at full resolution — see fullRatio/activeRatio above.
+  let wasActive = false;
+  function poll() {
+    if (disposed) return;
+    // Also renders while the settle low-pass filter is still catching up
+    // (settleSettled === false) even though scrollY/innerHeight have
+    // stopped changing — otherwise a fast scroll to rest freezes the
+    // filter mid-catch-up. See renderNow()'s settle branch.
+    const active = window.scrollY !== lastScrollY || window.innerHeight !== lastInnerHeight || !settleSettled;
+    if (active) {
+      lastScrollY = window.scrollY;
+      lastInnerHeight = window.innerHeight;
+      if (!wasActive) renderer.setPixelRatio(activeRatio);
+      renderNow();
+      wasActive = true;
+    } else if (wasActive) {
+      // Just went idle: one full-resolution render so the resting frame —
+      // the one anyone actually gets to look at closely — is crisp.
+      renderer.setPixelRatio(fullRatio);
+      renderNow();
+      wasActive = false;
+    }
+    pollRaf = requestAnimationFrame(poll);
+  }
   renderNow();
-  window.addEventListener("scroll", renderNow, { passive: true });
+  lastScrollY = window.scrollY;
+  lastInnerHeight = window.innerHeight;
+  pollRaf = requestAnimationFrame(poll);
 
   function onResize() {
     camera.aspect = host.clientWidth / host.clientHeight;
@@ -526,7 +621,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
 
   return () => {
     disposed = true;
-    window.removeEventListener("scroll", renderNow);
+    cancelAnimationFrame(pollRaf);
     window.removeEventListener("resize", onResize);
     bracketItems.forEach(({ geo, mat }) => {
       geo.dispose();

@@ -12,7 +12,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig =
   process.env.NODE_ENV === "production"
     ? {
-        allowedDevOrigins: ["192.168.1.*"],
         images: { loader: "custom", loaderFile: "./lib/imagekit-loader.ts" },
       }
     : {
