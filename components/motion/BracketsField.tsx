@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 // library back into the initial bundle.
 import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
-import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { isLowPowerDevice, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { markReady, markFailed, BRACKETS_READY } from "@/lib/assetReady";
 
 /** The dynamically-imported three.js namespace, passed to the builders below. */
@@ -266,12 +266,15 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
   const camera = new T.PerspectiveCamera(50, host.clientWidth / host.clientHeight, 0.1, 100);
   camera.position.z = 6;
 
-  const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
+  const lowPower = isLowPowerDevice();
+  const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
   renderer.setSize(host.clientWidth, host.clientHeight);
   // Supersample to at least 2× even on 1× (non-retina) displays: WebGL's MSAA
   // alone leaves the high-contrast shape edges looking jagged against the
   // crisp DOM text, and this renders on scroll only, so the cost is fine.
-  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 2), 2));
+  // Low-power devices skip the supersample — a full-viewport quad at 2x is
+  // the single biggest fill-rate cost in this scene.
+  renderer.setPixelRatio(lowPower ? 1 : Math.min(Math.max(window.devicePixelRatio, 2), 2));
   host.appendChild(renderer.domElement);
 
   scene.add(new T.AmbientLight(0xffffff, 0.9));
@@ -500,18 +503,16 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
     renderer.render(scene, camera);
   }
 
-  let pending = false;
-  function scheduleRender() {
-    if (pending) return;
-    pending = true;
-    requestAnimationFrame(() => {
-      pending = false;
-      renderNow();
-    });
-  }
-
+  // Deliberately synchronous, not rAF-batched: Lenis already dispatches at
+  // most one "scroll" event per animation frame (it drives scrollTop from
+  // inside gsap.ticker), so deferring to a further rAF here just adds a
+  // second frame of latency on top of that — invisible on the drifting
+  // brackets, but very visible on the footer logo, which is drawn exactly
+  // over its (invisible) real DOM counterpart: the WebGL logo would lag the
+  // live scroll position by a frame and only catch up once scrolling
+  // stopped, reading as it sliding into place instead of tracking directly.
   renderNow();
-  window.addEventListener("scroll", scheduleRender, { passive: true });
+  window.addEventListener("scroll", renderNow, { passive: true });
 
   function onResize() {
     camera.aspect = host.clientWidth / host.clientHeight;
@@ -525,7 +526,7 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
 
   return () => {
     disposed = true;
-    window.removeEventListener("scroll", scheduleRender);
+    window.removeEventListener("scroll", renderNow);
     window.removeEventListener("resize", onResize);
     bracketItems.forEach(({ geo, mat }) => {
       geo.dispose();

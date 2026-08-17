@@ -8,7 +8,7 @@ import type { Font } from "three/addons/loaders/FontLoader.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
-import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
+import { isLowPowerDevice, prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy } from "@/components/motion/HeroCopy";
 import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
@@ -128,12 +128,13 @@ export function CurvedMarqueeHero() {
       const camera = new T.PerspectiveCamera(75, view.clientWidth / view.clientHeight, 0.1, 20);
       camera.position.z = 2;
 
-      const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
+      const lowPower = isLowPowerDevice();
+      const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
       renderer.setSize(view.clientWidth, view.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1 : 2));
       view.appendChild(renderer.domElement);
 
-      const geometry = new T.PlaneGeometry(1, 1, 20, 20);
+      const geometry = new T.PlaneGeometry(1, 1, lowPower ? 8 : 20, lowPower ? 8 : 20);
       const loader = new T.TextureLoader();
       const slideAmount = MARQUEE_TEXTURES.length;
 
@@ -244,7 +245,32 @@ export function CurvedMarqueeHero() {
         renderer.render(scene, camera);
         raf = requestAnimationFrame(animate);
       }
-      if (!reduce) raf = requestAnimationFrame(animate);
+      // This loop otherwise runs forever at 60fps for the lifetime of the page,
+      // even once the hero has scrolled far out of view — pure GPU cost with
+      // nothing on screen to show for it, and the single biggest source of the
+      // "feels heavy" reports on weaker devices. An IntersectionObserver stops
+      // it the moment the strip leaves the viewport and restarts it when it
+      // scrolls back in.
+      function startLoop() {
+        if (reduce || raf) return;
+        prev = performance.now();
+        raf = requestAnimationFrame(animate);
+      }
+      function stopLoop() {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+      const visibility = reduce
+        ? null
+        : new IntersectionObserver(
+            ([entry]) => {
+              if (entry.isIntersecting) startLoop();
+              else stopLoop();
+            },
+            { rootMargin: "200px 0px" },
+          );
+      visibility?.observe(sectionRef.current ?? view);
+      if (!reduce) startLoop();
 
       function onResize() {
         camera.aspect = view.clientWidth / view.clientHeight;
@@ -255,7 +281,8 @@ export function CurvedMarqueeHero() {
       window.addEventListener("resize", onResize);
 
       teardown = () => {
-        cancelAnimationFrame(raf);
+        stopLoop();
+        visibility?.disconnect();
         trigger?.kill();
         window.removeEventListener("resize", onResize);
         disposePlanes();
@@ -295,9 +322,10 @@ export function CurvedMarqueeHero() {
 
       const scene = new T.Scene();
       const camera = new T.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 100);
-      const renderer = new T.WebGLRenderer({ alpha: true, antialias: true });
+      const lowPower = isLowPowerDevice();
+      const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
       renderer.setSize(host.clientWidth, host.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1 : 2));
       host.appendChild(renderer.domElement);
 
       // Lights shape the bevels — that shading is what sells "solid 3D".
