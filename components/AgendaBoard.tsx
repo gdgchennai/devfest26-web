@@ -197,24 +197,24 @@ export function AgendaBoard({
         </div>
 
         <div className="agenda-board-nav">
-          <button
-            type="button"
-            className="agenda-board-nav__btn"
-            aria-label="Previous session"
+          <GlowButton
+            shape="circle"
+            size="sm"
             onClick={() => columnRefs.current[activeIndex]?.goTo(-1)}
             disabled={focusedSessionPos <= 0}
           >
+            <span className="sr-only">Previous session</span>
             <ChevronIcon direction="up" />
-          </button>
-          <button
-            type="button"
-            className="agenda-board-nav__btn"
-            aria-label="Next session"
+          </GlowButton>
+          <GlowButton
+            shape="circle"
+            size="sm"
             onClick={() => columnRefs.current[activeIndex]?.goTo(1)}
             disabled={focusedSessionPos === -1 || focusedSessionPos >= activeSessions.length - 1}
           >
+            <span className="sr-only">Next session</span>
             <ChevronIcon direction="down" />
-          </button>
+          </GlowButton>
         </div>
       </div>
     </div>
@@ -369,12 +369,7 @@ const TrackColumn = forwardRef<
       style={columnStyle(offset)}
       aria-hidden={!active}
     >
-      <div
-        ref={scrollRef}
-        className="agenda-board-scroll"
-        tabIndex={active ? 0 : -1}
-        data-lenis-prevent
-      >
+      <div ref={scrollRef} className="agenda-board-scroll" data-lenis-prevent>
         <div className="agenda-board-spacer" aria-hidden />
         {items.map((item, idx) => {
           if (item.kind === "divider") {

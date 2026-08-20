@@ -875,6 +875,11 @@ html::-webkit-scrollbar {
   transform: scale(0.96);
 }
 
+.glow-btn__surface:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .glow-btn__label {
   position: relative;
 }
@@ -951,12 +956,13 @@ html::-webkit-scrollbar {
   font-family: var(--font-mono, monospace);
   font-size: 0.875rem;
   color: color-mix(in srgb, var(--paper) 35%, transparent);
-  transition: color 300ms ease, font-weight 300ms ease;
+  transition: color 300ms ease, font-size 300ms ease;
 }
 
 .agenda-board-ruler__mark--active {
   color: var(--paper);
   font-weight: 600;
+  font-size: 1.25rem;
 }
 
 .agenda-board-nav {
@@ -967,38 +973,18 @@ html::-webkit-scrollbar {
   gap: 0.625rem;
 }
 
-.agenda-board-nav__btn {
-  display: flex;
-  height: 2.25rem;
-  width: 2.25rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  color: var(--paper);
-  background: color-mix(in srgb, var(--ink) 55%, transparent);
-  backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
-  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
-}
-
-.agenda-board-nav__btn:hover {
-  background: color-mix(in srgb, var(--paper) 16%, transparent);
-}
-
-.agenda-board-nav__btn:active {
-  transform: scale(0.92);
-}
-
-.agenda-board-nav__btn:disabled {
-  opacity: 0.3;
-  pointer-events: none;
-}
-
 .agenda-board-column {
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 50%;
-  width: min(88vw, 380px);
+  /* Not a vw-based guess — 100%, capped, so this always matches the STAGE's
+     own actual flex-computed width (which already accounts for the ruler/
+     nav/gaps/page-padding taking their share of the row). A fixed vw
+     fraction here was computed independently of that and could exceed what
+     the stage actually had left on narrow screens, overlapping the nav
+     buttons beside it. */
+  width: 100%;
+  max-width: 380px;
   height: 100%;
   transition: transform 550ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 550ms ease, filter 550ms ease;
   will-change: transform, opacity, filter;
@@ -1006,8 +992,13 @@ html::-webkit-scrollbar {
 
 .agenda-board-scroll {
   height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Not user-scrollable — wheel/touch/drag no longer move the list; the up/
+     down GlowButtons (and track pills, for switching tracks) are the only
+     way to move between sessions now. `hidden`, not `auto`/`scroll`: it still
+     takes scrollIntoView()/scrollTop from those buttons' own JS (verified —
+     that's the same mechanism that let the earlier stage-drift bug happen at
+     all), it just stops responding to the visitor's own wheel/touch input. */
+  overflow-y: hidden;
   scrollbar-width: none;
 }
 
@@ -1066,6 +1057,15 @@ html::-webkit-scrollbar {
   padding: 1.5rem;
   box-shadow: 0 20px 60px color-mix(in srgb, var(--ink) 45%, transparent);
   --glow-angle: 0deg;
+}
+
+/* A narrower card (see .agenda-board-column's width above) wraps its title
+   onto more lines, so it gets more vertical padding to match rather than
+   feeling cramped by the same spacing a wider desktop card uses. */
+@media (max-width: 639px) {
+  .agenda-board-card--focused {
+    padding-block: 2rem;
+  }
 }
 
 .agenda-board-card--focused::before {

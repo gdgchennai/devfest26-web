@@ -77,6 +77,10 @@ type GlowButtonProps = {
    *  query-param toggles (filters, tabs) where jumping scroll to top on every
    *  click would fight whatever local UI state the click is meant to update. */
   scroll?: boolean;
+  /** Only meaningful on the `onClick` (button) branch — a link is never
+   *  "disabled" in the same sense. Dims the glass surface and turns off
+   *  pointer events via .glow-btn__surface:disabled. */
+  disabled?: boolean;
 } & ({ href: string; onClick?: never } | { href?: never; onClick?: () => void });
 
 export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function GlowButton(
@@ -92,6 +96,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     textClassName = "text-paper",
     surfaceClassName = "",
     scroll,
+    disabled,
   },
   forwardedRef,
 ) {
@@ -127,7 +132,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     return (
       <span ref={setWrapperRefs} className={wrapperClass} data-shape={shape} onPointerDown={burst}>
         {corners}
-        <button type="button" onClick={onClick} className={surfaceClass}>
+        <button type="button" onClick={onClick} disabled={disabled} className={surfaceClass}>
           {label}
         </button>
       </span>
