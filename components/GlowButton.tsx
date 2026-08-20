@@ -72,6 +72,11 @@ type GlowButtonProps = {
    *  risk is stacking a SECOND unprefixed utility for the same property,
    *  which Tailwind won't reliably resolve in a particular direction. */
   surfaceClassName?: string;
+  /** Passed straight through to the internal `<Link>` on the internal-href
+   *  branch. Defaults to Next's own default (true) — set false for same-page
+   *  query-param toggles (filters, tabs) where jumping scroll to top on every
+   *  click would fight whatever local UI state the click is meant to update. */
+  scroll?: boolean;
 } & ({ href: string; onClick?: never } | { href?: never; onClick?: () => void });
 
 export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function GlowButton(
@@ -86,6 +91,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     rel,
     textClassName = "text-paper",
     surfaceClassName = "",
+    scroll,
   },
   forwardedRef,
 ) {
@@ -132,7 +138,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     return (
       <span ref={setWrapperRefs} className={wrapperClass} data-shape={shape} onPointerDown={burst}>
         {corners}
-        <Link href={href} className={surfaceClass}>
+        <Link href={href} scroll={scroll} className={surfaceClass}>
           {label}
         </Link>
       </span>

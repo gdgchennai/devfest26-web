@@ -23,3 +23,13 @@ export function formatSessionTime(iso: string): string {
     timeZone: EVENT_TIME_ZONE,
   });
 }
+
+/** The IST hour a session starts in, as "09" — used to group sessions under
+ *  hour dividers on the spatial agenda board's timeline. */
+export function sessionHour(iso: string): string {
+  return new Date(iso).toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    hour12: false,
+    timeZone: EVENT_TIME_ZONE,
+  });
+}

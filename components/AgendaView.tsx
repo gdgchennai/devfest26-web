@@ -5,11 +5,23 @@ import { useSearchParams } from "next/navigation";
 import type { AgendaSession } from "@/lib/schemas";
 import type { Track } from "@/site.config";
 import { AgendaList } from "@/components/AgendaList";
+import { AgendaBoard } from "@/components/AgendaBoard";
+import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { useClientValue } from "@/lib/useClientValue";
 
 export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tracks: Track[] }) {
   const searchParams = useSearchParams();
   const requestedTrack = searchParams.get("track");
   const activeTrack = tracks.some((t) => t.slug === requestedTrack) ? requestedTrack! : "all";
+  // Static baseline (reduced-motion or ?lite=1) gets the flat instant-paint
+  // list below; everyone else gets the spatial board. Defaults to the safe
+  // static list on the server/first paint, same convention as every other
+  // lite-gated component (see MotionProvider.tsx and its siblings).
+  const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
+
+  if (!staticBaseline) {
+    return <AgendaBoard sessions={sessions} tracks={tracks} activeTrack={activeTrack} />;
+  }
 
   const filtered = activeTrack === "all" ? sessions : sessions.filter((s) => s.track === activeTrack);
   const trackOptions = [{ slug: "all", name: "All" }, ...tracks];

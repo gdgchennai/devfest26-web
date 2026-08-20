@@ -878,3 +878,254 @@ html::-webkit-scrollbar {
 .glow-btn__label {
   position: relative;
 }
+
+/* ---------------------------------------------------------------------------
+ * Agenda board (components/AgendaBoard.tsx)
+ *
+ * The lite=0 spatial agenda: a stage of 4 absolutely-positioned columns, one
+ * per track, shifted/scaled/blurred by their offset from whichever track is
+ * selected (see columnStyle() in the component — this file only owns the
+ * static parts of each layer, the transform/opacity/filter triple is set
+ * inline per-column since it depends on runtime state).
+ *
+ * The active column's session list is a real scrollable element with
+ * scroll-snap doing the centring; .agenda-board-spacer top/bottom elements
+ * are 50% of the scroll container's own height so the first and last cards
+ * can still reach the centre band. Cards are glass surfaces in the same
+ * color-mix + backdrop-filter style as .glow-btn__surface above, sized down
+ * for "previous/up next" and "far" (decorative, non-active-column) variants.
+ * ------------------------------------------------------------------------ */
+.agenda-board-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: min(70vh, 620px);
+  min-height: 460px;
+  perspective: 1600px;
+  /* The far (dist>=2) columns translate well past the stage's own edge —
+     invisible (opacity:0) but, being position:absolute, still contribute to
+     the page's scrollWidth without this.
+     `clip`, not `hidden`: `overflow: hidden` still makes an element a real
+     (if scrollbar-less) scroll container, and every `scrollIntoView()` call
+     on a session card inside it — the active column's own focus-centring,
+     the nav buttons, even the browser's default focus-scroll — walks up
+     through it and can nudge `stage.scrollLeft` off 0, which then drags
+     every column sideways by that same amount forever (nothing ever resets
+     it). `clip` gives the identical visual crop without ever becoming a
+     scroll target, so there's no scroll position for anything to disturb. */
+  overflow: clip;
+}
+
+/* The left-hand hour ruler (AgendaBoard's `hours` list) — fixed-height rows
+ * (--ruler-row-h each) in a track that's free to run taller than the stage;
+ * the whole track is pinned at top:50% and shifted by AgendaBoard's inline
+ * translateY so the row for the currently-focused hour is centred exactly on
+ * the stage's own vertical middle — the same place the focused card always
+ * sits, since that's where the IntersectionObserver's centre band is. The
+ * clipping `.agenda-board-ruler` wrapper is what turns that shift into "the
+ * highlighted mark scrolls into the middle" rather than the list just moving
+ * behind a visible edge.
+ */
+.agenda-board-ruler {
+  --ruler-row-h: 2.75rem;
+  position: relative;
+  overflow: hidden;
+  width: 3.75rem;
+  height: min(70vh, 620px);
+  min-height: 460px;
+}
+
+.agenda-board-ruler__track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transition: transform 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.agenda-board-ruler__mark {
+  display: flex;
+  height: var(--ruler-row-h);
+  align-items: center;
+  justify-content: flex-end;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--paper) 35%, transparent);
+  transition: color 300ms ease, font-weight 300ms ease;
+}
+
+.agenda-board-ruler__mark--active {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.agenda-board-nav {
+  align-self: center;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.agenda-board-nav__btn {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--paper);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
+  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.agenda-board-nav__btn:hover {
+  background: color-mix(in srgb, var(--paper) 16%, transparent);
+}
+
+.agenda-board-nav__btn:active {
+  transform: scale(0.92);
+}
+
+.agenda-board-nav__btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.agenda-board-column {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
+  width: min(88vw, 380px);
+  height: 100%;
+  transition: transform 550ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 550ms ease, filter 550ms ease;
+  will-change: transform, opacity, filter;
+}
+
+.agenda-board-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.agenda-board-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .agenda-board-scroll {
+    scroll-snap-type: y proximity;
+  }
+}
+
+.agenda-board-spacer {
+  height: 50%;
+}
+
+.agenda-board-hour {
+  padding-block: 0.5rem;
+  text-align: center;
+  font-family: var(--font-mono, monospace);
+  /* Deliberately not smaller — tabular numerals in the system monospace
+     fallback render with a visible mid-glyph artifact below ~13px in
+     Chromium (confirmed by testing 11/12/13/14px directly; canvas-drawn
+     text at the same size was clean, so it's specific to the DOM text
+     rendering path, not a general "too small" readability call). text-sm
+     elsewhere in the agenda components sits above that threshold. */
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper) 45%, transparent);
+}
+
+.agenda-board-card {
+  position: relative;
+  isolation: isolate;
+  scroll-snap-align: center;
+  margin-block: 0.625rem;
+  border-radius: 1.75rem;
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--paper) 12%, transparent);
+  transition: opacity 350ms ease, filter 350ms ease;
+}
+
+/* The focused card gets the site's signature neon ring — same conic-gradient
+ * + mask-exclude ring and rotating `--glow-angle` as .glow-btn (app/globals.css,
+ * "Glow button" block above) — so the one card the visitor is meant to read
+ * carries the same premium border the rest of the site uses for its primary
+ * controls. Reused rather than duplicated: this is genuinely the same ring,
+ * just traced around a rounded rect instead of a pill.
+ * Adjacent/far cards stay on the plain hairline border above — the ring is a
+ * "this one" signal, not decoration to spread across the whole list. */
+.agenda-board-card--focused {
+  border-color: transparent;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px color-mix(in srgb, var(--ink) 45%, transparent);
+  --glow-angle: 0deg;
+}
+
+.agenda-board-card--focused::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--glow-angle), var(--red), var(--yellow), var(--green), var(--blue), var(--red));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .agenda-board-card--focused {
+    animation: glow-rotate 6s linear infinite;
+  }
+}
+
+/* Not just dimmer than the focused card — actually out of focus, same as the
+ * background tracks. Distance from the centre band still reads through the
+ * blur strength (adjacent < far) so the hierarchy stays legible. */
+.agenda-board-card--adjacent {
+  padding: 0.875rem 1.25rem;
+  opacity: 0.75;
+  filter: blur(2px);
+}
+
+.agenda-board-card--far {
+  padding: 0.75rem 1rem;
+  opacity: 0.5;
+  filter: blur(3.5px);
+}
+
+.agenda-board-live-dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background: var(--red);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .agenda-board-live-dot {
+    animation: agenda-board-live-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes agenda-board-live-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.agenda-board-pill--active .glow-btn__surface {
+  background: color-mix(in srgb, var(--paper) 22%, transparent);
+}
