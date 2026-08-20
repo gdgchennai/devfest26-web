@@ -259,6 +259,16 @@ const TrackColumn = forwardRef<
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
 
+  // Read inside the activation effect below without adding syncTime to its
+  // dependency array — that effect should only re-pick a target when this
+  // column BECOMES active, not every time the focused time ticks along
+  // (that continuous following is the separate background-column effect
+  // further down). A ref gives the latest value without retriggering.
+  const syncTimeRef = useRef(syncTime);
+  useEffect(() => {
+    syncTimeRef.current = syncTime;
+  }, [syncTime]);
+
   // Only the active column scrolls/observes/gets centred — the others are
   // decorative depth cushioning (plan's "Background columns" section).
   useEffect(() => {
@@ -283,6 +293,13 @@ const TrackColumn = forwardRef<
     const cards = container.querySelectorAll<HTMLElement>(".agenda-board-card[data-key]");
     cards.forEach((el) => observer.observe(el));
 
+    // Landing target when this column becomes active: prefer wherever the
+    // visitor was already looking (syncTime — set once any column has ever
+    // focused a session), so switching tracks lands on "the same time" in
+    // the new track rather than resetting to its own start. Only the very
+    // first activation of the whole board, before syncTime exists yet, falls
+    // back to "on now, else the first session".
+    const bySyncTime = syncTimeRef.current ? closestSessionByTime(items, syncTimeRef.current) : undefined;
     const nowItem = items.find(
       (it): it is Extract<TimelineItem, { kind: "session" }> =>
         it.kind === "session" && now !== null && now >= new Date(it.session.start) && now <= new Date(it.session.end),
@@ -290,7 +307,7 @@ const TrackColumn = forwardRef<
     const firstSession = items.find(
       (it): it is Extract<TimelineItem, { kind: "session" }> => it.kind === "session",
     );
-    const target = nowItem ?? firstSession;
+    const target = bySyncTime ?? nowItem ?? firstSession;
     if (target) {
       requestAnimationFrame(() => {
         container.querySelector(`[data-key="${target.key}"]`)?.scrollIntoView({ block: "center" });
