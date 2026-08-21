@@ -57,6 +57,24 @@ export function clearLiteMode(): void {
 }
 
 /**
+ * Cheap, synchronous signal that the device's GPU/CPU is likely to struggle
+ * with the WebGL scenes (curved marquee, brackets field). There is no
+ * reliable "GPU tier" API, so this leans on the same signals browsers expose
+ * for adaptive loading: low core count and low device memory. Both are
+ * `undefined` on browsers that don't support them (notably Safari), in which
+ * case we don't downgrade — false negatives are fine, false positives make
+ * capable devices worse for no reason.
+ */
+export function isLowPowerDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const cores = navigator.hardwareConcurrency;
+  if (typeof cores === "number" && cores <= 4) return true;
+  const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
+  if (typeof memory === "number" && memory <= 4) return true;
+  return false;
+}
+
+/**
  * True when the full motion layer (preloader, intro, hallway, 3D) should be
  * skipped entirely and the visitor sent straight to the static site.
  *
