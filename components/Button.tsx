@@ -29,13 +29,16 @@ const VARIANT: Record<Variant, string> = {
   secondary: "border border-paper/45 text-paper hover:bg-paper/10",
 };
 
+// Base sizes for mobile; sm: breakpoint scales up for desktop.
 const SIZE: Record<Size, string> = {
-  sm: "px-4 py-2",
-  md: "px-6 py-3",
-  lg: "px-8 py-3",
+  sm: "px-3 py-1.5 sm:px-4 sm:py-2",
+  md: "px-4 py-2 sm:px-6 sm:py-3",
+  lg: "px-6 py-2.5 sm:px-8 sm:py-3",
 };
 
-const BASE = "inline-block rounded-full text-sm font-medium";
+// Font size responds to viewport: smaller on mobile, standard on desktop.
+// This ensures text remains readable and proportional to button size across devices.
+const BASE = "inline-block rounded-full text-xs sm:text-sm font-medium";
 
 function classesFor(variant: Variant, size: Size, className: string) {
   return `${BASE} ${VARIANT[variant]} ${SIZE[size]} ${className}`.trim();

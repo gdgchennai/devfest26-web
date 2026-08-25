@@ -40,6 +40,9 @@ type ScrollCueButtonProps = {
   visible: boolean;
   onClick: () => void;
   className?: string;
+  /** Responsive size: sm on mobile (<640px), md on desktop. Prevents oversizing
+   *  on small screens while keeping visibility on desktop. */
+  responsiveSize?: boolean;
 };
 
 /*
@@ -48,7 +51,7 @@ type ScrollCueButtonProps = {
  * pointer-events are dropped while hidden so an invisible button can't still
  * eat clicks (or keyboard focus) meant for the page beneath it.
  */
-export function ScrollCueButton({ direction, label, visible, onClick, className = "" }: ScrollCueButtonProps) {
+export function ScrollCueButton({ direction, label, visible, onClick, className = "", responsiveSize = true }: ScrollCueButtonProps) {
   return (
     <div
       className={`fixed z-40 transition-all duration-300 ease-out ${
@@ -58,7 +61,11 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
     >
       <GlowButton
         shape="circle"
-        size="md"
+        // On mobile (<640px): size sm (h-11 w-11 = 44px). Prevents oversizing on
+        // small screens and avoids triggering jitter in fixed neighbors from the
+        // burst animation. On desktop (≥640px): scaled up via surfaceClassName to
+        // md size (h-14 w-14 = 56px) where full visibility is appropriate.
+        size={responsiveSize ? "sm" : "md"}
         onClick={onClick}
         // Hardcoded white, not text-paper: these float over every kind of
         // section backdrop the page has, dark AND light (VenueReveal flips
@@ -66,6 +73,8 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
         // black for its light stretch, which read as a near-invisible arrow
         // there). White stays legible against all of them.
         textClassName="text-white"
+        // Scale up on desktop: sm base (h-11 w-11) → sm:h-14 sm:w-14 on ≥640px
+        surfaceClassName={responsiveSize ? "sm:h-14 sm:w-14" : ""}
       >
         <span className="sr-only">{label}</span>
         <ArrowGlyph direction={direction} />
