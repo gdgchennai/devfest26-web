@@ -884,6 +884,11 @@ html::-webkit-scrollbar {
   transform: scale(0.96);
 }
 
+.glow-btn__surface:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+
 .glow-btn__surface:disabled {
   opacity: 0.35;
   pointer-events: none;

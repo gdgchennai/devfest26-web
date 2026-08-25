@@ -40,8 +40,7 @@ type ScrollCueButtonProps = {
   visible: boolean;
   onClick: () => void;
   className?: string;
-  /** Responsive size: sm on mobile (<640px), md on desktop. Prevents oversizing
-   *  on small screens while keeping visibility on desktop. */
+  /** Responsive size: md base (mobile proportions), scales to lg on desktop */
   responsiveSize?: boolean;
 };
 
@@ -61,11 +60,9 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
     >
       <GlowButton
         shape="circle"
-        // On mobile (<640px): size sm (h-11 w-11 = 44px). Prevents oversizing on
-        // small screens and avoids triggering jitter in fixed neighbors from the
-        // burst animation. On desktop (≥640px): scaled up via surfaceClassName to
-        // md size (h-14 w-14 = 56px) where full visibility is appropriate.
-        size={responsiveSize ? "sm" : "md"}
+        // Mobile-first: md (h-11 w-11) on phones, scales to lg (h-14 w-14) on desktop.
+        // Maintains proportional mobile aesthetic while providing better visibility on larger screens.
+        size={responsiveSize ? "md" : "md"}
         onClick={onClick}
         // Hardcoded white, not text-paper: these float over every kind of
         // section backdrop the page has, dark AND light (VenueReveal flips
@@ -73,7 +70,7 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
         // black for its light stretch, which read as a near-invisible arrow
         // there). White stays legible against all of them.
         textClassName="text-white"
-        // Scale up on desktop: sm base (h-11 w-11) → sm:h-14 sm:w-14 on ≥640px
+        // Scale up on desktop: md base → sm:h-14 sm:w-14 for better visibility
         surfaceClassName={responsiveSize ? "sm:h-14 sm:w-14" : ""}
       >
         <span className="sr-only">{label}</span>

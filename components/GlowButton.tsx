@@ -23,29 +23,28 @@ const RADIUS: Record<Shape, string> = {
   circle: "rounded-full",
 };
 
-// Responsive padding: mobile-first with sm: breakpoint scaling for desktop.
-// Prevents oversized padding/text on small screens while maintaining desktop
-// visibility and touch-target size.
+// Mobile-first padding with desktop scaling: starts at proportions optimized for
+// phones, scales up smoothly on larger screens. Border/padding ratio stays consistent.
 const PADDING: Record<"box" | "pill", Record<Size, string>> = {
   box: {
-    sm: "px-3 py-1.5 sm:px-4 sm:py-2",
-    md: "px-4 py-2 sm:px-6 sm:py-3",
-    lg: "px-6 py-2.5 sm:px-8 sm:py-4",
+    sm: "px-3 py-1.5 sm:px-3.5 sm:py-1.75",
+    md: "px-4 py-2 sm:px-5 sm:py-2.5",
+    lg: "px-6 py-2.5 sm:px-7 sm:py-3",
   },
   pill: {
-    sm: "px-4 py-1.5 sm:px-5 sm:py-2",
-    md: "px-5 py-2 sm:px-7 sm:py-3",
-    lg: "px-7 py-2.5 sm:px-9 sm:py-4",
+    sm: "px-4 py-1.5 sm:px-4.5 sm:py-1.75",
+    md: "px-5 py-2 sm:px-6 sm:py-2.5",
+    lg: "px-7 py-2.5 sm:px-8 sm:py-3",
   },
 };
 
-// Responsive circle sizes: mobile-first (smaller on phones) with sm: breakpoint
-// scaling for desktop. Prevents buttons from dominating mobile screens while
-// keeping them visible on larger viewports.
+// Mobile-first circle sizes with desktop scaling: starts at proportions that look
+// good on phones, scales up smoothly on larger screens. Border stays 1.5px for
+// consistent visual weight ratio across sizes.
 const CIRCLE_SIZE: Record<Size, string> = {
   sm: "h-10 w-10 sm:h-11 sm:w-11",
-  md: "h-11 w-11 sm:h-14 sm:w-14",
-  lg: "h-13 w-13 sm:h-16 sm:w-16",
+  md: "h-11 w-11 sm:h-12 sm:w-12",
+  lg: "h-13 w-13 sm:h-14 sm:w-14",
 };
 
 /** In-site destinations get client navigation; anything else is a real anchor. */
@@ -136,11 +135,10 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
       : `${RADIUS[shape]} ${PADDING[shape][size]}`;
 
   const wrapperClass = `glow-btn ${RADIUS[shape]} ${className}`.trim();
-  // Responsive text size: smaller on mobile (text-xs), standard on desktop (sm:text-sm).
-  // Prevents text from appearing cramped on small buttons on mobile while maintaining
-  // clarity on larger screens and buttons.
+  // Consistent text size (13px) across all viewports, proportional to mobile-first button sizing.
+  // Smaller font works better with proportional padding at any screen size.
   const surfaceClass =
-    `glow-btn__surface inline-flex items-center justify-center text-xs sm:text-sm font-medium ${textClassName} ${geometry} ${surfaceClassName}`.trim();
+    `glow-btn__surface inline-flex items-center justify-center text-xs font-medium transition-opacity duration-150 ${textClassName} ${geometry} ${surfaceClassName}`.trim();
 
   const label = <span className="glow-btn__label">{children}</span>;
   const corners = <span className="glow-btn__corners" aria-hidden="true" />;
