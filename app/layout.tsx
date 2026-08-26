@@ -46,6 +46,14 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
   },
+  // Controls iOS "Add to Home Screen" behaviour — apple-icon.png (auto-detected
+  // from app/) supplies the icon itself. Matches the site's committed-dark
+  // theme (see viewport.themeColor below).
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: siteConfig.shortName,
+  },
 };
 
 // The site is committed-dark (bg-ink). Without this, mobile browser chrome and
