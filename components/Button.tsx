@@ -29,13 +29,18 @@ const VARIANT: Record<Variant, string> = {
   secondary: "border border-paper/45 text-paper hover:bg-paper/10",
 };
 
+// Mobile-first sizing with desktop scaling: starts at mobile proportions,
+// scales up smoothly on larger screens while maintaining consistent visual style.
 const SIZE: Record<Size, string> = {
-  sm: "px-4 py-2",
-  md: "px-6 py-3",
-  lg: "px-8 py-3",
+  sm: "px-3 py-1.5 sm:px-3.5 sm:py-1.75",
+  md: "px-4 py-2 sm:px-5 sm:py-2.5",
+  lg: "px-6 py-2.5 sm:px-7 sm:py-3",
 };
 
-const BASE = "inline-block rounded-full text-sm font-medium";
+// Smaller font size (13px) looks better proportioned on small buttons,
+// consistent across viewports to match mobile-first proportions.
+// Includes focus-visible for keyboard navigation accessibility.
+const BASE = "inline-block rounded-full text-xs font-medium transition-opacity duration-150 hover:opacity-90 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-paper focus-visible:outline-offset-2";
 
 function classesFor(variant: Variant, size: Size, className: string) {
   return `${BASE} ${VARIANT[variant]} ${SIZE[size]} ${className}`.trim();

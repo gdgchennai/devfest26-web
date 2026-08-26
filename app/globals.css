@@ -784,6 +784,15 @@ html::-webkit-scrollbar {
   }
 }
 
+.glow-btn--burst {
+  /* Contain burst animation to prevent sibling jitter (e.g., hamburger shaking
+     when nearby scroll-arrow button is clicked). The burst ::after expands its
+     filter/inset box drastically, which can trigger reflow in fixed siblings
+     if not isolated. Will-change + containment keeps paint layers separate. */
+  will-change: filter;
+  contain: paint;
+}
+
 .glow-btn--burst::after {
   animation: glow-burst 900ms ease-in-out;
 }
@@ -873,6 +882,11 @@ html::-webkit-scrollbar {
 
 .glow-btn__surface:active {
   transform: scale(0.96);
+}
+
+.glow-btn__surface:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
 }
 
 .glow-btn__surface:disabled {

@@ -40,6 +40,8 @@ type ScrollCueButtonProps = {
   visible: boolean;
   onClick: () => void;
   className?: string;
+  /** Responsive size: md base (mobile proportions), scales to lg on desktop */
+  responsiveSize?: boolean;
 };
 
 /*
@@ -48,7 +50,7 @@ type ScrollCueButtonProps = {
  * pointer-events are dropped while hidden so an invisible button can't still
  * eat clicks (or keyboard focus) meant for the page beneath it.
  */
-export function ScrollCueButton({ direction, label, visible, onClick, className = "" }: ScrollCueButtonProps) {
+export function ScrollCueButton({ direction, label, visible, onClick, className = "", responsiveSize = true }: ScrollCueButtonProps) {
   return (
     <div
       className={`fixed z-40 transition-all duration-300 ease-out ${
@@ -58,7 +60,9 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
     >
       <GlowButton
         shape="circle"
-        size="md"
+        // Mobile-first: md (h-11 w-11) on phones, scales to lg (h-14 w-14) on desktop.
+        // Maintains proportional mobile aesthetic while providing better visibility on larger screens.
+        size={responsiveSize ? "md" : "md"}
         onClick={onClick}
         // Hardcoded white, not text-paper: these float over every kind of
         // section backdrop the page has, dark AND light (VenueReveal flips
@@ -66,6 +70,8 @@ export function ScrollCueButton({ direction, label, visible, onClick, className 
         // black for its light stretch, which read as a near-invisible arrow
         // there). White stays legible against all of them.
         textClassName="text-white"
+        // Scale up on desktop: md base → sm:h-14 sm:w-14 for better visibility
+        surfaceClassName={responsiveSize ? "sm:h-14 sm:w-14" : ""}
       >
         <span className="sr-only">{label}</span>
         <ArrowGlyph direction={direction} />
