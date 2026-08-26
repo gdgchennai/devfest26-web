@@ -167,14 +167,24 @@ export function MoodSection() {
       // (index 0 → 1) is exactly "scroll to the end of this pin", so nothing
       // about ITS code has to know MoodSection isn't card-based.
       const trigger = tl.scrollTrigger!;
-      setHorizontalCue({
+      const unregisterCue = setHorizontalCue({
         el: stage,
         cardCount: 2,
+        // Index 0 ("just entered") already IS this cue's own entry — there
+        // is no further "before 0" position the way ExpectShowcase's
+        // heading state is, so this stays 0, not -1 (see HorizontalCue's
+        // own doc comment on why that distinction matters for "back").
+        minIndex: 0,
         activeIndex: () => (trigger.progress >= 0.99 ? 1 : 0),
         scrollYForCard: (index) => (index <= 0 ? trigger.start : trigger.end),
+        // Slower than ScrollCueController's shared default, this section
+        // only — its own "forward" click read as too fast at the shared
+        // pace. Per-cue (see HorizontalCue's own doc comment), so
+        // ExpectShowcase's card-to-card hops are untouched.
+        pixelsPerSecond: 700,
       });
 
-      return () => setHorizontalCue(null);
+      return () => unregisterCue();
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
   );

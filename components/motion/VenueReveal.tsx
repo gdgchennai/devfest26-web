@@ -899,10 +899,20 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 swapText() in applySwapVisuals, same rise-out/rise-in
                 mechanism as captionTitleRef's own venue-name/date swap
                 above — not a separate opacity tween, so the reveal reads as
-                the same character roll rather than a plain fade. */}
+                the same character roll rather than a plain fade.
+
+                text-[clamp(...)], not a fixed text-xl/sm:text-3xl step: this
+                line runs longer than the venue name above it, so a single
+                breakpoint jump either sat too small on everything just under
+                640px or (at the larger step) risked the string not fitting
+                one line on a narrow phone. A continuous clamp scales with
+                the viewport instead of jumping, and nothing here forces
+                nowrap — nowhere-fits-on-one-line falls back to the browser's
+                own default wrap, same as every other paragraph on the
+                page. */}
             <p
               ref={roadshowsRef}
-              className="mt-2 text-xl font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-3xl"
+              className="mt-2 text-[clamp(1rem,3.5vw,1.875rem)] font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3"
             />
             {/* Fine print under the roadshows line — same empty-start,
                 swapText()-driven roll as roadshowsRef above, just smaller

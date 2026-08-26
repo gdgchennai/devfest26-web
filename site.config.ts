@@ -461,8 +461,9 @@ export const uiCopy = {
 
   scrollCue: {
     nextCardLabel: "Next card",
+    previousCardLabel: "Previous card",
     scrollToNextSectionLabel: "Scroll to next section",
-    backToTopLabel: "Back to top",
+    previousSectionLabel: "Previous section",
   },
 
   expectShowcase: {
