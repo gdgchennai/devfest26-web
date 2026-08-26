@@ -645,6 +645,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // momentum is simply lost when locked, same as the reveal lock above —
       // scrolling past this point again afterwards is a fresh, ordinary
       // scroll.
+      //
+      // That clamp used to be `scrollTo(checkpoint, { immediate: true })` —
+      // an instant teleport, called a beat before the text even starts its
+      // own rise-out, which is what read as abrupt: a hard jump, then a
+      // separate animation. Locking input FIRST (moved above, was after)
+      // gets the same "nothing can scroll past checkpoint" guarantee this
+      // comment describes — Lenis's own wheel/touch handling already
+      // no-ops while stopped, so the guarantee never actually depended on
+      // the snap itself being instant — which frees the snap to be a short
+      // eased glide instead, landing at the same moment the text starts
+      // rolling rather than a beat before it.
+      const SWAP_SNAP_SECONDS = 0.35;
+      const SWAP_SNAP_EASING = (t: number) => 1 - Math.pow(1 - t, 3);
       let swapState: "location" | "date" = "location";
       let swapLocking = false;
       const SWAP_ANIM_MS = 950;
@@ -705,8 +718,28 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             // it's the exact same instance, but available immediately, no
             // risk of reading it before its own `const` assignment finishes.
             const checkpoint = self.start + (self.end - self.start) * SWAP_AT;
-            lenisRef.current?.scrollTo(checkpoint, { immediate: true });
+            // Locked BEFORE the snap starts, not after: Lenis's own
+            // wheel/touch handling already no-ops while stopped, so this
+            // alone is what stops the visitor's gesture from carrying
+            // scroll past checkpoint — the snap itself no longer has to be
+            // instant to hold that guarantee (see this block's own doc
+            // comment above), so it's a short eased glide instead.
+            //
+            // `force: true` is load-bearing, not decorative: Lenis's own
+            // `scrollTo()` starts with `if ((this.isStopped || this.isLocked)
+            // && !force) return` — having just called `.stop()` above, this
+            // call would otherwise silently no-op every time, leaving
+            // whatever position the wheel gesture had already reached (never
+            // exactly checkpoint, and no animation at all) rather than
+            // actually running the eased glide. `force` is Lenis's own
+            // documented escape hatch for exactly this — a programmatic
+            // scroll that must run despite being stopped/locked.
             lenisRef.current?.stop();
+            lenisRef.current?.scrollTo(checkpoint, {
+              duration: SWAP_SNAP_SECONDS,
+              easing: SWAP_SNAP_EASING,
+              force: true,
+            });
             applySwapVisuals(wantsDate);
             window.setTimeout(() => {
               lenisRef.current?.start();
