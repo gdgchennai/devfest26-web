@@ -9,7 +9,7 @@ export const agendaSessionSchema = z.object({
   title: z.string().min(1),
   speakerSlug: z.string().min(1).nullable(),
   hall: z.string().min(1),
-  type: z.enum(["talk", "workshop", "keynote", "break", "panel"]),
+  type: z.enum(["talk", "workshop", "competition", "lounge", "keynote", "break", "panel"]),
   /** Shown as the abstract on the spatial agenda board's spotlight card.
    *  Optional — most sessions don't have one yet, and "TBA" placeholder copy
    *  reads worse than just omitting the paragraph. */

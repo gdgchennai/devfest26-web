@@ -1013,13 +1013,19 @@ html::-webkit-scrollbar {
 }
 
 .agenda-board-scroll {
+  /* Makes this the offsetParent for its own children (hour dividers, cards),
+     so AgendaBoard's centring math (`target.offsetTop`) reads directly
+     against this container instead of walking out to `.agenda-board-column`'s
+     own `position: absolute` — see the comment above centerCardInContainer()
+     in AgendaBoard.tsx for why that offset has to be unambiguous. */
+  position: relative;
   height: 100%;
   /* Not user-scrollable — wheel/touch/drag no longer move the list; the up/
      down GlowButtons (and track pills, for switching tracks) are the only
      way to move between sessions now. `hidden`, not `auto`/`scroll`: it still
-     takes scrollIntoView()/scrollTop from those buttons' own JS (verified —
-     that's the same mechanism that let the earlier stage-drift bug happen at
-     all), it just stops responding to the visitor's own wheel/touch input. */
+     takes scrollTo()/scrollTop from those buttons' own JS (verified — that's
+     the same mechanism that let the earlier stage-drift bug happen at all),
+     it just stops responding to the visitor's own wheel/touch input. */
   overflow-y: hidden;
   scrollbar-width: none;
 }

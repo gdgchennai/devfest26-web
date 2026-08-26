@@ -228,6 +228,25 @@ type TrackColumnHandle = { goTo: (delta: number) => void };
  *  keep the blurred background columns pointed at roughly "the same time" as
  *  whatever's focused in the active column, rather than frozen wherever they
  *  first loaded. */
+/**
+ * Centres `target` inside `container` by setting `container`'s own scrollTop
+ * directly, instead of `target.scrollIntoView({ block: "center" })`.
+ *
+ * `scrollIntoView` walks every scrollable ancestor between the target and the
+ * viewport, not just the nearest one — and nothing between
+ * `.agenda-board-scroll` and `<body>` opts out the way `.agenda-board-stage`
+ * deliberately does (see its own `overflow: clip` comment), so it was also
+ * dragging the whole PAGE up to centre the focused card in the window,
+ * shoving the "Agenda" heading and track pills off the top of the screen the
+ * moment a track was picked or the up/down nav buttons were used. Computing
+ * the container's own scrollTop directly here never touches `window.scrollY`
+ * at all, so the page stays put and only the track's own timeline moves.
+ */
+function centerCardInContainer(container: HTMLElement, target: HTMLElement, behavior: ScrollBehavior) {
+  const top = target.offsetTop - container.clientHeight / 2 + target.offsetHeight / 2;
+  container.scrollTo({ top, behavior });
+}
+
 function closestSessionByTime(
   items: TimelineItem[],
   targetIso: string,
@@ -311,7 +330,8 @@ const TrackColumn = forwardRef<
     const target = bySyncTime ?? nowItem ?? firstSession;
     if (target) {
       requestAnimationFrame(() => {
-        container.querySelector(`[data-key="${target.key}"]`)?.scrollIntoView({ block: "center" });
+        const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+        if (el) centerCardInContainer(container, el, "auto");
       });
     }
 
@@ -331,7 +351,8 @@ const TrackColumn = forwardRef<
     if (!container) return;
     const target = closestSessionByTime(items, syncTime);
     if (!target) return;
-    container.querySelector(`[data-key="${target.key}"]`)?.scrollIntoView({ block: "center", behavior: "smooth" });
+    const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+    if (el) centerCardInContainer(container, el, "smooth");
   }, [active, syncTime, items]);
 
   const focusedIndex = items.findIndex((it) => it.key === focusedKey);
@@ -355,9 +376,8 @@ const TrackColumn = forwardRef<
       const targetPos = Math.min(Math.max(focusedSessionPos + delta, 0), sessionItems.length - 1);
       const target = sessionItems[targetPos];
       if (!target) return;
-      container
-        .querySelector(`[data-key="${target.key}"]`)
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+      if (el) centerCardInContainer(container, el, "smooth");
     },
     [focusedSessionPos, sessionItems],
   );
