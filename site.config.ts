@@ -30,7 +30,7 @@ export type SubEvent = {
   title: string;
   /** Plain `YYYY-MM-DD`, same convention as `date` above — run through
    *  `shortEventDate()` at render time (see TicketsList.tsx), not
-   *  pre-formatted here. It used to be a hand-typed display string ("Aug 29,
+   *  pre-formatted here. It used to be a hand-typed display string ("Sep 5,
    *  2026"), a different convention from the flagship card's date (which
    *  goes through `shortEventDate` and read "17 October 2026") — two
    *  formats on the same page for what's supposed to be the same kind of
@@ -199,18 +199,12 @@ export const siteConfig = {
   ] satisfies SubEvent[],
 
   whatYoullGet: [
+    { title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city." },
+    { title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience." },
+    { title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs." },
     { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects." },
     { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations." },
-    { title: "Workshops", description: "Hands-on sessions — bring a laptop, leave with working code." },
     { title: "Community", description: "Join us as we celebrate the community while you find your tribe here." },
-  ],
-
-  // Four reasons, stated still — see architecture doc on cutting the 12-item marquee.
-  whyJoinUs: [
-    "The largest single-day developer gathering in Chennai.",
-    "Speakers from product teams, not just conference circuits.",
-    "Direct line to companies hiring developers in Chennai right now.",
-    "Run entirely by volunteers from the local GDG chapter.",
   ],
 
   cfp: {
@@ -501,7 +495,7 @@ export const uiCopy = {
   },
 
   venueReveal: {
-    roadshowsText: "Roadshows and Meetups from Aug 29th onwards",
+    roadshowsText: "Roadshows and Meetups from Sep 5th onwards",
     disclaimerText: "Note: Roadshow and meetup venues differ and tickets sold separately.",
     locationHeading: "Location",
     saveTheDateHeading: "Save the Date",
