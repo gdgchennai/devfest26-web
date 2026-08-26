@@ -7,7 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { SplitText } from "gsap/SplitText";
-import { siteConfig } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 import { EVENT_TIME_ZONE } from "@/lib/format";
 import { ticketCta } from "@/lib/cta";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -52,8 +52,8 @@ const GLOW_COLOR = "rgba(200,235,255,1)";
 /** Same source the header/hero/TicketStub all read from — see lib/cta.ts. */
 const ticket = ticketCta();
 
-const ROADSHOWS_TEXT = "Roadshows and Meetups from Aug 29th onwards";
-const DISCLAIMER_TEXT = "Note: Roadshow and meetup venues differ and tickets sold separately.";
+const ROADSHOWS_TEXT = uiCopy.venueReveal.roadshowsText;
+const DISCLAIMER_TEXT = uiCopy.venueReveal.disclaimerText;
 
 const dateShort = siteConfig.date
   ? new Date(siteConfig.date).toLocaleDateString("en-IN", {
@@ -395,7 +395,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // scroll starts under the threshold — recognises "Location" as
       // nothing new and skips the rise-out/rise-in animation, instead of
       // needlessly replaying it on text that never actually changed.
-      swapTargets.set(heading, "Location");
+      swapTargets.set(heading, uiCopy.venueReveal.locationHeading);
       if (captionTitleRef.current) swapTargets.set(captionTitleRef.current, siteConfig.venue.name);
       if (roadshowsRef.current) swapTargets.set(roadshowsRef.current, "");
       if (disclaimerRef.current) swapTargets.set(disclaimerRef.current, "");
@@ -673,14 +673,14 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           // visible/hidden pointer-events toggle.
           gsap.to(directionsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
-          swapText(heading, "Save the Date", direction);
+          swapText(heading, uiCopy.venueReveal.saveTheDateHeading, direction);
           if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, ROADSHOWS_TEXT, direction);
           if (disclaimerRef.current) swapText(disclaimerRef.current, DISCLAIMER_TEXT, direction);
         } else {
           gsap.to(directionsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
-          swapText(heading, "Location", direction);
+          swapText(heading, uiCopy.venueReveal.locationHeading, direction);
           if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, "", direction);
           if (disclaimerRef.current) swapText(disclaimerRef.current, "", direction);
@@ -822,7 +822,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             ref={headingRef}
             className="text-paper text-[clamp(3rem,10vw,8rem)] font-bold leading-none tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]"
           >
-            Location
+            {uiCopy.venueReveal.locationHeading}
           </h2>
         </div>
 
@@ -871,7 +871,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             <div className="absolute inset-0">
               <Image
                 src="/venue.webp"
-                alt={`${siteConfig.venue.name}, the DevFest Chennai venue`}
+                alt={uiCopy.common.venueAlt}
                 fill
                 className="object-cover"
               />
@@ -929,7 +929,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   textClassName="text-white"
                   className="col-start-1 row-start-1"
                 >
-                  <RollingText>Get directions →</RollingText>
+                  <RollingText>{uiCopy.venueReveal.getDirectionsLabel}</RollingText>
                 </GlowButton>
                 <GlowButton
                   ref={ticketsRef}
@@ -938,7 +938,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   textClassName="text-white"
                   className="pointer-events-none col-start-1 row-start-1 opacity-0"
                 >
-                  <RollingText>Get tickets →</RollingText>
+                  <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
                 </GlowButton>
               </div>
             )}

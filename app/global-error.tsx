@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { uiCopy } from "@/site.config";
 
 // Last resort: catches errors in the root layout itself (MotionProvider, font
 // load, Header/Footer). It replaces the root layout, so Tailwind's global
@@ -42,13 +43,13 @@ export default function GlobalError({
               color: "rgba(255,255,255,0.6)",
             }}
           >
-            Something went wrong
+            {uiCopy.globalErrorPage.eyebrow}
           </p>
           <h1 style={{ margin: "0.5rem 0 0", fontSize: "1.875rem", fontWeight: 600 }}>
-            DevFest Chennai hit an unexpected error.
+            {uiCopy.globalErrorPage.heading}
           </h1>
           <p style={{ marginTop: "0.75rem", color: "rgba(255,255,255,0.7)" }}>
-            Please try again in a moment.
+            {uiCopy.globalErrorPage.body}
           </p>
           <button
             type="button"
@@ -65,7 +66,7 @@ export default function GlobalError({
               cursor: "pointer",
             }}
           >
-            Try again
+            {uiCopy.globalErrorPage.retryLabel}
           </button>
         </div>
       </body>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/Button";
 import { TiltCard } from "@/components/TiltCard";
-import { siteConfig, formatEventDate } from "@/site.config";
+import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 
 /**
@@ -28,7 +28,7 @@ export function TicketStub() {
     <TiltCard className="ticket-stub">
       <div className="ticket-stub__body">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/60">
-          {siteConfig.chapter} presents
+          {uiCopy.common.chapterPresents}
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
           {siteConfig.name}
@@ -36,13 +36,13 @@ export function TicketStub() {
         <p className="mt-1 text-paper/70">{siteConfig.tagline}</p>
 
         <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-          <Field label="Date">
-            {dateKnown ? formatEventDate(siteConfig.date) : "TBA"}
+          <Field label={uiCopy.ticketStub.dateFieldLabel}>
+            {dateKnown ? formatEventDate(siteConfig.date) : uiCopy.ticketStub.tbaDate}
           </Field>
-          <Field label="Venue">
+          <Field label={uiCopy.ticketStub.venueFieldLabel}>
             {siteConfig.venue.name}
             {!siteConfig.venue.confirmed && (
-              <span className="text-paper/60"> · unconfirmed</span>
+              <span className="text-paper/60">{uiCopy.common.unconfirmedSuffix}</span>
             )}
           </Field>
         </dl>
@@ -51,7 +51,7 @@ export function TicketStub() {
       <div className="ticket-stub__perf" aria-hidden />
 
       <div className="ticket-stub__end">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/65">Admit one</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/65">{uiCopy.ticketStub.admitOneLabel}</p>
 
         <Button href={cta.href} size="lg" className="mt-4">
           {cta.label}

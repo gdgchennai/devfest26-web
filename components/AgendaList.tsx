@@ -4,6 +4,7 @@ import type { AgendaSession } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
+import { uiCopy } from "@/site.config";
 
 export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
   // Clock and track palette are both shared with the homepage timeline —
@@ -40,7 +41,7 @@ export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
 
             {isNow && (
               <span className="rounded-full bg-blue px-2 py-0.5 font-mono text-xs uppercase text-paper">
-                On now
+                {uiCopy.agenda.onNowLabel}
               </span>
             )}
           </li>

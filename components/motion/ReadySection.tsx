@@ -7,10 +7,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { prefersReducedMotion, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
-const LINES = ["Get ready to join the", "biggest tech festival.", "Hosted by GDG Chennai."];
+const LINES: readonly string[] = uiCopy.readySection.lines;
 
 /**
  * A full-height beat between the hero and "About DevFest": a short question,

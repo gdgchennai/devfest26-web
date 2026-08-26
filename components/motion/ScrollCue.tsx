@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { GlowButton } from "@/components/GlowButton";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { getHorizontalCue, subscribeHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { uiCopy } from "@/site.config";
 
 export type ScrollCueDirection = "down" | "up" | "left" | "right";
 
@@ -298,14 +299,14 @@ export function ScrollCueController() {
     <>
       <ScrollCueButton
         direction={forwardDirection}
-        label={forwardDirection === "right" ? "Next card" : "Scroll to next section"}
+        label={forwardDirection === "right" ? uiCopy.scrollCue.nextCardLabel : uiCopy.scrollCue.scrollToNextSectionLabel}
         visible={forwardVisible}
         onClick={scrollToNext}
         className={`bottom-6 sm:bottom-8 ${forwardPositionClass}`}
       />
       <ScrollCueButton
         direction={backDirection}
-        label="Back to top"
+        label={uiCopy.scrollCue.backToTopLabel}
         visible={backVisible}
         onClick={scrollToTop}
         className={`bottom-6 sm:bottom-8 ${backPositionClass}`}

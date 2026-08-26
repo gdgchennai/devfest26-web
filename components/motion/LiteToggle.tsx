@@ -1,7 +1,7 @@
 "use client";
 
-import { isLiteMode } from "@/lib/motion-prefs";
-import { useClientValue } from "@/lib/useClientValue";
+import { useLiteModeToggle } from "@/lib/useLiteModeToggle";
+import { uiCopy } from "@/site.config";
 
 /**
  * The lite-mode switch, in the footer of every route.
@@ -16,26 +16,12 @@ import { useClientValue } from "@/lib/useClientValue";
  * dot (the same dot-plus-label idiom as `Eyebrow`) as the at-a-glance cue.
  */
 export function LiteToggle() {
-  const lite = useClientValue(isLiteMode, false);
-
-  function toggle() {
-    const url = new URL(window.location.href);
-    url.searchParams.set("lite", lite ? "0" : "1");
-    /*
-     * A full navigation, not router.push. The preference is read by the
-     * beforeInteractive script in app/layout.tsx and by MotionProvider's mount
-     * effect; neither re-runs on a client-side route change, so a soft
-     * navigation would change the URL and leave the page as it was. Setting
-     * `href` also puts the choice in the URL, so what the visitor is looking at
-     * is now a link they can send to someone.
-     */
-    window.location.href = url.toString();
-  }
+  const { lite, setLite } = useLiteModeToggle();
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={() => setLite(!lite)}
       aria-pressed={lite}
       className="inline-flex items-center gap-2 text-sm text-paper/70 underline-offset-4 hover:text-paper hover:underline"
     >
@@ -43,11 +29,11 @@ export function LiteToggle() {
         aria-hidden
         className={`h-2 w-2 shrink-0 rounded-full ${lite ? "bg-green" : "bg-paper/30"}`}
       />
-      Lite version
+      {uiCopy.liteToggle.label}
       {/* Redundant with aria-pressed, so it is hidden from assistive tech to
           avoid "Lite version on, pressed". */}
       <span aria-hidden className="text-paper/50">
-        {lite ? "on" : "off"}
+        {lite ? uiCopy.liteToggle.onLabel : uiCopy.liteToggle.offLabel}
       </span>
     </button>
   );

@@ -12,6 +12,7 @@ import { useClientValue } from "@/lib/useClientValue";
 import { ticketCta, speakerCta } from "@/lib/cta";
 import { RollingText } from "@/components/motion/RollingText";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -21,12 +22,10 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 const IMAGE_LEFT = "/archive/2024-opening-stage.jpg";
 const IMAGE_RIGHT = "/archive/2025-full-house.jpg";
 
-const TITLE_LEFT = "Present";
-const BODY_LEFT =
-  "Got crazy ideas or you built something so cool. Vibe coding? Hard core engineering? Stunning Design? Leadership guides? Bring your main character energy to our stage. Share your wisdom with our vibrant community!";
-const TITLE_RIGHT = "Attend";
-const BODY_RIGHT =
-  "Join in for the premier DevFest experience. Meet like minded folks. Developer? PM? Designer? Product? Marketing? Management? Student? Find your tribe here! We provide you the space and technology. You build for and build with the community!";
+const TITLE_LEFT = uiCopy.showMoodSection.presentTitle;
+const BODY_LEFT = uiCopy.showMoodSection.presentBody;
+const TITLE_RIGHT = uiCopy.showMoodSection.attendTitle;
+const BODY_RIGHT = uiCopy.showMoodSection.attendBody;
 
 /** Both panel CTAs sit on a full-bleed photo, not the flat page backdrop —
  *  size="sm" is the mobile base; these scale it up on wider screens to match
@@ -405,7 +404,7 @@ export function ShowMoodSection() {
       textClassName="text-white"
       surfaceClassName={PHOTO_BUTTON_SIZE}
     >
-      <RollingText>← Get tickets</RollingText>
+      <RollingText>{uiCopy.showMoodSection.ticketLinkLabel}</RollingText>
     </GlowButton>
   );
 
@@ -423,7 +422,7 @@ export function ShowMoodSection() {
       textClassName="text-white"
       surfaceClassName={PHOTO_BUTTON_SIZE}
     >
-      <RollingText>Submit CFP →</RollingText>
+      <RollingText>{uiCopy.showMoodSection.cfpLinkLabel}</RollingText>
     </GlowButton>
   );
 
@@ -490,7 +489,7 @@ export function ShowMoodSection() {
           that line from MoodSection itself. */}
       {staticBaseline && (
         <h2 className="px-6 pb-8 pt-16 text-left text-paper text-[clamp(2rem,8vw,6rem)] font-bold leading-none tracking-tight sm:px-10">
-          What&rsquo;s your DevFest mood?
+          {uiCopy.moodSection.heading}
         </h2>
       )}
       <section ref={wrapRef} className="relative h-dvh overflow-hidden">

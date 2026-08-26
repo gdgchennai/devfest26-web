@@ -5,6 +5,7 @@ import type { AgendaSession } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
+import { uiCopy } from "@/site.config";
 
 /**
  * The homepage agenda preview, as a timeline rather than a flat divided list.
@@ -59,7 +60,7 @@ export function AgendaTimeline({ sessions }: { sessions: AgendaSession[] }) {
                 <span className="font-mono text-xs uppercase text-paper/50">{session.hall}</span>
                 {isNow && (
                   <span className="rounded-full bg-blue px-2 py-0.5 font-mono text-[0.625rem] uppercase text-ink">
-                    On now
+                    {uiCopy.agenda.onNowLabel}
                   </span>
                 )}
               </span>
@@ -73,7 +74,7 @@ export function AgendaTimeline({ sessions }: { sessions: AgendaSession[] }) {
           href="/agenda"
           className="text-sm text-blue underline underline-offset-4 hover:decoration-2"
         >
-          View full agenda →
+          {uiCopy.agendaTimeline.viewFullAgendaLabel}
         </Link>
       </li>
     </ol>

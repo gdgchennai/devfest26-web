@@ -4,6 +4,7 @@ import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { Frame } from "@/components/Frame";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
+import { uiCopy } from "@/site.config";
 
 export const metadata: Metadata = { title: "Memories" };
 
@@ -18,10 +19,8 @@ export default function MemoriesPage() {
 
   return (
     <div className="px-4 py-12 sm:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Memories</h1>
-      <p className="mt-2 max-w-xl text-paper/70">
-        Moments from DevFest Chennai 2024 and 2025.
-      </p>
+      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.memoriesPage.heading}</h1>
+      <p className="mt-2 max-w-xl text-paper/70">{uiCopy.memoriesPage.body}</p>
 
       {/* Contained: if the hallway animation throws, it just vanishes and the
           static year grids below still render — no fallback needed. */}

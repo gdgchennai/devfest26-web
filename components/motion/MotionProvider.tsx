@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { isLiteMode, shouldUseStaticBaseline, subscribeLiteModeChange } from "@/lib/motion-prefs";
 import { EASE_CURTAIN } from "@/components/motion/eases";
 import { useClientValue } from "@/lib/useClientValue";
 
@@ -55,7 +55,16 @@ function resetScrubbedTheme() {
   root.style.removeProperty("--brackets-opacity");
 }
 
-export function MotionProvider({ children }: { children: React.ReactNode }) {
+/**
+ * Everything this file used to export directly as `MotionProvider`. Every
+ * effect and `useClientValue` read below is written assuming the preference
+ * it reads (`shouldUseStaticBaseline`, chiefly) is decided once on mount and
+ * never changes for the life of this component instance — true again now
+ * that `LiteToggle` no longer reloads the page, because `MotionProvider`
+ * below gives this a fresh `key` (and therefore a fresh mount) on every
+ * toggle instead. Nothing in this component needed to change for that.
+ */
+function MotionProviderInner({ children }: { children: React.ReactNode }) {
   const [curtainEl, setCurtainEl] = useState<HTMLDivElement | null>(null);
   const staticBaseline = useClientValue(shouldUseStaticBaseline, false);
   const curtainRef = useRef<HTMLDivElement | null>(null);
@@ -253,4 +262,19 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       {children}
     </MotionContext.Provider>
   );
+}
+
+/**
+ * Keys `MotionProviderInner` (and therefore its whole subtree — Header,
+ * HamburgerMenu, every page, Footer, ScrollCueController; see app/layout.tsx)
+ * on the lite preference, so a `LiteToggle` flip tears the entire motion
+ * layer down and remounts it fresh, same clean slate a page reload used to
+ * give it (new Lenis instance, new ScrollTriggers, new WebGL scenes, every
+ * `useClientValue` read re-evaluated) — without an actual navigation. See
+ * `subscribeLiteModeChange`'s own doc comment for why this is the one place
+ * that needed to change rather than every individual consumer.
+ */
+export function MotionProvider({ children }: { children: React.ReactNode }) {
+  const lite = useSyncExternalStore(subscribeLiteModeChange, isLiteMode, () => false);
+  return <MotionProviderInner key={lite ? "lite" : "full"}>{children}</MotionProviderInner>;
 }

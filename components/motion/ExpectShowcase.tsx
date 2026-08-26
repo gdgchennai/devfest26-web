@@ -14,6 +14,7 @@ import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-pre
 import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -77,7 +78,7 @@ function ExpectCarousel() {
   return (
     <div className="relative z-10 mx-auto max-w-6xl px-6 py-24 sm:px-10">
       <h2 className="text-left text-[clamp(1.75rem,8vw,5rem)] font-bold leading-none tracking-tight">
-        About DevFest
+        {uiCopy.expectShowcase.heading}
       </h2>
 
       <div className="relative mt-12">
@@ -118,7 +119,7 @@ function ExpectCarousel() {
             textClassName={canPrev ? "text-paper" : "text-paper/30"}
             className={canPrev ? "" : "pointer-events-none"}
           >
-            <span className="sr-only">Previous card</span>
+            <span className="sr-only">{uiCopy.expectShowcase.previousCardSr}</span>
             <ArrowGlyph direction="left" />
           </GlowButton>
 
@@ -145,7 +146,7 @@ function ExpectCarousel() {
             textClassName={canNext ? "text-paper" : "text-paper/30"}
             className={canNext ? "" : "pointer-events-none"}
           >
-            <span className="sr-only">Next card</span>
+            <span className="sr-only">{uiCopy.expectShowcase.nextCardSr}</span>
             <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
@@ -352,7 +353,7 @@ export function ExpectShowcase() {
               // padding so the text doesn't visually kiss the edge.
               className="whitespace-nowrap text-[clamp(1.75rem,11vw,10rem)] font-bold leading-none tracking-tight"
             >
-              About DevFest
+              {uiCopy.expectShowcase.heading}
             </h2>
           </div>
 

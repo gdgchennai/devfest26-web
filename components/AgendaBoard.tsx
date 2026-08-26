@@ -18,6 +18,7 @@ import { useNow } from "@/lib/useNow";
 import { getSpeaker } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 /**
  * The lite=0 agenda experience: a track selector above a "3D" stage where the
@@ -203,7 +204,7 @@ export function AgendaBoard({
             onClick={() => columnRefs.current[activeIndex]?.goTo(-1)}
             disabled={focusedSessionPos <= 0}
           >
-            <span className="sr-only">Previous session</span>
+            <span className="sr-only">{uiCopy.agendaBoard.previousSessionSr}</span>
             <ChevronIcon direction="up" />
           </GlowButton>
           <GlowButton
@@ -212,7 +213,7 @@ export function AgendaBoard({
             onClick={() => columnRefs.current[activeIndex]?.goTo(1)}
             disabled={focusedSessionPos === -1 || focusedSessionPos >= activeSessions.length - 1}
           >
-            <span className="sr-only">Next session</span>
+            <span className="sr-only">{uiCopy.agendaBoard.nextSessionSr}</span>
             <ChevronIcon direction="down" />
           </GlowButton>
         </div>
@@ -439,7 +440,7 @@ function SessionCard({
   }
 
   if (abs === 1) {
-    const eyebrow = distance < 0 ? "Previous" : "Up next";
+    const eyebrow = distance < 0 ? uiCopy.agendaBoard.previousEyebrow : uiCopy.agendaBoard.upNextEyebrow;
     return (
       <div className="agenda-board-card agenda-board-card--adjacent" data-key={dataKey}>
         <div className="flex items-center justify-between gap-3">
@@ -464,7 +465,7 @@ function SessionCard({
           {isNow && (
             <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] uppercase tracking-wide text-paper/70">
               <span className="agenda-board-live-dot" aria-hidden />
-              Live now
+              {uiCopy.agendaBoard.liveNowLabel}
             </span>
           )}
         </div>
@@ -491,7 +492,7 @@ function SessionCard({
             <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
               <Frame
                 src={speaker.photo}
-                alt={`Portrait of ${speaker.name}`}
+                alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
                 title={speaker.name}
                 aspectRatio="1 / 1"
                 sizes="36px"

@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -201,7 +202,7 @@ export function MoodSection() {
             staticBaseline ? "mx-auto" : ""
           }`}
         >
-          What&rsquo;s your DevFest mood?
+          {uiCopy.moodSection.heading}
         </h2>
       </div>
     </section>

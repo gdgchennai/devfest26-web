@@ -11,7 +11,7 @@ import {
 } from "react";
 import gsap from "gsap";
 import { TiltCard } from "@/components/TiltCard";
-import { siteConfig } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 import type { TicketTier } from "@/site.config";
 
 /**
@@ -303,7 +303,7 @@ function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
             onClick={handleBuyClick}
             className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90"
           >
-            Buy ticket
+            {uiCopy.ticketSelector.buyTicketLabel}
           </a>
         </div>
         <div className="ticket-tier-card__end-back" aria-hidden />
@@ -326,7 +326,7 @@ function TicketPlaceholder() {
   return (
     <div className="ticket-tier-card" style={{ "--tier-accent": accentVarFromPastelClass("bg-red-pastel") } as CSSProperties}>
       <div className="ticket-tier-card__body ticket-tier-card__body--placeholder items-center justify-center bg-red-pastel text-center">
-        <p className="text-2xl font-semibold text-black/70 sm:text-3xl">Pick your details above to find the right ticket</p>
+        <p className="text-2xl font-semibold text-black/70 sm:text-3xl">{uiCopy.ticketSelector.placeholderPrompt}</p>
       </div>
       <div className="ticket-tier-card__perf" aria-hidden />
       <div className="ticket-tier-card__end bg-red-pastel" />
@@ -399,20 +399,20 @@ export function TicketSelector() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-12 px-6 pb-24 pt-28 sm:px-8 sm:pt-32">
-      <h1 className="text-4xl font-bold tracking-tight text-paper sm:text-5xl">Get your tickets now</h1>
+      <h1 className="text-4xl font-bold tracking-tight text-paper sm:text-5xl">{uiCopy.ticketSelector.heading}</h1>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-6 text-2xl text-paper sm:text-3xl">
-        <span>I&apos;m a</span>
+        <span>{uiCopy.ticketSelector.imAPrompt}</span>
         <TicketDropdown
-          label="I'm a"
+          label={uiCopy.ticketSelector.imAPrompt}
           value={profileKey}
           onChange={setProfileKey}
           options={profiles.map((p) => ({ value: p.key, label: p.label }))}
           panelClassName="bg-yellow-pastel"
         />
-        <span>and I identify as</span>
+        <span>{uiCopy.ticketSelector.identifyPrompt}</span>
         <TicketDropdown
-          label="and I identify as"
+          label={uiCopy.ticketSelector.identifyPrompt}
           value={identity}
           onChange={setIdentity}
           options={identities.map((i) => ({ value: i, label: i }))}
