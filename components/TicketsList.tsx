@@ -21,6 +21,12 @@ gsap.registerPlugin(Draggable, useGSAP);
 const COLORS = ["bg-yellow-pastel", "bg-blue-pastel", "bg-red-pastel", "bg-green-pastel"];
 const FLAGSHIP_COLOR = "bg-neutral-200";
 
+// The flagship card's own CTA, deliberately NOT ticketCta().href: that value
+// is `/tickets` (this page), which made the flagship "Get tickets" button a
+// same-page no-op. This is the one card that should actually sell a ticket,
+// so it skips the picker and goes straight to the tier selector.
+const FLAGSHIP_TICKET_HREF = "/tickets/select";
+
 // Every card uses the same venue shot (the real IITM Research Park photo
 // VenueReveal.tsx uses) rather than inventing per-event photography that
 // doesn't exist yet.
@@ -59,7 +65,7 @@ function buildEvents(): EventCard[] {
     date: shortEventDate(siteConfig.date),
     description: `The flagship day — ${siteConfig.chapter}'s main event at ${siteConfig.venue.name}.`,
     cta: ticket.available
-      ? { label: ticket.label, href: ticket.href, external: ticket.external }
+      ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
   });

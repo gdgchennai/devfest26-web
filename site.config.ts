@@ -6,6 +6,25 @@ export type Track = {
   description: string;
 };
 
+export type TicketProfile = { key: string; label: string };
+
+export type TicketTier = {
+  /** Matches a `TicketProfile.key` below — picking that profile brings this
+   *  tier to the front of the stack on /tickets/select. */
+  profileKey: string;
+  title: string;
+  price: number;
+  currency: string;
+  features: string[];
+  addOnsNote: string;
+  /** A brand pastel Tailwind class (e.g. "bg-blue-pastel") — see the "do not
+   *  hand-mix new shades" note in globals.css. */
+  color: string;
+  /** Where "Buy ticket" goes — an external checkout link until a real
+   *  payment flow exists, same reasoning as `cfp.formUrl` below. */
+  href: string;
+};
+
 export type SubEvent = {
   slug: string;
   title: string;
@@ -65,6 +84,48 @@ export const siteConfig = {
     // `subEvents` below).
     href: "/tickets",
     availableLabel: "Get Tickets →",
+  },
+
+  // The /tickets/select page's ticket picker. "I'm a ___" chooses which
+  // entry in `tiers` rises to the front of the stack; "and I identify as
+  // ___" is demographic data collected alongside the purchase and doesn't
+  // change which ticket is shown. Every price/feature/checkout-link lives
+  // here so a new tier or a price change never touches the component.
+  ticketSelector: {
+    taxNote: "Taxes and payment gateway charges additional",
+    profiles: [
+      { key: "professional", label: "Working Professional" },
+      { key: "student", label: "Student" },
+    ] satisfies TicketProfile[],
+    identities: ["Female", "Male", "Non binary", "Prefer not to say"],
+    tiers: [
+      {
+        profileKey: "professional",
+        title: "Working professionals",
+        price: 1200,
+        currency: "₹",
+        features: ["Access to all talks", "Access to lounges", "Lunch and Snacks"],
+        addOnsNote: "Add-ons sold separately",
+        color: "bg-blue-pastel",
+        // TODO: swap for the real checkout link once one exists — google.com
+        // is just a placeholder that actually resolves, so the tear/redirect
+        // animation in TicketCard has something real to navigate to.
+        href: "#",
+      },
+      {
+        profileKey: "student",
+        title: "Students",
+        price: 600,
+        currency: "₹",
+        features: ["Access to all talks", "Access to lounges"],
+        addOnsNote: "Add-ons sold separately",
+        color: "bg-yellow-pastel",
+        // TODO: swap for the real checkout link once one exists — google.com
+        // is just a placeholder that actually resolves, so the tear/redirect
+        // animation in TicketCard has something real to navigate to.
+        href: "#",
+      },
+    ] satisfies TicketTier[],
   },
 
   agendaUrl: "/agenda",

@@ -1129,3 +1129,235 @@ html::-webkit-scrollbar {
 .agenda-board-pill--active .glow-btn__surface {
   background: color-mix(in srgb, var(--paper) 22%, transparent);
 }
+
+/* ---------------------------------------------------------------------------
+ * Ticket selector (components/TicketSelector.tsx, /tickets/select)
+ *
+ * All fanned cards share one grid cell, so the stack's height is always
+ * exactly the tallest card in it — not a guessed fixed height that clips a
+ * taller tier once someone edits site.config.ts's `ticketSelector.tiers`.
+ * Each card's own offset transform (rotate/translate) is set inline per-tier
+ * in the component, since it depends on that tier's distance from whichever
+ * one is currently selected.
+ * ------------------------------------------------------------------------ */
+.ticket-fan {
+  display: grid;
+}
+
+.ticket-fan__card {
+  grid-area: 1 / 1;
+}
+
+/*
+ * Grid's own `align-items: stretch` (the default) already stretches each
+ * .ticket-fan__card to the tallest card's height — but that stretch stops
+ * there: .tilt-scene/.tilt-card (TiltCard's own wrappers, plain blocks with
+ * no height rule of their own) and .ticket-tier-card below them just size to
+ * their OWN content, not to the space they've been given. A shorter card
+ * (the placeholder in particular, whose __end is empty — see
+ * TicketPlaceholder in TicketSelector.tsx) then leaves a gap at the bottom
+ * of its own stretched .ticket-fan__card box, and since every card shares
+ * the same grid cell, that gap is exactly where a shorter-z-index card
+ * behind it (its "Buy ticket" button, say) shows through — worst on mobile,
+ * where __body's title/features and __end's price/button stack vertically
+ * instead of sitting side by side, so real tiers end up considerably taller
+ * than the placeholder. Scoped to `.ticket-fan__card` specifically (not a
+ * bare `.tilt-scene`/`.tilt-card` rule) so TiltCard's other, unrelated
+ * usages elsewhere (e.g. the homepage's TicketStub) are untouched.
+ */
+.ticket-fan__card .tilt-scene,
+.ticket-fan__card .tilt-card,
+.ticket-fan__card .ticket-tier-card {
+  height: 100%;
+}
+
+/*
+ * A brand-pastel paper ticket — same perforated-seam idea as .ticket-stub
+ * above (dashed seam + punched notches), but light and dark-ink, since this
+ * card sits on whichever `tier.color` pastel the config picks rather than
+ * the homepage's fixed dark glass.
+ */
+/*
+ * A pure layout wrapper now — no fill, border or radius of its own. Those
+ * all moved onto __body/__end individually (below): the Buy button's tear
+ * transition (useTicketTearTransition in TicketSelector.tsx) translates
+ * those two elements apart, and this wrapper used to clip anything that
+ * moved past its own bounds with `overflow: hidden` — the torn halves were
+ * animating correctly, just invisibly, the moment they crossed that edge.
+ * With no fill/clipping here, and each half fully self-painted, they're now
+ * genuinely independent pieces that happen to sit flush at rest.
+ */
+.ticket-tier-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * The stub as a real two-sided flip card (see useTicketTearTransition in
+ * TicketSelector.tsx): __end (the actual ticket content) is the front face,
+ * __end-back is a plain white panel behind it, and rotating this wrapper
+ * past 90° swaps which one `backface-visibility: hidden` shows. __end stays
+ * a normal in-flow child (so it still drives this wrapper's size, in both
+ * the row and stacked layouts) — only the back face needs `position:
+ * absolute`, sized to match via `inset: 0`.
+ */
+.ticket-tier-card__end-flip {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.ticket-tier-card__end-flip > .ticket-tier-card__end {
+  backface-visibility: hidden;
+}
+
+.ticket-tier-card__end-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background: #fff;
+  border-radius: 0 0 1.5rem 1.5rem;
+  transform: rotateY(180deg);
+}
+
+@media (min-width: 640px) {
+  .ticket-tier-card__end-back {
+    border-radius: 0 1.5rem 1.5rem 0;
+  }
+}
+
+/*
+ * The empty state (components/TicketSelector.tsx's TicketPlaceholder) — a
+ * real bg-red-pastel ticket, same as any tier, just with a prompt where the
+ * details would be and nothing on the right. Its __end is empty (no price,
+ * no "Buy ticket" link) and __body holds only a short prompt, so without an
+ * explicit min-height it would collapse thinner than a real ticket — this
+ * keeps it sized to match so it sits in the fan as a plausible stand-in
+ * rather than a sliver.
+ */
+.ticket-tier-card__body--placeholder {
+  min-height: 16rem;
+}
+
+@media (min-width: 640px) {
+  .ticket-tier-card__body--placeholder {
+    min-height: 14rem;
+  }
+}
+
+/*
+ * Each half's own fill, border and shadow (see the .ticket-tier-card comment
+ * above for why this moved off the shared wrapper) — rounded only on its
+ * OUTER corners (top on mobile/__body, bottom on mobile/__end; left/right on
+ * desktop), square on the side that meets the perforation, so the two still
+ * read as one seamless ticket at rest despite being two independent boxes.
+ *
+ * `--tier-accent`, not a fixed `--blue`: TicketCard/TicketPlaceholder set it
+ * per-tier to that tier's own full-tone hue (e.g. `var(--yellow)` for the
+ * student tier), so the border always matches its own pastel fill rather
+ * than every tier defaulting to blue. The fallback only matters if some
+ * future caller forgets to set it. No drop shadow — the accent border is
+ * what's meant to read as this piece's edge, not a shadow underneath it.
+ */
+.ticket-tier-card__body,
+.ticket-tier-card__end {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--tier-accent, var(--blue));
+}
+
+.ticket-tier-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.75rem;
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+
+/*
+ * The torn seam — a row of small page-coloured circles "punched" through the
+ * ticket, not a single dashed line with two dots at the ends. Technique
+ * borrowed from a classic CSS ticket-tear demo: a `radial-gradient` repeated
+ * in one small tile reads as a real row of bite marks, which is what
+ * actually sells "torn ticket" — a plain border never did. `--page-bg`, not
+ * a solid color, so the notches read as holes to whatever's behind the
+ * ticket (the fanned cards behind it, or the black page), same principle as
+ * .ticket-stub's own perforation above.
+ *
+ * This element itself is a zero-size flex slot — __body and __end sit flush
+ * against each other with no gap between them, their own borders touching
+ * directly — and the dotted overlay is a pseudo-element straddling that
+ * exact seam (half into each side), so the perforation reads as punched
+ * THROUGH the shared border rather than living in a separate gutter between
+ * two visually detached pieces.
+ */
+.ticket-tier-card__perf {
+  position: relative;
+  flex: 0 0 0;
+}
+
+.ticket-tier-card__perf::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  top: -0.5rem;
+  height: 1rem;
+  background-image: radial-gradient(circle 3px at center, var(--page-bg) 99%, transparent 100%);
+  background-repeat: repeat-x;
+  background-size: 11px 100%;
+  background-position: center;
+}
+
+.ticket-tier-card__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1.75rem 1.75rem;
+  text-align: center;
+  border-radius: 0 0 1.5rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .ticket-tier-card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .ticket-tier-card__body {
+    border-radius: 1.5rem 0 0 1.5rem;
+  }
+
+  /*
+   * .ticket-tier-card's own `align-items: stretch` (above) stretches this
+   * wrapper's height to match __body, but a plain block child doesn't
+   * inherit that stretch onto ITS OWN child automatically — __end (the
+   * front face) was sizing to just its own content, shorter than __body,
+   * until this made end-flip a flex container too (align-items: stretch is
+   * the default), so __end fills the wrapper's already-stretched height.
+   * Mobile doesn't need this: __end already spans the full stacked width
+   * there via ordinary block layout, with no such wrapper level in the way.
+   */
+  .ticket-tier-card__end-flip {
+    display: flex;
+  }
+
+  .ticket-tier-card__perf::before {
+    left: -0.5rem;
+    right: auto;
+    top: 0;
+    bottom: 0;
+    width: 1rem;
+    height: auto;
+    background-repeat: repeat-y;
+    background-size: 100% 11px;
+  }
+
+  .ticket-tier-card__end {
+    width: 14rem;
+    justify-content: center;
+    border-radius: 0 1.5rem 1.5rem 0;
+  }
+}
