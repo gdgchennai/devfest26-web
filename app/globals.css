@@ -788,9 +788,17 @@ html::-webkit-scrollbar {
   /* Contain burst animation to prevent sibling jitter (e.g., hamburger shaking
      when nearby scroll-arrow button is clicked). The burst ::after expands its
      filter/inset box drastically, which can trigger reflow in fixed siblings
-     if not isolated. Will-change + containment keeps paint layers separate. */
+     if not isolated.
+     `layout`, NOT `paint`: the always-on ambient glow (.glow-btn__corners, the
+     halo ::after) bleeds past this element's own border box on purpose via
+     negative inset — that's the whole look. `contain: paint` clips a box's
+     content to that box, so for as long as this class was applied it clipped
+     off exactly that bleed, i.e. the button's own glow briefly vanished on
+     every click. `contain: layout` isolates this element's internal layout
+     changes from the rest of the page (the actual reflow-jitter fix the
+     comment above describes) without imposing that overflow clip. */
   will-change: filter;
-  contain: paint;
+  contain: layout;
 }
 
 .glow-btn--burst::after {
