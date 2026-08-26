@@ -149,51 +149,75 @@ export const siteConfig = {
   // copy here that can drift out of sync.
   subEvents: [
     {
-      slug: "code-for-communities",
-      title: "Code for communities",
-      date: "2026-08-29",
+      slug: "kug-virtual",
+      title: "KUG Virtual meetup",
+      date: "2026-09-05",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+        "Join KUG's virtual meetup to learn what's new in Android and Kotlin",
       ctaLabel: "Coming soon →",
     },
     {
       slug: "ai-for-science",
       title: "AI for Science",
-      date: "2026-09-05",
+      date: "2026-09-13",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+        "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
       ctaLabel: "Coming soon →",
     },
     {
-      slug: "road-to-idex",
-      title: "Road to IDeX",
-      date: "2026-09-15",
+      slug: "react-chennai",
+      title: "React Chennai meetup",
+      date: "2026-09-19",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+        "React did not disappear. Come join to learn what's going on within React",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "code-for-communities",
+      title: "Code for communities",
+      date: "2026-09-19",
+      description:
+        "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "bwai-cyber",
+      title: "Build with AI: Cyber Security edition",
+      date: "2026-09-26",
+      description:
+        "Learn about building security and privacy into agentic systems.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "kug-irl",
+      title: "KUG meetup",
+      date: "2026-09-26",
+      description:
+        "Connect and learn with the Kotlin Community of Chennai.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "army-exclusive",
+      title: "Android and AI for the Indian Army",
+      date: "2026-10-03",
+      description:
+        "Enabling our protectors, protect their data.",
+      ctaLabel: "Not open to public",
+    },
+    {
+      slug: "build-with-ai-wtm",
+      title: "Build with AI - WTM edition",
+      date: "2026-10-03",
+      description:
+        "Women come, learn, build and talk about AI.",
       ctaLabel: "Coming soon →",
     },
     {
       slug: "devfest-on-campus",
       title: "DevFest on Campus",
-      date: "2026-09-30",
+      date: "2026-10-10",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon →",
-    },
-    {
-      slug: "build-with-ai-wtm",
-      title: "Build with AI - WTM edition",
-      date: "2026-08-29",
-      description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon →",
-    },
-    {
-      slug: "hardware-tinkering-labs",
-      title: "Hardware Tinkering Labs",
-      date: "2026-09-05",
-      description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
+        "Bringing the DevFest spirit to campus.",
       ctaLabel: "Coming soon →",
     },
   ] satisfies SubEvent[],
