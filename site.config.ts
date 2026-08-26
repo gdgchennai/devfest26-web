@@ -131,10 +131,10 @@ export const siteConfig = {
   agendaUrl: "/agenda",
 
   tracks: [
-    { slug: "ai", name: "AI", description: "Machine learning, generative AI, and applied ML in production." },
-    { slug: "cloud", name: "Cloud", description: "Cloud-native architecture, infra, and platform engineering." },
-    { slug: "mobile", name: "Mobile", description: "Android, iOS, and cross-platform app development." },
-    { slug: "web", name: "Web", description: "Frontend frameworks, performance, and the modern web platform." },
+    { slug: "tech", name: "Tech", description: "General tech talks." },
+    { slug: "deep tech", name: "Deep Tech", description: "Tech in Science, Math, Hardware." },
+    { slug: "experience", name: "Experience", description: "Open lounges for anyone to experince building and creating with AI" },
+    { slug: "competition", name: "Competition", description: "Competition zones for humans and AI agents." },
   ] satisfies Track[],
 
   // The community events feeding into the main festival, for the /tickets
@@ -213,6 +213,15 @@ export const siteConfig = {
     // There's no local CFP page/form to fall back to (see lib/routes.ts's
     // retiredRoutes["/cfp"]), so unlike ticketing this isn't nullable.
     formUrl: "https://sessionize.com/gdgchennai",
+  },
+
+  codeOfConduct: {
+    // No local /code-of-conduct page any more (see lib/routes.ts's
+    // retiredRoutes entry for visitors who still land on the old URL) —
+    // every "Code of Conduct" link site-wide (the footer) goes straight to
+    // Google's own GDG Code of Conduct instead of a local copy that would
+    // need to be kept in sync with it by hand.
+    url: "https://developers.google.com/events/gdd-india/code-of-conduct",
   },
 
   social: {
@@ -325,11 +334,6 @@ export const uiCopy = {
 
   agendaPage: {
     heading: "Agenda",
-  },
-
-  codeOfConductPage: {
-    heading: "Code of Conduct",
-    placeholderNotice: "Placeholder policy — pending review by the organising team before publication.",
   },
 
   contactPage: {

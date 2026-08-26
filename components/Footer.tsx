@@ -30,7 +30,12 @@ export function Footer() {
           crowding the mark. */}
       <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-4 text-center text-sm text-paper/70">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <a href="/code-of-conduct" className="underline-offset-4 hover:text-paper hover:underline">
+          <a
+            href={siteConfig.codeOfConduct.url}
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-4 hover:text-paper hover:underline"
+          >
             {uiCopy.footer.codeOfConductLabel}
           </a>
           <a href={`mailto:${siteConfig.contact.email}`} className="underline-offset-4 hover:text-paper hover:underline">

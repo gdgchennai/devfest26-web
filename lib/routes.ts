@@ -23,12 +23,6 @@ export const siteRoutes: SiteRoute[] = [
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },
-  {
-    href: "/code-of-conduct",
-    label: "Code of Conduct",
-    description: "What we expect from everyone at the event.",
-    inNav: false,
-  },
 ];
 
 export const navRoutes: SiteRoute[] = siteRoutes.filter((r) => r.inNav);
@@ -47,6 +41,11 @@ export const retiredRoutes: Record<string, { reason: string; goto: string }> = {
   },
   "/about": {
     reason: "This page is gone — the chapter info it held now lives in the footer.",
+    goto: "/",
+  },
+  "/code-of-conduct": {
+    reason:
+      "This page is gone — the Code of Conduct now lives on Google's own GDG Code of Conduct page instead of a local copy, linked from the footer.",
     goto: "/",
   },
 };

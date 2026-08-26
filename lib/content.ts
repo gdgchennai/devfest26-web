@@ -1,6 +1,5 @@
 import agendaData from "@/content/agenda.json";
 import speakersData from "@/content/speakers.json";
-import cocData from "@/content/coc.json";
 import archiveData from "@/content/archive.json";
 import {
   agendaSchema,
@@ -33,10 +32,6 @@ export const hallwayPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role 
 
 /** Photos waiting at the end of it. Disjoint from the above by construction. */
 export const stackPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "stack");
-export const codeOfConduct = cocData as {
-  isPlaceholder: boolean;
-  sections: { heading: string; body: string }[];
-};
 
 export function getSpeaker(slug: string): Speaker | undefined {
   return speakers.find((s) => s.slug === slug);
