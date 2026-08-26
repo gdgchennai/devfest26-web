@@ -11,6 +11,8 @@ import {
 } from "react";
 import gsap from "gsap";
 import { TiltCard } from "@/components/TiltCard";
+import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { useClientValue } from "@/lib/useClientValue";
 import { siteConfig, uiCopy } from "@/site.config";
 import type { TicketTier } from "@/site.config";
 
@@ -182,7 +184,7 @@ function useTicketTearTransition(href: string) {
 
     const body = bodyRef.current;
     const endFlip = endFlipRef.current;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches || shouldUseStaticBaseline();
 
     if (!body || !endFlip || reduceMotion) {
       window.location.href = href;
@@ -346,7 +348,17 @@ function TicketPlaceholder() {
  * distance from that slot and is `inert` (see below) so it can't be clicked
  * while buried.
  */
-function TicketStack({ tiers, selectedIndex, taxNote }: { tiers: TicketTier[]; selectedIndex: number; taxNote: string }) {
+function TicketStack({
+  tiers,
+  selectedIndex,
+  taxNote,
+  staticBaseline,
+}: {
+  tiers: TicketTier[];
+  selectedIndex: number;
+  taxNote: string;
+  staticBaseline: boolean;
+}) {
   const cards: { key: string; content: ReactNode }[] = [
     { key: "placeholder", content: <TicketPlaceholder /> },
     ...tiers.map((tier) => ({ key: tier.profileKey, content: <TicketCard tier={tier} taxNote={taxNote} /> })),
@@ -354,6 +366,20 @@ function TicketStack({ tiers, selectedIndex, taxNote }: { tiers: TicketTier[]; s
   // Slot 0 is the placeholder; a real tier's own index shifts up by one to
   // make room for it.
   const activeSlot = selectedIndex === -1 ? 0 : selectedIndex + 1;
+
+  // Lite mode: no fanned stack, no shuffle transition, no tilt — just the
+  // single active card, mounted plainly. Buried cards aren't rendered at all
+  // rather than hidden/inert, since there's no fan for them to peek out of.
+  if (staticBaseline) {
+    const active = cards[activeSlot];
+    return (
+      <div className="ticket-fan mx-auto w-full max-w-2xl">
+        <div key={active.key} className="ticket-fan__card">
+          {active.content}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="ticket-fan mx-auto w-full max-w-2xl">
@@ -387,6 +413,7 @@ function TicketStack({ tiers, selectedIndex, taxNote }: { tiers: TicketTier[]; s
 }
 
 export function TicketSelector() {
+  const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
   const { profiles, identities, tiers, taxNote } = siteConfig.ticketSelector;
   // Both dropdowns start unpicked — an empty underline, not a preselected
   // value — so nobody's professional status or gender gets assumed for them.
@@ -420,7 +447,7 @@ export function TicketSelector() {
         />
       </div>
 
-      <TicketStack tiers={tiers} selectedIndex={selectedIndex} taxNote={taxNote} />
+      <TicketStack tiers={tiers} selectedIndex={selectedIndex} taxNote={taxNote} staticBaseline={staticBaseline} />
     </div>
   );
 }
