@@ -115,18 +115,28 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
 ) {
   const wrapperRef = useRef<HTMLSpanElement>(null);
   const setWrapperRefs = setRefs([wrapperRef, forwardedRef]);
+  const burstTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   /*
    * Re-triggers the burst keyframe on every press, including rapid repeats —
    * a CSS animation that's already running does not restart just because the
    * class is re-added, so the class is removed and a reflow is forced first.
+   *
+   * The class is removed again once the burst has finished (900ms — the
+   * longer of glow-burst/corner-burst, see globals.css), not left on
+   * indefinitely: nothing here needs it to stay — `.glow-btn--burst` exists
+   * purely to run the burst animations and contain their reflow (see its own
+   * comment) while they play, and leaving it on afterward served no purpose
+   * except being the wrong class present if some other rule ever keyed off it.
    */
   function burst() {
     const node = wrapperRef.current;
     if (!node) return;
+    clearTimeout(burstTimeoutRef.current);
     node.classList.remove("glow-btn--burst");
     void node.offsetWidth;
     node.classList.add("glow-btn--burst");
+    burstTimeoutRef.current = setTimeout(() => node.classList.remove("glow-btn--burst"), 900);
   }
 
   const geometry =

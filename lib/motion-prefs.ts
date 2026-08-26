@@ -56,6 +56,32 @@ export function clearLiteMode(): void {
   window.localStorage.removeItem(LITE_STORAGE_KEY);
 }
 
+type Listener = () => void;
+const liteModeListeners = new Set<Listener>();
+
+/**
+ * `isLiteMode()` (and everything built on it — `shouldUseStaticBaseline`,
+ * `shouldSkipHeavyAssets`) is read all over the site through `useClientValue`,
+ * whose store deliberately never notifies (see its own doc comment) — the
+ * preference was assumed to only ever change via a full page reload, which
+ * gives every one of those components a fresh mount for free. `LiteToggle`
+ * no longer reloads the page (see there), so `MotionProvider` subscribes to
+ * this instead, purely to key-remount its whole subtree on a flip — that
+ * remount is what still gives every consumer a "fresh mount" without an
+ * actual navigation, so none of them had to change.
+ */
+export function subscribeLiteModeChange(listener: Listener): () => void {
+  liteModeListeners.add(listener);
+  return () => liteModeListeners.delete(listener);
+}
+
+/** Called by `LiteToggle` once it's finished updating the URL/localStorage/
+ *  `html.lite` class, so every subscriber re-reads `isLiteMode()` and gets
+ *  the new answer. */
+export function notifyLiteModeChange(): void {
+  liteModeListeners.forEach((listener) => listener());
+}
+
 /**
  * Cheap, synchronous signal that the device's GPU/CPU is likely to struggle
  * with the WebGL scenes (curved marquee, brackets field). There is no

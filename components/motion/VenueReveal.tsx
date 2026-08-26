@@ -7,7 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { SplitText } from "gsap/SplitText";
-import { siteConfig } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 import { EVENT_TIME_ZONE } from "@/lib/format";
 import { ticketCta } from "@/lib/cta";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -52,8 +52,8 @@ const GLOW_COLOR = "rgba(200,235,255,1)";
 /** Same source the header/hero/TicketStub all read from — see lib/cta.ts. */
 const ticket = ticketCta();
 
-const ROADSHOWS_TEXT = "Roadshows and Meetups from Aug 29th onwards";
-const DISCLAIMER_TEXT = "Note: Roadshow and meetup venues differ and tickets sold separately.";
+const ROADSHOWS_TEXT = uiCopy.venueReveal.roadshowsText;
+const DISCLAIMER_TEXT = uiCopy.venueReveal.disclaimerText;
 
 const dateShort = siteConfig.date
   ? new Date(siteConfig.date).toLocaleDateString("en-IN", {
@@ -395,7 +395,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // scroll starts under the threshold — recognises "Location" as
       // nothing new and skips the rise-out/rise-in animation, instead of
       // needlessly replaying it on text that never actually changed.
-      swapTargets.set(heading, "Location");
+      swapTargets.set(heading, uiCopy.venueReveal.locationHeading);
       if (captionTitleRef.current) swapTargets.set(captionTitleRef.current, siteConfig.venue.name);
       if (roadshowsRef.current) swapTargets.set(roadshowsRef.current, "");
       if (disclaimerRef.current) swapTargets.set(disclaimerRef.current, "");
@@ -645,6 +645,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // momentum is simply lost when locked, same as the reveal lock above —
       // scrolling past this point again afterwards is a fresh, ordinary
       // scroll.
+      //
+      // That clamp used to be `scrollTo(checkpoint, { immediate: true })` —
+      // an instant teleport, called a beat before the text even starts its
+      // own rise-out, which is what read as abrupt: a hard jump, then a
+      // separate animation. Locking input FIRST (moved above, was after)
+      // gets the same "nothing can scroll past checkpoint" guarantee this
+      // comment describes — Lenis's own wheel/touch handling already
+      // no-ops while stopped, so the guarantee never actually depended on
+      // the snap itself being instant — which frees the snap to be a short
+      // eased glide instead, landing at the same moment the text starts
+      // rolling rather than a beat before it.
+      const SWAP_SNAP_SECONDS = 0.35;
+      const SWAP_SNAP_EASING = (t: number) => 1 - Math.pow(1 - t, 3);
       let swapState: "location" | "date" = "location";
       let swapLocking = false;
       const SWAP_ANIM_MS = 950;
@@ -673,14 +686,14 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           // visible/hidden pointer-events toggle.
           gsap.to(directionsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
-          swapText(heading, "Save the Date", direction);
+          swapText(heading, uiCopy.venueReveal.saveTheDateHeading, direction);
           if (captionTitleRef.current && dateShort) swapText(captionTitleRef.current, dateShort, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, ROADSHOWS_TEXT, direction);
           if (disclaimerRef.current) swapText(disclaimerRef.current, DISCLAIMER_TEXT, direction);
         } else {
           gsap.to(directionsRef.current, { opacity: 1, pointerEvents: "auto", duration: 0.4 });
           gsap.to(ticketsRef.current, { opacity: 0, pointerEvents: "none", duration: 0.4 });
-          swapText(heading, "Location", direction);
+          swapText(heading, uiCopy.venueReveal.locationHeading, direction);
           if (captionTitleRef.current) swapText(captionTitleRef.current, siteConfig.venue.name, direction);
           if (roadshowsRef.current) swapText(roadshowsRef.current, "", direction);
           if (disclaimerRef.current) swapText(disclaimerRef.current, "", direction);
@@ -705,8 +718,28 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             // it's the exact same instance, but available immediately, no
             // risk of reading it before its own `const` assignment finishes.
             const checkpoint = self.start + (self.end - self.start) * SWAP_AT;
-            lenisRef.current?.scrollTo(checkpoint, { immediate: true });
+            // Locked BEFORE the snap starts, not after: Lenis's own
+            // wheel/touch handling already no-ops while stopped, so this
+            // alone is what stops the visitor's gesture from carrying
+            // scroll past checkpoint — the snap itself no longer has to be
+            // instant to hold that guarantee (see this block's own doc
+            // comment above), so it's a short eased glide instead.
+            //
+            // `force: true` is load-bearing, not decorative: Lenis's own
+            // `scrollTo()` starts with `if ((this.isStopped || this.isLocked)
+            // && !force) return` — having just called `.stop()` above, this
+            // call would otherwise silently no-op every time, leaving
+            // whatever position the wheel gesture had already reached (never
+            // exactly checkpoint, and no animation at all) rather than
+            // actually running the eased glide. `force` is Lenis's own
+            // documented escape hatch for exactly this — a programmatic
+            // scroll that must run despite being stopped/locked.
             lenisRef.current?.stop();
+            lenisRef.current?.scrollTo(checkpoint, {
+              duration: SWAP_SNAP_SECONDS,
+              easing: SWAP_SNAP_EASING,
+              force: true,
+            });
             applySwapVisuals(wantsDate);
             window.setTimeout(() => {
               lenisRef.current?.start();
@@ -822,7 +855,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             ref={headingRef}
             className="text-paper text-[clamp(3rem,10vw,8rem)] font-bold leading-none tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]"
           >
-            Location
+            {uiCopy.venueReveal.locationHeading}
           </h2>
         </div>
 
@@ -871,7 +904,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
             <div className="absolute inset-0">
               <Image
                 src="/venue.webp"
-                alt={`${siteConfig.venue.name}, the DevFest Chennai venue`}
+                alt={uiCopy.common.venueAlt}
                 fill
                 className="object-cover"
               />
@@ -899,10 +932,20 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 swapText() in applySwapVisuals, same rise-out/rise-in
                 mechanism as captionTitleRef's own venue-name/date swap
                 above — not a separate opacity tween, so the reveal reads as
-                the same character roll rather than a plain fade. */}
+                the same character roll rather than a plain fade.
+
+                text-[clamp(...)], not a fixed text-xl/sm:text-3xl step: this
+                line runs longer than the venue name above it, so a single
+                breakpoint jump either sat too small on everything just under
+                640px or (at the larger step) risked the string not fitting
+                one line on a narrow phone. A continuous clamp scales with
+                the viewport instead of jumping, and nothing here forces
+                nowrap — nowhere-fits-on-one-line falls back to the browser's
+                own default wrap, same as every other paragraph on the
+                page. */}
             <p
               ref={roadshowsRef}
-              className="mt-2 text-xl font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3 sm:text-3xl"
+              className="mt-2 text-[clamp(1rem,3.5vw,1.875rem)] font-medium text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:mt-3"
             />
             {/* Fine print under the roadshows line — same empty-start,
                 swapText()-driven roll as roadshowsRef above, just smaller
@@ -929,7 +972,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   textClassName="text-white"
                   className="col-start-1 row-start-1"
                 >
-                  <RollingText>Get directions →</RollingText>
+                  <RollingText>{uiCopy.venueReveal.getDirectionsLabel}</RollingText>
                 </GlowButton>
                 <GlowButton
                   ref={ticketsRef}
@@ -938,7 +981,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   textClassName="text-white"
                   className="pointer-events-none col-start-1 row-start-1 opacity-0"
                 >
-                  <RollingText>Get tickets →</RollingText>
+                  <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
                 </GlowButton>
               </div>
             )}

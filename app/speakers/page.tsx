@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import { speakers } from "@/lib/content";
 import { SpeakerWall } from "@/components/SpeakerWall";
+import { uiCopy } from "@/site.config";
 
 export const metadata: Metadata = { title: "Speakers" };
 
 export default function SpeakersPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Speakers</h1>
+      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.speakersPage.heading}</h1>
       <p className="mt-3 max-w-xl text-paper/70">
-        {speakers.length === 0
-          ? "The 2026 lineup is being finalised. The call for proposals is how you get on it."
-          : "More speakers still to be announced."}
+        {speakers.length === 0 ? uiCopy.speakersPage.cfpOpenBody : uiCopy.speakersPage.moreToComeBody}
       </p>
 
       {/* Same roster component as the homepage — showing every confirmed

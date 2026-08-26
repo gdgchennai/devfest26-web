@@ -1,33 +1,15 @@
 [
   {
-    "track": "web",
+    "track": "tech",
     "start": "2026-10-17T09:00:00+05:30",
     "end": "2026-10-17T09:30:00+05:30",
     "title": "Opening Keynote",
     "speakerSlug": null,
-    "hall": "Main Hall",
+    "hall": "Hall A",
     "type": "keynote"
   },
   {
-    "track": "ai",
-    "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:30:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall A",
-    "type": "talk"
-  },
-  {
-    "track": "cloud",
-    "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:30:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "talk"
-  },
-  {
-    "track": "mobile",
+    "track": "deep tech",
     "start": "2026-10-17T09:45:00+05:30",
     "end": "2026-10-17T10:30:00+05:30",
     "title": "Session details to be announced",
@@ -36,34 +18,34 @@
     "type": "talk"
   },
   {
-    "track": "web",
+    "track": "experience",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:30:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Lounge",
+    "type": "lounge"
+  },
+  {
+    "track": "competition",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:30:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall B",
+    "type": "competition"
+  },
+  {
+    "track": "tech",
     "start": "2026-10-17T10:30:00+05:30",
     "end": "2026-10-17T11:00:00+05:30",
     "title": "Tea Break",
     "speakerSlug": null,
-    "hall": "Foyer",
+    "hall": "F&B",
     "type": "break"
   },
   {
-    "track": "ai",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall A",
-    "type": "talk"
-  },
-  {
-    "track": "cloud",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "workshop"
-  },
-  {
-    "track": "mobile",
+    "track": "deep tech",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:45:00+05:30",
     "title": "Session details to be announced",
@@ -72,61 +54,106 @@
     "type": "talk"
   },
   {
-    "track": "web",
+    "track": "experience",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
-    "hall": "Main Hall",
-    "type": "talk"
+    "hall": "Lounge",
+    "type": "lounge"
   },
   {
-    "track": "ai",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall A",
-    "type": "panel"
-  },
-  {
-    "track": "cloud",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
+    "track": "competition",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall B",
+    "type": "competition"
+  },
+  {
+    "track": "tech",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall A",
     "type": "talk"
   },
   {
-    "track": "mobile",
+    "track": "deep tech",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall C",
-    "type": "workshop"
+    "type": "talk"
   },
   {
-    "track": "web",
+    "track": "experience",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
-    "hall": "Main Hall",
+    "hall": "Lounge",
+    "type": "lounge"
+  },
+  {
+    "track": "competition",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall B",
+    "type": "competition"
+  },
+  {
+    "track": "tech",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall A",
     "type": "talk"
   },
   {
-    "track": "web",
+    "track": "tech",
     "start": "2026-10-17T12:45:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch Break",
     "speakerSlug": null,
-    "hall": "Foyer",
+    "hall": "F&B",
     "type": "break"
   },
   {
-    "track": "ai",
+    "track": "deep tech",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall C",
+    "type": "talk"
+  },
+  {
+    "track": "experience",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Lounge",
+    "type": "lounge"
+  },
+  {
+    "track": "competition",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall B",
+    "type": "competition"
+  },
+  {
+    "track": "tech",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:45:00+05:30",
     "title": "Session details to be announced",
@@ -135,75 +162,48 @@
     "type": "talk"
   },
   {
-    "track": "cloud",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "talk"
-  },
-  {
-    "track": "mobile",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
+    "track": "deep tech",
+    "start": "2026-10-17T15:00:00+05:30",
+    "end": "2026-10-17T15:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall C",
-    "type": "panel"
+    "type": "talk"
   },
   {
-    "track": "web",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
+    "track": "experience",
+    "start": "2026-10-17T15:00:00+05:30",
+    "end": "2026-10-17T15:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
-    "hall": "Main Hall",
-    "type": "workshop"
+    "hall": "Lounge",
+    "type": "lounge"
   },
   {
-    "track": "ai",
+    "track": "competition",
+    "start": "2026-10-17T15:00:00+05:30",
+    "end": "2026-10-17T15:45:00+05:30",
+    "title": "Session details to be announced",
+    "speakerSlug": null,
+    "hall": "Hall B",
+    "type": "competition"
+  },
+  {
+    "track": "tech",
     "start": "2026-10-17T15:00:00+05:30",
     "end": "2026-10-17T15:45:00+05:30",
     "title": "Session details to be announced",
     "speakerSlug": null,
     "hall": "Hall A",
-    "type": "workshop"
-  },
-  {
-    "track": "cloud",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "panel"
-  },
-  {
-    "track": "mobile",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall C",
     "type": "talk"
   },
   {
-    "track": "web",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Main Hall",
-    "type": "talk"
-  },
-  {
-    "track": "web",
+    "track": "tech",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Closing Keynote",
     "speakerSlug": null,
-    "hall": "Main Hall",
+    "hall": "Hall A",
     "type": "keynote"
   }
 ]

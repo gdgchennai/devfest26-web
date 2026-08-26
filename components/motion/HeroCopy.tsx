@@ -1,4 +1,4 @@
-import { siteConfig, formatEventDate } from "@/site.config";
+import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 
 /**
@@ -19,7 +19,7 @@ import { ticketCta } from "@/lib/cta";
  * from config at module scope, so it costs the lite bundle nothing.
  */
 export const heroCopy = {
-  eyebrow: `${siteConfig.chapter} presents`,
+  eyebrow: uiCopy.common.chapterPresents,
   title: siteConfig.shortName,
   tagline: siteConfig.tagline,
   /** Already renders "Date to be announced" when `siteConfig.date` is null. */
@@ -27,5 +27,5 @@ export const heroCopy = {
   venueLabel: siteConfig.venue.name,
   venueConfirmed: siteConfig.venue.confirmed,
   ticket: ticketCta(),
-  agenda: { href: siteConfig.agendaUrl, label: "See Agenda →" },
+  agenda: { href: siteConfig.agendaUrl, label: uiCopy.heroCopy.agendaLabel },
 } as const;

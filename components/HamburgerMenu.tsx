@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { navRoutes } from "@/lib/routes";
 import { speakerCta } from "@/lib/cta";
+import { uiCopy } from "@/site.config";
 import { RollingText } from "@/components/motion/RollingText";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -239,7 +240,7 @@ export function HamburgerMenu() {
         >
           <Link
             href="/"
-            aria-label="Go to homepage"
+            aria-label={uiCopy.hamburgerMenu.homeAriaLabel}
             className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
             data-shape="box"
           >
@@ -270,7 +271,7 @@ export function HamburgerMenu() {
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? uiCopy.hamburgerMenu.closeAriaLabel : uiCopy.hamburgerMenu.openAriaLabel}
           onClick={toggle}
           className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
           data-shape="box"
@@ -301,7 +302,7 @@ export function HamburgerMenu() {
         id={panelId}
         role="dialog"
         aria-modal="true"
-        aria-label="Site menu"
+        aria-label={uiCopy.hamburgerMenu.panelAriaLabel}
         aria-hidden={!open}
         ref={panelRef}
         className="invisible fixed inset-0 z-[45] flex flex-col items-center justify-center gap-8 bg-ink/75 px-6 text-3xl opacity-0 backdrop-blur-md sm:text-5xl"
@@ -323,7 +324,7 @@ export function HamburgerMenu() {
             onClick={close}
             className="text-paper/90 hover:text-paper"
           >
-            <RollingText>Submit CFP</RollingText> →
+            <RollingText>{uiCopy.hamburgerMenu.cfpLabel}</RollingText> →
           </a>
         </div>
       </div>

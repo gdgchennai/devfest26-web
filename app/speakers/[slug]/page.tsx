@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSpeaker, speakers } from "@/lib/content";
 import { Frame } from "@/components/Frame";
+import { uiCopy } from "@/site.config";
 
 export function generateStaticParams() {
   return speakers.map((speaker) => ({ slug: speaker.slug }));
@@ -26,7 +27,7 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-8">
       <Frame
         src={speaker.photo}
-        alt={`Portrait of ${speaker.name}`}
+        alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
         title={speaker.name}
         aspectRatio="1 / 1"
         className="max-w-xs"
@@ -48,17 +49,17 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
       <div className="mt-6 flex gap-4 text-sm">
         {speaker.links.twitter && (
           <a href={speaker.links.twitter} className="text-blue underline underline-offset-4 hover:decoration-2">
-            X
+            {uiCopy.socialLabels.x}
           </a>
         )}
         {speaker.links.linkedin && (
           <a href={speaker.links.linkedin} className="text-blue underline underline-offset-4 hover:decoration-2">
-            LinkedIn
+            {uiCopy.socialLabels.linkedin}
           </a>
         )}
         {speaker.links.github && (
           <a href={speaker.links.github} className="text-blue underline underline-offset-4 hover:decoration-2">
-            GitHub
+            {uiCopy.socialLabels.github}
           </a>
         )}
       </div>

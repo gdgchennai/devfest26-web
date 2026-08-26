@@ -13,6 +13,7 @@ import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy } from "@/components/motion/HeroCopy";
 import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -500,7 +501,7 @@ export function CurvedMarqueeHero() {
         className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper max-sm:bottom-[24%] sm:gap-16 sm:bottom-[16%] sm:text-xl"
       >
         <GlowButton href={heroCopy.ticket.href}>
-          <RollingText>Get tickets →</RollingText>
+          <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
         </GlowButton>
         <GlowButton href={heroCopy.agenda.href}>
           <RollingText>{`${heroCopy.agenda.label}`}</RollingText>

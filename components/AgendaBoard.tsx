@@ -18,6 +18,7 @@ import { useNow } from "@/lib/useNow";
 import { getSpeaker } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 /**
  * The lite=0 agenda experience: a track selector above a "3D" stage where the
@@ -203,7 +204,7 @@ export function AgendaBoard({
             onClick={() => columnRefs.current[activeIndex]?.goTo(-1)}
             disabled={focusedSessionPos <= 0}
           >
-            <span className="sr-only">Previous session</span>
+            <span className="sr-only">{uiCopy.agendaBoard.previousSessionSr}</span>
             <ChevronIcon direction="up" />
           </GlowButton>
           <GlowButton
@@ -212,7 +213,7 @@ export function AgendaBoard({
             onClick={() => columnRefs.current[activeIndex]?.goTo(1)}
             disabled={focusedSessionPos === -1 || focusedSessionPos >= activeSessions.length - 1}
           >
-            <span className="sr-only">Next session</span>
+            <span className="sr-only">{uiCopy.agendaBoard.nextSessionSr}</span>
             <ChevronIcon direction="down" />
           </GlowButton>
         </div>
@@ -227,6 +228,25 @@ type TrackColumnHandle = { goTo: (delta: number) => void };
  *  keep the blurred background columns pointed at roughly "the same time" as
  *  whatever's focused in the active column, rather than frozen wherever they
  *  first loaded. */
+/**
+ * Centres `target` inside `container` by setting `container`'s own scrollTop
+ * directly, instead of `target.scrollIntoView({ block: "center" })`.
+ *
+ * `scrollIntoView` walks every scrollable ancestor between the target and the
+ * viewport, not just the nearest one — and nothing between
+ * `.agenda-board-scroll` and `<body>` opts out the way `.agenda-board-stage`
+ * deliberately does (see its own `overflow: clip` comment), so it was also
+ * dragging the whole PAGE up to centre the focused card in the window,
+ * shoving the "Agenda" heading and track pills off the top of the screen the
+ * moment a track was picked or the up/down nav buttons were used. Computing
+ * the container's own scrollTop directly here never touches `window.scrollY`
+ * at all, so the page stays put and only the track's own timeline moves.
+ */
+function centerCardInContainer(container: HTMLElement, target: HTMLElement, behavior: ScrollBehavior) {
+  const top = target.offsetTop - container.clientHeight / 2 + target.offsetHeight / 2;
+  container.scrollTo({ top, behavior });
+}
+
 function closestSessionByTime(
   items: TimelineItem[],
   targetIso: string,
@@ -310,7 +330,8 @@ const TrackColumn = forwardRef<
     const target = bySyncTime ?? nowItem ?? firstSession;
     if (target) {
       requestAnimationFrame(() => {
-        container.querySelector(`[data-key="${target.key}"]`)?.scrollIntoView({ block: "center" });
+        const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+        if (el) centerCardInContainer(container, el, "auto");
       });
     }
 
@@ -330,7 +351,8 @@ const TrackColumn = forwardRef<
     if (!container) return;
     const target = closestSessionByTime(items, syncTime);
     if (!target) return;
-    container.querySelector(`[data-key="${target.key}"]`)?.scrollIntoView({ block: "center", behavior: "smooth" });
+    const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+    if (el) centerCardInContainer(container, el, "smooth");
   }, [active, syncTime, items]);
 
   const focusedIndex = items.findIndex((it) => it.key === focusedKey);
@@ -354,9 +376,8 @@ const TrackColumn = forwardRef<
       const targetPos = Math.min(Math.max(focusedSessionPos + delta, 0), sessionItems.length - 1);
       const target = sessionItems[targetPos];
       if (!target) return;
-      container
-        .querySelector(`[data-key="${target.key}"]`)
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+      if (el) centerCardInContainer(container, el, "smooth");
     },
     [focusedSessionPos, sessionItems],
   );
@@ -439,7 +460,7 @@ function SessionCard({
   }
 
   if (abs === 1) {
-    const eyebrow = distance < 0 ? "Previous" : "Up next";
+    const eyebrow = distance < 0 ? uiCopy.agendaBoard.previousEyebrow : uiCopy.agendaBoard.upNextEyebrow;
     return (
       <div className="agenda-board-card agenda-board-card--adjacent" data-key={dataKey}>
         <div className="flex items-center justify-between gap-3">
@@ -464,7 +485,7 @@ function SessionCard({
           {isNow && (
             <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] uppercase tracking-wide text-paper/70">
               <span className="agenda-board-live-dot" aria-hidden />
-              Live now
+              {uiCopy.agendaBoard.liveNowLabel}
             </span>
           )}
         </div>
@@ -491,7 +512,7 @@ function SessionCard({
             <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
               <Frame
                 src={speaker.photo}
-                alt={`Portrait of ${speaker.name}`}
+                alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
                 title={speaker.name}
                 aspectRatio="1 / 1"
                 sizes="36px"

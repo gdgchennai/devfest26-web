@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { GlowButton } from "@/components/GlowButton";
 import { useMotion } from "@/components/motion/MotionProvider";
-import { getHorizontalCue, subscribeHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { getHorizontalCueFor, subscribeHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { uiCopy } from "@/site.config";
 
 export type ScrollCueDirection = "down" | "up" | "left" | "right";
 
@@ -12,7 +13,7 @@ export type ScrollCueDirection = "down" | "up" | "left" | "right";
  * A single chevron drawn pointing down; every other direction is this same
  * mark rotated, so the four arrows stay pixel-identical in weight and size.
  */
-function ArrowGlyph({ direction }: { direction: ScrollCueDirection }) {
+export function ArrowGlyph({ direction }: { direction: ScrollCueDirection }) {
   const rotation = { down: 0, right: -90, up: 180, left: 90 }[direction];
   return (
     <svg
@@ -89,19 +90,37 @@ const SECTION_SELECTOR = "[data-scroll-cue-section]";
 const SETTLE_MS = 150;
 
 /**
- * Explicit seconds for the forward cue's "jump to next card" scroll, when
- * inside a horizontal-cue section (ExpectShowcase's cards, MoodSection's
- * marquee). Deliberately NOT left to Lenis's default (calling `.scrollTo()`
- * with no `duration` makes it lerp-follow instead of tween on a fixed
- * clock) — lerp covers a FIXED FRACTION of the remaining distance every
- * frame, so it moves faster, not slower, the longer the jump is. A normal
- * "next section" hop is short and reads fine that way; jumping to the end of
- * a whole pinned card row or marquee is a much longer distance, and lerp
- * made it feel like a snap-cut rather than something readable while it
- * moves. An explicit duration keeps pace independent of distance instead.
- * Tune by feel — there's no "default" pace to measure this against.
+ * Pixels/second for the horizontal-cue "jump to card/end" scroll, inside a
+ * horizontal-cue section (ExpectShowcase's cards, MoodSection's marquee).
+ * Deliberately NOT left to Lenis's default (calling `.scrollTo()` with no
+ * `duration` makes it lerp-follow instead of tween on a fixed clock) — lerp
+ * covers a FIXED FRACTION of the remaining distance every frame, so it moves
+ * faster, not slower, the longer the jump is, which reads as a snap-cut
+ * rather than something readable while it moves. A normal "next section" hop
+ * is short and reads fine on Lenis's own default, hence this only applies
+ * inside a horizontal-cue section.
+ *
+ * A constant SPEED, not a flat DURATION (this used to be a flat 4s,
+ * `HORIZONTAL_CUE_SCROLL_SECONDS`): that was tuned for MoodSection's one
+ * long "jump to the fully-arrived end" hop, but once ExpectShowcase started
+ * stepping one card-width at a time (see scrollToNext/scrollBack) instead of
+ * jumping to the row's end, the same flat 4 seconds made a single short
+ * card-hop feel glacial — a fixed time applied to a much shorter distance is
+ * a slower APPARENT speed, not the same one. Dividing distance by a constant
+ * speed instead keeps the pace itself consistent regardless of which of the
+ * two it's animating: a short card hop finishes quickly, a long marquee jump
+ * still takes proportionally longer, same as it always did.
  */
-const HORIZONTAL_CUE_SCROLL_SECONDS = 4;
+const HORIZONTAL_CUE_PIXELS_PER_SECOND = 1400;
+/** However short or long the actual jump is, keep it in this range — never
+ *  quite an instant cut, never a multi-second crawl. */
+const HORIZONTAL_CUE_MIN_SECONDS = 0.25;
+const HORIZONTAL_CUE_MAX_SECONDS = 3;
+
+function horizontalCueDuration(fromY: number, toY: number, pixelsPerSecond = HORIZONTAL_CUE_PIXELS_PER_SECOND): number {
+  const seconds = Math.abs(toY - fromY) / pixelsPerSecond;
+  return Math.min(HORIZONTAL_CUE_MAX_SECONDS, Math.max(HORIZONTAL_CUE_MIN_SECONDS, seconds));
+}
 
 /**
  * Passing a `duration` without an `easing` makes Lenis fall back to its own
@@ -115,8 +134,9 @@ const HORIZONTAL_CUE_SCROLL_SECONDS = 4;
  */
 const LINEAR_EASING = (t: number) => t;
 
-/** Below this scrollY, "back to top" has nowhere useful left to send you. */
-const BACK_TO_TOP_THRESHOLD_VH = 0.6;
+/** Below this scrollY, "back" has nowhere useful left to send you — still
+ *  the hero, whether or not it's also the top of the page. */
+const BACK_VISIBLE_THRESHOLD_VH = 0.6;
 
 /**
  * The site's one floating scroll-cue: a "forward" button (down-arrow, or
@@ -232,14 +252,24 @@ export function ScrollCueController() {
     const lenis = lenisRef.current;
     if (!lenis) return;
     const activeEl = sectionsRef.current[activeIndex];
-    const cue = getHorizontalCue();
-    const inHorizontal = !!cue && !!activeEl && activeEl.contains(cue.el);
+    const cue = getHorizontalCueFor(activeEl);
 
-    if (inHorizontal && cue) {
-      const cardIndex = cue.activeIndex();
-      if (cardIndex < cue.cardCount - 1) {
-        lenis.scrollTo(cue.scrollYForCard(cardIndex + 1), {
-          duration: HORIZONTAL_CUE_SCROLL_SECONDS,
+    if (cue) {
+      // activeIndex() is the NEAREST card, not "the card we're currently
+      // sitting on" — right at the very start of the section (e.g. the
+      // heading still showing, before card 0 has actually slid into
+      // centre), 0 is already the nearest card, so a naive `+1` here landed
+      // on card 1, skipping card 0 outright. Comparing against where that
+      // nearest card actually IS tells the two cases apart: still
+      // approaching it (target: arrive there) vs. already there (target:
+      // the one after).
+      const nearest = cue.activeIndex();
+      const nearestY = cue.scrollYForCard(nearest);
+      const target = window.scrollY < nearestY - 1 ? nearest : nearest + 1;
+      if (target < cue.cardCount) {
+        const targetY = cue.scrollYForCard(target);
+        lenis.scrollTo(targetY, {
+          duration: horizontalCueDuration(window.scrollY, targetY, cue.pixelsPerSecond),
           easing: LINEAR_EASING,
         });
         return;
@@ -258,18 +288,69 @@ export function ScrollCueController() {
     lenis.scrollTo(document.documentElement.scrollHeight);
   }, [activeIndex, lenisRef]);
 
-  const scrollToTop = useCallback(() => {
-    lenisRef.current?.scrollTo(0);
-  }, [lenisRef]);
+  // Mirrors scrollToNext: one card back when there's a previous card in the
+  // active horizontal-cue section, otherwise the button's other job — back
+  // to the very top of the page. Previously this always scrolled to the top
+  // regardless of what the button's own "left" (previous-card) glyph
+  // promised, so clicking it inside e.g. ExpectShowcase jumped clean out of
+  // the card row instead of stepping back one card.
+  const scrollBack = useCallback(() => {
+    const lenis = lenisRef.current;
+    if (!lenis) return;
+    const activeEl = sectionsRef.current[activeIndex];
+    const cue = getHorizontalCueFor(activeEl);
+
+    if (cue) {
+      // Mirrors scrollToNext's own nearest-vs-arrived distinction (see
+      // there): if we've already scrolled PAST the nearest card (on our way
+      // toward the one after it), "back" returns to the nearest card
+      // itself; only once actually there does "back" step to the one
+      // before it.
+      const nearest = cue.activeIndex();
+      const nearestY = cue.scrollYForCard(nearest);
+      const target = window.scrollY > nearestY + 1 ? nearest : nearest - 1;
+      // cue.minIndex, not a hardcoded 0 (or -1): a cue with its own entry
+      // position below index 0 (ExpectShowcase's heading state) should step
+      // there first, one position at a time like every other step this
+      // function takes — but a cue without one (MoodSection, whose own
+      // index 0 already IS its entry — see HorizontalCue's own doc comment)
+      // must NOT accept -1 here, or scrollYForCard(-1) would just resolve
+      // to the exact same position as index 0 and this "back" click would
+      // silently do nothing instead of leaving the section as it should.
+      if (target >= cue.minIndex) {
+        const targetY = cue.scrollYForCard(target);
+        lenis.scrollTo(targetY, {
+          duration: horizontalCueDuration(window.scrollY, targetY, cue.pixelsPerSecond),
+          easing: LINEAR_EASING,
+        });
+        return;
+      }
+    }
+    // Previous SECTION, not literally back to the top of the page — this
+    // used to always jump to scrollY 0 regardless of how many sections lay
+    // between here and there, which was fine as a last resort (there was no
+    // per-card stepping to fall out of) but wrong once "up" is meant to be
+    // one step at a time like the forward direction already is (see
+    // scrollToNext's own "next section" fallback, which this now mirrors).
+    const previous = sectionsRef.current[activeIndex - 1];
+    if (previous) {
+      lenis.scrollTo(previous);
+      return;
+    }
+    // No section behind this one (the hero) — nothing left but the literal
+    // top, which is where the hero already sits anyway.
+    lenis.scrollTo(0);
+  }, [activeIndex, lenisRef]);
 
   if (staticBaseline || !mounted) return null;
 
   const sections = sectionsRef.current;
   const activeEl = sections[activeIndex];
-  const cue = getHorizontalCue();
-  const inHorizontal = !!cue && !!activeEl && activeEl.contains(cue.el);
+  const cue = getHorizontalCueFor(activeEl);
+  const inHorizontal = !!cue;
   const cardIndex = inHorizontal && cue ? cue.activeIndex() : -1;
   const onLastCard = !inHorizontal || !cue || cardIndex >= cue.cardCount - 1;
+  const onFirstCard = inHorizontal && cue ? cardIndex <= cue.minIndex : false;
 
   const forwardDirection: ScrollCueDirection = inHorizontal && !onLastCard ? "right" : "down";
   const isLastSection = activeIndex !== -1 && activeIndex === sections.length - 1;
@@ -282,14 +363,17 @@ export function ScrollCueController() {
   const forwardHasTarget = forwardDirection === "right" || !isLastSection || !atPageBottom;
   const forwardVisible = !isScrolling && activeIndex !== -1 && forwardHasTarget;
 
-  const backDirection: ScrollCueDirection = inHorizontal ? "left" : "up";
-  const backVisible = !isScrolling && scrollY > window.innerHeight * BACK_TO_TOP_THRESHOLD_VH;
+  // "left" for every position down to the cue's own minIndex — there,
+  // "back" doesn't mean "previous card/entry" (there isn't one), it means
+  // the same thing it does outside a horizontal-cue section entirely: up,
+  // to the previous section.
+  const backDirection: ScrollCueDirection = inHorizontal && !onFirstCard ? "left" : "up";
+  const backVisible = !isScrolling && scrollY > window.innerHeight * BACK_VISIBLE_THRESHOLD_VH;
 
   // Hero (the very first section) keeps the forward button dead-centre, and
-  // the last section (the footer beat) keeps the back-to-top button
-  // dead-centre — both untouched from where they started. Everywhere in
-  // between, the two buttons split to opposite edges: back-to-top left,
-  // forward right.
+  // the last section (the footer beat) keeps the back button dead-centre —
+  // both untouched from where they started. Everywhere in between, the two
+  // buttons split to opposite edges: back left, forward right.
   const isHero = activeIndex === 0;
   const forwardPositionClass = isHero ? "left-1/2 -translate-x-1/2" : "right-4 sm:right-8";
   const backPositionClass = isLastSection ? "left-1/2 -translate-x-1/2" : "left-4 sm:left-8";
@@ -298,16 +382,16 @@ export function ScrollCueController() {
     <>
       <ScrollCueButton
         direction={forwardDirection}
-        label={forwardDirection === "right" ? "Next card" : "Scroll to next section"}
+        label={forwardDirection === "right" ? uiCopy.scrollCue.nextCardLabel : uiCopy.scrollCue.scrollToNextSectionLabel}
         visible={forwardVisible}
         onClick={scrollToNext}
         className={`bottom-6 sm:bottom-8 ${forwardPositionClass}`}
       />
       <ScrollCueButton
         direction={backDirection}
-        label="Back to top"
+        label={backDirection === "left" ? uiCopy.scrollCue.previousCardLabel : uiCopy.scrollCue.previousSectionLabel}
         visible={backVisible}
-        onClick={scrollToTop}
+        onClick={scrollBack}
         className={`bottom-6 sm:bottom-8 ${backPositionClass}`}
       />
     </>

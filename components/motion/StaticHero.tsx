@@ -1,6 +1,7 @@
 import { Eyebrow } from "@/components/Eyebrow";
 import { GlowButton } from "@/components/GlowButton";
 import { heroCopy } from "@/components/motion/HeroCopy";
+import { uiCopy } from "@/site.config";
 
 /**
  * The hero for everyone who is not getting WebGL: lite mode, no-JS, crawlers,
@@ -59,7 +60,7 @@ export function StaticHero({
             ·
           </span>
           {heroCopy.venueLabel}
-          {!heroCopy.venueConfirmed && <span className="text-paper/60"> · unconfirmed</span>}
+          {!heroCopy.venueConfirmed && <span className="text-paper/60">{uiCopy.common.unconfirmedSuffix}</span>}
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -83,7 +84,7 @@ export function StaticHero({
             href="?lite=0"
             className="mt-8 font-mono text-xs uppercase tracking-wider text-paper/60 underline-offset-4 hover:text-paper hover:underline"
           >
-            Switch to the full experience →
+            {uiCopy.staticHero.switchToFullExperienceLabel}
           </a>
         )}
       </div>

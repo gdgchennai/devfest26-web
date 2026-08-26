@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/Card";
 import { ticketCta, speakerCta } from "@/lib/cta";
+import { uiCopy } from "@/site.config";
 
 /**
  * The three things someone actually came to this site for: when it is, how to
@@ -26,24 +27,25 @@ export function NotFoundHighlights() {
   const tickets = ticketCta();
   const speaking = speakerCta();
 
+  const { highlights: copy } = uiCopy.notFoundPage;
   const highlights: Highlight[] = [
     {
-      eyebrow: "The day",
-      title: "Agenda",
-      description: "Four tracks, one day. The full schedule as it firms up.",
+      eyebrow: copy.agendaEyebrow,
+      title: copy.agendaTitle,
+      description: copy.agendaDescription,
       href: "/agenda",
     },
     {
-      eyebrow: "Get in",
+      eyebrow: copy.ticketsEyebrow,
       title: tickets.label,
-      description: "Book your place at DevFest Chennai 2026.",
+      description: copy.ticketsDescription,
       href: tickets.href,
       external: tickets.external,
     },
     {
-      eyebrow: "Get on stage",
-      title: "Speak at DevFest",
-      description: "First-time speakers as welcome as conference regulars.",
+      eyebrow: copy.speakingEyebrow,
+      title: copy.speakingTitle,
+      description: copy.speakingDescription,
       href: speaking.href,
       external: speaking.external,
     },

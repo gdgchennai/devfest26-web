@@ -6,6 +6,7 @@ import { useClientValue } from "@/lib/useClientValue";
 import { FooterBrackets } from "@/components/FooterBrackets";
 import { GlowButton } from "@/components/GlowButton";
 import { BRACKETS_FIELD_ROUTES } from "@/components/motion/BracketsField";
+import { uiCopy } from "@/site.config";
 
 /*
  * The footer centrepiece: the official DevFest wordmark + "Chennai" pill
@@ -93,7 +94,7 @@ export function FooterLogo({
              own LOGO_FILE for the -light counterpart (dark wordmark, for a
              light footer) this deliberately does NOT use. */
           src="/brand-assets/devfest-logo-wo-brackets-dark.svg"
-          alt="DevFest Chennai"
+          alt={uiCopy.footerLogo.alt}
           className="h-full w-full"
           // In 3D mode the WebGL lockup is the visible logo; keep this laid out
           // for measurement but invisible. Otherwise show it flat, no filter.

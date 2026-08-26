@@ -2,6 +2,7 @@ import { speakers } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { SlotGrid, type FilledSlot } from "@/components/SlotGrid";
 import { speakerCta } from "@/lib/cta";
+import { uiCopy } from "@/site.config";
 
 /**
  * The speaker lineup as a roster with open places.
@@ -31,7 +32,7 @@ export function SpeakerWall({ limit = SLOTS }: { limit?: number }) {
       <span className="flex h-full flex-col p-3">
         <Frame
           src={speaker.photo}
-          alt={`Portrait of ${speaker.name}`}
+          alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
           title={speaker.name}
           aspectRatio="1 / 1"
           sizes="(max-width: 640px) 50vw, 33vw"
@@ -53,8 +54,8 @@ export function SpeakerWall({ limit = SLOTS }: { limit?: number }) {
       invite={{
         href: cta.href,
         external: cta.external,
-        label: "This could be you",
-        srLabel: "submit a talk to the call for proposals",
+        label: uiCopy.speakerWall.inviteLabel,
+        srLabel: uiCopy.speakerWall.inviteSrLabel,
         ornament: <SpeakerSilhouette />,
       }}
     />

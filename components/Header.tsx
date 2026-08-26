@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navRoutes } from "@/lib/routes";
+import { uiCopy } from "@/site.config";
 
 /**
  * The site's navigation for lite mode. Full mode now uses the hamburger menu
@@ -44,7 +45,7 @@ export function Header() {
        * different amount of the hero on a phone than on a laptop.
        */}
       <nav
-        aria-label="Primary"
+        aria-label={uiCopy.header.navAriaLabel}
         className="pointer-events-auto max-w-full overflow-x-auto rounded-full border border-paper/10 bg-surface px-2 py-1.5 backdrop-blur-sm"
       >
         <ul className="flex items-center gap-1 whitespace-nowrap">

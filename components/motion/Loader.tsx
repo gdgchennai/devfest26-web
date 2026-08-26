@@ -5,8 +5,9 @@ import { createPortal } from "react-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useClientValue } from "@/lib/useClientValue";
+import { useLiteModeToggle } from "@/lib/useLiteModeToggle";
 import { RollingText } from "@/components/motion/RollingText";
-import { siteConfig } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 
 /* ------------------------------------------------------------------ *
  * Geometry + timeline, lifted verbatim from loader.html.
@@ -138,8 +139,10 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
   const rootRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const ctaRef = useRef<HTMLButtonElement>(null);
+  const liteLinkRef = useRef<HTMLButtonElement>(null);
   const [ctaReady, setCtaReady] = useState(false);
   const [entered, setEntered] = useState(false);
+  const { setLite } = useLiteModeToggle();
 
   // Read the latest loading state from inside the (once-only) GSAP setup
   // without listing it as a dep — flipping it must not tear down the timeline.
@@ -270,12 +273,15 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     { scope: rootRef },
   );
 
-  // Reveal the CTA once the mark has settled.
+  // Reveal the CTA (and the lite-mode link beside it) once the mark has
+  // settled — same fade, same moment, so the secondary link never appears
+  // before the primary action does.
   useGSAP(
     () => {
       if (!ctaReady || !ctaRef.current) return;
+      const targets = [ctaRef.current, liteLinkRef.current].filter((el): el is HTMLButtonElement => el !== null);
       gsap.fromTo(
-        ctaRef.current,
+        targets,
         { autoAlpha: 0, y: 10 },
         { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out" },
       );
@@ -283,6 +289,21 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     },
     { scope: rootRef, dependencies: [ctaReady] },
   );
+
+  /*
+   * Skips the intro entirely rather than playing `handleEnter`'s zoom/portal
+   * reveal — the whole point of choosing lite here is to not sit through the
+   * full-mode entrance. `onDismiss()` (== HeroSection's `releaseIntro`) is
+   * reused for its cleanup, not its "refresh, no morph" meaning: it undoes
+   * exactly the two things the layout-effect lock in HeroSection sets and
+   * never cleans up on its own (`document.body.style.overflow`, `#main`'s
+   * `aria-busy`) — without it the page would stay scroll-locked underneath
+   * the fresh static-baseline mount `setLite(true)` triggers.
+   */
+  function handleSwitchToLite() {
+    onDismiss();
+    setLite(true);
+  }
 
   const handleEnter = () => {
     if (entered) return;
@@ -324,7 +345,7 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     <div
       ref={rootRef}
       role="dialog"
-      aria-label={`${siteConfig.name} intro`}
+      aria-label={`${siteConfig.name}${uiCopy.loader.introAriaSuffix}`}
       className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white will-change-transform"
     >
       {/*
@@ -333,7 +354,9 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
        * screen reader actually hears, and it changes once the CTA is focusable.
        */}
       <p role="status" aria-live="polite" className="sr-only">
-        {ctaReady ? "Ready." : `Loading ${siteConfig.name}…`}
+        {ctaReady
+          ? uiCopy.loader.readyStatus
+          : `${uiCopy.loader.loadingStatusPrefix}${siteConfig.name}${uiCopy.loader.loadingStatusSuffix}`}
       </p>
 
       <svg
@@ -370,7 +393,23 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
         className="rounded-full px-3 py-1 text-2xl text-ink disabled:opacity-40 sm:text-3xl"
         disabled={entered}
       >
-        <RollingText>Enter the DevFest experience →</RollingText>
+        <RollingText>{uiCopy.loader.enterCtaLabel}</RollingText>
+      </button>
+
+      {/* A little below the Enter CTA — its own escape hatch out of the full
+          intro, for a visitor who'd rather not sit through it. Styled as a
+          plain link (not a GlowButton or Button), since ink-on-white here is
+          the enter CTA's own high-contrast idiom, not the site's glass/neon
+          one that only reads on the dark backdrops everywhere else. */}
+      <button
+        ref={liteLinkRef}
+        type="button"
+        onClick={handleSwitchToLite}
+        style={{ visibility: "hidden" }}
+        className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/50 underline-offset-4 hover:text-ink hover:underline"
+        disabled={entered}
+      >
+        {uiCopy.loader.switchToLiteLabel}
       </button>
     </div>,
     document.body,

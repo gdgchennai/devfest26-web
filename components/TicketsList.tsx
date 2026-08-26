@@ -5,9 +5,10 @@ import Image from "next/image";
 import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useGSAP } from "@gsap/react";
-import { siteConfig, shortEventDate } from "@/site.config";
+import { siteConfig, shortEventDate, uiCopy } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
+import { ArrowGlyph } from "@/components/motion/ScrollCue";
 import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
@@ -30,7 +31,7 @@ const FLAGSHIP_TICKET_HREF = "/tickets/select";
 // Every card uses the same venue shot (the real IITM Research Park photo
 // VenueReveal.tsx uses) rather than inventing per-event photography that
 // doesn't exist yet.
-const VENUE_IMAGE = { src: "/venue.webp", alt: `${siteConfig.venue.name}, the DevFest Chennai venue` };
+const VENUE_IMAGE = { src: "/venue.webp", alt: uiCopy.common.venueAlt };
 
 type EventCard = {
   key: string;
@@ -63,7 +64,7 @@ function buildEvents(): EventCard[] {
     key: "devfest-2026",
     title: siteConfig.name,
     date: shortEventDate(siteConfig.date),
-    description: `The flagship day — ${siteConfig.chapter}'s main event at ${siteConfig.venue.name}.`,
+    description: `${uiCopy.ticketsList.flagshipDescriptionPrefix}${siteConfig.chapter}${uiCopy.ticketsList.flagshipDescriptionMiddle}${siteConfig.venue.name}${uiCopy.ticketsList.flagshipDescriptionSuffix}`,
     cta: ticket.available
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
@@ -74,16 +75,15 @@ function buildEvents(): EventCard[] {
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
- *  in lite, per its own requirement, and RollingText is a hover animation). */
+ *  in lite, per its own requirement, and RollingText is a hover animation).
+ *  No arrow appended here — each `cta.label` (siteConfig.subEvents' own
+ *  `ctaLabel`, or ticketCta().label for the flagship card) carries its own
+ *  trailing "→" already, so this used to render a second one on top of it. */
 function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean }) {
   const label = plain ? (
-    <>
-      {event.cta.label} →
-    </>
+    <>{event.cta.label}</>
   ) : (
-    <>
-      <RollingText>{event.cta.label}</RollingText> →
-    </>
+    <RollingText>{event.cta.label}</RollingText>
   );
   // stopPropagation on the wrapper, not GlowButton itself: GlowButton's
   // `href` and `onClick` props are mutually exclusive (an internal Link, an
@@ -171,7 +171,7 @@ function TicketsTitleBar({ plain = false }: { plain?: boolean }) {
         plain ? "bg-[var(--orig-black)]" : "bg-black"
       }`}
     >
-      <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">Pick your event</h1>
+      <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">{uiCopy.ticketsList.heading}</h1>
     </div>
   );
 }
@@ -435,13 +435,13 @@ function TicketsCarouselMotion() {
               apiRef.current?.scrollToOffset((apiRef.current.scrub.vars.offset as number) - apiRef.current.spacing)
             }
           >
-            <span className="sr-only">Previous event</span>
-            <span aria-hidden>←</span>
+            <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
+            <ArrowGlyph direction="left" />
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
           <GlowButton shape="pill" size="md" onClick={() => apiRef.current?.jumpToIndex(flagshipIndex)}>
-            Main event
+            {uiCopy.ticketsList.mainEventLabel}
           </GlowButton>
           <GlowButton
             shape="circle"
@@ -450,8 +450,8 @@ function TicketsCarouselMotion() {
               apiRef.current?.scrollToOffset((apiRef.current.scrub.vars.offset as number) + apiRef.current.spacing)
             }
           >
-            <span className="sr-only">Next event</span>
-            <span aria-hidden>→</span>
+            <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
+            <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
       </div>
@@ -521,17 +521,17 @@ function TicketsCarouselStatic() {
 
         <div className="flex shrink-0 items-center justify-center gap-4 pb-6 pt-4 sm:pb-8">
           <GlowButton shape="circle" size="md" onClick={prev}>
-            <span className="sr-only">Previous event</span>
-            <span aria-hidden>←</span>
+            <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
+            <ArrowGlyph direction="left" />
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
           <GlowButton shape="pill" size="md" onClick={() => setIndex(flagshipIndex)}>
-            Main event
+            {uiCopy.ticketsList.mainEventLabel}
           </GlowButton>
           <GlowButton shape="circle" size="md" onClick={next}>
-            <span className="sr-only">Next event</span>
-            <span aria-hidden>→</span>
+            <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
+            <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
       </div>

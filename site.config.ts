@@ -30,7 +30,7 @@ export type SubEvent = {
   title: string;
   /** Plain `YYYY-MM-DD`, same convention as `date` above — run through
    *  `shortEventDate()` at render time (see TicketsList.tsx), not
-   *  pre-formatted here. It used to be a hand-typed display string ("Aug 29,
+   *  pre-formatted here. It used to be a hand-typed display string ("Sep 5,
    *  2026"), a different convention from the flagship card's date (which
    *  goes through `shortEventDate` and read "17 October 2026") — two
    *  formats on the same page for what's supposed to be the same kind of
@@ -131,10 +131,10 @@ export const siteConfig = {
   agendaUrl: "/agenda",
 
   tracks: [
-    { slug: "ai", name: "AI", description: "Machine learning, generative AI, and applied ML in production." },
-    { slug: "cloud", name: "Cloud", description: "Cloud-native architecture, infra, and platform engineering." },
-    { slug: "mobile", name: "Mobile", description: "Android, iOS, and cross-platform app development." },
-    { slug: "web", name: "Web", description: "Frontend frameworks, performance, and the modern web platform." },
+    { slug: "tech", name: "Tech", description: "General tech talks." },
+    { slug: "deep tech", name: "Deep Tech", description: "Tech in Science, Math, Hardware." },
+    { slug: "experience", name: "Experience", description: "Open lounges for anyone to experince building and creating with AI" },
+    { slug: "competition", name: "Competition", description: "Competition zones for humans and AI agents." },
   ] satisfies Track[],
 
   // The community events feeding into the main festival, for the /tickets
@@ -149,68 +149,86 @@ export const siteConfig = {
   // copy here that can drift out of sync.
   subEvents: [
     {
-      slug: "code-for-communities",
-      title: "Code for communities",
-      date: "2026-08-29",
+      slug: "kug-virtual",
+      title: "KUG Virtual meetup",
+      date: "2026-09-05",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "Join KUG's virtual meetup to learn what's new in Android and Kotlin",
+      ctaLabel: "Coming soon →",
     },
     {
       slug: "ai-for-science",
       title: "AI for Science",
-      date: "2026-09-05",
+      date: "2026-09-13",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
+      ctaLabel: "Coming soon →",
     },
     {
-      slug: "road-to-idex",
-      title: "Road to IDeX",
-      date: "2026-09-15",
+      slug: "react-chennai",
+      title: "React Chennai meetup",
+      date: "2026-09-19",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "React did not disappear. Come join to learn what's going on within React",
+      ctaLabel: "Coming soon →",
     },
     {
-      slug: "devfest-on-campus",
-      title: "DevFest on Campus",
-      date: "2026-09-30",
+      slug: "code-for-communities",
+      title: "Code for communities",
+      date: "2026-09-19",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "bwai-cyber",
+      title: "Build with AI: Cyber Security edition",
+      date: "2026-09-26",
+      description:
+        "Learn about building security and privacy into agentic systems.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "kug-irl",
+      title: "KUG meetup",
+      date: "2026-09-26",
+      description:
+        "Connect and learn with the Kotlin Community of Chennai.",
+      ctaLabel: "Coming soon →",
+    },
+    {
+      slug: "army-exclusive",
+      title: "Android and AI for the Indian Army",
+      date: "2026-10-03",
+      description:
+        "Enabling our protectors, protect their data.",
+      ctaLabel: "Not open to public",
     },
     {
       slug: "build-with-ai-wtm",
       title: "Build with AI - WTM edition",
-      date: "2026-08-29",
+      date: "2026-10-03",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "Women come, learn, build and talk about AI.",
+      ctaLabel: "Coming soon →",
     },
     {
-      slug: "hardware-tinkering-labs",
-      title: "Hardware Tinkering Labs",
-      date: "2026-09-05",
+      slug: "devfest-on-campus",
+      title: "DevFest on Campus",
+      date: "2026-10-10",
       description:
-        "The big brown fox jumped over the lazy dog. The big brown fox jumped over the lazy dog.",
-      ctaLabel: "Coming soon",
+        "Bringing the DevFest spirit to campus.",
+      ctaLabel: "Coming soon →",
     },
   ] satisfies SubEvent[],
 
   whatYoullGet: [
+    { title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city." },
+    { title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience." },
+    { title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs." },
     { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects." },
     { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations." },
-    { title: "Workshops", description: "Hands-on sessions — bring a laptop, leave with working code." },
     { title: "Community", description: "Join us as we celebrate the community while you find your tribe here." },
-  ],
-
-  // Four reasons, stated still — see architecture doc on cutting the 12-item marquee.
-  whyJoinUs: [
-    "The largest single-day developer gathering in Chennai.",
-    "Speakers from product teams, not just conference circuits.",
-    "Direct line to companies hiring developers in Chennai right now.",
-    "Run entirely by volunteers from the local GDG chapter.",
   ],
 
   cfp: {
@@ -219,6 +237,15 @@ export const siteConfig = {
     // There's no local CFP page/form to fall back to (see lib/routes.ts's
     // retiredRoutes["/cfp"]), so unlike ticketing this isn't nullable.
     formUrl: "https://sessionize.com/gdgchennai",
+  },
+
+  codeOfConduct: {
+    // No local /code-of-conduct page any more (see lib/routes.ts's
+    // retiredRoutes entry for visitors who still land on the old URL) —
+    // every "Code of Conduct" link site-wide (the footer) goes straight to
+    // Google's own GDG Code of Conduct instead of a local copy that would
+    // need to be kept in sync with it by hand.
+    url: "https://developers.google.com/events/gdd-india/code-of-conduct",
   },
 
   social: {
@@ -244,6 +271,265 @@ export const siteConfig = {
 
 // Sponsor tiers lived here until 2026 dropped sponsorship. See the
 // architecture doc if they come back — nothing else referenced them.
+
+/**
+ * Every other piece of button/label/heading/body copy that isn't part of
+ * `siteConfig` above — page headings, aria-labels, button text, section
+ * copy. Before this existed, this was the last category of user-facing
+ * text still typed directly into JSX across app/ and components/, which
+ * meant a wording change meant grepping the whole tree instead of editing
+ * one file. Grouped by the component/page that reads it, in the same shape
+ * as that component's own props/locals, so a given file's section here
+ * reads like a copy of what it renders.
+ *
+ * A handful of strings that are the exact same words in more than one
+ * component live under `common` instead of being typed out twice (and, in
+ * the case of `getTicketsLabel`/`portraitAltPrefix`/`venueAlt`, a couple of
+ * these were ALREADY drifting apart before this existed — see their own
+ * comments below).
+ */
+export const uiCopy = {
+  common: {
+    /** Ticket Stub and Hero Copy both render this as "<chapter> presents". */
+    chapterPresents: `${siteConfig.chapter} presents`,
+    /** TicketStub and StaticHero's mono venue line both append this when
+     *  `siteConfig.venue.confirmed` is false. */
+    unconfirmedSuffix: " · unconfirmed",
+    /** TicketsList's flagship card and VenueReveal's static-baseline photo
+     *  both use this same alt text for the venue photo. */
+    venueAlt: `${siteConfig.venue.name}, the DevFest Chennai venue`,
+    /** The speaker-detail page, SpeakerWall and AgendaBoard's session card
+     *  all build a portrait's alt text as this prefix + the speaker's name. */
+    portraitAltPrefix: "Portrait of ",
+    /** CurvedMarqueeHero's and VenueReveal's "Get tickets" CTAs — kept as one
+     *  shared string specifically because these two had quietly drifted to
+     *  identical text independently; ShowMoodSection's own ticket CTA reads
+     *  differently ("← Get tickets", see showMoodSection below) and is not
+     *  this. */
+    getTicketsLabel: "Get tickets →",
+  },
+
+  /** X/Instagram/LinkedIn/YouTube/GitHub/Discord display names — shared by
+   *  Footer's site-wide social row (siteConfig.social) and the per-speaker
+   *  social links on the speaker detail page (speaker.links). */
+  socialLabels: {
+    x: "X",
+    instagram: "Instagram",
+    linkedin: "LinkedIn",
+    youtube: "YouTube",
+    github: "GitHub",
+    discord: "Discord",
+  },
+
+  header: {
+    navAriaLabel: "Primary",
+  },
+
+  hamburgerMenu: {
+    homeAriaLabel: "Go to homepage",
+    openAriaLabel: "Open menu",
+    closeAriaLabel: "Close menu",
+    panelAriaLabel: "Site menu",
+    cfpLabel: "Submit CFP",
+  },
+
+  footer: {
+    codeOfConductLabel: "Code of Conduct",
+  },
+
+  footerLogo: {
+    alt: "DevFest Chennai",
+  },
+
+  errorPage: {
+    eyebrow: "Something went wrong",
+    heading: "This page hit an error.",
+    body: "The rest of the site is fine — retry this page, or head somewhere else.",
+    retryLabel: "Try again",
+    homeLabel: "Back home",
+  },
+
+  globalErrorPage: {
+    eyebrow: "Something went wrong",
+    heading: "DevFest Chennai hit an unexpected error.",
+    body: "Please try again in a moment.",
+    retryLabel: "Try again",
+  },
+
+  agendaPage: {
+    heading: "Agenda",
+  },
+
+  contactPage: {
+    heading: "Contact",
+    bodyPrefix:
+      "Questions about DevFest Chennai 2026 — sponsorship, speaking, volunteering, or anything else? Reach the ",
+    bodySuffix: " organising team directly.",
+  },
+
+  memoriesPage: {
+    heading: "Memories",
+    body: "Moments from DevFest Chennai 2024 and 2025.",
+  },
+
+  speakersPage: {
+    heading: "Speakers",
+    cfpOpenBody: "The 2026 lineup is being finalised. The call for proposals is how you get on it.",
+    moreToComeBody: "More speakers still to be announced.",
+  },
+
+  notFoundPage: {
+    statusLabel: "404",
+    heading: "Page not found.",
+    whatMostPeopleWantHeading: "What most people are looking for",
+    everywhereElseHeading: "Everywhere else on the site",
+    whileYoureHere: "While you’re here",
+    archiveBlurb: "The 2024 and 2025 archive is the one part of this site that was never going to 404.",
+    closing: "Hope to see you at DevFest.",
+    highlights: {
+      agendaEyebrow: "The day",
+      agendaTitle: "Agenda",
+      agendaDescription: "Four tracks, one day. The full schedule as it firms up.",
+      ticketsEyebrow: "Get in",
+      ticketsDescription: "Book your place at DevFest Chennai 2026.",
+      speakingEyebrow: "Get on stage",
+      speakingTitle: "Speak at DevFest",
+      speakingDescription: "First-time speakers as welcome as conference regulars.",
+    },
+    recovery: {
+      fallbackPreviousPageLabel: "the previous page",
+      triedLabel: "tried",
+      suggestionFoundBody: "That address doesn't exist, but one very close to it does.",
+      nothingFoundBody:
+        "That link is either out of date or was never a page here — but you're in the right place. Here's what most people come for.",
+      goToPrefix: "Go to ",
+      backHomeLabel: "Back home",
+      backToPrefix: "← Back to ",
+    },
+  },
+
+  speakerWall: {
+    inviteLabel: "This could be you",
+    inviteSrLabel: "submit a talk to the call for proposals",
+  },
+
+  agendaBoard: {
+    previousSessionSr: "Previous session",
+    nextSessionSr: "Next session",
+    previousEyebrow: "Previous",
+    upNextEyebrow: "Up next",
+    liveNowLabel: "Live now",
+  },
+
+  agenda: {
+    onNowLabel: "On now",
+  },
+
+  agendaTimeline: {
+    viewFullAgendaLabel: "View full agenda →",
+  },
+
+  agendaView: {
+    allTracksLabel: "All",
+  },
+
+  ticketSelector: {
+    heading: "Get your tickets now",
+    imAPrompt: "I'm a",
+    identifyPrompt: "and I identify as",
+    buyTicketLabel: "Buy ticket",
+    placeholderPrompt: "Pick your details above to find the right ticket",
+  },
+
+  ticketStub: {
+    dateFieldLabel: "Date",
+    venueFieldLabel: "Venue",
+    tbaDate: "TBA",
+    admitOneLabel: "Admit one",
+  },
+
+  ticketsList: {
+    heading: "Pick your event",
+    flagshipDescriptionPrefix: "The flagship day — ",
+    flagshipDescriptionMiddle: "'s main event at ",
+    flagshipDescriptionSuffix: ".",
+    previousEventSr: "Previous event",
+    nextEventSr: "Next event",
+    mainEventLabel: "Main event",
+  },
+
+  heroCopy: {
+    agendaLabel: "See Agenda →",
+  },
+
+  liteToggle: {
+    label: "Lite version",
+    onLabel: "on",
+    offLabel: "off",
+  },
+
+  loader: {
+    introAriaSuffix: " intro",
+    readyStatus: "Ready.",
+    loadingStatusPrefix: "Loading ",
+    loadingStatusSuffix: "…",
+    enterCtaLabel: "Enter the DevFest experience →",
+    switchToLiteLabel: "I don't like animations",
+  },
+
+  memoriesHallway: {
+    scrollHint: "Scroll",
+  },
+
+  scrollCue: {
+    nextCardLabel: "Next card",
+    previousCardLabel: "Previous card",
+    scrollToNextSectionLabel: "Scroll to next section",
+    previousSectionLabel: "Previous section",
+  },
+
+  expectShowcase: {
+    heading: "About DevFest",
+    previousCardSr: "Previous card",
+    nextCardSr: "Next card",
+  },
+
+  readySection: {
+    lines: ["Get ready to join the", "biggest tech festival.", "Hosted by GDG Chennai."],
+  },
+
+  moodSection: {
+    heading: "What’s your DevFest mood?",
+  },
+
+  seeYouThereSection: {
+    heading: "See you there!",
+    links: [{ label: "Join the conversation →" }, { label: "Become a Partner →" }],
+  },
+
+  showMoodSection: {
+    presentTitle: "Present",
+    presentBody:
+      "Got crazy ideas or you built something so cool. Vibe coding? Hard core engineering? Stunning Design? Leadership guides? Bring your main character energy to our stage. Share your wisdom with our vibrant community!",
+    attendTitle: "Attend",
+    attendBody:
+      "Join in for the premier DevFest experience. Meet like minded folks. Developer? PM? Designer? Product? Marketing? Management? Student? Find your tribe here! We provide you the space and technology. You build for and build with the community!",
+    cfpLinkLabel: "Submit CFP →",
+    ticketLinkLabel: "← Get tickets",
+  },
+
+  staticHero: {
+    switchToFullExperienceLabel: "Switch to the full experience →",
+  },
+
+  venueReveal: {
+    roadshowsText: "Roadshows and Meetups from Sep 5th onwards",
+    disclaimerText: "Note: Roadshow and meetup venues differ and tickets sold separately.",
+    locationHeading: "Location",
+    saveTheDateHeading: "Save the Date",
+    getDirectionsLabel: "Get directions →",
+  },
+} as const;
 
 export function formatEventDate(date: string | null): string {
   if (!date) return "Date to be announced";

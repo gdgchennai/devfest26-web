@@ -13,7 +13,9 @@ import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
+import { useMotion } from "@/components/motion/MotionProvider";
 import { GlowButton } from "@/components/GlowButton";
+import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -77,7 +79,7 @@ function ExpectCarousel() {
   return (
     <div className="relative z-10 mx-auto max-w-6xl px-6 py-24 sm:px-10">
       <h2 className="text-left text-[clamp(1.75rem,8vw,5rem)] font-bold leading-none tracking-tight">
-        About DevFest
+        {uiCopy.expectShowcase.heading}
       </h2>
 
       <div className="relative mt-12">
@@ -118,7 +120,7 @@ function ExpectCarousel() {
             textClassName={canPrev ? "text-paper" : "text-paper/30"}
             className={canPrev ? "" : "pointer-events-none"}
           >
-            <span className="sr-only">Previous card</span>
+            <span className="sr-only">{uiCopy.expectShowcase.previousCardSr}</span>
             <ArrowGlyph direction="left" />
           </GlowButton>
 
@@ -145,7 +147,7 @@ function ExpectCarousel() {
             textClassName={canNext ? "text-paper" : "text-paper/30"}
             className={canNext ? "" : "pointer-events-none"}
           >
-            <span className="sr-only">Next card</span>
+            <span className="sr-only">{uiCopy.expectShowcase.nextCardSr}</span>
             <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
@@ -167,11 +169,25 @@ function ExpectCarousel() {
  * specifically swaps in `<ExpectCarousel>` (see above) instead of just
  * freezing this section's own animated markup.
  */
+/**
+ * How much faster than a literal 1:1 vertical-scroll-to-track-width pace the
+ * card row moves — 1 is that literal pace ("one vertical scroll pixel per
+ * horizontal track pixel"), which reads as far too slow for a 4-card row
+ * (MoodSection's own marquee is a single line of text, a much shorter
+ * `travel()`, so it never needed this). BIGGER number = LESS scroll distance
+ * spent to see the whole row = FASTER — the pin's scroll range is divided by
+ * this, not multiplied by it, so it reads the same direction "speed" always
+ * does (this used to be backwards: multiplying meant a bigger number asked
+ * for MORE scrolling, the opposite of what the name promised).
+ */
+const PIN_SCROLL_SPEED = 2.5;
+
 export function ExpectShowcase() {
   const wrapRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const { lenisRef } = useMotion();
 
   // Match SSR / no-JS with the static baseline, then upgrade on the client.
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
@@ -218,6 +234,13 @@ export function ExpectShowcase() {
       const heading = headingRef.current;
       const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
       const totalDistance = () => distance() + window.innerWidth;
+      // The actual scroll range the pin consumes — shorter than
+      // totalDistance() itself (see PIN_SCROLL_SPEED) so scrolling through
+      // the whole row doesn't take an unreasonably long scroll. Shared by
+      // both scrollTriggers below so the heading-exit timing (computed in
+      // 0–1 progress terms, not pixels) stays in sync regardless of the
+      // actual distance chosen.
+      const pinDistance = () => totalDistance() / PIN_SCROLL_SPEED;
 
       // Before the pin, the heading (centred inside this full-height stage)
       // rides the ordinary page scroll up from the bottom of the screen — the
@@ -233,6 +256,105 @@ export function ExpectShowcase() {
       // the rest of the page afterward instead of staying glued to the
       // viewport, and stays inert, ordinary in-flow content (not a permanent
       // full-screen overlay) at every point before its own turn arrives.
+      // The progress at which card `index` actually sits centred in the
+      // viewport — and its inverse, which card is nearest given a progress
+      // value. NOT `index / (cardCount - 1)`: that would only centre card 0
+      // at progress 0 and the last card at progress 1, which assumes the
+      // track travels exactly card-width-per-card — but `x` here runs from
+      // a full viewport off-screen right (progress 0) to just past the last
+      // card's right edge (progress 1), a distance of totalDistance()
+      // regardless of how that compares to each card's own width. Solving
+      // "x + i*cardWidth + cardWidth/2 == innerWidth/2" for progress (given
+      // x(progress) = innerWidth - progress*totalDistance()) is what
+      // actually lands card `i` centred — this is the fix for the snap
+      // settling half a card short (or long) of centred that testing
+      // caught with the naive fraction above. Cards are uniform width with
+      // no gap between them (see the track's own layout), so
+      // scrollWidth / cardCount is `cardWidth` without needing a specific
+      // card element.
+      const cardCount = EXPECT_CARDS.length;
+      const cardWidth = () => (cardCount > 0 ? track.scrollWidth / cardCount : 0);
+      const progressForCard = (index: number) => {
+        const total = totalDistance();
+        const w = cardWidth();
+        if (total <= 0 || w <= 0) return 0;
+        const p = (window.innerWidth / 2 + index * w + w / 2) / total;
+        return Math.min(1, Math.max(0, p));
+      };
+      const cardForProgress = (progress: number) => {
+        const total = totalDistance();
+        const w = cardWidth();
+        if (cardCount <= 1 || w <= 0) return 0;
+        const raw = (progress * total - window.innerWidth / 2 - w / 2) / w;
+        return Math.min(cardCount - 1, Math.max(0, Math.round(raw)));
+      };
+      // -1 for the section's own entry (progress 0, heading shown, no card
+      // centred yet) when that's actually nearer than any real card —
+      // otherwise the nearest real card, same as cardForProgress alone.
+      // Entry is its own legitimate rest/nav position, not "close enough to
+      // card 0 to just be card 0": without this both the snap (see below)
+      // and the cue buttons (see setHorizontalCue further down) either
+      // yanked a fresh arrival at the entry straight to card 0, or made
+      // card 0's own "back" button skip the entry and jump directly to
+      // whatever precedes this section entirely.
+      const nearestIndex = (progress: number) => {
+        const nearestCard = cardForProgress(progress);
+        const nearestCardProgress = progressForCard(nearestCard);
+        return Math.abs(progress) <= Math.abs(progress - nearestCardProgress) ? -1 : nearestCard;
+      };
+
+      /*
+       * Settles on whichever card is nearest once scrolling stops — "one
+       * card centred at rest". This is deliberately NOT ScrollTrigger's own
+       * built-in `snap` option: that snaps by driving the browser's real
+       * scroll position directly, which fights Lenis (Lenis keeps easing
+       * toward ITS OWN idea of the target on the next rAF tick, unaware
+       * anything just moved the scroll from under it) — tested, and it
+       * reliably left the row stuck part-way between two cards instead of
+       * settling on either. Routing the snap itself through
+       * `lenis.scrollTo()` — the same call the cue buttons already use
+       * successfully — is what actually gets the browser and Lenis's own
+       * model of scroll position to agree.
+       *
+       * Debounced off this trigger's own onUpdate (already firing every
+       * scroll-driven recalculation, the same one scrub itself is driven
+       * by), not a separate Lenis "scroll" listener: it needs no polling for
+       * lenisRef to exist first (see MotionProvider's own comment on that).
+       *
+       * Waits on Lenis's own `velocity`, not just "150ms since the last
+       * update" — a flat delay alone fired mid-gesture on real trackpad/wheel
+       * input (individual wheel deltas can go quiet for well over 150ms even
+       * during otherwise-continuous scrolling), and calling `lenis.scrollTo`
+       * while Lenis still has real momentum eats part of the NEXT wheel
+       * delta — Lenis computes velocity off its own animatedScroll target,
+       * which our injected scrollTo had just moved out from under it. That
+       * was the actual cause of scrolling feeling like it progressively
+       * dragged more with every card: each card passed was another chance
+       * for a mid-gesture correction to fire and quietly steal some of the
+       * next scroll input. Checking velocity first means the correction only
+       * ever runs once Lenis agrees nothing is actually still moving.
+       */
+      const SNAP_SETTLE_MS = 150;
+      const SNAP_VELOCITY_EPSILON = 0.05;
+      let snapTimer: ReturnType<typeof setTimeout> | undefined;
+      function trySnap(self: ScrollTrigger) {
+        const lenis = lenisRef.current;
+        if (lenis && Math.abs(lenis.velocity) > SNAP_VELOCITY_EPSILON) {
+          snapTimer = setTimeout(() => trySnap(self), SNAP_SETTLE_MS);
+          return;
+        }
+        if (!self.isActive) return;
+        const nearest = nearestIndex(self.progress);
+        const targetProgress = nearest === -1 ? 0 : progressForCard(nearest);
+        if (Math.abs(self.progress - targetProgress) < 0.001) return;
+        const targetY = self.start + targetProgress * (self.end - self.start);
+        lenis?.scrollTo(targetY, { duration: 0.4 });
+      }
+      function scheduleSnap(self: ScrollTrigger) {
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => trySnap(self), SNAP_SETTLE_MS);
+      }
+
       const tween = gsap.fromTo(
         track,
         { x: () => window.innerWidth },
@@ -242,12 +364,22 @@ export function ExpectShowcase() {
           scrollTrigger: {
             trigger: stage,
             start: "top top",
-            end: () => `+=${totalDistance()}`,
-            scrub: 1,
+            end: () => `+=${pinDistance()}`,
+            // A short scrub, not the 1s of catch-up smoothing this had —
+            // that lag is its own kind of "slow", separate from (and on top
+            // of) how much scroll distance the pin spends (PIN_SCROLL_SPEED,
+            // above): even with a short pin range, a full second of the
+            // track visibly still catching up after the visitor's already
+            // stopped scrolling reads as sluggish. Both scrollTriggers below
+            // share this value — mismatched scrub speeds would let the
+            // heading and the cards visibly drift out of sync with each
+            // other since each one smooths independently.
+            scrub: 0.3,
             pin: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
             refreshPriority: 1,
+            onUpdate: scheduleSnap,
           },
         },
       );
@@ -278,39 +410,47 @@ export function ExpectShowcase() {
             scrollTrigger: {
               trigger: stage,
               start: "top top",
-              end: () => `+=${totalDistance()}`,
-              scrub: 1,
+              end: () => `+=${pinDistance()}`,
+              // Same 0.3 as the card tween's own scrollTrigger above — see
+              // its comment. Left at the old 1s, the heading would visibly
+              // lag a full second behind cards that are now catching up in
+              // 0.3, drifting the two out of the sync they're meant to hold.
+              scrub: 0.3,
               invalidateOnRefresh: true,
             },
           },
         );
       }
 
-      // Publish this section's pin geometry for the floating scroll-cue button
-      // (see ScrollCueController): it shows a right-arrow instead of a
-      // down-arrow while this section is pinned, and needs to know how many
-      // cards there are and which absolute scrollY centres each one.
+      // Publish this section's pin geometry for the floating scroll-cue
+      // button (see ScrollCueController): it shows a right-arrow instead of
+      // a down-arrow while this section is pinned, and needs to know how
+      // many cards there are and which absolute scrollY centres each one —
+      // same nearestIndex/progressForCard the snap above uses, so a card the
+      // cue button jumps to is exactly where free scrolling would have
+      // settled anyway. `-1` (the entry, see nearestIndex) is a real index
+      // here, not just an internal snap concept: it's what lets the cue
+      // button's own "back" step from card 0 to the entry first, instead of
+      // leaving this section outright the moment card 0 is reached.
       const trigger = tween.scrollTrigger!;
-      const cardCount = EXPECT_CARDS.length;
-      setHorizontalCue({
+      const unregisterCue = setHorizontalCue({
         el: stage,
         cardCount,
-        activeIndex: () => {
-          if (cardCount <= 1) return 0;
-          return Math.round(trigger.progress * (cardCount - 1));
-        },
+        minIndex: -1,
+        activeIndex: () => nearestIndex(trigger.progress),
         scrollYForCard: (index) => {
-          if (cardCount <= 1) return trigger.start;
-          const clamped = Math.min(cardCount - 1, Math.max(0, index));
-          return trigger.start + (clamped / (cardCount - 1)) * (trigger.end - trigger.start);
+          const clamped = Math.min(cardCount - 1, Math.max(-1, index));
+          const progress = clamped === -1 ? 0 : progressForCard(clamped);
+          return trigger.start + progress * (trigger.end - trigger.start);
         },
       });
 
       return () => {
+        clearTimeout(snapTimer);
         tween.kill();
         headingExit?.kill();
         split?.revert();
-        setHorizontalCue(null);
+        unregisterCue();
       };
     },
     { scope: wrapRef, dependencies: [staticBaseline] },
@@ -352,7 +492,7 @@ export function ExpectShowcase() {
               // padding so the text doesn't visually kiss the edge.
               className="whitespace-nowrap text-[clamp(1.75rem,11vw,10rem)] font-bold leading-none tracking-tight"
             >
-              About DevFest
+              {uiCopy.expectShowcase.heading}
             </h2>
           </div>
 

@@ -5,7 +5,7 @@ import { NotFoundRecovery } from "@/components/NotFoundRecovery";
 import { NotFoundHighlights } from "@/components/NotFoundHighlights";
 import { siteRoutes } from "@/lib/routes";
 import { archivePhotos } from "@/lib/content";
-import { siteConfig, formatEventDate } from "@/site.config";
+import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 
 /*
  * Branded 404. Reached by notFound() (e.g. an unknown speaker slug) and by
@@ -47,8 +47,8 @@ export default function NotFound() {
         <span className="signal-dots__dot bg-green" />
       </div>
 
-      <p className="mt-6 font-mono text-xs uppercase tracking-wider text-paper/50">404</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Page not found.</h1>
+      <p className="mt-6 font-mono text-xs uppercase tracking-wider text-paper/50">{uiCopy.notFoundPage.statusLabel}</p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.notFoundPage.heading}</h1>
 
       <div className="mt-4">
         <NotFoundRecovery />
@@ -59,7 +59,7 @@ export default function NotFound() {
       </div>
 
       <h2 className="mt-8 text-lg font-semibold tracking-tight">
-        What most people are looking for
+        {uiCopy.notFoundPage.whatMostPeopleWantHeading}
       </h2>
       <div className="mt-4">
         <NotFoundHighlights />
@@ -71,7 +71,7 @@ export default function NotFound() {
         not the main event.
       */}
       <h2 className="mt-12 font-mono text-xs uppercase tracking-wider text-paper/50">
-        Everywhere else on the site
+        {uiCopy.notFoundPage.everywhereElseHeading}
       </h2>
       <ul className="mt-3 flex flex-wrap gap-2">
         {siteRoutes.map((route) => (
@@ -104,10 +104,9 @@ export default function NotFound() {
               />
             </div>
             <div className="mt-4 sm:mt-0">
-              <p className="font-semibold">While you&rsquo;re here</p>
+              <p className="font-semibold">{uiCopy.notFoundPage.whileYoureHere}</p>
               <p className="mt-1 max-w-md text-sm text-paper/70">
-                The 2024 and 2025 archive is the one part of this site that was never going to
-                404. {CONSOLATION.title} &rarr;
+                {uiCopy.notFoundPage.archiveBlurb} {CONSOLATION.title} &rarr;
               </p>
             </div>
           </Link>
@@ -118,9 +117,7 @@ export default function NotFound() {
         Ends on the event, not on the error. Reads from the config, so it can
         never contradict the date on the hero or the ticket stub.
       */}
-      <p className="mt-16 text-xl font-semibold tracking-tight">
-        Hope to see you at DevFest.
-      </p>
+      <p className="mt-16 text-xl font-semibold tracking-tight">{uiCopy.notFoundPage.closing}</p>
       <p className="mt-1 font-mono text-sm tabular-nums text-paper/60">
         {formatEventDate(siteConfig.date)} &middot; {siteConfig.venue.name}
       </p>

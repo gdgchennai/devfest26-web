@@ -17,6 +17,7 @@ import {
 import type { ArchivePhoto } from "@/lib/schemas";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { uiCopy } from "@/site.config";
 
 export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -101,7 +102,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
       {/* Retires once the row has landed — there is nothing left to scroll for. */}
       {!settled && (
         <div className="pointer-events-none absolute inset-x-0 bottom-6 text-center font-mono text-xs uppercase tracking-wide text-paper/50">
-          Scroll
+          {uiCopy.memoriesHallway.scrollHint}
         </div>
       )}
     </section>

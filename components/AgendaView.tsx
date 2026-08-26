@@ -8,6 +8,7 @@ import { AgendaList } from "@/components/AgendaList";
 import { AgendaBoard } from "@/components/AgendaBoard";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { uiCopy } from "@/site.config";
 
 export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tracks: Track[] }) {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tr
   }
 
   const filtered = activeTrack === "all" ? sessions : sessions.filter((s) => s.track === activeTrack);
-  const trackOptions = [{ slug: "all", name: "All" }, ...tracks];
+  const trackOptions = [{ slug: "all", name: uiCopy.agendaView.allTracksLabel }, ...tracks];
 
   return (
     <>

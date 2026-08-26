@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { useClientValue } from "@/lib/useClientValue";
 import { nearestRoute } from "@/lib/nearest-route";
 import { retiredRoutes, siteRoutes } from "@/lib/routes";
+import { uiCopy } from "@/site.config";
 
 /**
  * The part of the 404 that knows which URL was actually attempted, and does
@@ -35,7 +36,7 @@ export function NotFoundRecovery() {
       if (url.origin !== window.location.origin) return null;
       if (url.pathname === attempted) return null;
       const known = siteRoutes.find((r) => r.href === url.pathname);
-      return { href: url.pathname, label: known ? known.label : "the previous page" };
+      return { href: url.pathname, label: known ? known.label : uiCopy.notFoundPage.recovery.fallbackPreviousPageLabel };
     } catch {
       return null;
     }
@@ -53,7 +54,7 @@ export function NotFoundRecovery() {
           (4.76:1) on a /70 path (8.83:1) — same relationship, both passing. */}
       {attempted && (
         <p className="font-mono text-sm break-all text-paper/70">
-          <span className="text-paper/50">tried</span> {attempted}
+          <span className="text-paper/50">{uiCopy.notFoundPage.recovery.triedLabel}</span> {attempted}
         </p>
       )}
 
@@ -61,20 +62,23 @@ export function NotFoundRecovery() {
         {retired
           ? retired.reason
           : suggestion
-            ? "That address doesn't exist, but one very close to it does."
-            : "That link is either out of date or was never a page here — but you're in the right place. Here's what most people come for."}
+            ? uiCopy.notFoundPage.recovery.suggestionFoundBody
+            : uiCopy.notFoundPage.recovery.nothingFoundBody}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {target ? (
-          <Button href={target.href}>Go to {target.label}</Button>
+          <Button href={target.href}>
+            {uiCopy.notFoundPage.recovery.goToPrefix}
+            {target.label}
+          </Button>
         ) : (
-          <Button href="/">Back home</Button>
+          <Button href="/">{uiCopy.notFoundPage.recovery.backHomeLabel}</Button>
         )}
 
         {target && (
           <Button href="/" variant="secondary">
-            Back home
+            {uiCopy.notFoundPage.recovery.backHomeLabel}
           </Button>
         )}
 
@@ -83,7 +87,8 @@ export function NotFoundRecovery() {
             href={back.href}
             className="text-sm text-paper/70 underline-offset-4 hover:text-paper hover:underline"
           >
-            ← Back to {back.label}
+            {uiCopy.notFoundPage.recovery.backToPrefix}
+            {back.label}
           </Link>
         )}
       </div>
