@@ -8,6 +8,7 @@ import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
+import { ArrowGlyph } from "@/components/motion/ScrollCue";
 import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
@@ -435,7 +436,7 @@ function TicketsCarouselMotion() {
             }
           >
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
-            <span aria-hidden>←</span>
+            <ArrowGlyph direction="left" />
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
@@ -450,7 +451,7 @@ function TicketsCarouselMotion() {
             }
           >
             <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
-            <span aria-hidden>→</span>
+            <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
       </div>
@@ -521,7 +522,7 @@ function TicketsCarouselStatic() {
         <div className="flex shrink-0 items-center justify-center gap-4 pb-6 pt-4 sm:pb-8">
           <GlowButton shape="circle" size="md" onClick={prev}>
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
-            <span aria-hidden>←</span>
+            <ArrowGlyph direction="left" />
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
@@ -530,7 +531,7 @@ function TicketsCarouselStatic() {
           </GlowButton>
           <GlowButton shape="circle" size="md" onClick={next}>
             <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
-            <span aria-hidden>→</span>
+            <ArrowGlyph direction="right" />
           </GlowButton>
         </div>
       </div>

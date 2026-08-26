@@ -13,7 +13,7 @@ export type ScrollCueDirection = "down" | "up" | "left" | "right";
  * A single chevron drawn pointing down; every other direction is this same
  * mark rotated, so the four arrows stay pixel-identical in weight and size.
  */
-function ArrowGlyph({ direction }: { direction: ScrollCueDirection }) {
+export function ArrowGlyph({ direction }: { direction: ScrollCueDirection }) {
   const rotation = { down: 0, right: -90, up: 180, left: 90 }[direction];
   return (
     <svg
