@@ -378,6 +378,13 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
         ))}
       </svg>
 
+      {/* Viewport hint — the whole intro (and the flythrough it leads into) is
+          tuned for a wide screen. Sits just above the Enter CTA, shown for the
+          full duration of the loader. */}
+      <p className="font-mono text-xs uppercase tracking-wider text-ink/50 lg:hidden">
+        {uiCopy.loader.desktopHint}
+      </p>
+
       <button
         ref={ctaRef}
         type="button"
@@ -406,7 +413,7 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
         type="button"
         onClick={handleSwitchToLite}
         style={{ visibility: "hidden" }}
-        className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/50 underline-offset-4 hover:text-ink hover:underline"
+        className="mt-2 font-sans text-xs font-semibold uppercase tracking-wider text-ink underline-offset-4 hover:underline"
         disabled={entered}
       >
         {uiCopy.loader.switchToLiteLabel}
