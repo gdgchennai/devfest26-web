@@ -38,7 +38,7 @@ export function StaticHero({
 }: {
   offerFullExperience?: boolean;
 }) {
-  const { ticket, agenda } = heroCopy;
+  const { ticket, agenda, volunteer } = heroCopy;
 
   return (
     <section className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden px-4 py-24 sm:px-8">
@@ -67,9 +67,14 @@ export function StaticHero({
           <GlowButton href={ticket.href} size="lg">
             {ticket.label}
           </GlowButton>
-          <GlowButton href={agenda.href} size="lg">
-            {agenda.label}
+          <GlowButton href={volunteer.href} target="_blank" rel="noreferrer" size="lg">
+            {volunteer.label}
           </GlowButton>
+          {agenda && (
+            <GlowButton href={agenda.href} size="lg">
+              {agenda.label}
+            </GlowButton>
+          )}
         </div>
 
         {/*

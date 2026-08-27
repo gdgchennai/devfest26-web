@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { navRoutes } from "@/lib/routes";
-import { speakerCta } from "@/lib/cta";
+import { speakerCta, volunteerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
 import { RollingText } from "@/components/motion/RollingText";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
@@ -226,6 +226,7 @@ export function HamburgerMenu() {
   }, [pathname]);
 
   const speaker = speakerCta();
+  const volunteer = volunteerCta();
 
   return (
     <div className="nav-hamburger-only">
@@ -325,6 +326,17 @@ export function HamburgerMenu() {
             className="text-paper/90 hover:text-paper"
           >
             <RollingText>{uiCopy.hamburgerMenu.cfpLabel}</RollingText> →
+          </a>
+        </div>
+        <div data-menu-item>
+          <a
+            href={volunteer.href}
+            target="_blank"
+            rel="noreferrer"
+            onClick={close}
+            className="text-paper/90 hover:text-paper"
+          >
+            <RollingText>{volunteer.label}</RollingText> →
           </a>
         </div>
       </div>

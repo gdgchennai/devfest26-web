@@ -36,3 +36,12 @@ export function ticketCta(): Cta {
 export function speakerCta(): Cta {
   return { available: true, href: siteConfig.cfp.formUrl, label: "Submit a talk", external: true };
 }
+
+/**
+ * The volunteer pitch — always the external sign-up form, same reasoning as
+ * speakerCta() above: no local /volunteer page to fall back to, so every
+ * "Become a volunteer" slot points straight at the form, in a new tab.
+ */
+export function volunteerCta(): Cta {
+  return { available: true, href: siteConfig.volunteer.formUrl, label: "Become a volunteer", external: true };
+}

@@ -1,13 +1,17 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { agenda } from "@/lib/content";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AgendaView } from "@/components/AgendaView";
 import { BracketsField } from "@/components/motion/BracketsField";
+import { AGENDA_READY } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Agenda" };
 
 export default function AgendaPage() {
+  if (!AGENDA_READY) notFound();
+
   return (
     <>
       {/* Same 3D brand-shape backdrop the homepage/tickets pages use — see

@@ -503,9 +503,14 @@ export function CurvedMarqueeHero() {
         <GlowButton href={heroCopy.ticket.href}>
           <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
         </GlowButton>
-        <GlowButton href={heroCopy.agenda.href}>
-          <RollingText>{`${heroCopy.agenda.label}`}</RollingText>
+        <GlowButton href={heroCopy.volunteer.href} target="_blank" rel="noreferrer">
+          <RollingText>{`${heroCopy.volunteer.label}`}</RollingText>
         </GlowButton>
+        {heroCopy.agenda && (
+          <GlowButton href={heroCopy.agenda.href}>
+            <RollingText>{`${heroCopy.agenda.label}`}</RollingText>
+          </GlowButton>
+        )}
       </div>
     </section>
   );

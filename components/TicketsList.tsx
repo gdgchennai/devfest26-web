@@ -55,7 +55,7 @@ function buildEvents(): EventCard[] {
     title: event.title,
     date: shortEventDate(event.date),
     description: event.description,
-    cta: { label: event.ctaLabel },
+    cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
     color: COLORS[i % COLORS.length],
   }));
 
