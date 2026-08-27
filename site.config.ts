@@ -475,7 +475,7 @@ export const uiCopy = {
     loadingStatusSuffix: "…",
     enterCtaLabel: "Enter the DevFest experience →",
     switchToLiteLabel: "I don't like animations →",
-    desktopHint: "Best experienced in Desktop",
+    desktopHint: "Best experienced in Desktop/wide screens",
   },
 
   memoriesHallway: {

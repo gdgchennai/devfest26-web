@@ -381,7 +381,7 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
       {/* Viewport hint — the whole intro (and the flythrough it leads into) is
           tuned for a wide screen. Sits just above the Enter CTA, shown for the
           full duration of the loader. */}
-      <p className="font-mono text-xs uppercase tracking-wider text-ink/50">
+      <p className="font-mono text-xs uppercase tracking-wider text-ink/50 lg:hidden">
         {uiCopy.loader.desktopHint}
       </p>
 
