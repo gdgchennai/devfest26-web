@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { getSpeaker, speakers } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { uiCopy } from "@/site.config";
+import { AGENDA_READY } from "@/lib/routes";
 
 export function generateStaticParams() {
-  return speakers.map((speaker) => ({ slug: speaker.slug }));
+  return AGENDA_READY ? speakers.map((speaker) => ({ slug: speaker.slug })) : [];
 }
 
 export async function generateMetadata({
@@ -21,7 +22,7 @@ export async function generateMetadata({
 export default async function SpeakerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const speaker = getSpeaker(slug);
-  if (!speaker) notFound();
+  if (!AGENDA_READY || !speaker) notFound();
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-8">

@@ -40,6 +40,11 @@ export type SubEvent = {
   date: string;
   description: string;
   ctaLabel: string;
+  /** Omitted while the event has nowhere to send you yet (renders as a
+   *  disabled-looking button — see TicketsList's EventCta) — set once a real
+   *  RSVP/registration link exists. Always external so far (Luma, meetup.com,
+   *  etc.), same reasoning as `cfp.formUrl`/`volunteer.formUrl` below. */
+  href?: string;
 };
 
 export const siteConfig = {
@@ -170,7 +175,8 @@ export const siteConfig = {
       date: "2026-09-19",
       description:
         "React did not disappear. Come join to learn what's going on within React",
-      ctaLabel: "Coming soon →",
+      ctaLabel: "RSVP now →",
+      href: "https://luma.com/49bulo2m",
     },
     {
       slug: "code-for-communities",
@@ -237,6 +243,14 @@ export const siteConfig = {
     // There's no local CFP page/form to fall back to (see lib/routes.ts's
     // retiredRoutes["/cfp"]), so unlike ticketing this isn't nullable.
     formUrl: "https://sessionize.com/gdgchennai",
+  },
+
+  volunteer: {
+    // Every "Become a volunteer" CTA site-wide goes straight here, in a new
+    // tab — see volunteerCta() in lib/cta.ts, which every consumer reads
+    // through. Same reasoning as `cfp.formUrl` above: no local /volunteer
+    // page to fall back to.
+    formUrl: "https://forms.gle/gwoz9Aex1Z8Ha23U6",
   },
 
   codeOfConduct: {
@@ -460,6 +474,7 @@ export const uiCopy = {
 
   heroCopy: {
     agendaLabel: "See Agenda →",
+    volunteerLabel: "Become volunteer →",
   },
 
   liteToggle: {

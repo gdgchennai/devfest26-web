@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { speakers } from "@/lib/content";
 import { SpeakerWall } from "@/components/SpeakerWall";
 import { uiCopy } from "@/site.config";
+import { AGENDA_READY } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Speakers" };
 
 export default function SpeakersPage() {
+  if (!AGENDA_READY) notFound();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.speakersPage.heading}</h1>

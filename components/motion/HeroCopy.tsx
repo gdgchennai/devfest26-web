@@ -1,5 +1,6 @@
 import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
-import { ticketCta } from "@/lib/cta";
+import { ticketCta, volunteerCta } from "@/lib/cta";
+import { AGENDA_READY } from "@/lib/routes";
 
 /**
  * The one source of hero copy, shared by both hero variants:
@@ -27,5 +28,7 @@ export const heroCopy = {
   venueLabel: siteConfig.venue.name,
   venueConfirmed: siteConfig.venue.confirmed,
   ticket: ticketCta(),
-  agenda: { href: siteConfig.agendaUrl, label: uiCopy.heroCopy.agendaLabel },
+  /** null until the agenda is actually publishable — see AGENDA_READY. */
+  agenda: AGENDA_READY ? { href: siteConfig.agendaUrl, label: uiCopy.heroCopy.agendaLabel } : null,
+  volunteer: { href: volunteerCta().href, label: uiCopy.heroCopy.volunteerLabel },
 } as const;

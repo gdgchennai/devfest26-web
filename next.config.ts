@@ -9,8 +9,12 @@ import type { NextConfig } from "next";
  * preloader always warms the URL the current environment will actually
  * request — see the comment there.
  */
-const nextConfig: NextConfig =
-  process.env.NODE_ENV === "production"
+const nextConfig: NextConfig = {
+  // Exposed (unprefixed) to both server and client bundles here, rather than
+  // requiring the usual NEXT_PUBLIC_ prefix, since it gates rendering in
+  // client components (Header, HamburgerMenu) as well as server pages.
+  env: { AGENDA_READY: process.env.AGENDA_READY },
+  ...(process.env.NODE_ENV === "production"
     ? {
         images: { loader: "custom", loaderFile: "./lib/imagekit-loader.ts" },
       }
@@ -21,7 +25,8 @@ const nextConfig: NextConfig =
         // browsers that support it, and no browser is worse off. Next's
         // default is WebP only.
         images: { formats: ["image/avif", "image/webp"] },
-      };
+      }),
+};
 
 export default nextConfig;
 

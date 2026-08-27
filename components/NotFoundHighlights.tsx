@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/Card";
 import { ticketCta, speakerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
+import { AGENDA_READY } from "@/lib/routes";
 
 /**
  * The three things someone actually came to this site for: when it is, how to
@@ -29,12 +30,16 @@ export function NotFoundHighlights() {
 
   const { highlights: copy } = uiCopy.notFoundPage;
   const highlights: Highlight[] = [
-    {
-      eyebrow: copy.agendaEyebrow,
-      title: copy.agendaTitle,
-      description: copy.agendaDescription,
-      href: "/agenda",
-    },
+    ...(AGENDA_READY
+      ? [
+          {
+            eyebrow: copy.agendaEyebrow,
+            title: copy.agendaTitle,
+            description: copy.agendaDescription,
+            href: "/agenda",
+          },
+        ]
+      : []),
     {
       eyebrow: copy.ticketsEyebrow,
       title: tickets.label,

@@ -16,10 +16,22 @@ export type SiteRoute = {
   inNav: boolean;
 };
 
+/**
+ * Off until the schedule and lineup are actually ready to publish — set
+ * AGENDA_READY=true (see next.config.ts's `env`) to bring /agenda and
+ * /speakers back into the nav, the 404 rescue grid, and nearestRoute's typo
+ * suggestions all at once, since all three read this same list.
+ */
+export const AGENDA_READY = process.env.AGENDA_READY === "true";
+
 export const siteRoutes: SiteRoute[] = [
   { href: "/", label: "Home", description: "Tracks, schedule preview and the lineup.", inNav: true },
-  { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },
-  { href: "/speakers", label: "Speakers", description: "The lineup, and how to get on it.", inNav: true },
+  ...(AGENDA_READY
+    ? [
+        { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },
+        { href: "/speakers", label: "Speakers", description: "The lineup, and how to get on it.", inNav: true },
+      ]
+    : []),
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },

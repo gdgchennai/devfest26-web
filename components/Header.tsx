@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navRoutes } from "@/lib/routes";
+import { volunteerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
 
 /**
@@ -31,6 +32,7 @@ import { uiCopy } from "@/site.config";
  */
 export function Header() {
   const pathname = usePathname();
+  const volunteer = volunteerCta();
 
   return (
     <header className="nav-lite-only pointer-events-none fixed inset-x-0 top-0 z-50 justify-center px-4 py-3 sm:px-8">
@@ -68,6 +70,16 @@ export function Header() {
               </li>
             );
           })}
+          <li>
+            <a
+              href={volunteer.href}
+              target="_blank"
+              rel="noreferrer"
+              className="block rounded-full px-3 py-1.5 text-sm text-paper/70 transition-colors hover:bg-paper/5 hover:text-paper"
+            >
+              {volunteer.label}
+            </a>
+          </li>
         </ul>
       </nav>
     </header>
