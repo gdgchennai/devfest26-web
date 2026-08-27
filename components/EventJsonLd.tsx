@@ -35,6 +35,20 @@ export function EventJsonLd() {
       "@type": "Organization",
       name: siteConfig.chapter,
       url: siteConfig.url,
+      logo: `${siteConfig.url}/web-app-manifest-512x512.png`,
+      sameAs: Object.values(siteConfig.social),
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: siteConfig.venue.line1,
+        addressLocality: "Chennai",
+        addressRegion: "Tamil Nadu",
+        addressCountry: "IN",
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        email: siteConfig.contact.email,
+        contactType: "customer support",
+      },
     },
     offers: {
       "@type": "AggregateOffer",
