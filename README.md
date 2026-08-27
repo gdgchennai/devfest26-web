@@ -1,12 +1,9 @@
 # DevFest 2026 Chennai Website
 
-## Development
+![Home](docs/screenshot.png)
 
-```bash
-npm install
-npm run dev
-```
+Enter the DevFest experience!
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Built with GSAP, Lenis and Three.JS
 
 This project uses Next.js.
