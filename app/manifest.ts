@@ -13,19 +13,16 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#000000",
     icons: [
       {
-        // Padded well inside the safe zone (logo sits in ~65% of the canvas
-        // on an opaque background), so it's fine as both a regular and a
-        // masked (circle/squircle) icon — see "any maskable" below.
         src: "/web-app-manifest-192x192.png",
         sizes: "192x192",
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable",
       },
       {
         src: "/web-app-manifest-512x512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable",
       },
     ],
   };
