@@ -54,6 +54,11 @@ export const siteConfig = {
   chapter: "GDG Chennai",
   tagline: "Chennai's biggest tech festival",
 
+  // Canonical origin, no trailing slash — feeds metadataBase/OpenGraph in
+  // app/layout.tsx, app/robots.ts, app/sitemap.ts, and the Event JSON-LD on
+  // the homepage. Single source of truth so a domain change is a one-line edit.
+  url: "https://df-dev.gdghennai.in",
+
   /*
    * THE event date. Change it here and it changes everywhere at once — the
    * hero, the agenda header and the ticket stub all read this one field, and

@@ -31,11 +31,18 @@ export const metadata: Metadata = {
     template: `%s — ${siteConfig.name}`,
   },
   description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
-  // Image, url, and metadataBase are deliberately omitted until the production
-  // domain is confirmed; the fields below already give WhatsApp/social a proper
-  // title + description unfurl (the agenda link circulates in WhatsApp groups).
+  // Resolves every relative URL in metadata (OpenGraph, alternates, icons)
+  // against the real domain — required for crawlers/agents to treat this
+  // site's URLs as canonical rather than relative/unresolvable.
+  metadataBase: new URL(siteConfig.url),
+  alternates: { canonical: "/" },
+  // `image` stays omitted — no social-card raster asset exists yet (only the
+  // SVG wordmark in public/brand-assets). Add one and set it here once it
+  // does; until then WhatsApp/social still get a proper title + description
+  // unfurl from the fields below (the agenda link circulates in WhatsApp groups).
   openGraph: {
     type: "website",
+    url: siteConfig.url,
     siteName: siteConfig.name,
     locale: "en_IN",
     title: siteConfig.name,
