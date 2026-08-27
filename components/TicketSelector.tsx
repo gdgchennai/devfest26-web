@@ -6,9 +6,9 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type MouseEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { TiltCard } from "@/components/TiltCard";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -145,11 +145,27 @@ function TicketDropdown({
  * and raises any that already caps its own stacking context (a computed
  * z-index other than "auto"), so the stub's flip always ends up above
  * everything else on the page regardless of what sits between them.
+ *
+ * Returns every ancestor it touched, together with the exact inline
+ * `z-index` each one had before — so the caller can put that back once the
+ * flip is undone. One of these ancestors (TicketStack's `.ticket-fan__card`)
+ * has its z-index set BY REACT, per its position in the fan, not by CSS —
+ * and since raising it here mutates `node.style` directly, bypassing React,
+ * a later `clearProps` would remove that inline value outright rather than
+ * restoring it: React only reapplies an inline style when the component that
+ * set it re-renders, and closing the checkout only re-renders this card, not
+ * its TicketStack parent, so the fan's z-order would be gone for good.
+ * Capturing and restoring the original value sidesteps that entirely.
  */
-function raiseStackingAncestors(el: HTMLElement, zIndex = 9999) {
+function raiseStackingAncestors(el: HTMLElement, zIndex = 9999): { node: HTMLElement; previousZIndex: string }[] {
+  const raised: { node: HTMLElement; previousZIndex: string }[] = [];
   for (let node = el.parentElement; node && node !== document.body; node = node.parentElement) {
-    if (getComputedStyle(node).zIndex !== "auto") gsap.set(node, { zIndex });
+    if (getComputedStyle(node).zIndex !== "auto") {
+      raised.push({ node, previousZIndex: node.style.zIndex });
+      gsap.set(node, { zIndex });
+    }
   }
+  return raised;
 }
 
 /**
@@ -164,30 +180,39 @@ function raiseStackingAncestors(el: HTMLElement, zIndex = 9999) {
  * swaps which one `backface-visibility: hidden` shows — so it's the ACTUAL
  * torn-off piece that becomes the white flash as it flips, not a separate
  * box appearing over it. Only once it's fully rotated and scaled up does the
- * page actually navigate.
+ * checkout overlay (the KonfHub widget, in TicketCard) fade in over it —
+ * there's no navigation any more, so closing that overlay just reverses this
+ * same timeline and the ticket knits itself back together.
  *
- * No portal, no `position: fixed`: nothing between here and `<body>` sets
- * `overflow: hidden` any more (see the .ticket-tier-card comment in
- * globals.css), so the flip wrapper is free to scale up in place — as a
- * plain `position: relative` element, it never runs into the
+ * No portal, no `position: fixed`, for the tear itself: nothing between here
+ * and `<body>` sets `overflow: hidden` any more (see the .ticket-tier-card
+ * comment in globals.css), so the flip wrapper is free to scale up in place —
+ * as a plain `position: relative` element, it never runs into the
  * `TiltCard`-transform-as-containing-block problem that only affects
- * `position: fixed`/`absolute` descendants.
+ * `position: fixed`/`absolute` descendants. (The checkout overlay itself DOES
+ * portal to `<body>` — see TicketCard — since IT is a `position: fixed` panel
+ * and TiltCard's `perspective` would otherwise trap it.)
  */
-function useTicketTearTransition(href: string) {
+function useTicketTearTransition() {
   const bodyRef = useRef<HTMLDivElement>(null);
   const endFlipRef = useRef<HTMLDivElement>(null);
   const tearingRef = useRef(false);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const raisedRef = useRef<{ node: HTMLElement; previousZIndex: string }[]>([]);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  function handleBuyClick(e: MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault();
+  function handleBuyClick() {
     if (tearingRef.current) return;
 
     const body = bodyRef.current;
     const endFlip = endFlipRef.current;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches || shouldUseStaticBaseline();
 
+    // No tear to play — reduced motion, or the refs aren't mounted yet — so
+    // the checkout just opens directly rather than skipping straight to a
+    // navigation that no longer happens.
     if (!body || !endFlip || reduceMotion) {
-      window.location.href = href;
+      setCheckoutOpen(true);
       return;
     }
 
@@ -202,8 +227,10 @@ function useTicketTearTransition(href: string) {
     // one.
     const isRowLayout = endRect.left >= bodyRect.right - 1;
 
-    gsap
-      .timeline({ onComplete: () => window.location.assign(href) })
+    const tl = gsap.timeline({ onComplete: () => setCheckoutOpen(true) });
+    timelineRef.current = tl;
+
+    tl
       // Stage 1 — the two halves visibly rip apart along the perforation: a
       // clear, unhurried separation (each moving its own way, slightly
       // rotating as if still hinged at the torn edge) with the dark page
@@ -238,14 +265,49 @@ function useTicketTearTransition(href: string) {
       // content face rotates out of view — while zooming it up until it's
       // the only thing left on screen. The body half is untouched from here
       // on; it just stays put, torn but visible.
+      //
+      // Guarded to forward playback only: a function added via `.add()`
+      // fires again when the playhead crosses it during `tl.reverse()` too
+      // (closeCheckout's undo), and re-running this on the way back would
+      // re-raise every ancestor AND recapture their "previous" z-index as
+      // whatever it already was — 9999 — permanently stomping the real
+      // original value closeCheckout is trying to restore.
       .add(() => {
+        if (tl.reversed()) return;
         gsap.set(endFlip, { transformPerspective: 1000, zIndex: 9999 });
-        raiseStackingAncestors(endFlip);
+        raisedRef.current = raiseStackingAncestors(endFlip);
       })
       .to(endFlip, { rotationY: 180, scale: 45, duration: 0.85, ease: "power3.in" });
   }
 
-  return { bodyRef, endFlipRef, handleBuyClick };
+  // The close button: hide the checkout, then run the whole tear/flip/zoom
+  // backwards so the ticket visibly knits itself back together instead of
+  // just vanishing. Nothing to reverse if the checkout opened without a tear
+  // (reduced motion / refs not ready) — just drop straight back to idle.
+  function closeCheckout() {
+    setCheckoutOpen(false);
+    const tl = timelineRef.current;
+    if (!tl) {
+      tearingRef.current = false;
+      return;
+    }
+    tl.eventCallback("onReverseComplete", () => {
+      gsap.set(endFlipRef.current, { clearProps: "zIndex,transformPerspective" });
+      // Explicit restore, not `clearProps`: see raiseStackingAncestors' own
+      // comment for why blindly clearing the fan wrapper's z-index would
+      // lose it for good instead of putting it back.
+      raisedRef.current.forEach(({ node, previousZIndex }) => {
+        if (previousZIndex) gsap.set(node, { zIndex: previousZIndex });
+        else gsap.set(node, { clearProps: "zIndex" });
+      });
+      raisedRef.current = [];
+      timelineRef.current = null;
+      tearingRef.current = false;
+    });
+    tl.reverse();
+  }
+
+  return { bodyRef, endFlipRef, handleBuyClick, checkoutOpen, closeCheckout };
 }
 
 /** Turns a brand pastel Tailwind class ("bg-blue-pastel") into its full-tone
@@ -272,7 +334,26 @@ function accentVarFromPastelClass(pastelClass: string): string {
  * from one place.
  */
 function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
-  const { bodyRef, endFlipRef, handleBuyClick } = useTicketTearTransition(tier.href);
+  const { bodyRef, endFlipRef, handleBuyClick, checkoutOpen, closeCheckout } = useTicketTearTransition();
+
+  // Escape-to-close and a scroll-locked body while the checkout is open —
+  // same pattern as HamburgerMenu's own open panel.
+  useEffect(() => {
+    if (!checkoutOpen) return;
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeCheckout();
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutOpen]);
 
   return (
     <div
@@ -300,16 +381,60 @@ function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
             <sup className="text-sm font-semibold">*</sup>
           </p>
           <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
-          <a
-            href={tier.href}
+          <button
+            type="button"
             onClick={handleBuyClick}
             className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90"
           >
             {uiCopy.ticketSelector.buyTicketLabel}
-          </a>
+          </button>
         </div>
         <div className="ticket-tier-card__end-back" aria-hidden />
       </div>
+
+      {/* Portalled to <body>, not rendered in place: TiltCard's `.tilt-scene`
+          sets `perspective`, which (like `transform`) makes a descendant's
+          `position: fixed` resolve against IT instead of the viewport — this
+          panel needs the real viewport, so it has to sit outside that
+          subtree entirely, the same reasoning the tear/flip stub's z-index
+          walk (raiseStackingAncestors) exists for. */}
+      {checkoutOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div role="dialog" aria-modal="true" className="fixed inset-0 z-[9999] flex flex-col bg-white">
+            <div className="flex items-center justify-end px-4 py-3 sm:px-6">
+              <button
+                type="button"
+                onClick={closeCheckout}
+                aria-label={uiCopy.ticketSelector.closeCheckoutLabel}
+                className="rounded-full p-2 text-black/60 transition-colors hover:bg-black/5 hover:text-black"
+              >
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
+              <iframe
+                src={tier.href}
+                title={`Register for ${tier.title}`}
+                allow="payment"
+                // No `allow-top-navigation*`: whatever the widget's checkout
+                // flow needs (its own scripts/forms/cookies, a payment
+                // gateway popup) stays sandboxed to this frame — none of it
+                // can carry the visitor's whole tab away to the KonfHub URL.
+                sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-modals"
+                className="h-full w-full min-h-[500px] border-0"
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
