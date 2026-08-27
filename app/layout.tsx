@@ -3,7 +3,7 @@ import { Google_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
-import { siteConfig } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { ScrollCueController } from "@/components/motion/ScrollCue";
@@ -94,7 +94,7 @@ export default function RootLayout({
          */}
         <style
           dangerouslySetInnerHTML={{
-            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}`,
+            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}#boot-preloader p{position:absolute;bottom:1.5rem;left:0;right:0;margin:0;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.5)}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}`,
           }}
         />
         {/* Mirrors isLiteMode() in lib/motion-prefs.ts, including the `?lite=0`
@@ -111,6 +111,7 @@ export default function RootLayout({
             <circle cx="1013.5" cy="516.5" r="78.5" fill="#f9ab00" />
             <circle cx="1312.5" cy="516.5" r="78.5" fill="#34a853" />
           </svg>
+          <p>{uiCopy.loader.desktopHint}</p>
         </div>
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
