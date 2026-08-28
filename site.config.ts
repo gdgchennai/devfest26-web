@@ -198,11 +198,12 @@ export const siteConfig = {
     },
     {
       slug: "kug-irl",
-      title: "KUG meetup",
+      title: "Shipaton - Kotlin Edition",
       date: "2026-09-26",
       description:
-        "Connect and learn with the Kotlin Community of Chennai.",
-      ctaLabel: "Coming soon →",
+        "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
+      ctaLabel: "Register Now →",
+      href: "https://luma.com/mprx0ocg",
     },
     {
       slug: "army-exclusive",
