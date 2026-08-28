@@ -20,8 +20,9 @@ export type TicketTier = {
   /** A brand pastel Tailwind class (e.g. "bg-blue-pastel") — see the "do not
    *  hand-mix new shades" note in globals.css. */
   color: string;
-  /** Where "Buy ticket" goes — an external checkout link until a real
-   *  payment flow exists, same reasoning as `cfp.formUrl` below. */
+  /** The KonfHub widget URL "Buy ticket" opens in-page (see TicketCard's
+   *  checkout overlay) — same URL for every tier for now (a single test
+   *  widget), swap in the real per-tier KonfHub embed URLs once they exist. */
   href: string;
 };
 
@@ -112,10 +113,8 @@ export const siteConfig = {
         features: ["Access to all talks", "Access to lounges", "Lunch and Snacks"],
         addOnsNote: "Add-ons sold separately",
         color: "bg-blue-pastel",
-        // TODO: swap for the real checkout link once one exists — google.com
-        // is just a placeholder that actually resolves, so the tear/redirect
-        // animation in TicketCard has something real to navigate to.
-        href: "#",
+        // TODO: swap for the real per-tier KonfHub embed URL once it exists.
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0",
       },
       {
         profileKey: "student",
@@ -125,10 +124,8 @@ export const siteConfig = {
         features: ["Access to all talks", "Access to lounges"],
         addOnsNote: "Add-ons sold separately",
         color: "bg-yellow-pastel",
-        // TODO: swap for the real checkout link once one exists — google.com
-        // is just a placeholder that actually resolves, so the tear/redirect
-        // animation in TicketCard has something real to navigate to.
-        href: "#",
+        // TODO: swap for the real per-tier KonfHub embed URL once it exists.
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0",
       },
     ] satisfies TicketTier[],
   },
@@ -453,6 +450,7 @@ export const uiCopy = {
     identifyPrompt: "and I identify as",
     buyTicketLabel: "Buy ticket",
     placeholderPrompt: "Pick your details above to find the right ticket",
+    closeCheckoutLabel: "Close checkout",
   },
 
   ticketStub: {
