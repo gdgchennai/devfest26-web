@@ -14,6 +14,9 @@ export type SiteRoute = {
   description: string;
   /** Whether the header links to it. The header is curated; this list is not. */
   inNav: boolean;
+  /** Account-gated pages: kept in this list so the 404 typo helper still
+   *  resolves them, but excluded from the sitemap and disallowed in robots. */
+  noIndex?: boolean;
 };
 
 /**
@@ -35,6 +38,8 @@ export const siteRoutes: SiteRoute[] = [
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },
+  { href: "/my-agenda", label: "My agenda", description: "Sessions you've saved. Sign in with Google.", inNav: false, noIndex: true },
+  { href: "/profile", label: "Profile", description: "Your account and saved sessions.", inNav: false, noIndex: true },
 ];
 
 export const navRoutes: SiteRoute[] = siteRoutes.filter((r) => r.inNav);

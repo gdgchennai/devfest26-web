@@ -5,8 +5,16 @@ import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
 import { uiCopy } from "@/site.config";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
-export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
+export function AgendaList({
+  sessions,
+  showFavorite = false,
+}: {
+  sessions: AgendaSession[];
+  /** Render a save/remove star on each real session (not breaks). */
+  showFavorite?: boolean;
+}) {
   // Clock and track palette are both shared with the homepage timeline —
   // see lib/useNow.ts and lib/track-color.ts, which this file used to own.
   const now = useNow();
@@ -43,6 +51,10 @@ export function AgendaList({ sessions }: { sessions: AgendaSession[] }) {
               <span className="rounded-full bg-blue px-2 py-0.5 font-mono text-xs uppercase text-paper">
                 {uiCopy.agenda.onNowLabel}
               </span>
+            )}
+
+            {showFavorite && session.type !== "break" && (
+              <FavoriteButton session={session} />
             )}
           </li>
         );

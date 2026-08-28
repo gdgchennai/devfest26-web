@@ -18,6 +18,7 @@ import { useNow } from "@/lib/useNow";
 import { getSpeaker } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { uiCopy } from "@/site.config";
 
 /**
@@ -523,7 +524,10 @@ function SessionCard({
         ) : (
           <span />
         )}
-        <span className="font-mono text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
+          {session.type !== "break" && <FavoriteButton session={session} />}
+        </div>
       </div>
     </div>
   );

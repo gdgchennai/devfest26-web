@@ -4,7 +4,9 @@ import { siteRoutes } from "@/lib/routes";
 import speakers from "@/content/speakers.json";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticEntries: MetadataRoute.Sitemap = siteRoutes.map((route) => ({
+  const staticEntries: MetadataRoute.Sitemap = siteRoutes
+    .filter((route) => !route.noIndex)
+    .map((route) => ({
     url: `${siteConfig.url}${route.href}`,
     changeFrequency: route.href === "/" ? "weekly" : "monthly",
     priority: route.href === "/" ? 1 : 0.6,

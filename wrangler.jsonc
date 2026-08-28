@@ -19,6 +19,19 @@
 			"service": "devfest-chennai-2026"
 		}
 	],
+	"d1_databases": [
+		// Accounts + saved sessions. Create the DB and paste its id here:
+		//   npx wrangler d1 create devfest-chennai-2026
+		// then apply migrations locally and remotely:
+		//   npx wrangler d1 migrations apply devfest-chennai-2026 --local
+		//   npx wrangler d1 migrations apply devfest-chennai-2026 --remote
+		{
+			"binding": "DB",
+			"database_name": "devfest-chennai-2026",
+			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"migrations_dir": "migrations"
+		}
+	],
 	"r2_buckets": [
 		// Use R2 incremental cache
 		// See https://opennext.js.org/cloudflare/caching

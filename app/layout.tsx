@@ -9,6 +9,8 @@ import { BootPreloaderRelease } from "@/components/motion/BootPreloaderRelease";
 import { ScrollCueController } from "@/components/motion/ScrollCue";
 import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
 
 // Self-hosted at build time by next/font/google — no runtime request to
 // Google. Only `normal` style: nothing in the site renders italic.
@@ -123,7 +125,9 @@ export default function RootLayout({
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
-        <MotionProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <MotionProvider>
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets
@@ -138,7 +142,9 @@ export default function RootLayout({
           </main>
           <Footer />
           <ScrollCueController />
-        </MotionProvider>
+            </MotionProvider>
+          </FavoritesProvider>
+        </AuthProvider>
       </body>
     </html>
   );

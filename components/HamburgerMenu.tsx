@@ -9,6 +9,7 @@ import { navRoutes } from "@/lib/routes";
 import { speakerCta, volunteerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
 import { RollingText } from "@/components/motion/RollingText";
+import { AuthButton } from "@/components/auth/AuthButton";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
@@ -338,6 +339,9 @@ export function HamburgerMenu() {
           >
             <RollingText>{volunteer.label}</RollingText> →
           </a>
+        </div>
+        <div data-menu-item>
+          <AuthButton variant="menu" />
         </div>
       </div>
     </div>
