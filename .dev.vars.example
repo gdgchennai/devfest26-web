@@ -1,11 +1,15 @@
-# Copy to `.dev.vars` (git-ignored) for `npm run preview`/`deploy` (Workers
-# runtime), and mirror the same values into `.env.local` for `npm run dev`
-# (Next dev server). Never commit the filled-in files.
+# Copy to `.dev.vars` (git-ignored). These are the runtime secrets the
+# Cloudflare Workers dev runtime reads for `npm run preview`. Mirror the same
+# values into `.env.local` for `npm run dev` (the Next dev server), and set
+# them in production with `wrangler secret put <NAME>`.
+#
+# Build-time vars (NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT, AGENDA_READY) do NOT go
+# here — they belong in the build environment / `.env`. See docs/environment.md.
 
 # openssl rand -base64 32
 AUTH_SECRET=
 
-# Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID
+# Google Cloud Console → Credentials → OAuth 2.0 Client ID (Web application).
 # Authorised redirect URIs:
 #   http://localhost:3000/api/auth/callback/google
 #   https://df-dev.gdghennai.in/api/auth/callback/google
