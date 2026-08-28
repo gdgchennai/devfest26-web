@@ -1,6 +1,7 @@
 import { siteConfig } from "@/site.config";
 import { getBrandShapes } from "@/lib/brandShapes";
 import { SectionBoundary } from "@/components/SectionBoundary";
+import { EventJsonLd } from "@/components/EventJsonLd";
 import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { ReadySection } from "@/components/motion/ReadySection";
@@ -14,6 +15,8 @@ import { SeeYouThereSection } from "@/components/motion/SeeYouThereSection";
 export default function Home() {
   return (
     <>
+      <EventJsonLd />
+
       {/* The sticky 3D brackets backdrop: a fixed black layer behind the whole
           homepage (z-0). It never scrolls — content below slides over it — and
           the hero covers it until the visitor scrolls down off the first
