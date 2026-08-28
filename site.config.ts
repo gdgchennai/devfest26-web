@@ -252,7 +252,7 @@ export const siteConfig = {
     // tab — see volunteerCta() in lib/cta.ts, which every consumer reads
     // through. Same reasoning as `cfp.formUrl` above: no local /volunteer
     // page to fall back to.
-    formUrl: "https://forms.gle/gwoz9Aex1Z8Ha23U6",
+    formUrl: "https://konfhub.com/checkout/devfest-2026-chennai?ticketId=118807",
   },
 
   codeOfConduct: {
