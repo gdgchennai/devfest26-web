@@ -5,7 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useGSAP } from "@gsap/react";
-import { siteConfig, shortEventDate, uiCopy } from "@/site.config";
+import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
 import { ArrowGlyph } from "@/components/motion/ScrollCue";
@@ -28,9 +28,8 @@ const FLAGSHIP_COLOR = "bg-neutral-200";
 // so it skips the picker and goes straight to the tier selector.
 const FLAGSHIP_TICKET_HREF = "/tickets/select";
 
-// Every card uses the same venue shot (the real IITM Research Park photo
-// VenueReveal.tsx uses) rather than inventing per-event photography that
-// doesn't exist yet.
+// Fallback for events with no real photography yet (see SubEvent's `image`
+// doc comment) — the same venue shot VenueReveal.tsx uses.
 const VENUE_IMAGE = { src: "/venue.webp", alt: uiCopy.common.venueAlt };
 
 type EventCard = {
@@ -40,6 +39,7 @@ type EventCard = {
   description: string;
   cta: { label: string; href?: string; external?: boolean };
   color: string;
+  image: { src: string; alt: string };
 };
 
 /**
@@ -50,13 +50,14 @@ type EventCard = {
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
  */
 function buildEvents(): EventCard[] {
-  const cards: EventCard[] = siteConfig.subEvents.map((event, i) => ({
+  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
     key: event.slug,
     title: event.title,
     date: shortEventDate(event.date),
     description: event.description,
     cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
     color: COLORS[i % COLORS.length],
+    image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
   }));
 
   const ticket = ticketCta();
@@ -69,6 +70,7 @@ function buildEvents(): EventCard[] {
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
+    image: VENUE_IMAGE,
   });
 
   return cards;
@@ -141,7 +143,7 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
       style={{ containerType: "inline-size" }}
     >
       <div className="relative h-2/5 w-full shrink-0">
-        <Image src={VENUE_IMAGE.src} alt={VENUE_IMAGE.alt} fill sizes="320px" className="object-cover" />
+        <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-[2cqw] p-[5cqw]">
         <h3 className="text-[clamp(0.95rem,7.5cqw,1.75rem)] font-bold leading-snug text-black">{event.title}</h3>
