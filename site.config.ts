@@ -46,6 +46,14 @@ export type SubEvent = {
    *  RSVP/registration link exists. Always external so far (Luma, meetup.com,
    *  etc.), same reasoning as `cfp.formUrl`/`volunteer.formUrl` below. */
   href?: string;
+  /** A `public/`-relative path (e.g. "/events/kug-irl.webp"), same
+   *  convention as the shared venue shot it substitutes for — goes through
+   *  next/image exactly like every other image on the site (ImageKit
+   *  resizing it in production, see next.config.ts), so it works equally
+   *  whether the file lives in `public/` or is already served off
+   *  ImageKit's CDN. Omitted while the event has no real photography yet —
+   *  TicketsList falls back to the shared venue shot in that case. */
+  image?: string;
 };
 
 export const siteConfig = {
@@ -198,11 +206,12 @@ export const siteConfig = {
     },
     {
       slug: "kug-irl",
-      title: "KUG meetup",
+      title: "Shipaton - Kotlin Edition",
       date: "2026-09-26",
       description:
-        "Connect and learn with the Kotlin Community of Chennai.",
-      ctaLabel: "Coming soon →",
+        "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
+      ctaLabel: "Register Now →",
+      href: "https://luma.com/mprx0ocg",
     },
     {
       slug: "army-exclusive",
@@ -252,7 +261,7 @@ export const siteConfig = {
     // tab — see volunteerCta() in lib/cta.ts, which every consumer reads
     // through. Same reasoning as `cfp.formUrl` above: no local /volunteer
     // page to fall back to.
-    formUrl: "https://forms.gle/gwoz9Aex1Z8Ha23U6",
+    formUrl: "https://konfhub.com/checkout/devfest-2026-chennai?ticketId=118807",
   },
 
   codeOfConduct: {
