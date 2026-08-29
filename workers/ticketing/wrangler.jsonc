@@ -1,0 +1,22 @@
+{
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	// A standalone Worker, deployed separately from the Next.js site
+	// (`npm run worker:ticketing:deploy`). It is NOT bundled into the app —
+	// nothing under app/ imports it, and the repo tsconfig/eslint exclude
+	// `workers/`.
+	"name": "devfest-ticketing",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-27",
+	"observability": { "enabled": true },
+
+	// Same D1 database the site uses — this Worker writes the ticket /
+	// check-in columns on `users` (see ../../migrations). Migrations stay
+	// owned by the app's wrangler.jsonc; this config only binds the DB.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "devfest-chennai-2026",
+			"database_id": "7460097a-f29e-4c9d-95ac-fd6070d666d0"
+		}
+	]
+}

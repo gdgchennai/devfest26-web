@@ -11,7 +11,11 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "worker:ticketing:dev": "wrangler dev -c workers/ticketing/wrangler.jsonc",
+    "worker:ticketing:deploy": "wrangler deploy -c workers/ticketing/wrangler.jsonc",
+    "worker:ticketing:types": "wrangler types -c workers/ticketing/wrangler.jsonc --env-interface Env workers/ticketing/worker-configuration.d.ts",
+    "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

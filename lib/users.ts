@@ -15,6 +15,9 @@ export type UserRecord = {
   payment_id: string | null;
   ticket_url: string | null;
   invoice_url: string | null;
+  // On-site check-in — 0/1, and unix-ms timestamp (null until scanned in).
+  checked_in: number;
+  check_in_time: number | null;
 };
 
 export type TicketFields = Pick<
@@ -65,6 +68,8 @@ export async function upsertUserByGoogle(profile: {
     payment_id: null,
     ticket_url: null,
     invoice_url: null,
+    checked_in: 0,
+    check_in_time: null,
   };
 
   await db
@@ -109,6 +114,22 @@ export async function setTicketFields(
   const result = await db
     .prepare(`UPDATE users SET ${set.join(", ")} WHERE ${where.clause}`)
     .bind(...values, where.arg)
+    .run();
+  return (result.meta.changes ?? 0) > 0;
+}
+
+/**
+ * Mark an account as checked in at the venue. Idempotent — a second scan keeps
+ * the original `check_in_time`. Returns true if this call was the one that
+ * checked them in.
+ */
+export async function checkIn(userId: string, at: number = Date.now()): Promise<boolean> {
+  const db = await getDb();
+  const result = await db
+    .prepare(
+      "UPDATE users SET checked_in = 1, check_in_time = ? WHERE id = ? AND checked_in = 0",
+    )
+    .bind(at, userId)
     .run();
   return (result.meta.changes ?? 0) > 0;
 }

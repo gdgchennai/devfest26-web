@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { getUserById } from "@/lib/users";
 import { countFavorites } from "@/lib/favorites";
 import { AGENDA_READY } from "@/lib/routes";
+import { EVENT_TIME_ZONE } from "@/lib/format";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { GlowButton } from "@/components/GlowButton";
 import { SignOutButton } from "@/components/auth/SignOutButton";
@@ -35,6 +36,24 @@ export default async function ProfilePage() {
   );
 }
 
+/** "17 October 2026, 9:30 AM" in venue time. */
+function formatCheckIn(ms: number): string {
+  const d = new Date(ms);
+  const date = d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: EVENT_TIME_ZONE,
+  });
+  const time = d.toLocaleTimeString("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: EVENT_TIME_ZONE,
+  });
+  return `${date}, ${time}`;
+}
+
 function ProfileContent({
   user,
   saved,
@@ -63,6 +82,23 @@ function ProfileContent({
           {user.email && <p className="truncate text-sm text-paper/60 sm:text-base">{user.email}</p>}
         </div>
       </div>
+
+      {user.checked_in === 1 && (
+        <div className="mt-8 sm:mt-10">
+          <p className="text-lg font-semibold">
+            You&apos;re in now. Welcome to DevFest. We hope you have a great day!
+          </p>
+          <p className="mt-2 max-w-md text-sm text-paper/70">
+            Don&apos;t feel shy to talk, take pictures, socialize. Reach out to us if you need anything
+            at all today!
+          </p>
+          {user.check_in_time && (
+            <p className="mt-3 font-mono text-xs uppercase tracking-wide text-paper/50">
+              Checked in at {formatCheckIn(user.check_in_time)}
+            </p>
+          )}
+        </div>
+      )}
 
       {AGENDA_READY && (
         <div className="mt-8 sm:mt-10">
