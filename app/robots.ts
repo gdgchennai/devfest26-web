@@ -8,6 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       // Account-gated, per-user pages — nothing for a crawler to index.
       disallow: ["/profile", "/my-agenda", "/signin", "/api/"],
+      other: {
+        "Content-Signal": "ai-train=no, search=yes, ai-input=no",
+      },
     },
     sitemap: `${siteConfig.url}/sitemap.xml`,
   };
