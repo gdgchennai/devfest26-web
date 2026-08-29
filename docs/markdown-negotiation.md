@@ -16,7 +16,7 @@ markdown version of that page (per acceptmarkdown.com) at the **same URL**.
 
 ## The Transform Rules
 
-Dashboard → the `gdghennai.in` zone → **Rules → Transform Rules → Create
+Dashboard → the `gdgchennai.in` zone → **Rules → Transform Rules → Create
 rule → Rewrite URL**. Two rules (one dynamic rule can't special-case `/` →
 `/md` without `regex_replace()`, which needs a Business/WAF-Advanced plan).
 
@@ -25,7 +25,7 @@ rule → Rewrite URL**. Two rules (one dynamic rule can't special-case `/` →
 *If* — Custom filter expression:
 
 ```
-http.host eq "df-dev.gdghennai.in"
+http.host eq "df-dev.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and http.request.uri.path eq "/"
 ```
@@ -37,7 +37,7 @@ and http.request.uri.path eq "/"
 *If* — Custom filter expression:
 
 ```
-http.host eq "df-dev.gdghennai.in"
+http.host eq "df-dev.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and (
   http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select" "/contact" "/memories"}
@@ -55,8 +55,8 @@ Leave **Query** unchanged on both. Keep the route list in sync with the
 
 ```bash
 # markdown variant
-curl -s  https://df-dev.gdghennai.in/agenda -H 'Accept: text/markdown' | head
-curl -sI https://df-dev.gdghennai.in/agenda -H 'Accept: text/markdown' | grep -i 'content-type\|vary'
+curl -s  https://df-dev.gdgchennai.in/agenda -H 'Accept: text/markdown' | head
+curl -sI https://df-dev.gdgchennai.in/agenda -H 'Accept: text/markdown' | grep -i 'content-type\|vary'
 # normal request still gets HTML
-curl -sI https://df-dev.gdghennai.in/agenda | grep -i 'content-type'
+curl -sI https://df-dev.gdgchennai.in/agenda | grep -i 'content-type'
 ```

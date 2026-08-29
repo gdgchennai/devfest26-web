@@ -4,9 +4,9 @@
 
 - Date: 17 October 2026
 - Venue: IITM Research Park, Kanagam Road, Taramani, Chennai 600113
-- Tickets: https://df-dev.gdghennai.in/tickets (₹1200 working professionals, ₹600 students)
-- Agenda: https://df-dev.gdghennai.in/agenda
-- Speakers: https://df-dev.gdghennai.in/speakers
+- Tickets: https://df-dev.gdgchennai.in/tickets (₹1200 working professionals, ₹600 students)
+- Agenda: https://df-dev.gdgchennai.in/agenda
+- Speakers: https://df-dev.gdgchennai.in/speakers
 - Call for proposals (speaking): https://sessionize.com/gdgchennai
 - Volunteer sign-up: https://forms.gle/gwoz9Aex1Z8Ha23U6
 - Contact: hello@gdgchennai.in
@@ -28,12 +28,12 @@ Tech (general tech talks), Deep Tech (science, math, hardware), Experience (open
 
 ## Pages
 
-- [Home](https://df-dev.gdghennai.in/): Overview, tracks, schedule preview, lineup.
-- [Agenda](https://df-dev.gdghennai.in/agenda): Full schedule for the day.
-- [Speakers](https://df-dev.gdghennai.in/speakers): Confirmed lineup and how to get on it via CFP.
-- [Tickets](https://df-dev.gdghennai.in/tickets): Flagship day and community satellite events, with links to buy or RSVP.
-- [Memories](https://df-dev.gdghennai.in/memories): Photo archive from DevFest Chennai 2024 and 2025.
-- [Contact](https://df-dev.gdghennai.in/contact): Reach the organising team.
+- [Home](https://df-dev.gdgchennai.in/): Overview, tracks, schedule preview, lineup.
+- [Agenda](https://df-dev.gdgchennai.in/agenda): Full schedule for the day.
+- [Speakers](https://df-dev.gdgchennai.in/speakers): Confirmed lineup and how to get on it via CFP.
+- [Tickets](https://df-dev.gdgchennai.in/tickets): Flagship day and community satellite events, with links to buy or RSVP.
+- [Memories](https://df-dev.gdgchennai.in/memories): Photo archive from DevFest Chennai 2024 and 2025.
+- [Contact](https://df-dev.gdgchennai.in/contact): Reach the organising team.
 
 ## Notes for agents
 

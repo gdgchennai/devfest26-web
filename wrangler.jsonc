@@ -3,6 +3,12 @@
 	"main": ".open-next/worker.js",
 	"name": "devfest-chennai-2026",
 	"compatibility_date": "2026-08-27",
+	// Custom domain — declared here so `wrangler deploy` keeps it attached
+	// (it was first added via the dashboard; without this line every deploy
+	// would detach it). Zone `gdgchennai.in`.
+	"routes": [
+		{ "pattern": "df-dev.gdgchennai.in", "custom_domain": true }
+	],
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
