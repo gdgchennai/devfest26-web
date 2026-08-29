@@ -14,16 +14,17 @@ that table (`../../lib/tickets.ts`).
 
 | `Event Type` | Effect on the `tickets` row (keyed by attendee email) |
 | --- | --- |
-| `registration` | Write `booking_id`, `payment_id`, `ticket_url`, `invoice_url`, `ticket_name`, `addons`. Keeps check-in state. If a *different* booking is already stored, leaves it (KonfHub won't sell a 2nd live ticket per attendee). |
-| `cancel` | `booking_id` matches the stored main booking → delete the whole row. Else ticket name matches → no-op (hand-mapped). Else the id is a stored add-on → drop that add-on only. Else no-op. |
+| `registration` | Write `booking_id`, `payment_id`, `ticket_url` (only if `https://`), `ticket_name`, `addons`. Keeps check-in state. If a *different* booking is already stored, leaves it (KonfHub won't sell a 2nd live ticket per attendee). |
+| `cancel` | `booking_id` matches the stored main booking → delete the whole row (and any `ticket_claims` pointing at it). Else ticket name matches → no-op (hand-mapped). Else the id is a stored add-on → drop that add-on only. Else no-op. |
 | `check_in` | `checked_in = 1`, `check_in_time` from the payload's `CheckIn Time` (UTC). Creates a bare row if the attendee was never registered with us. |
 | `check_out` | `checked_in = 0`, `check_in_time = NULL`. |
 
 ### Access control
 
 There is none beyond the URL. It lives on the `workers.dev` subdomain at the
-path segment in the `WEBHOOK_PATH` secret; every other path 404s. Set a long
-random value in production:
+path segment in the `WEBHOOK_PATH` secret; every other path 404s — and if the
+secret is unset, **every** request 404s. Set a long random value in
+production:
 
 ```bash
 npx wrangler secret put WEBHOOK_PATH -c workers/ticketing/wrangler.jsonc
@@ -55,8 +56,8 @@ npm run worker:ticketing:check    # tsc -p workers/ticketing/tsconfig.json
 > If the Next dev server starts throwing `Attempted to use poisoned stub` from
 > `lib/db.ts`, that's this — restart `npm run dev`.
 
-`samples/` holds one payload per event type. With `npm run worker:ticketing:dev`
-running (default path `/webhook`):
+Copy `.dev.vars.example` → `.dev.vars` first (`WEBHOOK_PATH` is required — the
+example sets it to `webhook`). `samples/` holds one payload per event type:
 
 ```bash
 curl -X POST http://localhost:8787/webhook \

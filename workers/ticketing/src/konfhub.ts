@@ -26,8 +26,9 @@ export interface ParsedEvent {
   bookingId: string | null;
   ticketName: string | null;
   addons: Addon[];
+  /** Ticket PDF link — only kept if it's a plain `https://` URL (guards
+   *  against a forged `javascript:` / `data:` link becoming stored XSS). */
   ticketUrl: string | null;
-  invoiceUrl: string | null;
   paymentId: string | null;
   /** unix ms from "CheckIn Time" (UTC). null unless check_in / present on check_out. */
   checkInTime: number | null;
@@ -44,6 +45,18 @@ const DETAIL_KEYS = ["Attendee Details", "Check In Updates", "Check Out Updates"
 
 function str(v: unknown): string | null {
   return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
+}
+
+/** A trimmed string, but only if it's an `https://` URL. Anything else
+ *  (other schemes, garbage, missing) → null. */
+function httpsUrl(v: unknown): string | null {
+  const s = str(v);
+  if (!s) return null;
+  try {
+    return new URL(s).protocol === "https:" ? s : null;
+  } catch {
+    return null;
+  }
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {
@@ -134,8 +147,7 @@ export function parseWebhook(body: unknown): ParseResult {
       bookingId: str(d["Booking Id"]),
       ticketName: ticketNameOf(d),
       addons: parseAddons(d),
-      ticketUrl: str(d["Ticket URL"]),
-      invoiceUrl: str(d["Invoice URL"]),
+      ticketUrl: httpsUrl(d["Ticket URL"]),
       paymentId: str(d["payment_id"]),
       checkInTime: parseCheckInTime(d["CheckIn Time"]),
     },

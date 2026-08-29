@@ -11,7 +11,6 @@ interface TicketRow {
   booking_id: string | null;
   payment_id: string | null;
   ticket_url: string | null;
-  invoice_url: string | null;
   ticket_name: string | null;
   addons: string | null;
   checked_in: number;
@@ -70,11 +69,11 @@ export async function applyRegistration(db: D1Database, e: ParsedEvent): Promise
     await db
       .prepare(
         `UPDATE tickets
-            SET booking_id = ?, payment_id = ?, ticket_url = ?, invoice_url = ?,
+            SET booking_id = ?, payment_id = ?, ticket_url = ?,
                 ticket_name = ?, addons = ?, updated_at = ?
           WHERE email = ?`,
       )
-      .bind(e.bookingId, e.paymentId, e.ticketUrl, e.invoiceUrl, e.ticketName, addons, now, e.email)
+      .bind(e.bookingId, e.paymentId, e.ticketUrl, e.ticketName, addons, now, e.email)
       .run();
     return `updated ${e.email}`;
   }
@@ -82,11 +81,11 @@ export async function applyRegistration(db: D1Database, e: ParsedEvent): Promise
   await db
     .prepare(
       `INSERT INTO tickets
-         (email, booking_id, payment_id, ticket_url, invoice_url, ticket_name,
+         (email, booking_id, payment_id, ticket_url, ticket_name,
           addons, checked_in, check_in_time, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 0, NULL, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, 0, NULL, ?, ?)`,
     )
-    .bind(e.email, e.bookingId, e.paymentId, e.ticketUrl, e.invoiceUrl, e.ticketName, addons, now, now)
+    .bind(e.email, e.bookingId, e.paymentId, e.ticketUrl, e.ticketName, addons, now, now)
     .run();
   return `created ${e.email}`;
 }
@@ -105,7 +104,11 @@ export async function applyCancel(db: D1Database, e: ParsedEvent): Promise<strin
   if (!row) return `no ticket for ${e.email}`;
 
   if (e.bookingId && row.booking_id === e.bookingId) {
-    await db.prepare("DELETE FROM tickets WHERE email = ?").bind(e.email).run();
+    // Drop the row and any account that had claimed it (see migration 0006).
+    await db.batch([
+      db.prepare("DELETE FROM tickets WHERE email = ?").bind(e.email),
+      db.prepare("DELETE FROM ticket_claims WHERE ticket_email = ?").bind(e.email),
+    ]);
     return `deleted ${e.email} — main booking ${e.bookingId} cancelled`;
   }
 

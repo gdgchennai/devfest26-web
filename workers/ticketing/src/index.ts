@@ -9,7 +9,9 @@
  * KonfHub posts every attendee event (registration / cancel / check_in /
  * check_out) to one URL with NO authentication. The access control is the
  * URL: it lives on the workers.dev subdomain at an unguessable path segment
- * held in the WEBHOOK_PATH secret. Any other path 404s.
+ * held in the WEBHOOK_PATH secret. Any other path 404s — and if the secret
+ * is unset, EVERY path 404s (a deploy without it must not be open at a
+ * guessable path).
  *
  * Response codes matter — KonfHub retries 3× only on 429 / 500 / 502 / 503 /
  * 504, nothing else. So: 500 on a real internal failure (get a retry), 200
@@ -22,16 +24,20 @@ import { applyRegistration, applyCancel, applyCheckIn, applyCheckOut } from "./s
 
 export interface Env {
   DB: D1Database;
-  /** Secret path segment — the whole access-control model. Falls back to
-   *  "webhook" for local dev. Set in prod with:
+  /** Secret path segment — the whole access-control model. REQUIRED: with it
+   *  unset the Worker serves nothing. Local dev reads it from `.dev.vars`.
    *    npx wrangler secret put WEBHOOK_PATH -c workers/ticketing/wrangler.jsonc */
   WEBHOOK_PATH?: string;
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const path = `/${(env.WEBHOOK_PATH ?? "webhook").replace(/^\/+/, "")}`;
-    if (new URL(request.url).pathname !== path) return text(404, "not found");
+    const secret = env.WEBHOOK_PATH?.replace(/^\/+/, "");
+    if (!secret) {
+      console.error("WEBHOOK_PATH is not set — refusing all requests");
+      return text(404, "not found");
+    }
+    if (new URL(request.url).pathname !== `/${secret}`) return text(404, "not found");
     if (request.method !== "POST") return text(405, "method not allowed");
 
     let body: unknown;

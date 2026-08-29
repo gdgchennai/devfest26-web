@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/users";
-import { getTicketByEmail, type TicketRecord } from "@/lib/tickets";
+import { getTicketForUser, type TicketRecord } from "@/lib/tickets";
 import { countFavorites } from "@/lib/favorites";
 import { AGENDA_READY } from "@/lib/routes";
 import { EVENT_TIME_ZONE } from "@/lib/format";
@@ -27,7 +27,7 @@ export default async function ProfilePage() {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/profile")}`);
   }
 
-  const ticket = user.email ? await getTicketByEmail(user.email) : null;
+  const ticket = await getTicketForUser(user);
 
   return (
     <>
@@ -125,10 +125,12 @@ function ProfileContent({
         </div>
       )}
 
-      {!ticket?.booking_id && !ticket?.ticket_url && !ticket?.invoice_url ? (
+      {!ticket?.booking_id && !ticket?.ticket_url ? (
         <div className="mt-8 sm:mt-10">
           <p className="text-lg font-medium">Already booked your DevFest ticket but can&apos;t see it here?</p>
-          <p className="mt-1 max-w-md text-sm text-paper/60">Enter your booking ID from KonfHub.</p>
+          <p className="mt-1 max-w-md text-sm text-paper/60">
+            Enter your booking ID and the email you used on KonfHub.
+          </p>
           <div className="mt-3">
             <ClaimTicketForm />
           </div>
@@ -148,18 +150,11 @@ function ProfileContent({
               </div>
             </div>
           )}
-          {(ticket.ticket_url || ticket.invoice_url) && (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {ticket.ticket_url && (
-                <GlowButton href={ticket.ticket_url} target="_blank" rel="noreferrer" shape="pill" size="md">
-                  View ticket →
-                </GlowButton>
-              )}
-              {ticket.invoice_url && (
-                <GlowButton href={ticket.invoice_url} target="_blank" rel="noreferrer" shape="pill" size="md">
-                  Invoice →
-                </GlowButton>
-              )}
+          {ticket.ticket_url && (
+            <div className="mt-4">
+              <GlowButton href={ticket.ticket_url} target="_blank" rel="noreferrer" shape="pill" size="md">
+                View ticket →
+              </GlowButton>
             </div>
           )}
           <EditTicket />

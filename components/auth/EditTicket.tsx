@@ -25,7 +25,9 @@ export function EditTicket() {
 
   return (
     <div className="mt-4">
-      <p className="text-sm text-paper/60">Enter your booking ID from KonfHub.</p>
+      <p className="text-sm text-paper/60">
+        Enter your booking ID and the email you used on KonfHub.
+      </p>
       <div className="mt-2">
         <ClaimTicketForm />
       </div>
