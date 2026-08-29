@@ -8,21 +8,30 @@ export type Track = {
 
 export type TicketProfile = { key: string; label: string };
 
-export type TicketTier = {
-  /** Matches a `TicketProfile.key` below — picking that profile brings this
-   *  tier to the front of the stack on /tickets/select. */
-  profileKey: string;
-  title: string;
+export type Ticket = {
+  /** Stable slug — used as the React key and nowhere user-facing. */
+  id: string;
+  /** KonfHub's exact ticket name. */
+  name: string;
+  /** `profiles[].key` — "I'm a ___" on /tickets/select picks this. */
+  category: "professional" | "student";
+  /** `all` for the general ticket, `women-diverse` for the "for women & diverse
+   *  groups" ticket. Derived from the "and I identify as ___" pick. */
+  audience: "all" | "women-diverse";
   price: number;
   currency: string;
-  features: string[];
-  addOnsNote: string;
-  /** A brand pastel Tailwind class (e.g. "bg-blue-pastel") — see the "do not
-   *  hand-mix new shades" note in globals.css. */
-  color: string;
+  /** Sale window, ISO 8601 with the IST offset. Informational only — shown on
+   *  the card and in the Event JSON-LD. NOT used to auto-show/hide; that's
+   *  `visible`. */
+  opens: string;
+  closes: string;
+  /** Whether this ticket appears in the /tickets/select picker. Organisers
+   *  flip this by hand as sale windows change — keep exactly one `true` per
+   *  (category, audience) pair. */
+  visible: boolean;
   /** The KonfHub widget URL "Buy ticket" opens in-page (see TicketCard's
-   *  checkout overlay) — same URL for every tier for now (a single test
-   *  widget), swap in the real per-tier KonfHub embed URLs once they exist. */
+   *  checkout overlay). Same shared widget for now — swap in the real
+   *  per-ticket embed URLs as they arrive. */
   href: string;
 };
 
@@ -55,6 +64,12 @@ export type SubEvent = {
    *  TicketsList falls back to the shared venue shot in that case. */
   image?: string;
 };
+
+/** Shared KonfHub widget embed — the same one every ticket's "Buy" overlay
+ *  loads until real per-ticket embed URLs exist. Kept as a const so the eight
+ *  entries below don't each repeat the query string. */
+const KONFHUB_WIDGET =
+  "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0";
 
 export const siteConfig = {
   name: "DevFest Chennai 2026",
@@ -105,42 +120,127 @@ export const siteConfig = {
     availableLabel: "Get Tickets →",
   },
 
-  // The /tickets/select page's ticket picker. "I'm a ___" chooses which
-  // entry in `tiers` rises to the front of the stack; "and I identify as
-  // ___" is demographic data collected alongside the purchase and doesn't
-  // change which ticket is shown. Every price/feature/checkout-link lives
-  // here so a new tier or a price change never touches the component.
+  // The /tickets/select page's ticket picker. "I'm a ___" chooses the
+  // `category`; "and I identify as ___" maps to `audience` (Female / Non
+  // binary → the "women & diverse groups" ticket, Male / Prefer not to say →
+  // the general one). The card shown is the one entry matching that pair with
+  // `visible: true` — organisers flip `visible` by hand as sale windows open
+  // and close. Every price / date / checkout link lives here so the component
+  // never changes for a ticket edit.
   ticketSelector: {
     taxNote: "Taxes and payment gateway charges additional",
+    addOnsNote: "Add-ons sold separately",
     profiles: [
       { key: "professional", label: "Working Professional" },
       { key: "student", label: "Student" },
     ] satisfies TicketProfile[],
     identities: ["Female", "Male", "Non binary", "Prefer not to say"],
-    tiers: [
+    /** What each ticket in a category gets you — shown on the card, since the
+     *  per-ticket rows below carry price/date but no feature list. */
+    perks: {
+      professional: ["Access to all talks", "Access to lounges", "Lunch and Snacks"],
+      student: ["Access to all talks", "Access to lounges", "Lunch and Snacks"],
+    } as Record<"professional" | "student", string[]>,
+    tickets: [
+      // ── Professionals ──────────────────────────────────────────────
       {
-        profileKey: "professional",
-        title: "Working professionals",
-        price: 1200,
-        currency: "₹",
-        features: ["Access to all talks", "Access to lounges", "Lunch and Snacks"],
-        addOnsNote: "Add-ons sold separately",
-        color: "bg-blue-pastel",
-        // TODO: swap for the real per-tier KonfHub embed URL once it exists.
-        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0",
-      },
-      {
-        profileKey: "student",
-        title: "Students",
+        id: "early-professional",
+        name: "Early Professional",
+        category: "professional",
+        audience: "all",
         price: 600,
         currency: "₹",
-        features: ["Access to all talks", "Access to lounges"],
-        addOnsNote: "Add-ons sold separately",
-        color: "bg-yellow-pastel",
-        // TODO: swap for the real per-tier KonfHub embed URL once it exists.
-        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0",
+        opens: "2026-08-28T18:30:00+05:30",
+        closes: "2026-09-05T18:29:00+05:30",
+        visible: true,
+        href: KONFHUB_WIDGET,
       },
-    ] satisfies TicketTier[],
+      {
+        id: "professional",
+        name: "Professional",
+        category: "professional",
+        audience: "all",
+        price: 800,
+        currency: "₹",
+        opens: "2026-09-05T18:30:00+05:30",
+        closes: "2026-10-02T18:29:00+05:30",
+        visible: false,
+        href: KONFHUB_WIDGET,
+      },
+      {
+        id: "late-professional",
+        name: "Late Professional",
+        category: "professional",
+        audience: "all",
+        price: 1000,
+        currency: "₹",
+        opens: "2026-10-03T16:18:30+05:30",
+        closes: "2026-10-10T18:29:00+05:30",
+        visible: false,
+        href: KONFHUB_WIDGET,
+      },
+      {
+        id: "professional-women-diverse",
+        name: "Professionals - For women & diverse groups",
+        category: "professional",
+        audience: "women-diverse",
+        price: 600,
+        currency: "₹",
+        opens: "2026-08-28T18:30:00+05:30",
+        closes: "2026-10-02T18:29:00+05:30",
+        visible: true,
+        href: KONFHUB_WIDGET,
+      },
+      // ── Students ───────────────────────────────────────────────────
+      {
+        id: "early-student",
+        name: "Early Student",
+        category: "student",
+        audience: "all",
+        price: 400,
+        currency: "₹",
+        opens: "2026-08-28T18:30:00+05:30",
+        closes: "2026-09-05T18:29:00+05:30",
+        visible: true,
+        href: KONFHUB_WIDGET,
+      },
+      {
+        id: "student",
+        name: "Student",
+        category: "student",
+        audience: "all",
+        price: 600,
+        currency: "₹",
+        opens: "2026-09-12T18:30:00+05:30",
+        closes: "2026-10-02T18:29:00+05:30",
+        visible: false,
+        href: KONFHUB_WIDGET,
+      },
+      {
+        id: "late-students",
+        name: "Late Students",
+        category: "student",
+        audience: "all",
+        price: 800,
+        currency: "₹",
+        opens: "2026-10-02T18:30:00+05:30",
+        closes: "2026-10-10T18:29:00+05:30",
+        visible: false,
+        href: KONFHUB_WIDGET,
+      },
+      {
+        id: "student-women-diverse",
+        name: "Student - For Women & diverse groups",
+        category: "student",
+        audience: "women-diverse",
+        price: 400,
+        currency: "₹",
+        opens: "2026-08-28T18:30:00+05:30",
+        closes: "2026-10-02T18:29:00+05:30",
+        visible: true,
+        href: KONFHUB_WIDGET,
+      },
+    ] satisfies Ticket[],
   },
 
   agendaUrl: "/agenda",
@@ -464,6 +564,7 @@ export const uiCopy = {
     identifyPrompt: "and I identify as",
     buyTicketLabel: "Buy ticket",
     placeholderPrompt: "Pick your details above to find the right ticket",
+    notOnSalePrompt: "That ticket isn't on sale right now. Check back soon.",
     closeCheckoutLabel: "Close checkout",
   },
 

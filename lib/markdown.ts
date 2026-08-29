@@ -1,13 +1,14 @@
 /**
  * Markdown variants of the site's pages, served at /md/* and reached at the
- * canonical URL via content negotiation (see proxy.ts, which rewrites when
- * `Accept: text/markdown` is present). Built straight from the same content
- * sources the React pages render from (site.config.ts, content/*.json via
+ * canonical URL via content negotiation — a Cloudflare Transform Rule rewrites
+ * a request to `/md<path>` when `Accept: text/markdown` is present (see
+ * docs/markdown-negotiation.md). Built straight from the same content sources
+ * the React pages render from (site.config.ts, content/*.json via
  * lib/content.ts) rather than by converting rendered HTML, since there's no
  * reliable way to turn arbitrary JSX back into clean markdown.
  */
 import { siteConfig, formatEventDate, shortEventDate } from "@/site.config";
-import { agenda, speakers, archivePhotos, getSpeaker } from "@/lib/content";
+import { agenda, speakers, getSpeaker } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
 import { AGENDA_READY, siteRoutes } from "@/lib/routes";
 import type { Speaker } from "@/lib/schemas";
@@ -31,7 +32,9 @@ export function homeMarkdown(): string {
     "",
     "## Pages",
     "",
-    ...siteRoutes.map((r) => `- [${r.label}](${siteConfig.url}${r.href}): ${r.description}`),
+    ...siteRoutes
+      .filter((r) => !r.noIndex)
+      .map((r) => `- [${r.label}](${siteConfig.url}${r.href}): ${r.description}`),
   ];
   return lines.join("\n") + "\n";
 }
@@ -111,39 +114,20 @@ export function ticketsMarkdown(): string {
     frontMatter(`Tickets — ${siteConfig.name}`),
     `The flagship day — ${formatEventDate(siteConfig.date)} at ${siteConfig.venue.name}.`,
     "",
-    "## Flagship tiers",
+    `Tickets are sold **exclusively through KonfHub**, from ${siteConfig.url}${siteConfig.ticketing.href}. There is no other authorised seller.`,
     "",
-    ...siteConfig.ticketSelector.tiers.map(
-      (t) => `- **${t.title}**: ${t.currency}${t.price} — ${t.features.join(", ")}. ${t.addOnsNote}.`,
-    ),
+    "## Flagship tickets",
     "",
-    `Buy: ${siteConfig.url}${siteConfig.ticketing.href}`,
+    ...siteConfig.ticketSelector.tickets.map((t) => {
+      const who = t.audience === "women-diverse" ? " — for women & diverse groups" : "";
+      return `- **${t.name}**${who}: ${t.currency}${t.price}. On sale ${shortEventDate(t.opens)} to ${shortEventDate(t.closes)}.`;
+    }),
+    "",
+    `${siteConfig.ticketSelector.taxNote}. ${siteConfig.ticketSelector.addOnsNote}.`,
     "",
     "## Community events",
     "",
     ...siteConfig.subEvents.map((e) => `- **${e.title}** (${shortEventDate(e.date)}): ${e.description}`),
   ];
   return lines.join("\n") + "\n";
-}
-
-export function contactMarkdown(): string {
-  return (
-    frontMatter(`Contact — ${siteConfig.name}`) +
-    `Email: ${siteConfig.contact.email}\n\n` +
-    "## Elsewhere\n\n" +
-    Object.entries(siteConfig.social)
-      .map(([label, url]) => `- ${label}: ${url}`)
-      .join("\n") +
-    "\n"
-  );
-}
-
-export function memoriesMarkdown(): string {
-  const lines = [frontMatter(`Memories — ${siteConfig.name}`), "Moments from DevFest Chennai 2024 and 2025.", ""];
-  for (const year of [2025, 2024] as const) {
-    const photos = archivePhotos.filter((p) => p.year === year);
-    if (!photos.length) continue;
-    lines.push(`## ${year}`, "", ...photos.map((p) => `- **${p.title}**: ${p.description}`), "");
-  }
-  return lines.join("\n");
 }

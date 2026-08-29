@@ -40,7 +40,7 @@ and http.request.uri.path eq "/"
 http.host eq "df-dev.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and (
-  http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select" "/contact" "/memories"}
+  http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select"}
   or (starts_with(http.request.uri.path, "/speakers/") and http.request.uri.path ne "/speakers/")
 )
 ```
