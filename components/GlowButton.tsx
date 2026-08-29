@@ -148,7 +148,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
   // Consistent text size (13px) across all viewports, proportional to mobile-first button sizing.
   // Smaller font works better with proportional padding at any screen size.
   const surfaceClass =
-    `glow-btn__surface inline-flex items-center justify-center text-xs font-medium transition-opacity duration-150 ${textClassName} ${geometry} ${surfaceClassName}`.trim();
+    `glow-btn__surface inline-flex items-center justify-center whitespace-nowrap text-xs font-medium transition-opacity duration-150 ${textClassName} ${geometry} ${surfaceClassName}`.trim();
 
   const label = <span className="glow-btn__label">{children}</span>;
   const corners = <span className="glow-btn__corners" aria-hidden="true" />;

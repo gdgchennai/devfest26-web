@@ -498,7 +498,7 @@ export function CurvedMarqueeHero() {
           CTAs need to move up by roughly that same amount to stay the same
           visual distance below the title rather than opening a gap. */}
       <div
-        className="absolute inset-x-0 z-20 flex items-center justify-center gap-10 text-lg text-paper max-sm:bottom-[24%] sm:gap-16 sm:bottom-[16%] sm:text-xl"
+        className="absolute inset-x-0 z-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 text-lg text-paper max-sm:bottom-[24%] sm:gap-x-16 sm:bottom-[16%] sm:text-xl"
       >
         <GlowButton href={heroCopy.ticket.href}>
           <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
