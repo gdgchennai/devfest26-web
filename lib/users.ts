@@ -10,7 +10,17 @@ export type UserRecord = {
   image: string | null;
   display_name: string | null;
   created_at: number;
+  // Ticket / payment details — written by the ticketing webhook, not here.
+  booking_id: string | null;
+  payment_id: string | null;
+  ticket_url: string | null;
+  invoice_url: string | null;
 };
+
+export type TicketFields = Pick<
+  UserRecord,
+  "booking_id" | "payment_id" | "ticket_url" | "invoice_url"
+>;
 
 /**
  * Find the account for a Google `sub`, creating one on first sign-in. Returns
@@ -51,6 +61,10 @@ export async function upsertUserByGoogle(profile: {
     image: profile.image ?? null,
     display_name: null,
     created_at: Date.now(),
+    booking_id: null,
+    payment_id: null,
+    ticket_url: null,
+    invoice_url: null,
   };
 
   await db
@@ -68,12 +82,33 @@ export async function getUserById(id: string): Promise<UserRecord | null> {
   return db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<UserRecord>();
 }
 
-/** Update the user-chosen display name. Empty/blank clears it (falls back to
- *  the Google name). Trimmed and length-capped by the caller. */
-export async function setDisplayName(id: string, displayName: string | null): Promise<void> {
+/**
+ * Set the ticket / payment details for an account. Intended for the ticketing
+ * webhook. Matches by our own `id` or by `email` (the webhook knows the
+ * buyer's email, not our id) — email match only fills a row that has no
+ * booking yet, so a re-delivered webhook can't clobber a different purchase.
+ * Returns true if a row was updated.
+ */
+export async function setTicketFields(
+  match: { userId: string } | { email: string },
+  fields: Partial<TicketFields>,
+): Promise<boolean> {
   const db = await getDb();
-  await db
-    .prepare("UPDATE users SET display_name = ? WHERE id = ?")
-    .bind(displayName, id)
+  const cols = ["booking_id", "payment_id", "ticket_url", "invoice_url"] as const;
+  const set = cols
+    .filter((c) => fields[c] !== undefined)
+    .map((c) => `${c} = ?`);
+  if (set.length === 0) return false;
+  const values = cols.filter((c) => fields[c] !== undefined).map((c) => fields[c] ?? null);
+
+  const where =
+    "userId" in match
+      ? { clause: "id = ?", arg: match.userId }
+      : { clause: "email = ? AND booking_id IS NULL", arg: match.email };
+
+  const result = await db
+    .prepare(`UPDATE users SET ${set.join(", ")} WHERE ${where.clause}`)
+    .bind(...values, where.arg)
     .run();
+  return (result.meta.changes ?? 0) > 0;
 }

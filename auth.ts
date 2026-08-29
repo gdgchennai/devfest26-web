@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { upsertUserByGoogle } from "@/lib/users";
+import { safeInternalPath } from "@/lib/safe-redirect";
 
 /**
  * Auth.js (NextAuth v5) — Google sign-in only.
@@ -23,6 +24,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/signin",
   },
   callbacks: {
+    // Post-sign-in / post-sign-out landing. Only ever same-origin: a relative
+    // target is sanitised to a path (no open redirects — see safeInternalPath),
+    // an absolute one is allowed only if its origin matches ours, everything
+    // else falls back to home.
+    redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${safeInternalPath(url, "/")}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {
+        /* not a URL — fall through */
+      }
+      return baseUrl;
+    },
     async jwt({ token, account, profile }) {
       if (account && profile?.sub) {
         const user = await upsertUserByGoogle({

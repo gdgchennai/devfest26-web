@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { agenda } from "@/lib/content";
 import { listFavorites } from "@/lib/favorites";
 import { sessionsForKeys } from "@/lib/session-key";
+import { AGENDA_READY } from "@/lib/routes";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { AgendaList } from "@/components/AgendaList";
 
@@ -12,8 +13,12 @@ export const metadata: Metadata = { title: "My agenda", robots: { index: false }
 export const dynamic = "force-dynamic";
 
 export default async function MyAgendaPage() {
+  if (!AGENDA_READY) notFound();
+
   const session = await auth();
-  if (!session?.user?.uid) redirect("/signin?callbackUrl=/my-agenda");
+  if (!session?.user?.uid) {
+    redirect(`/signin?callbackUrl=${encodeURIComponent("/my-agenda")}`);
+  }
 
   const keys = await listFavorites(session.user.uid);
   const sessions = sessionsForKeys(agenda, keys).sort((a, b) => a.start.localeCompare(b.start));

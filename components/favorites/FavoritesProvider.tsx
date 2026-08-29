@@ -2,13 +2,14 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { currentInternalPath } from "@/lib/safe-redirect";
 
 type FavoritesContextValue = {
   /** True once the initial fetch has resolved (or there's nobody signed in). */
   ready: boolean;
   isFavorite: (key: string) => boolean;
-  /** Add if absent, remove if present. Signed-out visitors get sent to Google
-   *  first; the click that triggered sign-in isn't replayed afterwards. */
+  /** Add if absent, remove if present. Signed-out visitors get a "sign in to
+   *  save" prompt instead — no redirect until they choose to. */
   toggle: (key: string) => void;
 };
 
@@ -19,6 +20,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const [keys, setKeys] = useState<Set<string>>(new Set());
   const [fetchDone, setFetchDone] = useState(false);
+  const [prompt, setPrompt] = useState(false);
   // Guards against overlapping writes for the same key racing each other.
   const inFlight = useRef<Set<string>>(new Set());
 
@@ -40,6 +42,8 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   }, [status]);
 
   const authed = status === "authenticated";
+  // Signing in makes the "sign in to save" prompt moot.
+  const showPrompt = prompt && !authed;
   const ready = status === "loading" ? false : authed ? fetchDone : true;
   const activeKeys = authed ? keys : EMPTY;
 
@@ -48,7 +52,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const toggle = useCallback(
     (key: string) => {
       if (!authed) {
-        void signIn("google");
+        setPrompt(true);
         return;
       }
       if (inFlight.current.has(key)) return;
@@ -76,7 +80,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
           setKeys(new Set(data.favorites ?? []));
         })
         .catch(() => {
-          // Roll the optimistic change back.
           setKeys((prev) => {
             const next = new Set(prev);
             if (adding) next.delete(key);
@@ -96,7 +99,44 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     [ready, isFavorite, toggle],
   );
 
-  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
+  return (
+    <FavoritesContext.Provider value={value}>
+      {children}
+      {showPrompt && (
+        <div
+          role="status"
+          className="fixed inset-x-0 bottom-6 z-[60] mx-auto flex w-fit max-w-[calc(100vw-2rem)] justify-center px-4"
+        >
+          {/* Same glow-btn shell GlowButton renders — the rotating four-colour
+              ring + corner pooling from app/globals.css — wrapped by hand
+              because the pill holds its own buttons, not a single label. */}
+          <span className="glow-btn rounded-full" data-shape="pill">
+            <span className="glow-btn__corners" aria-hidden="true" />
+            <div className="glow-btn__surface flex items-center gap-3 rounded-full px-4 py-2.5 text-sm text-paper">
+              <span>Sign in to save sessions to your agenda.</span>
+              <button
+                type="button"
+                onClick={() => signIn("google", { callbackUrl: currentInternalPath("/agenda") })}
+                className="rounded-full bg-paper px-3 py-1 text-xs font-medium text-ink transition-opacity hover:opacity-90"
+              >
+                Sign in
+              </button>
+              <button
+                type="button"
+                onClick={() => setPrompt(false)}
+                aria-label="Dismiss"
+                className="text-paper/50 hover:text-paper"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </span>
+        </div>
+      )}
+    </FavoritesContext.Provider>
+  );
 }
 
 export function useFavorites(): FavoritesContextValue {

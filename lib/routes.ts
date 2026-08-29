@@ -33,12 +33,18 @@ export const siteRoutes: SiteRoute[] = [
     ? [
         { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },
         { href: "/speakers", label: "Speakers", description: "The lineup, and how to get on it.", inNav: true },
+        {
+          href: "/my-agenda",
+          label: "My agenda",
+          description: "Sessions you've saved. Sign in with Google.",
+          inNav: false,
+          noIndex: true,
+        },
       ]
     : []),
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: false },
   { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },
-  { href: "/my-agenda", label: "My agenda", description: "Sessions you've saved. Sign in with Google.", inNav: false, noIndex: true },
   { href: "/profile", label: "Profile", description: "Your account and saved sessions.", inNav: false, noIndex: true },
 ];
 

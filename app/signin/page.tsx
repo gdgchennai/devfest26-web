@@ -15,7 +15,7 @@ export default function SignInPage() {
       <div className="relative z-10 flex min-h-[70vh] flex-col items-center justify-center px-4 py-12 text-center">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Sign in</h1>
         <p className="mt-3 max-w-sm text-paper/70">
-          Save talks to your own agenda and pick them back up on any device.
+          Manage your DevFest experience here.
         </p>
         <Suspense fallback={null}>
           <SignInPanel />

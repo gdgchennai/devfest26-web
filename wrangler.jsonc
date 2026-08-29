@@ -28,7 +28,7 @@
 		{
 			"binding": "DB",
 			"database_name": "devfest-chennai-2026",
-			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"database_id": "7460097a-f29e-4c9d-95ac-fd6070d666d0",
 			"migrations_dir": "migrations"
 		}
 	],

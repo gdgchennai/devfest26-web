@@ -1,22 +1,27 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
-import { setDisplayName } from "@/lib/users";
+// import { setTicketFields } from "@/lib/users";
 
-export type DisplayNameState = { ok?: boolean; error?: string };
+export type ClaimTicketState = { error?: string; ok?: boolean };
 
-export async function updateDisplayName(
-  _prev: DisplayNameState,
+/**
+ * Link a KonfHub booking to the signed-in account by its booking ID.
+ *
+ * STUB — no backend yet. When the KonfHub lookup exists, verify `bookingId`
+ * belongs to this user's email and call `setTicketFields({ userId }, { … })`.
+ */
+export async function claimTicket(
+  _prev: ClaimTicketState,
   formData: FormData,
-): Promise<DisplayNameState> {
+): Promise<ClaimTicketState> {
   const session = await auth();
   if (!session?.user?.uid) return { error: "Not signed in." };
 
-  const raw = String(formData.get("displayName") ?? "").trim();
-  if (raw.length > 60) return { error: "Keep it under 60 characters." };
+  const bookingId = String(formData.get("bookingId") ?? "").trim();
+  if (!bookingId) return { error: "Enter your booking ID." };
 
-  await setDisplayName(session.user.uid, raw.length > 0 ? raw : null);
-  revalidatePath("/profile");
-  return { ok: true };
+  // STUB: no lookup yet — do nothing. Replace with a KonfHub lookup +
+  // setTicketFields({ userId: session.user.uid }, { … }).
+  return {};
 }

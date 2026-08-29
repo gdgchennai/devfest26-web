@@ -644,7 +644,15 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
  * doubled-up brackets — the flat pair rendering on top of a 3D pair that's
  * already there.
  */
-export const BRACKETS_FIELD_ROUTES = ["/", "/tickets", "/tickets/select", "/agenda"];
+export const BRACKETS_FIELD_ROUTES = [
+  "/",
+  "/tickets",
+  "/tickets/select",
+  "/agenda",
+  "/signin",
+  "/profile",
+  "/my-agenda",
+];
 
 export function BracketsField({ mode = "scroll" }: { mode?: "scroll" | "settled" } = {}) {
   const hostRef = useRef<HTMLDivElement>(null);
