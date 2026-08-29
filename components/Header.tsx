@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { navRoutes } from "@/lib/routes";
 import { volunteerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
+import { AuthButton } from "@/components/auth/AuthButton";
 
 /**
  * The site's navigation for lite mode. Full mode now uses the hamburger menu
@@ -79,6 +80,9 @@ export function Header() {
             >
               {volunteer.label}
             </a>
+          </li>
+          <li>
+            <AuthButton variant="pill" />
           </li>
         </ul>
       </nav>

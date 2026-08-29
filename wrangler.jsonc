@@ -3,6 +3,12 @@
 	"main": ".open-next/worker.js",
 	"name": "devfest-chennai-2026",
 	"compatibility_date": "2026-08-27",
+	// Custom domain — declared here so `wrangler deploy` keeps it attached
+	// (it was first added via the dashboard; without this line every deploy
+	// would detach it). Zone `gdgchennai.in`.
+	"routes": [
+		{ "pattern": "df-dev.gdgchennai.in", "custom_domain": true }
+	],
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
@@ -17,6 +23,19 @@
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
 			"service": "devfest-chennai-2026"
+		}
+	],
+	"d1_databases": [
+		// Accounts + saved sessions. Create the DB and paste its id here:
+		//   npx wrangler d1 create devfest-chennai-2026
+		// then apply migrations locally and remotely:
+		//   npx wrangler d1 migrations apply devfest-chennai-2026 --local
+		//   npx wrangler d1 migrations apply devfest-chennai-2026 --remote
+		{
+			"binding": "DB",
+			"database_name": "devfest-chennai-2026",
+			"database_id": "7460097a-f29e-4c9d-95ac-fd6070d666d0",
+			"migrations_dir": "migrations"
 		}
 	],
 	"r2_buckets": [

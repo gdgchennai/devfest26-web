@@ -50,14 +50,19 @@ export function EventJsonLd() {
         contactType: "customer support",
       },
     },
-    offers: {
-      "@type": "AggregateOffer",
-      url: `${siteConfig.url}${siteConfig.ticketing.href}`,
+    // One Offer per ticket rather than an AggregateOffer price range — every
+    // ticket, its price, and its sale window come straight from siteConfig.
+    offers: siteConfig.ticketSelector.tickets.map((t) => ({
+      "@type": "Offer",
+      name: t.name,
+      category: t.category === "student" ? "Student" : "Professional",
+      price: t.price,
       priceCurrency: "INR",
-      lowPrice: Math.min(...siteConfig.ticketSelector.tiers.map((t) => t.price)),
-      highPrice: Math.max(...siteConfig.ticketSelector.tiers.map((t) => t.price)),
+      url: t.href || `${siteConfig.url}${siteConfig.ticketing.href}`,
+      validFrom: t.opens,
+      priceValidUntil: t.closes,
       availability: "https://schema.org/InStock",
-    },
+    })),
   };
 
   return (

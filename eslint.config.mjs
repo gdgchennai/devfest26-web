@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone workers — not part of the app, linted/typechecked on their own.
+    "workers/**",
   ]),
 ]);
 

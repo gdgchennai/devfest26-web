@@ -9,6 +9,8 @@ import { navRoutes } from "@/lib/routes";
 import { speakerCta, volunteerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
 import { RollingText } from "@/components/motion/RollingText";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { AvatarButton } from "@/components/auth/AvatarButton";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
@@ -293,6 +295,10 @@ export function HamburgerMenu() {
         </button>
       </div>
 
+      {/* Account control, docked just left of the hamburger. Fades out while
+          the panel is open so it doesn't sit on top of the overlay. */}
+      <AvatarButton hidden={open} />
+
       {/*
        * Full-screen: a clip-path circle grown from the button's centre (see
        * openMenu/closeMenu) rather than a corner-anchored card, so it reads
@@ -338,6 +344,9 @@ export function HamburgerMenu() {
           >
             <RollingText>{volunteer.label}</RollingText> →
           </a>
+        </div>
+        <div data-menu-item>
+          <AuthButton variant="menu" />
         </div>
       </div>
     </div>

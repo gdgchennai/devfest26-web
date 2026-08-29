@@ -1,0 +1,32 @@
+{
+  "Id": "ed8df7b6-93ec-4c84-bc89-e64c5779fcea",
+  "Module": "attendees",
+  "Event Type": "registration",
+  "Event At": 1787989946929,
+  "Data": {
+    "Attendee Details": {
+      "Name": "John Doe",
+      "Email Address(Please make sure to use the same email ID as used in devfest.gdgchennai.in)We will auto add your ticket info in your profile": "johndoe@example.com",
+      "Phone Number": "+919876543210",
+      "Booking Id": "236e865f",
+      "Ticket Details": { "Ticket Name": "Professional", "Ticket Price": 1000 },
+      "Parent Booking Id": "6a540e57",
+      "Parent Ticket Name": "Professional",
+      "Addon Booking Ids": ["addon123"],
+      "Addon Details": [
+        {
+          "Name": "John Doe",
+          "Email Address": "johndoe@example.com",
+          "Booking Id": "addon123",
+          "Ticket Details": { "Ticket Name": "GDG Chennai Tshirt", "Ticket Price": 200 }
+        }
+      ],
+      "payment_id": "pay_NPaDhvhQryGbAo",
+      "Amount Details": { "Payment ID": "pay_NPaDhvhQryGbAo", "Amount Paid": 1180 },
+      "Ticket URL": "https://files.konfhub.com/7a2207d5-3fe2-440e-ac0f-d5003359e27f/tickets/236e865f_ticket.pdf",
+      "Invoice URL": "https://files.konfhub.com/7a2207d5-3fe2-440e-ac0f-d5003359e27f/invoices/236e865f_invoice.pdf",
+      "Buyer Name": "John Doe",
+      "Buyer Email": "john@mailinator.com"
+    }
+  }
+}

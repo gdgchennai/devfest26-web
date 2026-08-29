@@ -13,8 +13,8 @@ import gsap from "gsap";
 import { TiltCard } from "@/components/TiltCard";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
-import { siteConfig, uiCopy } from "@/site.config";
-import type { TicketTier } from "@/site.config";
+import { siteConfig, uiCopy, shortEventDate } from "@/site.config";
+import type { Ticket } from "@/site.config";
 
 /**
  * A single "I'm a ___" / "and I identify as ___" choice. Renders as an
@@ -318,6 +318,14 @@ function accentVarFromPastelClass(pastelClass: string): string {
   return `var(--${hue})`;
 }
 
+/** One brand pastel per (category, audience) — kept out of the config so a
+ *  ticket edit stays pure data. red-pastel is the placeholder's, so it's
+ *  avoided here. */
+function ticketColor(ticket: Ticket): string {
+  if (ticket.audience === "women-diverse") return "bg-green-pastel";
+  return ticket.category === "student" ? "bg-yellow-pastel" : "bg-blue-pastel";
+}
+
 /**
  * The ticket itself — same perforated-seam language as components/TicketStub.tsx,
  * but a light brand-pastel surface with dark ink text (this page reads as a
@@ -333,7 +341,18 @@ function accentVarFromPastelClass(pastelClass: string): string {
  * here instead, since a CSS custom property inherits down to both of them
  * from one place.
  */
-function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
+function TicketCard({
+  ticket,
+  perks,
+  addOnsNote,
+  taxNote,
+}: {
+  ticket: Ticket;
+  perks: string[];
+  addOnsNote: string;
+  taxNote: string;
+}) {
+  const color = ticketColor(ticket);
   const { bodyRef, endFlipRef, handleBuyClick, checkoutOpen, closeCheckout } = useTicketTearTransition();
 
   // Escape-to-close and a scroll-locked body while the checkout is open —
@@ -358,16 +377,18 @@ function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
   return (
     <div
       className="ticket-tier-card"
-      style={{ "--tier-accent": accentVarFromPastelClass(tier.color) } as CSSProperties}
+      style={{ "--tier-accent": accentVarFromPastelClass(color) } as CSSProperties}
     >
-      <div ref={bodyRef} className={`ticket-tier-card__body ${tier.color}`}>
-        <h2 className="text-2xl font-bold text-black sm:text-3xl">{tier.title}</h2>
+      <div ref={bodyRef} className={`ticket-tier-card__body ${color}`}>
+        <h2 className="text-2xl font-bold text-black sm:text-3xl">{ticket.name}</h2>
         <ol className="mt-4 list-decimal space-y-1 pl-5 text-black/80">
-          {tier.features.map((feature) => (
-            <li key={feature}>{feature}</li>
+          {perks.map((perk) => (
+            <li key={perk}>{perk}</li>
           ))}
         </ol>
-        <p className="mt-auto pt-6 text-sm text-black/60">{tier.addOnsNote}</p>
+        <p className="mt-auto pt-6 text-sm text-black/60">
+          On sale until {shortEventDate(ticket.closes)} · {addOnsNote}
+        </p>
       </div>
 
       <div className="ticket-tier-card__perf" aria-hidden />
@@ -375,9 +396,9 @@ function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
       {/* The stub as a two-sided flip card — see useTicketTearTransition's
           own doc comment for why this replaced a separate white overlay. */}
       <div ref={endFlipRef} className="ticket-tier-card__end-flip">
-        <div className={`ticket-tier-card__end ${tier.color}`}>
+        <div className={`ticket-tier-card__end ${color}`}>
           <p className="text-3xl font-bold text-black">
-            {tier.currency} {tier.price}
+            {ticket.currency} {ticket.price}
             <sup className="text-sm font-semibold">*</sup>
           </p>
           <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
@@ -421,8 +442,8 @@ function TicketCard({ tier, taxNote }: { tier: TicketTier; taxNote: string }) {
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
               <iframe
-                src={tier.href}
-                title={`Register for ${tier.title}`}
+                src={ticket.href}
+                title={`Register for ${ticket.name}`}
                 allow="payment"
                 // No `allow-top-navigation*`: whatever the widget's checkout
                 // flow needs (its own scripts/forms/cookies, a payment
@@ -461,37 +482,41 @@ function TicketPlaceholder() {
   );
 }
 
+/** Shown when both dropdowns are picked but nothing in that (category,
+ *  audience) pair is currently `visible` — same silhouette as the placeholder,
+ *  different copy. */
+function TicketClosed() {
+  return (
+    <div className="ticket-tier-card" style={{ "--tier-accent": accentVarFromPastelClass("bg-red-pastel") } as CSSProperties}>
+      <div className="ticket-tier-card__body ticket-tier-card__body--placeholder items-center justify-center bg-red-pastel text-center">
+        <p className="text-xl font-semibold text-black/70 sm:text-2xl">{uiCopy.ticketSelector.notOnSalePrompt}</p>
+      </div>
+      <div className="ticket-tier-card__perf" aria-hidden />
+      <div className="ticket-tier-card__end bg-red-pastel" />
+    </div>
+  );
+}
+
 /**
- * The fanned stack: the empty placeholder above plus one card per tier, all
- * sharing one CSS grid cell (see `.ticket-fan` in globals.css) so the
- * container's height always matches whichever card is currently on top,
- * rather than a guessed fixed height. `selectedIndex` is the tier whose
- * `profileKey` matches the current "I'm a ___" pick, or -1 before anything's
- * picked — which is exactly when the placeholder (slot 0 below) belongs in
- * front. Whichever card is in front is flat, full opacity, and wrapped in
- * `TiltCard` for the hover tilt; every other card recedes behind it by its
- * distance from that slot and is `inert` (see below) so it can't be clicked
- * while buried.
+ * The fanned stack: the given `cards` all share one CSS grid cell (see
+ * `.ticket-fan` in globals.css) so the container's height always matches
+ * whichever card is currently on top, rather than a guessed fixed height.
+ * `activeSlot` is the index of the card that should be in front — slot 0 (the
+ * placeholder) until both dropdowns are picked, then slot 1 (the resolved
+ * ticket, or the "not on sale" card). Whichever card is in front is flat, full
+ * opacity, and wrapped in `TiltCard` for the hover tilt; every other card
+ * recedes behind it by its distance from that slot and is `inert` (see below)
+ * so it can't be clicked while buried.
  */
 function TicketStack({
-  tiers,
-  selectedIndex,
-  taxNote,
+  cards,
+  activeSlot,
   staticBaseline,
 }: {
-  tiers: TicketTier[];
-  selectedIndex: number;
-  taxNote: string;
+  cards: { key: string; content: ReactNode }[];
+  activeSlot: number;
   staticBaseline: boolean;
 }) {
-  const cards: { key: string; content: ReactNode }[] = [
-    { key: "placeholder", content: <TicketPlaceholder /> },
-    ...tiers.map((tier) => ({ key: tier.profileKey, content: <TicketCard tier={tier} taxNote={taxNote} /> })),
-  ];
-  // Slot 0 is the placeholder; a real tier's own index shifts up by one to
-  // make room for it.
-  const activeSlot = selectedIndex === -1 ? 0 : selectedIndex + 1;
-
   // Lite mode: no fanned stack, no shuffle transition, no tilt — just the
   // single active card, mounted plainly. Buried cards aren't rendered at all
   // rather than hidden/inert, since there's no fan for them to peek out of.
@@ -511,6 +536,10 @@ function TicketStack({
       {cards.map(({ key, content }, i) => {
         const offset = i - activeSlot;
         const isActive = offset === 0;
+        // Clamp the visible fan depth: any card more than two behind sits in
+        // the same spot as the third, so the tail stays tight no matter how
+        // many tickets are mounted.
+        const fanned = Math.sign(offset) * Math.min(Math.abs(offset), 2);
 
         return (
           <div
@@ -524,7 +553,7 @@ function TicketStack({
             style={{
               transform: isActive
                 ? "translate(0, 0) rotate(0deg) scale(1)"
-                : `translate(${offset * 14}px, ${Math.abs(offset) * 8}px) rotate(${offset * 3}deg) scale(0.97)`,
+                : `translate(${fanned * 14}px, ${Math.abs(fanned) * 8}px) rotate(${fanned * 3}deg) scale(0.97)`,
               zIndex: cards.length - Math.abs(offset),
               opacity: isActive ? 1 : 0.6,
             }}
@@ -537,17 +566,49 @@ function TicketStack({
   );
 }
 
+/** Which ticket `audience` each "and I identify as ___" option maps to. The
+ *  "for women & diverse groups" tickets cover Female and Non binary; Male and
+ *  "Prefer not to say" get the general ticket. */
+const AUDIENCE_BY_IDENTITY: Record<string, Ticket["audience"]> = {
+  Female: "women-diverse",
+  "Non binary": "women-diverse",
+  Male: "all",
+  "Prefer not to say": "all",
+};
+
 export function TicketSelector() {
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
-  const { profiles, identities, tiers, taxNote } = siteConfig.ticketSelector;
+  const { profiles, identities, tickets, perks, taxNote, addOnsNote } = siteConfig.ticketSelector;
   // Both dropdowns start unpicked — an empty underline, not a preselected
   // value — so nobody's professional status or gender gets assumed for them.
   const [profileKey, setProfileKey] = useState("");
   const [identity, setIdentity] = useState("");
 
-  // -1 before "I'm a ___" has a pick — TicketStack reads that as "show the
-  // empty placeholder in front" rather than guessing a tier.
-  const selectedIndex = tiers.findIndex((tier) => tier.profileKey === profileKey);
+  const category = profileKey as Ticket["category"] | "";
+  const audience = AUDIENCE_BY_IDENTITY[identity] as Ticket["audience"] | undefined;
+  const bothPicked = category !== "" && audience !== undefined;
+  const resolved = bothPicked
+    ? tickets.find((t) => t.visible && t.category === category && t.audience === audience) ?? null
+    : null;
+
+  // Every possible card is mounted at all times so the fan can *slide* between
+  // them (a freshly-mounted card can't animate in from a stacked position):
+  // the placeholder, one card per currently-visible ticket, and the "not on
+  // sale" fallback. `activeSlot` is which one comes to the front.
+  const visibleTickets = tickets.filter((t) => t.visible);
+  const cards: { key: string; content: ReactNode }[] = [
+    { key: "placeholder", content: <TicketPlaceholder /> },
+    ...visibleTickets.map((t) => ({
+      key: t.id,
+      content: <TicketCard ticket={t} perks={perks[t.category]} addOnsNote={addOnsNote} taxNote={taxNote} />,
+    })),
+    { key: "closed", content: <TicketClosed /> },
+  ];
+  const activeSlot = resolved
+    ? visibleTickets.findIndex((t) => t.id === resolved.id) + 1
+    : bothPicked
+      ? cards.length - 1 // the "not on sale" card
+      : 0; // the placeholder
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-12 px-6 pb-24 pt-28 sm:px-8 sm:pt-32">
@@ -572,7 +633,7 @@ export function TicketSelector() {
         />
       </div>
 
-      <TicketStack tiers={tiers} selectedIndex={selectedIndex} taxNote={taxNote} staticBaseline={staticBaseline} />
+      <TicketStack cards={cards} activeSlot={activeSlot} staticBaseline={staticBaseline} />
     </div>
   );
 }

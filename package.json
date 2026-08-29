@@ -11,7 +11,11 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "worker:ticketing:dev": "wrangler dev -c workers/ticketing/wrangler.jsonc --persist-to .wrangler/state",
+    "worker:ticketing:deploy": "wrangler deploy -c workers/ticketing/wrangler.jsonc",
+    "worker:ticketing:types": "wrangler types -c workers/ticketing/wrangler.jsonc --env-interface Env workers/ticketing/worker-configuration.d.ts",
+    "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -20,12 +24,14 @@
     "gsap": "^3.15.0",
     "lenis": "^1.3.25",
     "next": "^16.3.3",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "three": "^0.185.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260828.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

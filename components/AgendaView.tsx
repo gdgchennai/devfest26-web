@@ -47,7 +47,7 @@ export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tr
       </div>
 
       <div className="mt-8">
-        <AgendaList sessions={filtered} />
+        <AgendaList sessions={filtered} showFavorite />
       </div>
     </>
   );
