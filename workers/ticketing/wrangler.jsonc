@@ -9,9 +9,9 @@
 	"compatibility_date": "2026-08-27",
 	"observability": { "enabled": true },
 
-	// Same D1 database the site uses — this Worker writes the ticket /
-	// check-in columns on `users` (see ../../migrations). Migrations stay
-	// owned by the app's wrangler.jsonc; this config only binds the DB.
+	// Same D1 database the site uses — this Worker owns the `tickets` table
+	// (../../migrations/0004). Migrations stay owned by the app's
+	// wrangler.jsonc; this config only binds the DB.
 	"d1_databases": [
 		{
 			"binding": "DB",

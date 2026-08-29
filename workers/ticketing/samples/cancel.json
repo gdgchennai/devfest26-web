@@ -1,0 +1,18 @@
+{
+  "Id": "0d2bdd0c-f223-408d-80f9-69a4233dca73",
+  "Module": "attendees",
+  "Event Type": "cancel",
+  "Event At": 1787989985276,
+  "Data": {
+    "Attendee Details": {
+      "Name": "John Doe",
+      "Email Address(Please make sure to use the same email ID as used in devfest.gdgchennai.in)We will auto add your ticket info in your profile": "johndoe@example.com",
+      "Booking Id": "236e865f",
+      "Ticket Details": { "Ticket Name": "Professional", "Ticket Price": 1000 },
+      "payment_id": "pay_NPaDhvhQryGbAo",
+      "Ticket URL": "https://files.konfhub.com/7a2207d5-3fe2-440e-ac0f-d5003359e27f/tickets/236e865f_ticket.pdf",
+      "Invoice URL": "https://files.konfhub.com/7a2207d5-3fe2-440e-ac0f-d5003359e27f/invoices/236e865f_invoice.pdf",
+      "Buyer Email": "john@mailinator.com"
+    }
+  }
+}

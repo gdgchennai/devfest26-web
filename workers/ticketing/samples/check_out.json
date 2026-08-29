@@ -1,0 +1,15 @@
+{
+  "Id": "395b5335-0895-40f0-9cac-c338811943ce",
+  "Module": "attendees",
+  "Event Type": "check_out",
+  "Event At": 1787990015691,
+  "Data": {
+    "Check Out Updates": {
+      "Name": "John Doe",
+      "Email Address(Please make sure to use the same email ID as used in devfest.gdgchennai.in)We will auto add your ticket info in your profile": "johndoe@example.com",
+      "Booking Id": "236e865f",
+      "CheckIn Time": "2026-08-29 07:53:35",
+      "Checkin Name": "Event Checkin"
+    }
+  }
+}

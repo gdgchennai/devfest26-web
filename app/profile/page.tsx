@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/users";
+import { getTicketByEmail, type TicketRecord } from "@/lib/tickets";
 import { countFavorites } from "@/lib/favorites";
 import { AGENDA_READY } from "@/lib/routes";
 import { EVENT_TIME_ZONE } from "@/lib/format";
@@ -26,11 +27,13 @@ export default async function ProfilePage() {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/profile")}`);
   }
 
+  const ticket = user.email ? await getTicketByEmail(user.email) : null;
+
   return (
     <>
       <BracketsField mode="settled" />
       <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <ProfileContent user={user} saved={await countFavorites(user.id)} />
+        <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} />
       </div>
     </>
   );
@@ -56,9 +59,11 @@ function formatCheckIn(ms: number): string {
 
 function ProfileContent({
   user,
+  ticket,
   saved,
 }: {
   user: NonNullable<Awaited<ReturnType<typeof getUserById>>>;
+  ticket: TicketRecord | null;
   saved: number;
 }) {
   return (
@@ -83,7 +88,7 @@ function ProfileContent({
         </div>
       </div>
 
-      {user.checked_in === 1 && (
+      {ticket?.checked_in === 1 && (
         <div className="mt-8 sm:mt-10">
           <p className="text-lg font-semibold">
             You&apos;re in now. Welcome to DevFest. We hope you have a great day!
@@ -92,9 +97,9 @@ function ProfileContent({
             Don&apos;t feel shy to talk, take pictures, socialize. Reach out to us if you need anything
             at all today!
           </p>
-          {user.check_in_time && (
+          {ticket.check_in_time && (
             <p className="mt-3 font-mono text-xs uppercase tracking-wide text-paper/50">
-              Checked in at {formatCheckIn(user.check_in_time)}
+              Checked in at {formatCheckIn(ticket.check_in_time)}
             </p>
           )}
         </div>
@@ -120,7 +125,7 @@ function ProfileContent({
         </div>
       )}
 
-      {!user.booking_id && !user.ticket_url && !user.invoice_url ? (
+      {!ticket?.booking_id && !ticket?.ticket_url && !ticket?.invoice_url ? (
         <div className="mt-8 sm:mt-10">
           <p className="text-lg font-medium">Already booked your DevFest ticket but can&apos;t see it here?</p>
           <p className="mt-1 max-w-md text-sm text-paper/60">Enter your booking ID from KonfHub.</p>
@@ -135,23 +140,23 @@ function ProfileContent({
             Only the main event ticket is shown here. For roadshows and meetups, please refer to the
             respective event pages.
           </p>
-          {user.booking_id && (
+          {ticket.booking_id && (
             <div className="mt-3">
               <p className="font-mono text-xs uppercase tracking-wide text-paper/50">Booking ID</p>
               <div className="mt-2">
-                <CopyField value={user.booking_id} />
+                <CopyField value={ticket.booking_id} />
               </div>
             </div>
           )}
-          {(user.ticket_url || user.invoice_url) && (
+          {(ticket.ticket_url || ticket.invoice_url) && (
             <div className="mt-4 flex flex-wrap gap-3">
-              {user.ticket_url && (
-                <GlowButton href={user.ticket_url} target="_blank" rel="noreferrer" shape="pill" size="md">
+              {ticket.ticket_url && (
+                <GlowButton href={ticket.ticket_url} target="_blank" rel="noreferrer" shape="pill" size="md">
                   View ticket →
                 </GlowButton>
               )}
-              {user.invoice_url && (
-                <GlowButton href={user.invoice_url} target="_blank" rel="noreferrer" shape="pill" size="md">
+              {ticket.invoice_url && (
+                <GlowButton href={ticket.invoice_url} target="_blank" rel="noreferrer" shape="pill" size="md">
                   Invoice →
                 </GlowButton>
               )}

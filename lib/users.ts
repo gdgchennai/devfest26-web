@@ -10,20 +10,7 @@ export type UserRecord = {
   image: string | null;
   display_name: string | null;
   created_at: number;
-  // Ticket / payment details — written by the ticketing webhook, not here.
-  booking_id: string | null;
-  payment_id: string | null;
-  ticket_url: string | null;
-  invoice_url: string | null;
-  // On-site check-in — 0/1, and unix-ms timestamp (null until scanned in).
-  checked_in: number;
-  check_in_time: number | null;
 };
-
-export type TicketFields = Pick<
-  UserRecord,
-  "booking_id" | "payment_id" | "ticket_url" | "invoice_url"
->;
 
 /**
  * Find the account for a Google `sub`, creating one on first sign-in. Returns
@@ -64,12 +51,6 @@ export async function upsertUserByGoogle(profile: {
     image: profile.image ?? null,
     display_name: null,
     created_at: Date.now(),
-    booking_id: null,
-    payment_id: null,
-    ticket_url: null,
-    invoice_url: null,
-    checked_in: 0,
-    check_in_time: null,
   };
 
   await db
@@ -85,51 +66,4 @@ export async function upsertUserByGoogle(profile: {
 export async function getUserById(id: string): Promise<UserRecord | null> {
   const db = await getDb();
   return db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<UserRecord>();
-}
-
-/**
- * Set the ticket / payment details for an account. Intended for the ticketing
- * webhook. Matches by our own `id` or by `email` (the webhook knows the
- * buyer's email, not our id) — email match only fills a row that has no
- * booking yet, so a re-delivered webhook can't clobber a different purchase.
- * Returns true if a row was updated.
- */
-export async function setTicketFields(
-  match: { userId: string } | { email: string },
-  fields: Partial<TicketFields>,
-): Promise<boolean> {
-  const db = await getDb();
-  const cols = ["booking_id", "payment_id", "ticket_url", "invoice_url"] as const;
-  const set = cols
-    .filter((c) => fields[c] !== undefined)
-    .map((c) => `${c} = ?`);
-  if (set.length === 0) return false;
-  const values = cols.filter((c) => fields[c] !== undefined).map((c) => fields[c] ?? null);
-
-  const where =
-    "userId" in match
-      ? { clause: "id = ?", arg: match.userId }
-      : { clause: "email = ? AND booking_id IS NULL", arg: match.email };
-
-  const result = await db
-    .prepare(`UPDATE users SET ${set.join(", ")} WHERE ${where.clause}`)
-    .bind(...values, where.arg)
-    .run();
-  return (result.meta.changes ?? 0) > 0;
-}
-
-/**
- * Mark an account as checked in at the venue. Idempotent — a second scan keeps
- * the original `check_in_time`. Returns true if this call was the one that
- * checked them in.
- */
-export async function checkIn(userId: string, at: number = Date.now()): Promise<boolean> {
-  const db = await getDb();
-  const result = await db
-    .prepare(
-      "UPDATE users SET checked_in = 1, check_in_time = ? WHERE id = ? AND checked_in = 0",
-    )
-    .bind(at, userId)
-    .run();
-  return (result.meta.changes ?? 0) > 0;
 }

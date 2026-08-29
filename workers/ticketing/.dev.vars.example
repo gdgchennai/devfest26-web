@@ -1,0 +1,8 @@
+# Copy to `.dev.vars` for `npm run worker:ticketing:dev`. In production set it
+# as a secret instead:
+#   npx wrangler secret put WEBHOOK_PATH -c workers/ticketing/wrangler.jsonc
+
+# The path segment KonfHub posts to. This is the ONLY access control — pick a
+# long random string for production (e.g. `openssl rand -hex 16`). The Worker
+# 404s every other path.
+WEBHOOK_PATH=webhook
