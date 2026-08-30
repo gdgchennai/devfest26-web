@@ -38,22 +38,27 @@ export const metadata: Metadata = {
   // site's URLs as canonical rather than relative/unresolvable.
   metadataBase: new URL(siteConfig.url),
   alternates: { canonical: "/" },
-  // `image` stays omitted — no social-card raster asset exists yet (only the
-  // SVG wordmark in public/brand-assets). Add one and set it here once it
-  // does; until then WhatsApp/social still get a proper title + description
-  // unfurl from the fields below (the agenda link circulates in WhatsApp groups).
   openGraph: {
     type: "website",
     url: siteConfig.url,
     siteName: siteConfig.name,
     locale: "en_IN",
-    title: siteConfig.name,
-    description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+    // No `title` / `description` here on purpose: with them omitted, Next fills
+    // og:title and og:description from each page's own resolved `title` /
+    // `description` ("Agenda — DevFest 2026 Chennai", the partner page's own
+    // blurb, etc.), so a shared link unfurls as the page it points to. Pages
+    // that set neither fall back to the `title.default` / `description` at the
+    // top of this object.
+    //
+    // `images` DOES stay here — the social-card raster (WhatsApp/Slack/
+    // LinkedIn/X/Discord). Relative path; metadataBase makes it absolute for
+    // crawlers. 2160×1080 (2:1); platforms wanting 1.91:1 crop a hair.
+    images: [{ url: "/banner/main.jpg", width: 2160, height: 1080, alt: siteConfig.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.name,
-    description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+    // Same as openGraph above — title/description inferred per page.
+    images: ["/banner/main.jpg"],
   },
   // Controls iOS "Add to Home Screen" behaviour — apple-icon.png (auto-detected
   // from app/) supplies the icon itself. Matches the site's committed-dark

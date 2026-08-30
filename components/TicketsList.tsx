@@ -70,7 +70,7 @@ function buildEvents(): EventCard[] {
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
-    image: { src: "/banner/main.jpg", alt: "DevFest Chennai 2026" },
+    image: { src: "/banner/main.jpg", alt: siteConfig.name },
   });
 
   return cards;

@@ -59,7 +59,7 @@ export const navRoutes: SiteRoute[] = siteRoutes.filter((r) => r.inNav);
 export const retiredRoutes: Record<string, { reason: string; goto: string }> = {
   "/sponsors": {
     reason:
-      "DevFest Chennai 2026 isn't running a sponsorship programme, so this page is gone. The link may have come from the 2025 brochure.",
+      "DevFest 2026 Chennai isn't running a sponsorship programme, so this page is gone. The link may have come from the 2025 brochure.",
     goto: "/contact",
   },
   "/about": {
