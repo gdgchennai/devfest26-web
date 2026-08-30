@@ -71,12 +71,6 @@ export type SubEvent = {
   color?: "bg-yellow-pastel" | "bg-blue-pastel" | "bg-red-pastel" | "bg-green-pastel" | "bg-neutral-200" | "bg-purple-pastel";
 };
 
-/** Shared KonfHub widget embed — the same one every ticket's "Buy" overlay
- *  loads until real per-ticket embed URLs exist. Kept as a const so the eight
- *  entries below don't each repeat the query string. */
-const KONFHUB_WIDGET =
-  "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0";
-
 export const siteConfig = {
   name: "DevFest Chennai 2026",
   shortName: "DevFest Chennai",
@@ -159,7 +153,7 @@ export const siteConfig = {
         opens: "2026-08-28T18:30:00+05:30",
         closes: "2026-09-05T18:29:00+05:30",
         visible: true,
-        href: KONFHUB_WIDGET,
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118817&ticketId=118817%7C1"
       },
       {
         id: "professional",
@@ -171,7 +165,7 @@ export const siteConfig = {
         opens: "2026-09-05T18:30:00+05:30",
         closes: "2026-10-02T18:29:00+05:30",
         visible: false,
-        href: KONFHUB_WIDGET,
+        href: "#",
       },
       {
         id: "late-professional",
@@ -183,7 +177,7 @@ export const siteConfig = {
         opens: "2026-10-03T16:18:30+05:30",
         closes: "2026-10-10T18:29:00+05:30",
         visible: false,
-        href: KONFHUB_WIDGET,
+        href: "#",
       },
       {
         id: "professional-women-diverse",
@@ -195,7 +189,7 @@ export const siteConfig = {
         opens: "2026-08-28T18:30:00+05:30",
         closes: "2026-10-02T18:29:00+05:30",
         visible: true,
-        href: KONFHUB_WIDGET,
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118810&ticketId=118810%7C0",
       },
       // ── Students ───────────────────────────────────────────────────
       {
@@ -208,7 +202,7 @@ export const siteConfig = {
         opens: "2026-08-28T18:30:00+05:30",
         closes: "2026-09-05T18:29:00+05:30",
         visible: true,
-        href: KONFHUB_WIDGET,
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118816&ticketId=118816%7C1",
       },
       {
         id: "student",
@@ -220,7 +214,7 @@ export const siteConfig = {
         opens: "2026-09-12T18:30:00+05:30",
         closes: "2026-10-02T18:29:00+05:30",
         visible: false,
-        href: KONFHUB_WIDGET,
+        href: "#",
       },
       {
         id: "late-students",
@@ -232,7 +226,7 @@ export const siteConfig = {
         opens: "2026-10-02T18:30:00+05:30",
         closes: "2026-10-10T18:29:00+05:30",
         visible: false,
-        href: KONFHUB_WIDGET,
+        href: "#",
       },
       {
         id: "student-women-diverse",
@@ -244,7 +238,7 @@ export const siteConfig = {
         opens: "2026-08-28T18:30:00+05:30",
         closes: "2026-10-02T18:29:00+05:30",
         visible: true,
-        href: KONFHUB_WIDGET,
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118994&ticketId=118994%7C1",
       },
     ] satisfies Ticket[],
   },

@@ -133,6 +133,59 @@ function TicketDropdown({
 }
 
 /**
+ * The visual viewport size, live. Not `100vw`/`window.innerWidth` — those are
+ * the LAYOUT viewport, which on iOS the KonfHub widget's wide desktop layout
+ * inflates past the screen (see the checkout dialog below for why that matters).
+ */
+function useVisualViewport() {
+  const [vp, setVp] = useState<{ w: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const read = () => {
+      const vv = window.visualViewport;
+      setVp({
+        w: Math.round(vv?.width ?? window.innerWidth),
+        h: Math.round(vv?.height ?? window.innerHeight),
+      });
+    };
+    read();
+    window.visualViewport?.addEventListener("resize", read);
+    window.addEventListener("resize", read);
+    window.addEventListener("orientationchange", read);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", read);
+      window.removeEventListener("resize", read);
+      window.removeEventListener("orientationchange", read);
+    };
+  }, []);
+  return vp;
+}
+
+/**
+ * The KonfHub checkout widget. Matches KonfHub's own `<iframe width="100%"
+ * height="500">` snippet, except height is the panel's real height (min 500)
+ * so the form isn't cramped. Both are safe here BECAUSE the dialog around it is
+ * pinned to a hard pixel size (see CheckoutDialog) — a `width: 100%` inside a
+ * definite-width box can't take part in the layout-viewport runaway.
+ *
+ * `sandbox` is ours, not KonfHub's — the "a payment-gateway popup can't carry
+ * the whole tab away to the KonfHub URL" guarantee. `allow-scripts` +
+ * `allow-same-origin` together still let every widget script run normally.
+ */
+function CheckoutFrame({ src, title, height }: { src: string; title: string; height: number }) {
+  return (
+    <iframe
+      src={src}
+      title={title}
+      width="100%"
+      height={Math.max(Math.round(height), 500)}
+      allow="payment"
+      sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-modals"
+      className="block border-0"
+    />
+  );
+}
+
+/**
  * A high z-index only wins WITHIN its own stacking context — and there are
  * several ancestors between the stub and `<body>` that each cap one open
  * with an explicit z-index of their own: TicketStack's `.ticket-fan__card`
@@ -354,6 +407,7 @@ function TicketCard({
 }) {
   const color = ticketColor(ticket);
   const { bodyRef, endFlipRef, handleBuyClick, checkoutOpen, closeCheckout } = useTicketTearTransition();
+  const vp = useVisualViewport();
 
   // Escape-to-close and a scroll-locked body while the checkout is open —
   // same pattern as HamburgerMenu's own open panel.
@@ -422,8 +476,20 @@ function TicketCard({
       {checkoutOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <div role="dialog" aria-modal="true" className="fixed inset-0 z-[9999] flex flex-col bg-white">
-            <div className="flex items-center justify-end px-4 py-3 sm:px-6">
+          <div
+            role="dialog"
+            aria-modal="true"
+            // Hard pixel size from the VISUAL viewport, not `inset-0` / `100vw`.
+            // `position: fixed` on iOS resolves against the LAYOUT viewport,
+            // which the KonfHub widget's wide desktop layout inflates past the
+            // screen — leaving the close button off-screen right and the frame
+            // showing a slice. Pinning to visualViewport keeps the whole dialog
+            // on screen and stops the widget re-inflating it. Until measured,
+            // fall back to the dynamic viewport units.
+            className="fixed left-0 top-0 z-[9999] flex flex-col bg-white"
+            style={vp ? { width: vp.w, height: vp.h } : { width: "100dvw", height: "100dvh" }}
+          >
+            <div className="flex shrink-0 items-center justify-end px-4 py-3 sm:px-6">
               <button
                 type="button"
                 onClick={closeCheckout}
@@ -440,17 +506,11 @@ function TicketCard({
                 </svg>
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
-              <iframe
+            <div className="min-h-0 flex-1 overflow-y-auto pb-6">
+              <CheckoutFrame
                 src={ticket.href}
                 title={`Register for ${ticket.name}`}
-                allow="payment"
-                // No `allow-top-navigation*`: whatever the widget's checkout
-                // flow needs (its own scripts/forms/cookies, a payment
-                // gateway popup) stays sandboxed to this frame — none of it
-                // can carry the visitor's whole tab away to the KonfHub URL.
-                sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-modals"
-                className="h-full w-full min-h-[500px] border-0"
+                height={vp ? vp.h - 56 : 640}
               />
             </div>
           </div>,
