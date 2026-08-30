@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { Draggable } from "gsap/Draggable";
 import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
@@ -13,7 +12,7 @@ import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
-gsap.registerPlugin(Draggable, useGSAP);
+gsap.registerPlugin(useGSAP);
 
 /** Brand pastels only (see the "do not hand-mix new shades" note in
  *  globals.css) — cycled across the placeholder community events. The
@@ -87,12 +86,6 @@ function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean 
   ) : (
     <RollingText>{event.cta.label}</RollingText>
   );
-  // stopPropagation on the wrapper, not GlowButton itself: GlowButton's
-  // `href` and `onClick` props are mutually exclusive (an internal Link, an
-  // external <a>, or a <button>, never two of those at once), so there's
-  // nowhere to hang it directly — but a click still needs to not also
-  // register as a press on the card behind it (Draggable's
-  // `trigger: cardsEl` covers the whole card, this button included).
   return (
     // shrink-0 + whitespace-nowrap: without them, the flex row this sits in
     // (CTA + date, justify-between) can squeeze this narrower than its
@@ -101,7 +94,7 @@ function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean 
     // wrap between ANY two of them, including mid-word ("Comin" / "g").
     // shrink-0 stops the squeeze; whitespace-nowrap is the belt-and-braces
     // second guard in case the row is ever narrower than the button itself.
-    <span onClick={(e) => e.stopPropagation()} className="shrink-0 whitespace-nowrap">
+    <span className="shrink-0 whitespace-nowrap">
       {event.cta.href ? (
         <GlowButton
           shape="pill"
@@ -185,22 +178,28 @@ function TicketsTitleBar({ plain = false }: { plain?: boolean }) {
  * fixed set of portrait images, and WITHOUT the pen's ScrollTrigger pin: the
  * pen ties the loop to actual page-scroll position (pinning the whole page
  * while you scroll through the cards), which is exactly what this must NOT
- * do — the loop is confined to this section, driven by wheel/drag captured
- * there instead (see the useGSAP effect below). The core idea, since it's
- * dense: a `rawSequence` timeline holds one little scale/fade/xPercent
- * animation per card, staggered `spacing` seconds apart, with `overlap`
- * extra copies layered in at both ends so the sequence can be scrubbed in a
- * loop with no visible seam. A second timeline, `seamlessLoop`, just scrubs
- * a moving WINDOW across that raw sequence (`repeat: -1`), and everything
- * else — the prev/next buttons, wheel, and Draggable — only ever move a
- * single `playhead.offset` number, which gets wrapped and fed into that
- * window. That's what makes prev/next/wheel/drag all agree perfectly on the
- * same position with no separate state to keep in sync.
+ * do — the loop is confined to this section and driven only by the prev /
+ * next / Main event buttons (see the useGSAP effect below). The core idea,
+ * since it's dense: a `rawSequence` timeline holds one little
+ * scale/fade/xPercent animation per card, staggered `spacing` seconds apart,
+ * laid down THREE times back to back so a moving window can always see a
+ * full set with neighbours on either side. A second timeline, `seamlessLoop`,
+ * just scrubs that window across the middle copy (`repeat: -1`,
+ * `duration: cycleDuration` so one loop is exactly `spacing * cardCount`),
+ * and the buttons only ever move a single `playhead.offset` number, which
+ * gets wrapped and fed into that window — no separate "which card" state to
+ * keep in sync with the tween.
+ *
+ * This mirrors the pen's CURRENT buildSeamlessLoop. An earlier port used the
+ * pen's older `overlap`/`startTime`/`loopTime` two-tween form, which only
+ * yields a `spacing * cardCount` loop when `startTime > overlap*spacing + 1`
+ * — true for the pen's 15+ images at spacing 0.1, false for our ~10 cards,
+ * where the second tween went negative-duration and stretched the loop to
+ * 1.5x. wrapTime then wrapped on the wrong period and jumps (esp. the "Main
+ * event" button) landed on the wrong card once `offset` passed one cycle.
  */
 function buildSeamlessLoop(items: HTMLElement[], spacing: number, animateFunc: (el: HTMLElement) => gsap.core.Timeline) {
-  const overlap = Math.ceil(1 / spacing);
-  const startTime = items.length * spacing + 0.5;
-  const loopTime = (items.length + overlap) * spacing + 1;
+  const cycleDuration = spacing * items.length;
   const rawSequence = gsap.timeline({ paused: true });
   const seamlessLoop = gsap.timeline({
     paused: true,
@@ -210,22 +209,22 @@ function buildSeamlessLoop(items: HTMLElement[], spacing: number, animateFunc: (
       if (this._time === this._dur) this._tTime += this._dur - 0.01;
     },
   });
-  const l = items.length + overlap * 2;
 
-  for (let i = 0; i < l; i++) {
-    const index = i % items.length;
-    const time = i * spacing;
-    rawSequence.add(animateFunc(items[index]), time);
+  // Three copies of every card's animation, end to end. `dur` is one card
+  // anim's length (they're all identical) — half of it is how far past the
+  // start the window sits so a card is dead-centre at the loop's time 0.
+  let dur = 0;
+  for (let i = 0; i < items.length * 3; i++) {
+    const anim = animateFunc(items[i % items.length]);
+    rawSequence.add(anim, i * spacing);
+    if (!dur) dur = anim.duration();
   }
 
-  rawSequence.time(startTime);
-  seamlessLoop
-    .to(rawSequence, { time: loopTime, duration: loopTime - startTime, ease: "none" })
-    .fromTo(
-      rawSequence,
-      { time: overlap * spacing + 1 },
-      { time: startTime, duration: startTime - (overlap * spacing + 1), immediateRender: false, ease: "none" },
-    );
+  seamlessLoop.fromTo(
+    rawSequence,
+    { time: cycleDuration + dur / 2 },
+    { time: `+=${cycleDuration}`, duration: cycleDuration, ease: "none" },
+  );
   return seamlessLoop;
 }
 
@@ -234,7 +233,6 @@ function TicketsCarouselMotion() {
   const galleryRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLUListElement>(null);
-  const dragProxyRef = useRef<HTMLDivElement>(null);
   // Read by the Prev/Next buttons' onClick — set once the whole apparatus
   // (scrub tween + scrollToOffset) exists, inside useGSAP below.
   const apiRef = useRef<{
@@ -248,9 +246,8 @@ function TicketsCarouselMotion() {
   useGSAP(
     () => {
       const cardsEl = cardsRef.current;
-      const dragProxy = dragProxyRef.current;
       const stageEl = stageRef.current;
-      if (!cardsEl || !dragProxy || !stageEl) return;
+      if (!cardsEl || !stageEl) return;
 
       // Sizes the card off the SMALLER of "what this breakpoint wants" and
       // "what actually fits the stage's real height" — computed here in JS,
@@ -281,22 +278,47 @@ function TicketsCarouselMotion() {
       window.addEventListener("resize", sizeCard);
 
       const cardEls = gsap.utils.toArray<HTMLElement>(cardsEl.children);
-      gsap.set(cardEls, { xPercent: 400, opacity: 0, scale: 0 });
+      gsap.set(cardEls, { xPercent: 400, opacity: 0, scaleX: 0, scaleY: 0 });
 
+      // Seconds between adjacent cards on rawSequence, and the visual gap: each
+      // card's xPercent tween sweeps 800% over its 1s life, so a resting
+      // neighbour sits `800 * spacing`% off centre — 80% at 0.1, just past the
+      // card edge, the intended tight peek.
       const spacing = 0.1;
       const snapTime = gsap.utils.snap(spacing);
       const animateFunc = (element: HTMLElement) => {
         const tl = gsap.timeline();
+        // scaleX/scaleY, NOT the `scale` shorthand. buildSeamlessLoop stacks
+        // three copies of every card's animation on the same element; near the
+        // loop seam a just-finished copy and a starting copy briefly coexist,
+        // and under the loop's non-linear seek GSAP's `scale` shorthand leaves
+        // scaleX on one and scaleY on the other — the cards flanking the
+        // flagship (index 9, right at the seam) rendered horizontally
+        // squashed. Tweening the two axes as first-class props keeps them in
+        // lockstep.
         tl.fromTo(
           element,
-          { scale: 0, opacity: 0 },
-          { scale: 1, opacity: 1, zIndex: 100, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.in", immediateRender: false },
+          { scaleX: 0, scaleY: 0, opacity: 0 },
+          { scaleX: 1, scaleY: 1, opacity: 1, zIndex: 100, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.in", immediateRender: false },
         ).fromTo(element, { xPercent: 400 }, { xPercent: -400, duration: 1, ease: "none", immediateRender: false }, 0);
         return tl;
       };
 
       const seamlessLoop = buildSeamlessLoop(cardEls, spacing, animateFunc);
       const playhead = { offset: 0 };
+      // prev/next/jumpToIndex and wrapTime all assume "offset ± k*spacing ==
+      // move k cards", which holds only while the loop's period is exactly
+      // cardEls.length * spacing. Guard in dev in case a future change to
+      // buildSeamlessLoop breaks that (an earlier version did — see there).
+      if (process.env.NODE_ENV !== "production") {
+        const period = cardEls.length * spacing;
+        if (Math.abs(seamlessLoop.duration() - period) > 1e-6) {
+          console.error(
+            `[TicketsList] seamless loop period ${seamlessLoop.duration()} != expected ${period} ` +
+              `(cards=${cardEls.length}, spacing=${spacing})`,
+          );
+        }
+      }
       const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
 
       const scrub = gsap.to(playhead, {
@@ -334,54 +356,16 @@ function TicketsCarouselMotion() {
         scrollToOffset((scrub.vars.offset as number) + delta * spacing);
       }
 
-      // Wheel over the section drives the loop directly and is the one
-      // thing standing in for ScrollTrigger's pinned page-scroll — but
-      // scoped to this element with preventDefault, so scrolling here never
-      // touches the actual page scroll position the way a pinned section
-      // would. Same 0.001 px→offset factor Draggable's onDrag uses below,
-      // so a mouse-wheel step and a drag of the same distance move the same
-      // amount. Debounced snap-to-nearest-card on the trailing edge, since
-      // wheel has no built-in "gesture ended" event the way Draggable does.
-      let wheelSnapTimer: ReturnType<typeof setTimeout>;
-      function onWheel(event: WheelEvent) {
-        // Deliberately NOT preventDefault/stopPropagation: that fully
-        // blocked the page's own vertical scroll while the pointer was
-        // anywhere over this section — there was no way to scroll past it
-        // to reach the footer. Wheel input still drives the card loop
-        // below, it just no longer stops Lenis (see MotionProvider.tsx)
-        // from ALSO scrolling the page with the same gesture.
-        scrub.vars.offset = (scrub.vars.offset as number) + event.deltaY * 0.001;
-        scrub.invalidate().restart();
-        clearTimeout(wheelSnapTimer);
-        wheelSnapTimer = setTimeout(() => scrollToOffset(scrub.vars.offset as number), 120);
-      }
-      galleryRef.current?.addEventListener("wheel", onWheel, { passive: false });
-
-      Draggable.create(dragProxy, {
-        type: "x",
-        trigger: cardsEl,
-        onPress() {
-          (this as unknown as { startOffset: number }).startOffset = scrub.vars.offset as number;
-        },
-        onDrag() {
-          const self = this as unknown as { startOffset: number; startX: number; x: number };
-          scrub.vars.offset = self.startOffset + (self.startX - self.x) * 0.001;
-          scrub.invalidate().restart();
-        },
-        onDragEnd() {
-          scrollToOffset(scrub.vars.offset as number);
-        },
-      });
-
+      // Buttons only — no wheel handler and no Draggable. This section used to
+      // capture wheel/drag to drive the loop (standing in for a pinned
+      // ScrollTrigger), but it deliberately never called preventDefault (so
+      // the page could still scroll past to the footer), which made the two
+      // gestures fight: the same wheel that scrolled the page also spun the
+      // cards. Prev / Next / Main event are now the only way to move it.
       apiRef.current = { scrub, scrollToOffset, jumpToIndex, spacing };
 
-      // The wheel listener is a plain DOM event, not a GSAP tween/timeline
-      // or ScrollTrigger/Draggable instance, so it's the one thing here
-      // useGSAP's automatic revert doesn't already clean up on unmount.
       return () => {
-        galleryRef.current?.removeEventListener("wheel", onWheel);
         window.removeEventListener("resize", sizeCard);
-        clearTimeout(wheelSnapTimer);
       };
     },
     { scope: galleryRef },
@@ -397,8 +381,8 @@ function TicketsCarouselMotion() {
     <div className="flex h-dvh flex-col">
       <TicketsTitleBar />
 
-      {/* Not pinned to page scroll (see the wheel handler above) — this is
-          just a normal-flow section the page scrolls straight past. Its two
+      {/* Not pinned to page scroll and not scroll-driven — the page scrolls
+          straight past it and the buttons are the only control. Its two
           children are a flex column, not two absolutely-positioned layers
           fighting over top/bottom percentages: that's what was clipping the
           card's own top off (a magic `top-38%` anchor + a big card at a
@@ -457,18 +441,13 @@ function TicketsCarouselMotion() {
           </GlowButton>
         </div>
       </div>
-
-      {/* Off-screen target for Draggable (mirrors the pen's .drag-proxy) —
-          Draggable needs a real element to drag even though the visible drag
-          surface is the cards list (via `trigger: cardsEl` above). */}
-      <div ref={dragProxyRef} className="pointer-events-none invisible absolute h-px w-px" />
     </div>
   );
 }
 
 /**
- * Lite mode: no GSAP at all — no seamless-loop timeline, no Draggable, no
- * wheel handling, no sizeCard() resize apparatus. A single flat card, swapped
+ * Lite mode: no GSAP at all — no seamless-loop timeline, no sizeCard() resize
+ * apparatus. A single flat card, swapped
  * instantly (plain useState, no eased tween) by the same three buttons —
  * "flat" and "no animation" both literally, not just a lighter-weight
  * version of the motion one. EventCta/CardFace are handed `plain` so the
