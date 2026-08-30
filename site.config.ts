@@ -640,7 +640,7 @@ export const uiCopy = {
   },
 
   moodSection: {
-    heading: "What’s your DevFest mood?",
+    heading: "What’s your DevFest vibe?",
   },
 
   seeYouThereSection: {
