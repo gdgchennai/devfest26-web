@@ -25,7 +25,7 @@ rule → Rewrite URL**. Two rules (one dynamic rule can't special-case `/` →
 *If* — Custom filter expression:
 
 ```
-http.host eq "df-dev.gdgchennai.in"
+http.host eq "devfest.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and http.request.uri.path eq "/"
 ```
@@ -37,7 +37,7 @@ and http.request.uri.path eq "/"
 *If* — Custom filter expression:
 
 ```
-http.host eq "df-dev.gdgchennai.in"
+http.host eq "devfest.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and (
   http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select"}
@@ -55,8 +55,8 @@ Leave **Query** unchanged on both. Keep the route list in sync with the
 
 ```bash
 # markdown variant
-curl -s  https://df-dev.gdgchennai.in/agenda -H 'Accept: text/markdown' | head
-curl -sI https://df-dev.gdgchennai.in/agenda -H 'Accept: text/markdown' | grep -i 'content-type\|vary'
+curl -s  https://devfest.gdgchennai.in/agenda -H 'Accept: text/markdown' | head
+curl -sI https://devfest.gdgchennai.in/agenda -H 'Accept: text/markdown' | grep -i 'content-type\|vary'
 # normal request still gets HTML
-curl -sI https://df-dev.gdgchennai.in/agenda | grep -i 'content-type'
+curl -sI https://devfest.gdgchennai.in/agenda | grep -i 'content-type'
 ```

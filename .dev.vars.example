@@ -12,6 +12,6 @@ AUTH_SECRET=
 # Google Cloud Console → Credentials → OAuth 2.0 Client ID (Web application).
 # Authorised redirect URIs:
 #   http://localhost:3000/api/auth/callback/google
-#   https://df-dev.gdgchennai.in/api/auth/callback/google
+#   https://devfest.gdgchennai.in/api/auth/callback/google
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=

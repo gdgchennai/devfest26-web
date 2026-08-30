@@ -78,7 +78,7 @@ const KONFHUB_WIDGET =
   "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=F7F7F7&ticketBg=F7F7F7&borderCl=F7F7F7&bg=FFFFFF&fontColor=1e1f24&ticketCl=1e1f24&btnColor=002E6E&fontFamily=Hind&borderRadius=10&widget_type=standard&tickets=118971&ticketId=118971%7C0";
 
 export const siteConfig = {
-  name: "DevFest 2026 Chennai",
+  name: "DevFest Chennai 2026",
   shortName: "DevFest Chennai",
   chapter: "GDG Chennai",
   tagline: "Chennai's biggest tech festival",
@@ -86,7 +86,7 @@ export const siteConfig = {
   // Canonical origin, no trailing slash — feeds metadataBase/OpenGraph in
   // app/layout.tsx, app/robots.ts, app/sitemap.ts, and the Event JSON-LD on
   // the homepage. Single source of truth so a domain change is a one-line edit.
-  url: "https://df-dev.gdgchennai.in",
+  url: "https://devfest.gdgchennai.in",
 
   /*
    * THE event date. Change it here and it changes everywhere at once — the
@@ -524,7 +524,7 @@ export const uiCopy = {
   contactPage: {
     heading: "Contact",
     bodyPrefix:
-      "Questions about DevFest 2026 Chennai — sponsorship, speaking, volunteering, or anything else? Reach the ",
+      "Questions about DevFest Chennai 2026 — sponsorship, speaking, volunteering, or anything else? Reach the ",
     bodySuffix: " organising team directly.",
   },
 
@@ -552,7 +552,7 @@ export const uiCopy = {
       agendaTitle: "Agenda",
       agendaDescription: "Four tracks, one day. The full schedule as it firms up.",
       ticketsEyebrow: "Get in",
-      ticketsDescription: "Book your place at DevFest 2026 Chennai.",
+      ticketsDescription: "Book your place at DevFest Chennai 2026.",
       speakingEyebrow: "Get on stage",
       speakingTitle: "Speak at DevFest",
       speakingDescription: "First-time speakers as welcome as conference regulars.",
@@ -664,7 +664,7 @@ export const uiCopy = {
   },
 
   moodSection: {
-    heading: "What’s your DevFest vibe?",
+    heading: "What's your DevFest vibe?",
   },
 
   seeYouThereSection: {

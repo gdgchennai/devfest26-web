@@ -7,7 +7,7 @@
 	// (it was first added via the dashboard; without this line every deploy
 	// would detach it). Zone `gdgchennai.in`.
 	"routes": [
-		{ "pattern": "df-dev.gdgchennai.in", "custom_domain": true }
+		{ "pattern": "devfest.gdgchennai.in", "custom_domain": true }
 	],
 	"compatibility_flags": [
 		"nodejs_compat",

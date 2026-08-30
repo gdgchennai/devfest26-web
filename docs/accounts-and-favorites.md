@@ -27,7 +27,7 @@ The account `id` is our own opaque `usr_…` handle (see `lib/id.ts`). Google's
 1. **Google OAuth client** — Cloud Console → Credentials → OAuth 2.0 Client ID
    (Web application). Redirect URIs:
    - `http://localhost:3000/api/auth/callback/google`
-   - `https://df-dev.gdgchennai.in/api/auth/callback/google`
+   - `https://devfest.gdgchennai.in/api/auth/callback/google`
 
 2. **D1 database**
 

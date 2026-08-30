@@ -50,7 +50,7 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
   Credentials → OAuth 2.0 Client ID (Web application).
 - **Authorised redirect URIs to register:**
   - `http://localhost:3000/api/auth/callback/google`
-  - `https://df-dev.gdgchennai.in/api/auth/callback/google` (prod — match
+  - `https://devfest.gdgchennai.in/api/auth/callback/google` (prod — match
     `siteConfig.url`)
 
 ### `NODE_ENV`
