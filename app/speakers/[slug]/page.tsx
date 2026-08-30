@@ -49,17 +49,32 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
 
       <div className="mt-6 flex gap-4 text-sm">
         {speaker.links.twitter && (
-          <a href={speaker.links.twitter} className="text-blue underline underline-offset-4 hover:decoration-2">
+          <a
+            href={speaker.links.twitter}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue underline underline-offset-4 hover:decoration-2"
+          >
             {uiCopy.socialLabels.x}
           </a>
         )}
         {speaker.links.linkedin && (
-          <a href={speaker.links.linkedin} className="text-blue underline underline-offset-4 hover:decoration-2">
+          <a
+            href={speaker.links.linkedin}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue underline underline-offset-4 hover:decoration-2"
+          >
             {uiCopy.socialLabels.linkedin}
           </a>
         )}
         {speaker.links.github && (
-          <a href={speaker.links.github} className="text-blue underline underline-offset-4 hover:decoration-2">
+          <a
+            href={speaker.links.github}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue underline underline-offset-4 hover:decoration-2"
+          >
             {uiCopy.socialLabels.github}
           </a>
         )}

@@ -70,8 +70,10 @@ type GlowButtonProps = {
   shape?: Shape;
   size?: Size;
   className?: string;
-  /** Only meaningful on the external-anchor branch (non-internal href) —
-   *  same reason ShowMoodSection/VenueReveal set these by hand today. */
+  /** Only meaningful on the external-anchor branch (non-internal href). That
+   *  branch defaults to `target="_blank"` + `rel="noreferrer"` — an external
+   *  link always opens in a new tab — so callers only pass these to override
+   *  (e.g. `target="_self"`), not to opt in. */
   target?: string;
   rel?: string;
   /** Overrides the default text-paper — needed wherever the button sits on a
@@ -178,7 +180,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
   return (
     <span ref={setWrapperRefs} className={wrapperClass} data-shape={shape} onPointerDown={burst}>
       {corners}
-      <a href={href} target={target} rel={rel} className={surfaceClass}>
+      <a href={href} target={target ?? "_blank"} rel={rel ?? "noreferrer"} className={surfaceClass}>
         {label}
       </a>
     </span>

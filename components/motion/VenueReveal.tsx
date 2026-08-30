@@ -90,7 +90,13 @@ const swapTargets = new WeakMap<HTMLElement, string>();
  *  factored out because it's also the WHOLE of a swap that starts from
  *  empty text, where there's nothing to roll out first (see there). */
 function rollIn(el: HTMLElement, direction: 1 | -1) {
-  const inSplit = SplitText.create(el, { type: "chars", mask: "chars" });
+  // "words,chars", not "chars" alone: the per-char wrappers are display:
+  // inline-block, so with no word grouping the browser is free to break a
+  // line between ANY two of them — mid-word — once the caption is narrow
+  // enough to wrap (the roadshow/disclaimer lines on a phone). The word
+  // wrappers keep each word intact; breaks land at the spaces between them.
+  // The tweens still target `.chars`, so the roll itself is unchanged.
+  const inSplit = SplitText.create(el, { type: "words,chars", mask: "chars" });
   gsap.set(inSplit.chars, { yPercent: 130 * direction, opacity: 0 });
   gsap.to(inSplit.chars, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.02, ease: "power3.out" });
 }
@@ -125,7 +131,7 @@ function swapText(el: HTMLElement, newText: string, direction: 1 | -1 = 1) {
     return;
   }
 
-  const outSplit = SplitText.create(el, { type: "chars", mask: "chars" });
+  const outSplit = SplitText.create(el, { type: "words,chars", mask: "chars" });
   gsap.to(outSplit.chars, {
     yPercent: -130 * direction,
     opacity: 0,

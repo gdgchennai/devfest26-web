@@ -84,8 +84,9 @@ export function Button({
     );
   }
 
+  // Non-internal href → a real external link, always opened in a new tab.
   return (
-    <a href={href} className={classes}>
+    <a href={href} target="_blank" rel="noreferrer" className={classes}>
       {children}
     </a>
   );

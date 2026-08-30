@@ -673,7 +673,7 @@ export const uiCopy = {
     // button — see SeeYouThereSection). "Become a Partner" points at the
     // community partnership doc.
     links: [
-      { label: "Join the conversation →" },
+      { label: "Join the conversation →", href: "https://chat.whatsapp.com/JROMzNJAaZ75CC6ybCdWel" },
       { label: "Become a Partner →", href: "/partner" },
     ] as readonly { label: string; href?: string }[],
   },
