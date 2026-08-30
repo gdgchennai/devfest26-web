@@ -11,6 +11,7 @@ import { siteConfig, formatEventDate, shortEventDate } from "@/site.config";
 import { agenda, speakers, getSpeaker } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
 import { AGENDA_READY, siteRoutes } from "@/lib/routes";
+import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import type { Speaker } from "@/lib/schemas";
 
 function frontMatter(title: string): string {
@@ -129,5 +130,51 @@ export function ticketsMarkdown(): string {
     "",
     ...siteConfig.subEvents.map((e) => `- **${e.title}** (${shortEventDate(e.date)}): ${e.description}`),
   ];
+  return lines.join("\n") + "\n";
+}
+
+export function partnerMarkdown(): string {
+  const p = partnership;
+  const lines = [frontMatter(`${p.heading} — ${siteConfig.name}`), p.lede, ""];
+
+  lines.push(`## ${p.what.heading}`, "", ...p.what.body.flatMap((para) => [para, ""]));
+
+  lines.push(`## ${p.why.heading}`, "", p.why.intro, "", ...p.why.points.map((pt) => `- ${pt}`), "", p.why.outro, "");
+
+  lines.push(`## ${p.asks.heading}`, "");
+  p.asks.items.forEach((item, i) => {
+    const note = "note" in item && item.note ? ` _(${item.note})_` : "";
+    lines.push(`${i + 1}. **${item.title}**${note} — ${item.body}`);
+    if ("points" in item && item.points) lines.push(...item.points.map((pt) => `   - ${pt}`));
+    if ("link" in item && item.link) lines.push(`   - [${item.link.label}](${item.link.href})`);
+    lines.push("");
+  });
+
+  lines.push(`## ${p.benefits.heading}`, "", ...p.benefits.items.map((b) => `- **${b.lead}** — ${b.detail}`), "");
+
+  lines.push(`## ${p.finePrint.heading}`, "", p.finePrint.intro, "", ...p.finePrint.points.map((pt) => `- ${pt}`), "");
+
+  lines.push(
+    `## ${p.timeline.heading}`,
+    "",
+    "| Activity | Window |",
+    "|---|---|",
+    ...p.timeline.rows.map((r) => `| ${r.activity} | ${r.window} |`),
+    "",
+    p.timeline.note,
+    "",
+  );
+
+  lines.push(
+    `## ${p.assets.heading}`,
+    "",
+    p.assets.intro,
+    "",
+    ...p.assets.items.map((a) => (a.href ? `- [${a.label}](${a.href})` : `- **${a.label}**: ${ASSET_PENDING}`)),
+    "",
+  );
+
+  lines.push(`## ${p.contact.heading}`, "", `${p.contact.body} ${p.contact.email}`);
+
   return lines.join("\n") + "\n";
 }

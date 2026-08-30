@@ -653,6 +653,7 @@ export const BRACKETS_FIELD_ROUTES = [
   "/profile",
   "/my-agenda",
   "/memories",
+  "/partner",
 ];
 
 export function BracketsField({ mode = "scroll" }: { mode?: "scroll" | "settled" } = {}) {

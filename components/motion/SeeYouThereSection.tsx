@@ -15,7 +15,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 const HEADING = uiCopy.seeYouThereSection.heading;
 
-const LINKS: readonly { label: string }[] = uiCopy.seeYouThereSection.links;
+const LINKS: readonly { label: string; href?: string }[] = uiCopy.seeYouThereSection.links;
 
 /**
  * "See you there!" — the final beat before the footer. Closes out the page
@@ -23,7 +23,8 @@ const LINKS: readonly { label: string }[] = uiCopy.seeYouThereSection.links;
  * technique ReadySection uses — a `SplitText` line-masked cover that wipes
  * in from the left, then back out to the right, uncovering the text — see
  * its own doc comment for the full mechanics), and two plain rolling-text
- * links underneath, both unwired placeholders for now.
+ * links underneath. A link with an `href` in config navigates ("Become a
+ * Partner" → /partner); one without stays a no-op placeholder.
  *
  * --page-bg is left completely alone — no handoff to run here. MoodSection
  * settles it on black (VenueReveal's own pinned overlay lands it there,
@@ -110,14 +111,20 @@ export function SeeYouThereSection() {
       </h2>
 
       <div className="flex flex-col items-center gap-4 text-[clamp(1rem,2vw,1.375rem)] text-paper sm:flex-row sm:gap-10">
-        {LINKS.map((link) => (
-          // Unwired placeholders — a real <button> with a no-op onClick
-          // rather than an `<a href="#">`, since there's genuinely nowhere
-          // for these to go yet (see the module doc comment).
-          <GlowButton key={link.label} onClick={() => {}}>
-            <RollingText>{link.label}</RollingText>
-          </GlowButton>
-        ))}
+        {LINKS.map((link) =>
+          link.href ? (
+            <GlowButton key={link.label} href={link.href}>
+              <RollingText>{link.label}</RollingText>
+            </GlowButton>
+          ) : (
+            // No destination yet — a real <button> with a no-op onClick rather
+            // than an `<a href="#">`, since there's genuinely nowhere for it to
+            // go (see the module doc comment).
+            <GlowButton key={link.label} onClick={() => {}}>
+              <RollingText>{link.label}</RollingText>
+            </GlowButton>
+          ),
+        )}
       </div>
     </section>
   );

@@ -669,7 +669,13 @@ export const uiCopy = {
 
   seeYouThereSection: {
     heading: "See you there!",
-    links: [{ label: "Join the conversation →" }, { label: "Become a Partner →" }],
+    // `href` optional: a link without one stays an unwired placeholder (a no-op
+    // button — see SeeYouThereSection). "Become a Partner" points at the
+    // community partnership doc.
+    links: [
+      { label: "Join the conversation →" },
+      { label: "Become a Partner →", href: "/partner" },
+    ] as readonly { label: string; href?: string }[],
   },
 
   showMoodSection: {
