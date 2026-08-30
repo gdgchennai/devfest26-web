@@ -291,7 +291,7 @@ export const siteConfig = {
     },
     {
       slug: "react-chennai",
-      title: "React Chennai meetup",
+      title: "Chennai React meetup",
       date: "2026-09-19",
       description:
         "React did not disappear. Come join to learn what's going on within React",
