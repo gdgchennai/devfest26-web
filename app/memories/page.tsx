@@ -7,7 +7,7 @@ import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { uiCopy } from "@/site.config";
 
-export const metadata: Metadata = { title: "Memories" };
+export const metadata: Metadata = { title: "Memories", description: uiCopy.memoriesPage.body };
 
 export default function MemoriesPage() {
   let previousColor: FallbackColor | undefined;
