@@ -784,6 +784,24 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           applySwapVisuals(false);
           setPageBg(blueResolved);
         },
+        // onLeave / onLeaveBack fire only when scroll actually CROSSES a pin
+        // boundary — never on a ScrollTrigger.refresh(). So a page that inits
+        // already parked past this pin (browser scroll-restoration on reload,
+        // back/forward nav — MotionProvider hands those back to the browser)
+        // keeps mid-Location's blue --page-bg over the black sections below,
+        // and MoodSection's --theme:0 flip is likewise skipped (see its own
+        // onRefresh). Re-assert the settled "past" state here; the range
+        // before/within Location is already handled on refresh by the
+        // theme-scrub trigger's own onUpdate, so only progress ≥ 1 needs it.
+        onRefresh: (self) => {
+          if (self.progress < 1) return;
+          setOverlayY(0);
+          setPageBg(blackResolved);
+          if (swapState !== "date") {
+            swapState = "date";
+            applySwapVisuals(true);
+          }
+        },
       });
     },
     // revertOnUpdate: without it, useGSAP defers its cleanup until unmount
@@ -989,21 +1007,32 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
         </div>
       </div>
 
-      {/* Overlay panel: rises from the bottom to fully cover the still-
-          pinned frame at the end of the held sequence (see the pin's
-          OVERLAY phase in the effect above). BLACK — deliberately not
-          pastel blue like the rest of Location: this panel rising IS the
-          "turn black" cue, visibly covering the still-blue frame beneath
-          it (heading strip, photo) rather than blending into it. --page-bg
-          itself stays pastel blue for as long as this hasn't finished
-          covering (see overlayProgress in the pin's onUpdate) and only
-          flips to match, black, once it has. */}
+      {/* Overlay panel: rises from the bottom to cover the still-pinned frame
+          at the end of the held sequence (see the pin's OVERLAY phase in the
+          effect above). BLACK — deliberately not pastel blue like the rest of
+          Location: this panel rising IS the "turn black" cue. Its own fill is
+          a top-to-bottom gradient — a thin fully-transparent strip at the very
+          top easing to solid black by the bottom — so its leading (top) edge
+          feathers into the blue frame beneath as it climbs rather than cutting
+          a hard line across it, while staying opaque enough over most of its
+          height to read as a cover. --page-bg itself stays pastel blue for as long as this
+          hasn't finished its rise (see overlayProgress in the pin's onUpdate)
+          and hard-flips to black exactly as the panel lands at full height —
+          so by the time the feathered top would otherwise reveal the frame,
+          there's black behind it anyway. */}
       {!staticBaseline && (
         <div
           ref={overlayRef}
           aria-hidden
           className="pointer-events-none absolute inset-0 z-30"
-          style={{ backgroundColor: "var(--black)" }}
+          style={{
+            // Multi-stop S-curve rather than a two-stop ramp: a plain
+            // `transparent → black` linear stop reads as a visible hard band
+            // where it lands on the photo. These stops ease in slowly, run
+            // through the middle, then ease into solid — no perceptible edge.
+            backgroundImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.04) 3%, rgba(0,0,0,0.15) 6.5%, rgba(0,0,0,0.35) 10%, rgba(0,0,0,0.6) 13%, rgba(0,0,0,0.82) 16.5%, rgba(0,0,0,0.95) 20%, var(--black) 24%)",
+          }}
         >
           {/* Brand-shape particle vortex, reskinned from GSAP's own "canvas
               particles" demo — streams inward toward the center for as long

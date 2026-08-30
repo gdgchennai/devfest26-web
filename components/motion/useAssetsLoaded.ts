@@ -6,6 +6,13 @@ import imagekitLoader, { IMAGEKIT_QUALITY } from "@/lib/imagekit-loader";
  * Minimum time the preloader stays up even on an instant (cached) load — a
  * pseudo loading beat. A bounce cycle is ~1.25s, so ~2s guarantees the dots
  * bounce two full times before the hand-off, rather than flashing past.
+ *
+ * Applied ONLY on the first-visit intro (see the `fullIntro` param). On a
+ * return to `/` within the session — a client-side nav back, or a refresh
+ * after the intro was already seen — every asset is cached and resolves in a
+ * few ms, so this floor was just a mandatory ~2.7s stare at bouncing dots
+ * with nothing actually loading. That path hands off the instant the waits
+ * settle instead.
  */
 const MIN_DURATION = 2000;
 /**
@@ -139,6 +146,13 @@ export function useAssetsLoaded(
    * what made every card show its fallback panel for the whole intro.
    */
   sizedAssets: SizedAsset[] = [],
+  /**
+   * True only on the first-visit intro (HeroSection's `playIntro`). When false
+   * — a return to `/` within the session — MIN_DURATION is skipped so the
+   * preloader hands off as soon as the (already-cached) waits settle instead
+   * of holding the bounce for a fixed ~2s. See MIN_DURATION.
+   */
+  fullIntro: boolean = true,
 ): AssetsState {
   /*
    * Starts false and is ONLY flipped by finish(). The disabled case is handled
@@ -211,10 +225,13 @@ export function useAssetsLoaded(
       settled = true;
       window.clearTimeout(failsafe);
       const degraded = isDegraded();
-      // Degraded skips the minimum bounce entirely. MIN_DURATION buys polish on
-      // a fast successful load; making someone watch a decorative beat before
-      // being told the decoration is not coming is the wrong trade.
-      const wait = degraded ? 0 : Math.max(0, MIN_DURATION - (performance.now() - start));
+      // The minimum bounce is skipped entirely when degraded (MIN_DURATION
+      // buys polish on a fast successful load; making someone watch a
+      // decorative beat before being told the decoration isn't coming is the
+      // wrong trade) and on a return visit (`fullIntro` false — nothing is
+      // actually loading, see MIN_DURATION).
+      const floor = degraded || !fullIntro ? 0 : MIN_DURATION;
+      const wait = Math.max(0, floor - (performance.now() - start));
       minTimer = window.setTimeout(() => setState({ ready: true, degraded }), wait);
     }
 
@@ -318,7 +335,11 @@ export function useAssetsLoaded(
       window.clearTimeout(failsafe);
       budgetTimers.forEach((t) => window.clearTimeout(t));
     };
-    // assets is a fresh array each render; disabled is the only meaningful input.
+    // assets is a fresh array each render; disabled is the only meaningful
+    // input. `fullIntro` is read once here on purpose — it is stable for the
+    // whole life of this effect (a return visit mounts with it false; a first
+    // visit has it true until well after finish() has run), and re-running on
+    // its change would reset `settled` mid-load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled]);
 

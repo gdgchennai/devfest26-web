@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { hallwayPhotos } from "@/lib/content";
@@ -36,6 +36,18 @@ function hasSeenIntro() {
   return window.sessionStorage.getItem(INTRO_SEEN_KEY) !== null;
 }
 
+/**
+ * True once the first boot on THIS document load has finished. Module scope, so
+ * it survives HeroSection unmounting on a route change but resets on a real
+ * document load. That is exactly the line we want the preloader to fall on: an
+ * in-session client-side navigation back to `/` has no first-paint gap to cover
+ * (shell, fonts, JS and every asset are already there — only ~200ms of WebGL
+ * re-init), so it skips the whole preloader and eases the hero in instead; a
+ * hard load (new tab, typed URL, refresh) still gets the inline #boot-preloader
+ * and the GSAP <Loader>.
+ */
+let hasBootedThisLoad = false;
+
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
 export function HeroSection() {
@@ -54,11 +66,17 @@ export function HeroSection() {
   const liteAssets = useClientValue(shouldSkipHeavyAssets, true);
   const isDesktop = useClientValue(() => window.matchMedia("(min-width: 1024px)").matches, true);
   const seenIntro = useClientValue(hasSeenIntro, true);
-  // The bouncing preloader shows on EVERY non-baseline load/refresh (something
-  // is always loading). The dots→brackets morph + enter CTA + flythrough are
-  // the one-time "intro", played only on the first visit of a session.
-  const showLoader = !disableHallway;
-  const playIntro = !disableHallway && !seenIntro;
+  // Captured once at this mount: false on the first load of the document, true
+  // on any later client-side return to `/` (see hasBootedThisLoad). The latter
+  // skips the preloader entirely. Lazy useState (not a ref) so reading it in
+  // render is clean — it never changes for the life of the component.
+  const [alreadyBooted] = useState(() => hasBootedThisLoad);
+  // The bouncing preloader shows on the first non-baseline load of the document
+  // (something is genuinely loading then). The dots→brackets morph + enter CTA +
+  // flythrough are the one-time "intro", played only on the first visit of a
+  // session.
+  const showLoader = !disableHallway && !alreadyBooted;
+  const playIntro = !disableHallway && !alreadyBooted && !seenIntro;
   const [revealDone, setRevealDone] = useState(false);
   const [entering, setEntering] = useState(false);
   // The scroll lock must happen exactly once, at the start of the intro. It is
@@ -68,6 +86,8 @@ export function HeroSection() {
   // page the moment the intro finished. (Refresh is unaffected: playIntro is
   // already false there, so it never flips.)
   const lockedRef = useRef(false);
+  // One-shot guard for the skip-path hero fade-in (see the layout effect).
+  const skipFadeRef = useRef(false);
   // The flythrough autoplay tween, held so we can ramp it from its slow
   // portal-transition speed up to 1× once the loader's white layer clears.
   const flyTweenRef = useRef<gsap.core.Tween | null>(null);
@@ -87,6 +107,20 @@ export function HeroSection() {
     // is only a best-effort early hide, so without this a lite visitor (whose
     // showLoader is false) could be left stuck on the bouncing dots.
     document.documentElement.classList.add("boot-done");
+
+    // Skipped-preloader path — a client-side return to `/`. No scroll lock and
+    // no white field; instead start the hero wrapper hidden and ease it in once,
+    // covering the brief WebGL re-init (and the one-frame StaticHero → WebGL
+    // swap as `disableHallway`/`liteAssets` settle) so it fades rather than
+    // pops. One-shot via skipFadeRef: this effect re-runs as those flags flip,
+    // and the fade must not restart. Skipped under reduced-motion / lite —
+    // read live here rather than off `disableHallway`, which is still its SSR
+    // `true` on the render this first runs on.
+    if (alreadyBooted && !skipFadeRef.current && heroWrapRef.current && !shouldUseStaticBaseline()) {
+      skipFadeRef.current = true;
+      gsap.fromTo(heroWrapRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: "power1.out" });
+    }
+
     if (!showLoader || lockedRef.current) return;
     lockedRef.current = true;
     document.body.style.overflow = "hidden";
@@ -96,7 +130,8 @@ export function HeroSection() {
     // the flythrough lands). On a refresh the preloader just fades to reveal the
     // hero already in place, so leave it untouched.
     if (playIntro && heroWrapRef.current) gsap.set(heroWrapRef.current, { autoAlpha: 0, scale: 0.85 });
-    // lenisRef is stable; the gating flags are the only inputs that re-run this.
+    // lenisRef is stable; the two refs are fixed for the mount. The gating flags
+    // are the only inputs that re-run this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showLoader, playIntro]);
 
@@ -167,7 +202,20 @@ export function HeroSection() {
     MARQUEE_TEXTURES,
     !showLoader,
     flyAssets,
+    // Only the first-visit intro holds the minimum bounce; a return to `/`
+    // within the session hands off as soon as the cached assets settle (see
+    // MIN_DURATION in useAssetsLoaded).
+    playIntro,
   );
+
+  // Mark this document load as booted once the assets are in — from here on, a
+  // client-side navigation back to `/` skips the preloader (see
+  // hasBootedThisLoad). Gated on loadingComplete rather than set on mount so
+  // React's dev-mode double-mount (which happens in the first ~100ms, long
+  // before this) can't trip it and skip the real first-load intro.
+  useEffect(() => {
+    if (loadingComplete) hasBootedThisLoad = true;
+  }, [loadingComplete]);
 
   usePhotoHallway({
     containerRef: flythroughRef,

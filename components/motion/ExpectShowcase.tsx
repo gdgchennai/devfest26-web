@@ -34,8 +34,7 @@ const EXPECT_CARDS = (() => {
     previousColor = fallbackColorFor(item.title, previousColor);
     return {
       item,
-      // Placeholder imagery for now — cycles the local archive photos.
-      photo: archivePhotos[i % archivePhotos.length],
+      photo: item.image ? { src: item.image } : undefined,
       panelColor: previousColor,
     };
   });

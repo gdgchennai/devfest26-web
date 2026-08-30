@@ -63,6 +63,12 @@ export type SubEvent = {
    *  ImageKit's CDN. Omitted while the event has no real photography yet —
    *  TicketsList falls back to the shared venue shot in that case. */
   image?: string;
+  /** The card's background — one of the four brand pastels, or the neutral
+   *  the flagship card uses. Omitted → TicketsList auto-cycles the pastels by
+   *  the card's position in this list. Constrained to these so a card can't
+   *  drift off-palette (see the "do not hand-mix new shades" note in
+   *  globals.css). */
+  color?: "bg-yellow-pastel" | "bg-blue-pastel" | "bg-red-pastel" | "bg-green-pastel" | "bg-neutral-200" | "bg-purple-pastel";
 };
 
 /** Shared KonfHub widget embed — the same one every ticket's "Buy" overlay
@@ -270,6 +276,8 @@ export const siteConfig = {
       description:
         "Join KUG's virtual meetup to learn what's new in Android and Kotlin",
       ctaLabel: "Coming soon →",
+      image: "/banner/purple.jpg",
+      color: "bg-purple-pastel",
     },
     {
       slug: "ai-for-science",
@@ -278,6 +286,8 @@ export const siteConfig = {
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
       ctaLabel: "Coming soon →",
+      image: "/banner/green.jpg",
+      color: "bg-green-pastel",
     },
     {
       slug: "react-chennai",
@@ -287,6 +297,8 @@ export const siteConfig = {
         "React did not disappear. Come join to learn what's going on within React",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/49bulo2m",
+      image: "/banner/blue.jpg",
+      color: "bg-blue-pastel",
     },
     {
       slug: "code-for-communities",
@@ -295,6 +307,8 @@ export const siteConfig = {
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
       ctaLabel: "Coming soon →",
+      image: "/banner/yellow.jpg",
+      color: "bg-yellow-pastel",
     },
     {
       slug: "bwai-cyber",
@@ -303,6 +317,8 @@ export const siteConfig = {
       description:
         "Learn about building security and privacy into agentic systems.",
       ctaLabel: "Coming soon →",
+      image: "/banner/red.jpg",
+      color: "bg-red-pastel",
     },
     {
       slug: "kug-irl",
@@ -312,6 +328,8 @@ export const siteConfig = {
         "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
       ctaLabel: "Register Now →",
       href: "https://luma.com/mprx0ocg",
+      image: "/banner/purple.jpg",
+      color: "bg-purple-pastel",
     },
     {
       slug: "army-exclusive",
@@ -320,6 +338,8 @@ export const siteConfig = {
       description:
         "Enabling our protectors, protect their data.",
       ctaLabel: "Not open to public",
+      image: "/banner/green.jpg",
+      color: "bg-green-pastel",
     },
     {
       slug: "build-with-ai-wtm",
@@ -328,6 +348,8 @@ export const siteConfig = {
       description:
         "Women come, learn, build and talk about AI.",
       ctaLabel: "Coming soon →",
+      image: "/banner/blue.jpg",
+      color: "bg-blue-pastel",
     },
     {
       slug: "devfest-on-campus",
@@ -336,16 +358,30 @@ export const siteConfig = {
       description:
         "Bringing the DevFest spirit to campus.",
       ctaLabel: "Coming soon →",
+      image: "/banner/on-campus.jpg",
+      color: "bg-yellow-pastel",
     },
   ] satisfies SubEvent[],
 
   whatYoullGet: [
-    { title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city." },
-    { title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience." },
-    { title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs." },
-    { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects." },
-    { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations." },
-    { title: "Community", description: "Join us as we celebrate the community while you find your tribe here." },
+    { title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city.",
+      image: "/archive/2025-roadshow.jpg"
+     },
+    { title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience.",
+      image: "/archive/2025-build.jpg"
+     },
+    { title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs.",
+      image: "/archive/2025-compete.jpg"
+     },
+    { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects.",
+      image: "/archive/2025-full-house.jpg"
+     },
+    { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations.",
+      image: "/archive/2025-registration-desk.jpg"
+     },
+    { title: "Community", description: "Join us as we celebrate the community while you find your tribe here.",
+      image: "/archive/2025-group.jpg"
+     },
   ],
 
   cfp: {
@@ -628,7 +664,7 @@ export const uiCopy = {
   },
 
   moodSection: {
-    heading: "What’s your DevFest mood?",
+    heading: "What’s your DevFest vibe?",
   },
 
   seeYouThereSection: {
