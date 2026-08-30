@@ -63,6 +63,12 @@ export type SubEvent = {
    *  ImageKit's CDN. Omitted while the event has no real photography yet —
    *  TicketsList falls back to the shared venue shot in that case. */
   image?: string;
+  /** The card's background — one of the four brand pastels, or the neutral
+   *  the flagship card uses. Omitted → TicketsList auto-cycles the pastels by
+   *  the card's position in this list. Constrained to these so a card can't
+   *  drift off-palette (see the "do not hand-mix new shades" note in
+   *  globals.css). */
+  color?: "bg-yellow-pastel" | "bg-blue-pastel" | "bg-red-pastel" | "bg-green-pastel" | "bg-neutral-200" | "bg-purple-pastel";
 };
 
 /** Shared KonfHub widget embed — the same one every ticket's "Buy" overlay
@@ -270,6 +276,8 @@ export const siteConfig = {
       description:
         "Join KUG's virtual meetup to learn what's new in Android and Kotlin",
       ctaLabel: "Coming soon →",
+      image: "/banner/purple.jpg",
+      color: "bg-purple-pastel",
     },
     {
       slug: "ai-for-science",
@@ -278,6 +286,8 @@ export const siteConfig = {
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
       ctaLabel: "Coming soon →",
+      image: "/banner/green.jpg",
+      color: "bg-green-pastel",
     },
     {
       slug: "react-chennai",
@@ -287,6 +297,8 @@ export const siteConfig = {
         "React did not disappear. Come join to learn what's going on within React",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/49bulo2m",
+      image: "/banner/blue.jpg",
+      color: "bg-blue-pastel",
     },
     {
       slug: "code-for-communities",
@@ -295,6 +307,8 @@ export const siteConfig = {
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
       ctaLabel: "Coming soon →",
+      image: "/banner/yellow.jpg",
+      color: "bg-yellow-pastel",
     },
     {
       slug: "bwai-cyber",
@@ -303,6 +317,8 @@ export const siteConfig = {
       description:
         "Learn about building security and privacy into agentic systems.",
       ctaLabel: "Coming soon →",
+      image: "/banner/red.jpg",
+      color: "bg-red-pastel",
     },
     {
       slug: "kug-irl",
@@ -312,6 +328,8 @@ export const siteConfig = {
         "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
       ctaLabel: "Register Now →",
       href: "https://luma.com/mprx0ocg",
+      image: "/banner/purple.jpg",
+      color: "bg-purple-pastel",
     },
     {
       slug: "army-exclusive",
@@ -320,6 +338,8 @@ export const siteConfig = {
       description:
         "Enabling our protectors, protect their data.",
       ctaLabel: "Not open to public",
+      image: "/banner/green.jpg",
+      color: "bg-green-pastel",
     },
     {
       slug: "build-with-ai-wtm",
@@ -328,6 +348,8 @@ export const siteConfig = {
       description:
         "Women come, learn, build and talk about AI.",
       ctaLabel: "Coming soon →",
+      image: "/banner/blue.jpg",
+      color: "bg-blue-pastel",
     },
     {
       slug: "devfest-on-campus",
@@ -336,6 +358,8 @@ export const siteConfig = {
       description:
         "Bringing the DevFest spirit to campus.",
       ctaLabel: "Coming soon →",
+      image: "/banner/on-campus.jpg",
+      color: "bg-yellow-pastel",
     },
   ] satisfies SubEvent[],
 

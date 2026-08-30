@@ -108,6 +108,7 @@
   --green: #34a853;
   --yellow: #f9ab00;
   --red: #ea4335;
+  --purple: #a136f7;
   --black: #000;
   --orig-black: #131313;
 
@@ -116,12 +117,14 @@
   --green-halftone: #5cdb6d;
   --yellow-halftone: #ffd427;
   --red-halftone: #ff7daf;
+  --purple-halftone: #9559c7;
 
   /* Pastels — lightest tints */
   --blue-pastel: #c3ecf6;
   --green-pastel: #ccf6c5;
   --yellow-pastel: #ffe7a5;
   --red-pastel: #f8d8d8;
+  --purple-pastel: #e2c0fd;
 }
 
 /*
@@ -170,16 +173,19 @@ html.lite .nav-lite-only {
   --color-red: var(--red);
   --color-yellow: var(--yellow);
   --color-green: var(--green);
+  --color-purple: var(--purple);
 
   --color-blue-halftone: var(--blue-halftone);
   --color-green-halftone: var(--green-halftone);
   --color-yellow-halftone: var(--yellow-halftone);
   --color-red-halftone: var(--red-halftone);
+  --color-purple-halftone: var(--purple-halftone);
 
   --color-blue-pastel: var(--blue-pastel);
   --color-green-pastel: var(--green-pastel);
   --color-yellow-pastel: var(--yellow-pastel);
   --color-red-pastel: var(--red-pastel);
+  --color-purple-pastel: var(--purple-pastel);
 
   --font-sans: var(--font-google-sans);
 }

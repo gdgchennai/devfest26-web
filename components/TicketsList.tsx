@@ -15,11 +15,12 @@ import { useClientValue } from "@/lib/useClientValue";
 gsap.registerPlugin(useGSAP);
 
 /** Brand pastels only (see the "do not hand-mix new shades" note in
- *  globals.css) — cycled across the placeholder community events. The
- *  flagship card below deliberately breaks the cycle with a neutral, since
- *  it isn't one of the brand's four accent colours. */
+ *  globals.css) — the default cycle across the community-event cards, used
+ *  for any subEvent that doesn't set its own `color` (see SubEvent.color).
+ *  The flagship card below deliberately breaks the cycle with a neutral,
+ *  since it isn't one of the brand's four accent colours. */
 const COLORS = ["bg-yellow-pastel", "bg-blue-pastel", "bg-red-pastel", "bg-green-pastel"];
-const FLAGSHIP_COLOR = "bg-neutral-200";
+const FLAGSHIP_COLOR = "bg-yellow-pastel";
 
 // The flagship card's own CTA, deliberately NOT ticketCta().href: that value
 // is `/tickets` (this page), which made the flagship "Get tickets" button a
@@ -55,7 +56,7 @@ function buildEvents(): EventCard[] {
     date: shortEventDate(event.date),
     description: event.description,
     cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
-    color: COLORS[i % COLORS.length],
+    color: event.color ?? COLORS[i % COLORS.length],
     image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
   }));
 
@@ -69,7 +70,7 @@ function buildEvents(): EventCard[] {
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
-    image: VENUE_IMAGE,
+    image: { src: "/banner/main.jpg", alt: "DevFest Chennai 2026" },
   });
 
   return cards;
