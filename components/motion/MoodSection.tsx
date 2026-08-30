@@ -100,6 +100,16 @@ export function MoodSection() {
           invalidateOnRefresh: true,
           onEnter: () => setTheme(0),
           onLeaveBack: () => setTheme(1),
+          // onEnter never fires on a ScrollTrigger.refresh() — so a page that
+          // inits already at/past this section (scroll-restoration on reload,
+          // back/forward nav, a resize/font-swap refresh while parked here)
+          // keeps VenueReveal's scrubbed --theme:1, which renders --paper
+          // near-black — invisible over this section's black backdrop. Re-run
+          // the flip on every refresh whenever we're at or past this trigger's
+          // start; before it, VenueReveal's theme-scrub owns --theme.
+          onRefresh: (self) => {
+            if (self.progress > 0) setTheme(0);
+          },
         },
       });
 

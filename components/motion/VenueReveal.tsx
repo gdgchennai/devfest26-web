@@ -784,6 +784,24 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           applySwapVisuals(false);
           setPageBg(blueResolved);
         },
+        // onLeave / onLeaveBack fire only when scroll actually CROSSES a pin
+        // boundary — never on a ScrollTrigger.refresh(). So a page that inits
+        // already parked past this pin (browser scroll-restoration on reload,
+        // back/forward nav — MotionProvider hands those back to the browser)
+        // keeps mid-Location's blue --page-bg over the black sections below,
+        // and MoodSection's --theme:0 flip is likewise skipped (see its own
+        // onRefresh). Re-assert the settled "past" state here; the range
+        // before/within Location is already handled on refresh by the
+        // theme-scrub trigger's own onUpdate, so only progress ≥ 1 needs it.
+        onRefresh: (self) => {
+          if (self.progress < 1) return;
+          setOverlayY(0);
+          setPageBg(blackResolved);
+          if (swapState !== "date") {
+            swapState = "date";
+            applySwapVisuals(true);
+          }
+        },
       });
     },
     // revertOnUpdate: without it, useGSAP defers its cleanup until unmount
