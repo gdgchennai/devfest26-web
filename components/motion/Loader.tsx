@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useClientValue } from "@/lib/useClientValue";
 import { useLiteModeToggle } from "@/lib/useLiteModeToggle";
+import { shouldSuggestLiteMode } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { siteConfig, uiCopy } from "@/site.config";
 
@@ -140,9 +141,18 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
   const svgRef = useRef<SVGSVGElement>(null);
   const ctaRef = useRef<HTMLButtonElement>(null);
   const liteLinkRef = useRef<HTMLButtonElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
   const [ctaReady, setCtaReady] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [promptDismissed, setPromptDismissed] = useState(false);
   const { setLite } = useLiteModeToggle();
+
+  // A slow connection / low-power device gets a one-tap way out *before*
+  // sitting through the whole intro. Only while the dots are still loading
+  // (first visit only) — it's replaced by the Enter CTA the moment the mark
+  // settles, and never appears on the quick refresh-path fade.
+  const suggestLite = useClientValue(shouldSuggestLiteMode, false);
+  const showLitePrompt = playIntro && suggestLite && !ctaReady && !promptDismissed;
 
   // Read the latest loading state from inside the (once-only) GSAP setup
   // without listing it as a dep — flipping it must not tear down the timeline.
@@ -290,6 +300,21 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
     { scope: rootRef, dependencies: [ctaReady] },
   );
 
+  // Ease the lite prompt in when it appears. It has no fade-out — when
+  // `showLitePrompt` flips false the node unmounts and the Enter CTA fading in
+  // over the same spot covers the swap.
+  useGSAP(
+    () => {
+      if (!showLitePrompt || !promptRef.current) return;
+      gsap.fromTo(
+        promptRef.current,
+        { autoAlpha: 0, y: 8 },
+        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      );
+    },
+    { scope: rootRef, dependencies: [showLitePrompt] },
+  );
+
   /*
    * Skips the intro entirely rather than playing `handleEnter`'s zoom/portal
    * reveal — the whole point of choosing lite here is to not sit through the
@@ -378,12 +403,46 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
         ))}
       </svg>
 
-      {/* Viewport hint — the whole intro (and the flythrough it leads into) is
-          tuned for a wide screen. Sits just above the Enter CTA, shown for the
-          full duration of the loader. */}
-      <p className="font-mono text-xs uppercase tracking-wider text-ink/50 lg:hidden">
-        {uiCopy.loader.desktopHint}
-      </p>
+      {/* Bottom-anchored stack, absolutely positioned so nothing here shifts the
+          dots/mark off centre:
+           • the viewport hint — pinned to `bottom:1.5rem` to match the
+             first-paint #boot-preloader's own hint (app/layout.tsx), so it
+             doesn't jump position on hand-off from that to this;
+           • above it, while still loading, the slow-connection / low-power
+             lite-mode prompt. Stacked so toggling the prompt never moves the
+             hint. */}
+      <div className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-3 px-4">
+        {showLitePrompt && (
+          <div
+            ref={promptRef}
+            role="group"
+            aria-label={uiCopy.loader.litePromptBody}
+            style={{ visibility: "hidden" }}
+            className="flex w-fit max-w-[min(88vw,340px)] flex-col items-center gap-2 rounded-2xl border border-ink/20 bg-white px-4 py-3 text-center"
+          >
+            <p className="text-sm text-ink/80">{uiCopy.loader.litePromptBody}</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <button
+                type="button"
+                onClick={handleSwitchToLite}
+                className="font-sans text-xs font-semibold uppercase tracking-wider text-ink underline-offset-4 hover:underline"
+              >
+                {uiCopy.loader.litePromptAcceptLabel}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPromptDismissed(true)}
+                className="font-sans text-xs font-medium uppercase tracking-wider text-ink/60 underline-offset-4 hover:underline"
+              >
+                {uiCopy.loader.litePromptDismissLabel}
+              </button>
+            </div>
+          </div>
+        )}
+        <p className="font-mono text-xs uppercase tracking-wider text-ink/50 lg:hidden">
+          {uiCopy.loader.desktopHint}
+        </p>
+      </div>
 
       <button
         ref={ctaRef}
