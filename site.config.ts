@@ -288,7 +288,7 @@ export const siteConfig = {
       title: "Chennai React meetup",
       date: "2026-09-19",
       description:
-        "React did not disappear. Come join to learn what's going on within React",
+        "React in 2026: bigger, faster, still your favorite. Let's talk.",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/49bulo2m",
       image: "/banner/blue.jpg",
