@@ -618,6 +618,7 @@ export const uiCopy = {
   heroCopy: {
     agendaLabel: "See Agenda →",
     volunteerLabel: "Become volunteer →",
+    cfpLabel: "Submit CFP →",
   },
 
   liteToggle: {
@@ -634,6 +635,12 @@ export const uiCopy = {
     enterCtaLabel: "Enter the DevFest experience →",
     switchToLiteLabel: "I don't like animations →",
     desktopHint: "Best experienced in Desktop/wide screens",
+    // Shown while the loader is still loading, and only when a slow connection
+    // or a low-power device is detected (see shouldSuggestLiteMode). Gone the
+    // moment the Enter CTA appears.
+    litePromptBody: "Slow connection or a modest device? There's a lighter version without the 3D or photos.",
+    litePromptAcceptLabel: "Switch to lite →",
+    litePromptDismissLabel: "Stay on full",
   },
 
   memoriesHallway: {

@@ -1,5 +1,5 @@
 import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
-import { ticketCta, volunteerCta } from "@/lib/cta";
+import { ticketCta, volunteerCta, speakerCta } from "@/lib/cta";
 import { AGENDA_READY } from "@/lib/routes";
 
 /**
@@ -32,3 +32,40 @@ export const heroCopy = {
   agenda: AGENDA_READY ? { href: siteConfig.agendaUrl, label: uiCopy.heroCopy.agendaLabel } : null,
   volunteer: { href: volunteerCta().href, label: uiCopy.heroCopy.volunteerLabel },
 } as const;
+
+/**
+ * The hero CTA row, resolved once here so `CurvedMarqueeHero` and `StaticHero`
+ * render the same buttons in the same order.
+ *
+ * `HERO_BUTTONS` (see next.config.ts) is an optional comma-separated allow-list
+ * — e.g. `HERO_BUTTONS=tickets,cfp` — that trims or picks the row per deploy
+ * without a code change. Unset means "all of them". Order is fixed here, not
+ * taken from the env, so the row can't be accidentally reshuffled.
+ *
+ * `agenda` is gated twice: it only exists while `AGENDA_READY` is on (naming it
+ * in the env does nothing before then), and it's still subject to the
+ * allow-list once it is — so `HERO_BUTTONS` without `agenda` hides it even
+ * after the agenda is published.
+ */
+const HERO_BUTTON_ORDER = ["tickets", "cfp", "volunteer", "agenda"] as const;
+type HeroButtonKey = (typeof HERO_BUTTON_ORDER)[number];
+
+export type HeroButton = { key: HeroButtonKey; href: string; label: string };
+
+const heroButtonDefs: Record<HeroButtonKey, HeroButton | null> = {
+  tickets: { key: "tickets", href: heroCopy.ticket.href, label: uiCopy.common.getTicketsLabel },
+  cfp: { key: "cfp", href: speakerCta().href, label: uiCopy.heroCopy.cfpLabel },
+  volunteer: { key: "volunteer", href: heroCopy.volunteer.href, label: heroCopy.volunteer.label },
+  agenda: heroCopy.agenda ? { key: "agenda", href: heroCopy.agenda.href, label: heroCopy.agenda.label } : null,
+};
+
+const heroButtonAllowList: readonly HeroButtonKey[] = (() => {
+  const raw = process.env.HERO_BUTTONS?.trim();
+  if (!raw) return HERO_BUTTON_ORDER;
+  const requested = new Set(raw.split(",").map((s) => s.trim()).filter(Boolean));
+  return HERO_BUTTON_ORDER.filter((key) => requested.has(key));
+})();
+
+export const heroButtons: HeroButton[] = heroButtonAllowList
+  .map((key) => heroButtonDefs[key])
+  .filter((b): b is HeroButton => b !== null);

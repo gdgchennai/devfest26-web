@@ -170,7 +170,12 @@ export function partnerMarkdown(): string {
     "",
     p.assets.intro,
     "",
-    ...p.assets.items.map((a) => (a.href ? `- [${a.label}](${a.href})` : `- **${a.label}**: ${ASSET_PENDING}`)),
+    ...p.assets.items.map((a) => {
+      if (a.href && "linkText" in a && a.linkText) return `- **${a.label}**: [${a.linkText}](${a.href})`;
+      if (a.href) return `- [${a.label}](${a.href})`;
+      if ("text" in a && a.text) return `- **${a.label}**: ${a.text}`;
+      return `- **${a.label}**: ${ASSET_PENDING}`;
+    }),
     "",
   );
 

@@ -101,6 +101,47 @@ export function isLowPowerDevice(): boolean {
 }
 
 /**
+ * Whether the connection is slow enough that ~1 MB of intro assets is a real
+ * wait. Broader than `isSaveData()` — it also counts `3g`, since the preloader
+ * holds the visitor on the bounce until everything is in, and on 3g that can be
+ * many seconds. `navigator.connection` is absent on Safari/Firefox → `false`
+ * (no signal, no downgrade).
+ */
+export function isSlowConnection(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
+    .connection;
+  if (!connection) return false;
+  if (connection.saveData) return true;
+  return (
+    connection.effectiveType === "slow-2g" ||
+    connection.effectiveType === "2g" ||
+    connection.effectiveType === "3g"
+  );
+}
+
+/**
+ * Whether the preloader should *offer* lite mode up front — a slow connection
+ * or a device likely to struggle with the WebGL scenes. This does NOT downgrade
+ * anything by itself (the experience stays consistent on every connection, see
+ * `shouldUseStaticBaseline`); it only surfaces a one-tap opt-out while the
+ * loader is on screen, before the visitor has sat through the whole intro.
+ */
+export function shouldSuggestLiteMode(): boolean {
+  // Dev-only override so the prompt is testable without spoofing
+  // `navigator.connection` (Chrome's network throttling doesn't reliably
+  // update `effectiveType`, and nothing changes `hardwareConcurrency`).
+  // `?lite-prompt=1` forces it on, `?lite-prompt=0` off. Stripped from prod
+  // builds — `NODE_ENV` is statically replaced, so the block is dead code there.
+  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+    const forced = new URLSearchParams(window.location.search).get("lite-prompt");
+    if (forced === "1") return true;
+    if (forced === "0") return false;
+  }
+  return isSlowConnection() || isLowPowerDevice();
+}
+
+/**
  * True when the full motion layer (preloader, intro, hallway, 3D) should be
  * skipped entirely and the visitor sent straight to the static site.
  *
