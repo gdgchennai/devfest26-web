@@ -73,6 +73,12 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
   const previousPathname = useRef(pathname);
   const router = useRouter();
   const transitioningRef = useRef(false);
+  // Set only by the link-click handler below, i.e. only on a FORWARD navigation.
+  // Browser back/forward never goes through that handler, so it never sets this
+  // — which is how those keep their restored scroll position while every link
+  // click lands at the top of its destination. Consumed (and cleared) by the
+  // per-pathname effect once the new route has rendered.
+  const scrollResetPendingRef = useRef(false);
 
   // One Lenis instance for the whole site, created here and kept alive
   // across route changes (root layout never remounts on navigation).
@@ -182,6 +188,12 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
       // navigated by the time a bubble-phase listener could preventDefault.
       e.preventDefault();
       e.stopPropagation();
+      // A link click is a forward navigation — its destination opens at the top.
+      // The actual reset runs in the per-pathname effect below, after the new
+      // route has rendered and just before ScrollTrigger.refresh() (which would
+      // otherwise save/restore the stale position from the page just left).
+      scrollResetPendingRef.current = true;
+
       if (transitioningRef.current || !curtainRef.current) {
         resetScrubbedTheme();
         router.push(href);
@@ -196,7 +208,7 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
         duration: TRANSITION_IN_MS / 1000,
         ease: EASE_CURTAIN,
         onComplete: () => {
-          lenisRef.current?.scrollTo(0, { immediate: true });
+          lenisRef.current?.scrollTo(0, { immediate: true, force: true });
           // The screen is now fully covered, so this is the point to reset
           // the CSS custom properties VenueReveal/MoodSection scrub directly
           // onto <html> as the visitor scrolls (--theme, --page-bg,
@@ -227,6 +239,18 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
     // wrong for the one just arrived at regardless of how the visitor got
     // there. Harmless if onClick's own call already handled it.
     resetScrubbedTheme();
+
+    // Land forward navigations at the top, now that the destination route has
+    // actually rendered. Must happen before ScrollTrigger.refresh() below:
+    // refresh() records the current scroll, recalculates, then restores it, so
+    // a stale position left over from the page just left would be baked in
+    // (reading as "opens halfway down the page"). Back/forward never set the
+    // flag, so their restored position is left untouched.
+    if (scrollResetPendingRef.current) {
+      scrollResetPendingRef.current = false;
+      if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true, force: true });
+      else window.scrollTo(0, 0);
+    }
 
     if (transitioningRef.current && curtainRef.current) {
       gsap.to(curtainRef.current, {
