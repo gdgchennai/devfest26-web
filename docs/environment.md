@@ -9,10 +9,12 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 | Context | File | Vars it needs |
 | --- | --- | --- |
 | `npm run dev` (Next dev server) | `.env.local` | all of them |
-| `npm run preview` / `npm run deploy` build step | shell env or `.env` | build-time vars only |
+| `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
 | Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 | Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
-| Cloudflare Pages/CI build | project build env vars | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`, `AGENDA_READY` |
+| Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`, `AGENDA_READY`, `HERO_BUTTONS` |
+
+Full deploy walkthrough: [`deployment.md`](./deployment.md).
 
 ## The variables
 
@@ -35,6 +37,18 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 - **Required:** no. Only `"true"` (exact string) enables the above; unset or any
   other value keeps them returning 404.
 - **Example:** `AGENDA_READY=true`
+
+### `HERO_BUTTONS`
+- **Type:** build-time (re-exposed unprefixed via `next.config.ts` `env`, same
+  as `AGENDA_READY` — the hero CTA row is resolved in `HeroCopy.tsx`, which is
+  imported by client components)
+- **Used by:** [`components/motion/HeroCopy.tsx`](../components/motion/HeroCopy.tsx)
+  → filters the hero CTA row (`CurvedMarqueeHero` + `StaticHero`)
+- **Required:** no. Unset → all buttons show. Set to a comma-separated allow-list
+  from `tickets,cfp,volunteer,agenda` to trim/pick which appear. Order is fixed
+  in code, not taken from the value. `agenda` is additionally gated on
+  `AGENDA_READY` — naming it here does nothing while the agenda is off.
+- **Example:** `HERO_BUTTONS=tickets,cfp`
 
 ### `AUTH_SECRET`
 - **Type:** runtime secret

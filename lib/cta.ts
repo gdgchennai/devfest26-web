@@ -29,9 +29,8 @@ export function ticketCta(): Cta {
 
 /**
  * The speaker pitch — always the external CFP form (Sessionize). There's no
- * local /cfp page to fall back to (see lib/routes.ts's retiredRoutes), so
- * every "this could be you" slot on the site points straight at the form,
- * in a new tab.
+ * local /cfp page to fall back to, so every "this could be you" slot on the
+ * site points straight at the form, in a new tab.
  */
 export function speakerCta(): Cta {
   return { available: true, href: siteConfig.cfp.formUrl, label: "Submit a talk", external: true };

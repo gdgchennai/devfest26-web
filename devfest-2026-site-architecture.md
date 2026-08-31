@@ -77,6 +77,22 @@ recommending a page that no longer exists.
 Build priority, which is deliberately not the order above:
 `/agenda` → shared infrastructure → `/` → `/speakers` → the rest.
 
+**As built — routes that aren't Next routes.** Several paths in the table above are not served
+by the app:
+
+- **`/code-of-conduct`, `/cfp`** — there is no local page. Every "Code of Conduct" link goes
+  straight to Google's own GDG CoC (`siteConfig.codeOfConduct.url`); every CFP link goes to
+  Sessionize (`siteConfig.cfp.formUrl`). A visitor typing either path hits the plain 404 grid.
+- **`/about`, `/privacy`** — served by a **Cloudflare URL rewrite**, not the app. They're linked
+  as full absolute URLs (`https://devfest.gdgchennai.in/…` — `siteConfig.privacyPolicyUrl` for the
+  footer link) so the client router doesn't try to navigate to an app route that doesn't exist,
+  and they're kept out of `lib/routes.ts` and the sitemap.
+- **`retiredRoutes` in `lib/routes.ts` is now empty.** It used to carry `/sponsors`,
+  `/code-of-conduct` and `/about` with a custom "here's why it's gone" message; `/about` became a
+  real (rewritten) page, and `/sponsors` + `/code-of-conduct` were judged not worth a bespoke
+  reason — they fall through to the standard rescue grid. The `Record` and its wiring in
+  `NotFoundRecovery` stay for the next genuinely-retired path.
+
 ### The 404
 
 No redirects: every dead URL, including `/sponsors`, lands here. The design rule is that whoever
@@ -88,11 +104,12 @@ full route grid are in the static HTML — readable before hydration and with Ja
   offers the closest match as the primary button. `/speaker` → Speakers, `/agend` → Agenda. The
   threshold is a *fraction* of the longer string (0.4), not an absolute edit budget, so a typo in
   a short slug isn't judged like one in a long slug. It deliberately rejects
-  `/sponsors` → `/speakers` at 0.5: that page is retired, not misspelled.
-- **Retired routes get the actual reason.** `retiredRoutes` in `lib/routes.ts` maps a removed URL
-  to an explanation and a useful destination. `/sponsors` says there is no 2026 sponsorship
-  programme and points at `/contact`, because the people arriving there followed the 2025
-  brochure, which we cannot edit.
+  `/sponsors` → `/speakers` at 0.5: that page is gone, not misspelled.
+- **Retired routes can get a bespoke reason.** `retiredRoutes` in `lib/routes.ts` maps a removed
+  URL to an explanation and a useful destination instead of the generic grid — used when a
+  printed/circulated link needs more than "not found". **Currently empty:** `/about` became a
+  real (Cloudflare-rewritten) page, and `/sponsors` / `/code-of-conduct` were left to the plain
+  grid. The mechanism stays wired for the next one.
 - **"Back to where you were"** — same-origin `document.referrer` only, and never a link back to
   the 404 itself.
 - **Four brand dots, one burnt out**, in place of a giant "404". The site's identity is those four
@@ -148,15 +165,16 @@ means a new schema plus a route — but not new UI: `components/SlotGrid.tsx` al
 tiered roster with filled slots, one live invitation and ghost outlines, which is exactly what a
 sponsor wall needs.
 
-**`/sponsors` is now a 404, and the URL is in the 2025 sponsorship brochure. That 404 is the right
-answer — no redirect.** An earlier note here called for redirecting it to `/contact`; that was
-wrong once 2026 became self-funded with no sponsorship programme at all. Sending a sponsor enquiry
-to a contact form implies a programme exists and invites a conversation there is no answer to.
+**`/sponsors` is now a plain 404, and the URL is in the 2025 sponsorship brochure. That 404 is the
+right answer — no redirect.** An earlier note here called for redirecting it to `/contact`; that
+was wrong once 2026 became self-funded with no sponsorship programme at all. Sending a sponsor
+enquiry to a contact form implies a programme exists and invites a conversation there is no answer
+to. It briefly had a `retiredRoutes` entry with a bespoke "no sponsorship this year" message;
+that was dropped too — the standard rescue grid is enough, and one less line to keep true.
 
-The 404 already handles it deliberately rather than by omission: `lib/nearest-route.ts` sets its
-similarity threshold at 0.4 specifically so `/sponsors` → `/speakers` (0.5) is *rejected* — "that
-page is retired, not misspelled, and guessing at it would be worse than saying nothing." The
-visitor gets the full route list and no false lead.
+`lib/nearest-route.ts` sets its similarity threshold at 0.4 specifically so `/sponsors` →
+`/speakers` (0.5) is *rejected* — guessing at it would be worse than saying nothing. The visitor
+gets the full route list and no false lead.
 
 ### Sections on the 2025 homepage, and what to do with each
 
@@ -232,9 +250,11 @@ This is the failure mode to design against, and it drives the whole content mode
 **In `site.config.ts`** — date, venue, ticket URL, tracks, capacity claim, social links, CFP
 open/close timestamps. Every component reads from here. No fact appears as a literal twice.
 
-**In the repo** (`/content`, MDX or JSON) — speakers, sponsors, FAQ, about, CoC. Changes rarely,
-needs version history, involves images that want `next/image`. A pull request is the right friction
-for "we're announcing a keynote."
+**In the repo** (`/content`, JSON) — speakers, agenda, the photo archive. Changes rarely, needs
+version history, involves images that want `next/image`. A pull request is the right friction for
+"we're announcing a keynote." (This originally also listed sponsors, FAQ, about and CoC — sponsors
+and FAQ were cut, and about/CoC/privacy now live outside the app: CoC → Google's GDG page,
+about + privacy → Cloudflare rewrites.)
 
 **In a Google Sheet** — the agenda only. One row per session:
 `track, start, end, title, speakerSlug, hall, type`. Pulled at build with ISR revalidating every
@@ -331,6 +351,15 @@ Built once in the root layout, consumed everywhere. **This lands before anything
     fourth entry point during the flythrough; it was dead code — nothing rendered it — and has
     since been removed.) Lite is a preference, not a one-way door: verified end to end that
     `?lite=0` clears the stored value and the WebGL hero returns.
+  - **The preloader offers lite when the load is dragging.** Once the intro has been loading past
+    `SLOW_AFTER` (4s, measured from *navigation start* — `performance.now()` — so the pre-hydration
+    boot-preloader time counts), a "Taking a while?" prompt appears with "Switch to lite →". Two
+    surfaces: the inline `#boot-preloader` (a plain reload to `?lite=1`, since React isn't up yet)
+    and the React `<Loader>` (the normal smooth swap); a dismiss on either sets a `sessionStorage`
+    flag the other reads, so it asks once. `navigator.connection` was tried first and dropped — it
+    reports `3g` on localhost and phones on real 3G don't reliably report it, so "this has taken N
+    seconds" is the only trustworthy signal. `2g`/save-data and a low-core/low-memory device still
+    trigger it instantly (`shouldSuggestLiteMode`); `?lite-prompt=1`/`0` forces it in dev.
   - **What lite drops:** three.js (marquee + 3D title), the hallway, the preloader/intro, Lenis,
     and every photo — measured at **0 image requests vs 5.7 MB**, and 316 KB of JS vs 511 KB.
     `ExpectShowcase` renders brand halftone panels instead of its decorative archive photos,
@@ -651,23 +680,24 @@ longer applies — there's no rendered FAQ to contradict anything. `content/faq.
 still sitting in the repo, unread by any code; revisit it only if the FAQ section gets rebuilt.
 
 - **`/contact` still invites "sponsorship" enquiries** (`app/contact/page.tsx`) even though there
-  is no 2026 sponsorship programme, `/sponsors` is a retired route, and the tiers are gone from
-  config. This one is independent of the FAQ and still live — worth a copy fix.
-- **The Code of Conduct ships flagged as a placeholder** (`isPlaceholder: true`), rendering a
-  "pending review" banner on the one page attendees are told to trust. Needs an organiser review,
-  not a code change.
+  is no 2026 sponsorship programme, `/sponsors` 404s, and the tiers are gone from config. This one
+  is independent of the FAQ and still live — worth a copy fix.
+- **~~The Code of Conduct ships flagged as a placeholder~~** — resolved: there's no local CoC page
+  any more. Every "Code of Conduct" link goes to Google's own GDG CoC
+  (`siteConfig.codeOfConduct.url`), so there's no local copy to flag or keep reviewed.
 - **`venue.confirmed: true` sits directly under a comment saying to confirm it before publishing.**
   As written the `!confirmed` warning banner on `/venue` can never fire, and `StaticHero`'s
   "· unconfirmed" hedge never shows.
 
 ### Not fixed — hygiene
 
-- **`README.md` is still create-next-app boilerplate** and talks about Geist. This doc is the real
-  documentation.
-- **No `sitemap.ts`, no `robots.ts`, no `metadataBase`, no OG image.** Deferred until the domain is
-  confirmed (see the comment in `app/layout.tsx`), which is defensible — but it means the agenda
-  link that circulates in WhatsApp has no social card at all. A placeholder OG image is worth
-  shipping before the domain lands.
+- **~~`README.md` is still create-next-app boilerplate~~** — replaced with a real orientation +
+  docs index. Deployment now has its own file: [`docs/deployment.md`](docs/deployment.md)
+  (Cloudflare, both Workers, secrets, migrations, Google auth).
+- **~~No `sitemap.ts`, no `robots.ts`, no `metadataBase`, no OG image.~~** Resolved: the domain
+  landed (`https://devfest.gdgchennai.in`), so `app/sitemap.ts`, `app/robots.ts` and
+  `metadataBase` are all in place, plus `openGraph.images` / `twitter.images` pointing at
+  `/banner/main.jpg` and per-page OG titles inferred from each route's resolved `<title>`.
 - **`public/venue-lines.svg` is 586 KB**, fetched client-side on every homepage visit for a
   decorative draw-in the reduced-motion path never uses. An SVGO pass over its 2203 path segments
   would likely halve it.
