@@ -10,10 +10,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
 import { isLowPowerDevice, prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
-import { heroCopy } from "@/components/motion/HeroCopy";
+import { heroCopy, heroButtons } from "@/components/motion/HeroCopy";
 import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
 import { GlowButton } from "@/components/GlowButton";
-import { uiCopy } from "@/site.config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -500,17 +499,13 @@ export function CurvedMarqueeHero() {
       <div
         className="absolute inset-x-0 z-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 text-lg text-paper max-sm:bottom-[24%] sm:gap-x-16 sm:bottom-[16%] sm:text-xl"
       >
-        <GlowButton href={heroCopy.ticket.href}>
-          <RollingText>{uiCopy.common.getTicketsLabel}</RollingText>
-        </GlowButton>
-        <GlowButton href={heroCopy.volunteer.href} target="_blank" rel="noreferrer">
-          <RollingText>{`${heroCopy.volunteer.label}`}</RollingText>
-        </GlowButton>
-        {heroCopy.agenda && (
-          <GlowButton href={heroCopy.agenda.href}>
-            <RollingText>{`${heroCopy.agenda.label}`}</RollingText>
+        {/* GlowButton routes internal hrefs through <Link> and opens external
+            ones in a new tab on its own — no target/rel needed here. */}
+        {heroButtons.map((btn) => (
+          <GlowButton key={btn.key} href={btn.href}>
+            <RollingText>{btn.label}</RollingText>
           </GlowButton>
-        )}
+        ))}
       </div>
     </section>
   );

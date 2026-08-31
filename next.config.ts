@@ -13,7 +13,14 @@ const nextConfig: NextConfig = {
   // Exposed (unprefixed) to both server and client bundles here, rather than
   // requiring the usual NEXT_PUBLIC_ prefix, since it gates rendering in
   // client components (Header, HamburgerMenu) as well as server pages.
-  env: { AGENDA_READY: process.env.AGENDA_READY },
+  // AGENDA_READY: see lib/routes.ts. HERO_BUTTONS: optional comma-separated
+  // allow-list of hero CTAs ("tickets,cfp,volunteer,agenda") — trims/hides the
+  // hero button row without a code change. Both unprefixed (not NEXT_PUBLIC_)
+  // because they gate rendering in client components too — see HeroCopy.tsx.
+  env: {
+    AGENDA_READY: process.env.AGENDA_READY,
+    HERO_BUTTONS: process.env.HERO_BUTTONS,
+  },
   ...(process.env.NODE_ENV === "production"
     ? {
         images: { loader: "custom", loaderFile: "./lib/imagekit-loader.ts" },

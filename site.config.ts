@@ -618,6 +618,7 @@ export const uiCopy = {
   heroCopy: {
     agendaLabel: "See Agenda →",
     volunteerLabel: "Become volunteer →",
+    cfpLabel: "Submit CFP →",
   },
 
   liteToggle: {

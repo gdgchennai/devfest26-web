@@ -1,6 +1,6 @@
 import { Eyebrow } from "@/components/Eyebrow";
 import { GlowButton } from "@/components/GlowButton";
-import { heroCopy } from "@/components/motion/HeroCopy";
+import { heroCopy, heroButtons } from "@/components/motion/HeroCopy";
 import { uiCopy } from "@/site.config";
 
 /**
@@ -38,8 +38,6 @@ export function StaticHero({
 }: {
   offerFullExperience?: boolean;
 }) {
-  const { ticket, agenda, volunteer } = heroCopy;
-
   return (
     <section className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden px-4 py-24 sm:px-8">
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
@@ -64,17 +62,11 @@ export function StaticHero({
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <GlowButton href={ticket.href} size="lg">
-            {ticket.label}
-          </GlowButton>
-          <GlowButton href={volunteer.href} target="_blank" rel="noreferrer" size="lg">
-            {volunteer.label}
-          </GlowButton>
-          {agenda && (
-            <GlowButton href={agenda.href} size="lg">
-              {agenda.label}
+          {heroButtons.map((btn) => (
+            <GlowButton key={btn.key} href={btn.href} size="lg">
+              {btn.label}
             </GlowButton>
-          )}
+          ))}
         </div>
 
         {/*
