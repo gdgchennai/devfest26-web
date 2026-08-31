@@ -140,26 +140,38 @@ export default function PartnerPage() {
         <Section title={assets.heading}>
           <p className="text-paper/80">{assets.intro}</p>
           <ul className="space-y-2">
-            {assets.items.map((item) =>
-              item.href ? (
-                <li key={item.label}>
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-semibold text-blue underline underline-offset-4 hover:decoration-2"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ) : (
+            {assets.items.map((item) => {
+              const link = item.href && (
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-blue underline underline-offset-4 hover:decoration-2"
+                >
+                  {"linkText" in item && item.linkText ? item.linkText : item.label}
+                </a>
+              );
+
+              // `href` with no `linkText` — the label is the link, on its own.
+              if (item.href && !("linkText" in item && item.linkText)) {
+                return <li key={item.label}>{link}</li>;
+              }
+
+              // Everything else reads "Label — <value>".
+              return (
                 <li key={item.label} className="text-paper/80">
                   <span className="font-semibold text-paper">{item.label}</span>
                   {" — "}
-                  <span className="text-paper/50">{ASSET_PENDING}</span>
+                  {link ? (
+                    link
+                  ) : "text" in item && item.text ? (
+                    <span className="break-words">{item.text}</span>
+                  ) : (
+                    <span className="text-paper/50">{ASSET_PENDING}</span>
+                  )}
                 </li>
-              ),
-            )}
+              );
+            })}
           </ul>
         </Section>
 

@@ -117,10 +117,19 @@ export const partnership = {
   assets: {
     heading: "Assets",
     intro: "Everything you need to represent DevFest Chennai. Fill-ins arrive once you're a confirmed partner.",
-    // `href` present → the label links to it. Absent → ASSET_PENDING copy.
+    // `href` + `linkText` → "Label — [linkText](href)". `href` alone → the
+    // label itself is the link. `text` → spelled out inline. None → ASSET_PENDING.
     items: [
-      { label: "DevFest Chennai logo", href: null as string | null },
-      { label: "Official hashtags", href: null as string | null },
+      {
+        label: "DevFest Chennai Roadshow logo",
+        href: "https://drive.google.com/drive/folders/1MuEXkWWBMmjioxTwd2rRKPkVW7oci-Bu?usp=sharing" as string | null,
+        linkText: "Access here",
+      },
+      {
+        label: "Official hashtags",
+        href: null as string | null,
+        text: "#DevFestRoadshow #DevFestChennai #DevFest2026Chennai #DevFestIndia #DevFest #GDGChennai #GDGIndia. Always tag @gdgchennai and @GDGIndia.",
+      },
       { label: "Code of Conduct", href: siteConfig.codeOfConduct.url },
     ],
   },
