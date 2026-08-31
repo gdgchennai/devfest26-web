@@ -38,6 +38,15 @@ export function Footer() {
           >
             {uiCopy.footer.codeOfConductLabel}
           </a>
+          {/* Full absolute URL, not a Next <Link> or a `/privacy` href: the page
+              is served by a Cloudflare URL rewrite and doesn't exist as an app
+              route (a client-side nav to it would 404). */}
+          <a
+            href={siteConfig.privacyPolicyUrl}
+            className="underline-offset-4 hover:text-paper hover:underline"
+          >
+            {uiCopy.footer.privacyPolicyLabel}
+          </a>
           <a href={`mailto:${siteConfig.contact.email}`} className="underline-offset-4 hover:text-paper hover:underline">
             {siteConfig.contact.email}
           </a>

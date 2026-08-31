@@ -54,21 +54,10 @@ export const navRoutes: SiteRoute[] = siteRoutes.filter((r) => r.inNav);
  * Pages that existed and deliberately do not any more. A visitor arriving on
  * one of these is not lost — they followed a link that used to work, often
  * from printed material we can't edit — so they get the actual reason and a
- * useful destination instead of a generic "not found".
+ * useful destination instead of a generic "not found" (see NotFoundRecovery).
+ *
+ * Currently empty: every previously-retired path (/about, /privacy) is now
+ * served by a Cloudflare rewrite, and /sponsors and /code-of-conduct fall
+ * through to the normal 404 rescue grid. The mechanism stays for the next one.
  */
-export const retiredRoutes: Record<string, { reason: string; goto: string }> = {
-  "/sponsors": {
-    reason:
-      "DevFest 2026 Chennai isn't running a sponsorship programme, so this page is gone. The link may have come from the 2025 brochure.",
-    goto: "/contact",
-  },
-  "/about": {
-    reason: "This page is gone — the chapter info it held now lives in the footer.",
-    goto: "/",
-  },
-  "/code-of-conduct": {
-    reason:
-      "This page is gone — the Code of Conduct now lives on Google's own GDG Code of Conduct page instead of a local copy, linked from the footer.",
-    goto: "/",
-  },
-};
+export const retiredRoutes: Record<string, { reason: string; goto: string }> = {};

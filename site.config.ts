@@ -395,13 +395,16 @@ export const siteConfig = {
   },
 
   codeOfConduct: {
-    // No local /code-of-conduct page any more (see lib/routes.ts's
-    // retiredRoutes entry for visitors who still land on the old URL) —
-    // every "Code of Conduct" link site-wide (the footer) goes straight to
-    // Google's own GDG Code of Conduct instead of a local copy that would
-    // need to be kept in sync with it by hand.
+    // No local /code-of-conduct page — every "Code of Conduct" link site-wide
+    // (the footer) goes straight to Google's own GDG Code of Conduct instead of
+    // a local copy that would need to be kept in sync with it by hand.
     url: "https://developers.google.com/events/gdd-india/code-of-conduct",
   },
+
+  // Served by a Cloudflare URL rewrite, not an app route — the Next app has no
+  // /privacy path. So it's linked as a full absolute URL (see the footer) and
+  // stays out of lib/routes.ts / the sitemap.
+  privacyPolicyUrl: "https://devfest.gdgchennai.in/privacy",
 
   social: {
     x: "https://x.com/gdgchennai",
@@ -490,6 +493,7 @@ export const uiCopy = {
 
   footer: {
     codeOfConductLabel: "Code of Conduct",
+    privacyPolicyLabel: "Privacy Policy",
   },
 
   footerLogo: {

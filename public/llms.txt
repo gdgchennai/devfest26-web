@@ -10,6 +10,8 @@
 - Call for proposals (speaking): https://sessionize.com/gdgchennai
 - Volunteer sign-up: https://konfhub.com/checkout/devfest-2026-chennai?ticketId=118807
 - Contact: hello@gdgchennai.in
+- About: https://devfest.gdgchennai.in/about
+- Privacy policy: https://devfest.gdgchennai.in/privacy
 
 ## When to use this
 
@@ -29,9 +31,11 @@ Tech (general tech talks), Deep Tech (science, math, hardware), Experience (open
 ## Pages
 
 - [Home](https://devfest.gdgchennai.in/): Overview, tracks, schedule preview, lineup.
+- [About](https://devfest.gdgchennai.in/about): What DevFest Chennai and GDG Chennai are.
 - [Agenda](https://devfest.gdgchennai.in/agenda): Full schedule for the day.
 - [Speakers](https://devfest.gdgchennai.in/speakers): Confirmed lineup and how to get on it via CFP.
 - [Tickets](https://devfest.gdgchennai.in/tickets): Flagship day and community satellite events, with links to buy or RSVP.
+- [Privacy Policy](https://devfest.gdgchennai.in/privacy): How GDG Chennai handles personal data for DevFest Chennai attendees.
 
 ## Notes for agents
 
