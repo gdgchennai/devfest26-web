@@ -381,9 +381,9 @@ export const siteConfig = {
   cfp: {
     // Every "Submit CFP" CTA site-wide goes straight here, in a new tab —
     // see speakerCta() in lib/cta.ts, which every consumer reads through.
-    // There's no local CFP page/form to fall back to (see lib/routes.ts's
-    // retiredRoutes["/cfp"]), so unlike ticketing this isn't nullable.
-    formUrl: "https://sessionize.com/gdgchennai",
+    // /cfp is not present in this app, but a Clouflare URL transformation rule
+    // Because its a Cloudflare route, don't update the form URL
+    formUrl: "https://devfest.gdgchennai.in/cfp",
   },
 
   volunteer: {
