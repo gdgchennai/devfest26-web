@@ -108,7 +108,7 @@ export default function RootLayout({
          */}
         <style
           dangerouslySetInnerHTML={{
-            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}#boot-preloader p{position:absolute;bottom:1.5rem;left:0;right:0;margin:0;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.5)}@media(min-width:1024px){#boot-preloader p{display:none}}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}`,
+            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}#boot-preloader>p{position:absolute;bottom:1.5rem;left:0;right:0;margin:0;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.5)}@media(min-width:1024px){#boot-preloader>p{display:none}}#boot-lite-prompt{position:absolute;left:50%;bottom:3.75rem;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:.5rem;width:min(88vw,340px);padding:.75rem 1rem;border:1px solid rgba(0,0,0,.2);border-radius:1rem;background:#fff;text-align:center}#boot-lite-prompt .msg{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.875rem;line-height:1.35;color:rgba(0,0,0,.8)}#boot-lite-prompt .row{display:flex;gap:1rem}#boot-lite-prompt button{background:none;border:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#000;cursor:pointer}#boot-lite-prompt button.dismiss{font-weight:500;color:rgba(0,0,0,.6)}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}`,
           }}
         />
         {/* Mirrors isLiteMode() in lib/motion-prefs.ts, including the `?lite=0`
@@ -118,15 +118,37 @@ export default function RootLayout({
         <Script id="intro-bridge" strategy="beforeInteractive">
           {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce||lite){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
         </Script>
-        <div id="boot-preloader" aria-hidden="true">
-          <svg viewBox="0 250 1728 535" xmlns="http://www.w3.org/2000/svg">
+        <div id="boot-preloader">
+          <svg viewBox="0 250 1728 535" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="415.5" cy="516.5" r="78.5" fill="#4285f4" />
             <circle cx="714.5" cy="516.5" r="78.5" fill="#ea4335" />
             <circle cx="1013.5" cy="516.5" r="78.5" fill="#f9ab00" />
             <circle cx="1312.5" cy="516.5" r="78.5" fill="#34a853" />
           </svg>
           <p>{uiCopy.loader.desktopHint}</p>
+          {/* Slow-load opt-out for the pre-hydration window — the JS bundle
+              itself is what's slow on a bad connection, so the React <Loader>'s
+              own prompt can't help until it exists. Revealed by the inline
+              script below once the boot preloader has been up past the slow
+              threshold; a plain reload to ?lite=1 (no React to do the smooth
+              swap yet). Kept in sync with SLOW_AFTER in useAssetsLoaded.ts. */}
+          <div id="boot-lite-prompt">
+            <p className="msg">{uiCopy.loader.litePromptBody}</p>
+            <div className="row">
+              <button type="button" id="boot-lite-accept">
+                {uiCopy.loader.litePromptAcceptLabel}
+              </button>
+              <button type="button" id="boot-lite-dismiss" className="dismiss">
+                {uiCopy.loader.litePromptDismissLabel}
+              </button>
+            </div>
+          </div>
         </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var r=document.documentElement;if(r.classList.contains('no-boot'))return;var b=document.getElementById('boot-lite-prompt');if(!b)return;var dismissed=0;try{dismissed=sessionStorage.getItem('devfest-lite-prompt-dismissed')==='1'}catch(e){}var t=setTimeout(function(){if(!dismissed&&!r.classList.contains('boot-done')&&!r.classList.contains('no-boot'))b.style.display='flex'},4000);var a=document.getElementById('boot-lite-accept');if(a)a.addEventListener('click',function(){try{localStorage.setItem('devfest-lite','1')}catch(e){}var u=new URL(location.href);u.searchParams.set('lite','1');location.href=u.href});var d=document.getElementById('boot-lite-dismiss');if(d)d.addEventListener('click',function(){clearTimeout(t);b.style.display='none';try{sessionStorage.setItem('devfest-lite-prompt-dismissed','1')}catch(e){}});})();`,
+          }}
+        />
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />

@@ -198,7 +198,7 @@ export function HeroSection() {
   //  • sized — the flythrough's <Frame>s, which go through the optimizer, so
   //    they must be warmed at the exact widths `cardSizes` will ask for.
   const flyAssets = flying.map((p, i) => ({ src: p.src, sizes: cardSizes(i, maxScale) }));
-  const { ready: loadingComplete, degraded } = useAssetsLoaded(
+  const { ready: loadingComplete, degraded, slow: slowLoad } = useAssetsLoaded(
     MARQUEE_TEXTURES,
     !showLoader,
     flyAssets,
@@ -350,6 +350,7 @@ export function HeroSection() {
         <Loader
           loadingComplete={loadingComplete}
           playIntro={playIntro}
+          slowLoad={slowLoad}
           onEnter={enterExperience}
           onReveal={startFlythrough}
           onDismiss={releaseIntro}

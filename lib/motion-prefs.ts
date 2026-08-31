@@ -101,11 +101,13 @@ export function isLowPowerDevice(): boolean {
 }
 
 /**
- * Whether the connection is slow enough that ~1 MB of intro assets is a real
- * wait. Broader than `isSaveData()` — it also counts `3g`, since the preloader
- * holds the visitor on the bounce until everything is in, and on 3g that can be
- * many seconds. `navigator.connection` is absent on Safari/Firefox → `false`
- * (no signal, no downgrade).
+ * Whether the connection is genuinely slow — `saveData`, or a `2g`/`slow-2g`
+ * effective type. Deliberately NOT `3g`: Chrome's `effectiveType` is a rolling
+ * estimate off recent network activity and reports `3g` very readily — on a dev
+ * server, on any connection with elevated RTT, or on fine broadband that just
+ * had a slow moment — so gating the lite prompt on it fired for people on
+ * perfectly usable connections (and on localhost). `navigator.connection` is
+ * absent on Safari/Firefox → `false` (no signal, no downgrade).
  */
 export function isSlowConnection(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -113,31 +115,34 @@ export function isSlowConnection(): boolean {
     .connection;
   if (!connection) return false;
   if (connection.saveData) return true;
-  return (
-    connection.effectiveType === "slow-2g" ||
-    connection.effectiveType === "2g" ||
-    connection.effectiveType === "3g"
-  );
+  return connection.effectiveType === "slow-2g" || connection.effectiveType === "2g";
 }
 
 /**
- * Whether the preloader should *offer* lite mode up front — a slow connection
- * or a device likely to struggle with the WebGL scenes. This does NOT downgrade
- * anything by itself (the experience stays consistent on every connection, see
- * `shouldUseStaticBaseline`); it only surfaces a one-tap opt-out while the
- * loader is on screen, before the visitor has sat through the whole intro.
+ * Dev-only URL override for the preloader's lite-mode prompt, so it's testable
+ * without spoofing `navigator.connection` (Chrome's throttling doesn't reliably
+ * update `effectiveType`) or waiting out a real slow load. `?lite-prompt=1`
+ * forces the prompt shown, `?lite-prompt=0` forces it hidden, absent → `null`
+ * (no opinion). Stripped from prod builds — `NODE_ENV` is statically replaced,
+ * so this is dead code there.
+ */
+export function litePromptOverride(): boolean | null {
+  if (process.env.NODE_ENV === "production" || typeof window === "undefined") return null;
+  const forced = new URLSearchParams(window.location.search).get("lite-prompt");
+  return forced === "1" ? true : forced === "0" ? false : null;
+}
+
+/**
+ * The *instant* half of "should the preloader offer lite mode" — a genuinely
+ * slow connection (2g / save-data) or a device likely to struggle with the
+ * WebGL scenes. The other half is measured (`slow` from useAssetsLoaded — the
+ * load has actually been dragging), which is the more reliable signal; this one
+ * catches the cases that are knowable at t=0. Offering lite does NOT downgrade
+ * anything by itself (see `shouldUseStaticBaseline`).
  */
 export function shouldSuggestLiteMode(): boolean {
-  // Dev-only override so the prompt is testable without spoofing
-  // `navigator.connection` (Chrome's network throttling doesn't reliably
-  // update `effectiveType`, and nothing changes `hardwareConcurrency`).
-  // `?lite-prompt=1` forces it on, `?lite-prompt=0` off. Stripped from prod
-  // builds — `NODE_ENV` is statically replaced, so the block is dead code there.
-  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-    const forced = new URLSearchParams(window.location.search).get("lite-prompt");
-    if (forced === "1") return true;
-    if (forced === "0") return false;
-  }
+  const forced = litePromptOverride();
+  if (forced !== null) return forced;
   return isSlowConnection() || isLowPowerDevice();
 }
 

@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useClientValue } from "@/lib/useClientValue";
 import { useLiteModeToggle } from "@/lib/useLiteModeToggle";
-import { shouldSuggestLiteMode } from "@/lib/motion-prefs";
+import { shouldSuggestLiteMode, litePromptOverride } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { siteConfig, uiCopy } from "@/site.config";
 
@@ -18,6 +18,10 @@ import { siteConfig, uiCopy } from "@/site.config";
  * the wave plays out its current cycle, then the circles spiral inward, orbit,
  * and stretch into the DevFest `> <` mark, at which point the enter CTA fades in.
  * ------------------------------------------------------------------ */
+
+/** Set when the lite-mode prompt is dismissed (here or in the pre-hydration
+ *  boot preloader in app/layout.tsx), so it doesn't re-nag within the session. */
+const PROMPT_DISMISSED_KEY = "devfest-lite-prompt-dismissed";
 
 const TAU = Math.PI * 2;
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -112,6 +116,12 @@ type LoaderProps = {
    * just fades out to reveal the page, no morph and no CTA.
    */
   playIntro: boolean;
+  /**
+   * The asset load has passed the slow threshold (see SLOW_AFTER in
+   * useAssetsLoaded). Surfaces the lite-mode prompt while the visitor waits —
+   * this is the measured signal; `shouldSuggestLiteMode()` is the instant one.
+   */
+  slowLoad: boolean;
   /** Fired when the visitor clicks the CTA — mount the flythrough behind the mask holes. */
   onEnter: () => void;
   /** Fired once the white field has fully cleared — the flythrough can start flying now. */
@@ -135,7 +145,7 @@ type LoaderProps = {
  * It carries no aria-modal: modality would hide sibling content from assistive
  * tech while this overlay is up.
  */
-export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismiss }: LoaderProps) {
+export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal, onDismiss }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
   const rootRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -147,12 +157,41 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
   const [promptDismissed, setPromptDismissed] = useState(false);
   const { setLite } = useLiteModeToggle();
 
-  // A slow connection / low-power device gets a one-tap way out *before*
-  // sitting through the whole intro. Only while the dots are still loading
-  // (first visit only) — it's replaced by the Enter CTA the moment the mark
-  // settles, and never appears on the quick refresh-path fade.
+  // The pre-hydration boot preloader (app/layout.tsx) shows the same prompt, and
+  // if it was dismissed there this one must stay down too — otherwise the same
+  // question comes straight back the moment React takes over.
+  const bootPromptDismissed = useClientValue(() => {
+    try {
+      return sessionStorage.getItem(PROMPT_DISMISSED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }, false);
+
+  function dismissPrompt() {
+    setPromptDismissed(true);
+    try {
+      sessionStorage.setItem(PROMPT_DISMISSED_KEY, "1");
+    } catch {
+      /* private mode / storage disabled — the in-memory state still holds */
+    }
+  }
+
+  // A one-tap way out *before* sitting through the whole intro, when the load
+  // is going to be a slog. Two signals: `slowLoad` — measured, the load has
+  // actually been dragging (the reliable one) — and `shouldSuggestLiteMode()` —
+  // instant, from `navigator.connection` / device specs / the ?lite-prompt
+  // override. Only while the dots are still loading (first visit only); replaced
+  // by the Enter CTA the moment the mark settles, never on the refresh fade.
   const suggestLite = useClientValue(shouldSuggestLiteMode, false);
-  const showLitePrompt = playIntro && suggestLite && !ctaReady && !promptDismissed;
+  // ?lite-prompt=1/0 (dev) wins outright; otherwise either signal shows it.
+  const promptOverride = useClientValue(litePromptOverride, null);
+  const showLitePrompt =
+    playIntro &&
+    !ctaReady &&
+    !promptDismissed &&
+    !bootPromptDismissed &&
+    (promptOverride ?? (slowLoad || suggestLite));
 
   // Read the latest loading state from inside the (once-only) GSAP setup
   // without listing it as a dep — flipping it must not tear down the timeline.
@@ -431,7 +470,7 @@ export function Loader({ loadingComplete, playIntro, onEnter, onReveal, onDismis
               </button>
               <button
                 type="button"
-                onClick={() => setPromptDismissed(true)}
+                onClick={dismissPrompt}
                 className="font-sans text-xs font-medium uppercase tracking-wider text-ink/60 underline-offset-4 hover:underline"
               >
                 {uiCopy.loader.litePromptDismissLabel}

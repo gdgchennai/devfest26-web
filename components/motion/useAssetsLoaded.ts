@@ -47,6 +47,30 @@ const MAX_DURATION = 15000;
 const ASSET_BUDGET = 8000;
 
 /**
+ * How long from NAVIGATION START before the load counts as *slow* — the signal
+ * the intro uses to offer lite mode (see `slow` in AssetsState, the prompt in
+ * Loader.tsx, and the matching inline check in app/layout.tsx's boot preloader).
+ *
+ * Measured against nav start, not against this hook mounting: on a slow
+ * connection most of the wait is the JS bundle downloading and hydrating —
+ * which is over before this hook exists — so a clock that started here would
+ * miss it entirely. `performance.now()` is ms since `timeOrigin` (~nav start),
+ * so it already accounts for every second the visitor has been staring at a
+ * blank screen then the bouncing dots.
+ *
+ * `navigator.connection` is deliberately NOT the signal: it reports "3g" on
+ * localhost and phones on real 3G don't always report it. "This has taken N
+ * seconds" is the trustworthy one.
+ *
+ * 4s: a fast load (HTML + JS + hydrate + cached/quick assets) is done well
+ * under it, so it never trips for them. Past it — a phone on real 3G, congested
+ * venue wifi — a one-tap way out is worth offering before they sit through the
+ * whole intro (and, on the worst connections, hand off via MAX_DURATION with
+ * textures still missing).
+ */
+const SLOW_AFTER = 4000;
+
+/**
  * Next's default `images.deviceSizes`. next/image builds its srcset from
  * these, so mirroring the list here lets the preloader hand the browser the
  * SAME candidates a <Frame> will render. The browser then applies its own
@@ -133,6 +157,13 @@ export type AssetsState = {
    * handing off to an empty canvas. See DEGRADED_WHEN below for what counts.
    */
   degraded: boolean;
+  /**
+   * The load passed SLOW_AFTER without finishing — the visitor is on a slow
+   * enough connection that the intro should offer them lite mode while they
+   * wait. Sticky once set (a load that was slow stays flagged even after it
+   * finally completes). Never set on a fast load or a cached return visit.
+   */
+  slow: boolean;
 };
 
 export function useAssetsLoaded(
@@ -171,7 +202,7 @@ export function useAssetsLoaded(
    * of dots. Caught by pausing the typeface request forever: hand-off still
    * happened on schedule.
    */
-  const [state, setState] = useState<AssetsState>({ ready: false, degraded: false });
+  const [state, setState] = useState<AssetsState>({ ready: false, degraded: false, slow: false });
 
   useEffect(() => {
     // Nothing to wait on — the caller isn't showing a preloader.
@@ -182,6 +213,19 @@ export function useAssetsLoaded(
     let minTimer = 0;
     const budgetTimers: number[] = [];
     const failed = new Set<string>();
+
+    // Flag a slow load SLOW_AFTER ms after NAVIGATION START (not after this
+    // effect ran — `start` is `performance.now()`, i.e. ms since nav start, so
+    // subtracting it gives the time left, clamped to 0 when boot + hydration
+    // already blew past the threshold → prompt shows as soon as the Loader is
+    // interactive). Guarded on `settled` so a load that just squeaked in under
+    // the wire isn't retroactively labelled slow.
+    const slowTimer = window.setTimeout(
+      () => {
+        if (!settled) setState((s) => (s.slow ? s : { ...s, slow: true }));
+      },
+      Math.max(0, SLOW_AFTER - start),
+    );
 
     /*
      * Every wait goes through here, and none of them can reject: a failure is
@@ -232,7 +276,9 @@ export function useAssetsLoaded(
       // actually loading, see MIN_DURATION).
       const floor = degraded || !fullIntro ? 0 : MIN_DURATION;
       const wait = Math.max(0, floor - (performance.now() - start));
-      minTimer = window.setTimeout(() => setState({ ready: true, degraded }), wait);
+      // Functional update: preserve `slow` if the slow timer already fired
+      // (a slow load that eventually completed is still a slow load).
+      minTimer = window.setTimeout(() => setState((s) => ({ ...s, ready: true, degraded })), wait);
     }
 
     const waits: Promise<unknown>[] = [];
@@ -333,6 +379,7 @@ export function useAssetsLoaded(
     return () => {
       window.clearTimeout(minTimer);
       window.clearTimeout(failsafe);
+      window.clearTimeout(slowTimer);
       budgetTimers.forEach((t) => window.clearTimeout(t));
     };
     // assets is a fresh array each render; disabled is the only meaningful
@@ -346,5 +393,5 @@ export function useAssetsLoaded(
   // Derived, not seeded: a caller that isn't waiting is ready by definition, and
   // when `disabled` flips the answer changes with it instead of being frozen at
   // whatever it was on the first render.
-  return disabled ? { ready: true, degraded: false } : state;
+  return disabled ? { ready: true, degraded: false, slow: false } : state;
 }
