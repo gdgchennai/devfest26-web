@@ -265,7 +265,7 @@ export const siteConfig = {
   subEvents: [
     {
       slug: "united-by-ai",
-      title: "Life with AI",
+      title: "Life with Agents",
       date: "2026-09-12",
       description:
         "Dive into the world of AI workflows, build, network and have fun.",
@@ -359,24 +359,30 @@ export const siteConfig = {
   ] satisfies SubEvent[],
 
   whatYoullGet: [
-    { title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city.",
+    {
+      title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city.",
       image: "/archive/2025-roadshow.jpg"
-     },
-    { title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience.",
+    },
+    {
+      title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience.",
       image: "/archive/2025-build.jpg"
-     },
-    { title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs.",
+    },
+    {
+      title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs.",
       image: "/archive/2025-compete.jpg"
-     },
-    { title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects.",
+    },
+    {
+      title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects.",
       image: "/archive/2025-full-house.jpg"
-     },
-    { title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations.",
+    },
+    {
+      title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations.",
       image: "/archive/2025-registration-desk.jpg"
-     },
-    { title: "Community", description: "Join us as we celebrate the community while you find your tribe here.",
+    },
+    {
+      title: "Community", description: "Join us as we celebrate the community while you find your tribe here.",
       image: "/archive/2025-group.jpg"
-     },
+    },
   ],
 
   cfp: {
