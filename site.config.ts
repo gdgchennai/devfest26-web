@@ -264,12 +264,13 @@ export const siteConfig = {
   // copy here that can drift out of sync.
   subEvents: [
     {
-      slug: "kug-virtual",
-      title: "KUG Virtual meetup",
-      date: "2026-09-05",
+      slug: "united-by-ai",
+      title: "Life with AI",
+      date: "2026-09-12",
       description:
-        "Join KUG's virtual meetup to learn what's new in Android and Kotlin",
-      ctaLabel: "Coming soon →",
+        "Dive into the world of AI workflows, build, network and have fun.",
+      ctaLabel: "RSVP now →",
+      href: "https://luma.com/1jjkxsmy",
       image: "/banner/purple.jpg",
       color: "bg-purple-pastel",
     },
