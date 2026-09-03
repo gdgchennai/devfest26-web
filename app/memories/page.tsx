@@ -8,6 +8,7 @@ import { BracketsField } from "@/components/motion/BracketsField";
 import { uiCopy } from "@/site.config";
 
 export const metadata: Metadata = { title: "Memories", description: uiCopy.memoriesPage.body };
+export const dynamic = "force-static";
 
 export default function MemoriesPage() {
   let previousColor: FallbackColor | undefined;
@@ -51,6 +52,7 @@ export default function MemoriesPage() {
                     alt={photo.description}
                     title={photo.title}
                     previousColor={priorColor}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                   />
                 ))}
             </div>

@@ -3,6 +3,7 @@ import { BracketsField } from "@/components/motion/BracketsField";
 import { TicketSelector } from "@/components/TicketSelector";
 
 export const metadata: Metadata = { title: "Get Tickets" };
+export const dynamic = "force-static";
 
 export default function TicketSelectPage() {
   return (

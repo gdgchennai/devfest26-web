@@ -8,6 +8,7 @@ import { BracketsField } from "@/components/motion/BracketsField";
 import { AGENDA_READY } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Agenda" };
+export const dynamic = "force-static";
 
 export default function AgendaPage() {
   if (!AGENDA_READY) notFound();

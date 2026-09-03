@@ -6,6 +6,7 @@ import { uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Speakers" };
+export const dynamic = "force-static";
 
 export default function SpeakersPage() {
   if (!AGENDA_READY) notFound();

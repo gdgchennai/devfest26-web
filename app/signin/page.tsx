@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Sign in",
   description: "Sign in to save sessions to your DevFest Chennai agenda.",
 };
+export const dynamic = "force-static";
 
 export default function SignInPage() {
   return (

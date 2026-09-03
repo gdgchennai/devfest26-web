@@ -187,6 +187,7 @@ html.lite .nav-lite-only {
   --color-red-pastel: var(--red-pastel);
   --color-purple-pastel: var(--purple-pastel);
 
+  --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
 }
 

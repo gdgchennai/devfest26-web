@@ -5,6 +5,8 @@ import { Frame } from "@/components/Frame";
 import { uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
 
+export const dynamic = "force-static";
+
 export function generateStaticParams() {
   return AGENDA_READY ? speakers.map((speaker) => ({ slug: speaker.slug })) : [];
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig, uiCopy } from "@/site.config";
 
 export const metadata: Metadata = { title: "Contact" };
+export const dynamic = "force-static";
 
 export default function ContactPage() {
   return (

@@ -21,6 +21,13 @@ const nextConfig: NextConfig = {
     AGENDA_READY: process.env.AGENDA_READY,
     HERO_BUTTONS: process.env.HERO_BUTTONS,
   },
+  // cacheComponents (PPR / `use cache`) needs the Node.js runtime and is not
+  // safe on the Cloudflare Worker OpenNext target — keep the previous-model
+  // `export const dynamic = "force-static"` on public pages instead.
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["gsap", "@gsap/react", "three", "lenis"],
+  },
   ...(process.env.NODE_ENV === "production"
     ? {
         images: { loader: "custom", loaderFile: "./lib/imagekit-loader.ts" },

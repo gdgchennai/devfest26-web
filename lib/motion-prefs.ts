@@ -147,28 +147,37 @@ export function shouldSuggestLiteMode(): boolean {
 }
 
 /**
+ * Phone / small-tablet viewports. Matches the site's `lg` (1024px) breakpoint
+ * and the pre-paint script in app/layout.tsx — change one, change the other.
+ *
+ * PageSpeed Insights (and real phones) cannot run the WebGL hero + hallway
+ * intro without tanking LCP and TBT; the SSR StaticHero is the page they get.
+ * Desktop / wide screens keep the full motion layer.
+ */
+export function isNarrowViewport(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(max-width: 1023px)").matches;
+}
+
+/**
  * True when the full motion layer (preloader, intro, hallway, 3D) should be
  * skipped entirely and the visitor sent straight to the static site.
  *
- * The experience is intentionally consistent on every connection speed — the
- * bouncing preloader holds until everything is ready rather than downgrading
- * slow/save-data visitors. So the ONLY opt-outs are an explicit accessibility
- * preference (reduced-motion) and the manual lite toggle (`?lite=1`). Save-data
- * / slow-connection deliberately does NOT downgrade anymore (see isSaveData).
+ * Connection speed is intentionally not a gate — the bouncing preloader holds
+ * until everything is ready rather than downgrading slow/save-data visitors.
+ * Opt-outs: reduced-motion, the manual lite toggle, and narrow viewports
+ * (see isNarrowViewport).
  */
 export function shouldUseStaticBaseline(): boolean {
-  return prefersReducedMotion() || isLiteMode();
+  return prefersReducedMotion() || isLiteMode() || isNarrowViewport();
 }
 
 /**
  * True when a heavy optional download (three.js, chiefly) must not be fetched
- * at all. Now only the manual lite toggle opts out — every real connection gets
- * the full 3D experience, with the preloader covering the download time.
- *
- * Deliberately NOT gated on reduced-motion: that is a vestibular preference, not
- * a bandwidth one, so those visitors still get still imagery (rendered once
- * instead of animated), just nothing that moves.
+ * at all. Lite mode and narrow viewports skip it; reduced-motion on a wide
+ * screen still gets still WebGL imagery (a vestibular preference, not a
+ * bandwidth one — rendered once instead of animated).
  */
 export function shouldSkipHeavyAssets(): boolean {
-  return isLiteMode();
+  return isLiteMode() || isNarrowViewport();
 }

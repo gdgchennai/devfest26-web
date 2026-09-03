@@ -903,7 +903,14 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                     object-fill stretches it to do that (a ~6% width/height
                     difference, imperceptible on a building facade) instead
                     of cropping it. */}
-                <Image src="/venue.webp" alt="" fill className="object-fill" priority={false} />
+                <Image
+                  src="/venue.webp"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 70vw, 100vw"
+                  className="object-fill"
+                  priority={false}
+                />
               </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)
                   property to an invalid colour, not stroke-width — Tailwind's

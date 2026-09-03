@@ -502,7 +502,14 @@ export function ShowMoodSection() {
         className="absolute inset-0 hidden sm:block"
         style={{ clipPath: desktopClipLeft }}
       >
-        <Image src={IMAGE_LEFT} alt="" fill priority={false} className="object-cover" />
+        <Image
+          src={IMAGE_LEFT}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          priority={false}
+          className="object-cover"
+        />
         <TextScrim corner="top left" />
         <PanelCopy
           title={TITLE_LEFT}
@@ -523,7 +530,14 @@ export function ShowMoodSection() {
         className="absolute inset-0 hidden sm:block"
         style={{ clipPath: desktopClipRight }}
       >
-        <Image src={IMAGE_RIGHT} alt="" fill priority={false} className="object-cover" />
+        <Image
+          src={IMAGE_RIGHT}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          priority={false}
+          className="object-cover"
+        />
         <TextScrim corner="bottom right" />
         <PanelCopy
           title={TITLE_RIGHT}
@@ -546,7 +560,14 @@ export function ShowMoodSection() {
         className="absolute inset-0 block sm:hidden"
         style={{ clipPath: narrowClipTop }}
       >
-        <Image src={IMAGE_LEFT} alt="" fill priority={false} className="object-cover" />
+        <Image
+          src={IMAGE_LEFT}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          priority={false}
+          className="object-cover"
+        />
         <TextScrim corner="top left" />
         <PanelCopy
           title={TITLE_LEFT}
@@ -567,7 +588,14 @@ export function ShowMoodSection() {
         className="absolute inset-0 block sm:hidden"
         style={{ clipPath: narrowClipBottom }}
       >
-        <Image src={IMAGE_RIGHT} alt="" fill priority={false} className="object-cover" />
+        <Image
+          src={IMAGE_RIGHT}
+          alt=""
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          priority={false}
+          className="object-cover"
+        />
         <TextScrim corner="bottom right" />
         <PanelCopy
           title={TITLE_RIGHT}
