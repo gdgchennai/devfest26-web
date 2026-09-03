@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { IMAGE_DEVICE_SIZES } from "./lib/image-sizes";
 
 /*
  * Production hands resizing/format negotiation to ImageKit (Cloudflare Pages
@@ -30,7 +31,11 @@ const nextConfig: NextConfig = {
   },
   ...(process.env.NODE_ENV === "production"
     ? {
-        images: { loader: "custom", loaderFile: "./lib/imagekit-loader.ts" },
+        images: {
+          loader: "custom",
+          loaderFile: "./lib/imagekit-loader.ts",
+          deviceSizes: [...IMAGE_DEVICE_SIZES],
+        },
       }
     : {
         allowedDevOrigins: ["192.168.1.*"],
@@ -38,7 +43,10 @@ const nextConfig: NextConfig = {
         // w=1200: 30→25 KB, 56→46 KB, 87→82 KB — roughly 14% off for
         // browsers that support it, and no browser is worse off. Next's
         // default is WebP only.
-        images: { formats: ["image/avif", "image/webp"] },
+        images: {
+          formats: ["image/avif", "image/webp"],
+          deviceSizes: [...IMAGE_DEVICE_SIZES],
+        },
       }),
 };
 

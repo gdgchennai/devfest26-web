@@ -70,6 +70,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
                 title={photo.title}
                 aspectRatio="auto"
                 sizes={cardSizes(i, 2.6)}
+                preload
                 className="h-full w-full"
               />
             </div>

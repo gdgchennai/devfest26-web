@@ -2,20 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
-
-/*
- * Brand halftones, with an ink label over them (7.0–11.7:1, AAA/AA). These
- * replaced four hand-mixed dark shades whose paper/55 label sat at 1.49–2.33:1
- * — effectively invisible. Halftones rather than pastels so a panel awaiting a
- * photo doesn't flash near-white against the dark page.
- */
-export const FALLBACK_BG: Record<FallbackColor, string> = {
-  blue: "bg-blue-halftone",
-  red: "bg-red-halftone",
-  yellow: "bg-yellow-halftone",
-  green: "bg-green-halftone",
-};
+import { fallbackColorFor, FALLBACK_BG, type FallbackColor } from "@/lib/fallback-color";
 
 /*
  * A brand shape per fallback colour, so a frame without its photo reads as a
@@ -47,7 +34,8 @@ type FrameProps = {
    * by useAssetsLoaded) so it hits the cache instead of fetching a fresh size.
    */
   unoptimized?: boolean;
-  sizes?: string;
+  /** Required: next/image warns (and over-fetches) if this defaults to 100vw. */
+  sizes: string;
   className?: string;
   /** Previous frame's fallback colour, so adjacent frames never match. */
   previousColor?: FallbackColor;
@@ -68,7 +56,7 @@ export function Frame({
   aspectRatio = "16 / 9",
   preload = false,
   unoptimized = false,
-  sizes = "100vw",
+  sizes,
   className = "",
   previousColor,
   onColorResolved,
@@ -118,8 +106,10 @@ export function Frame({
           alt={alt}
           fill
           preload={preload}
+          loading={preload ? "eager" : "lazy"}
           unoptimized={unoptimized}
           sizes={sizes}
+          decoding="async"
           className={`object-cover transition-opacity duration-250 ${loaded && !errored ? "opacity-100" : "opacity-0"}`}
           onLoad={() => {
             setLoaded(true);

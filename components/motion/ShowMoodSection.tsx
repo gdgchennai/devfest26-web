@@ -507,6 +507,7 @@ export function ShowMoodSection() {
           alt=""
           fill
           sizes="(min-width: 640px) 50vw, 100vw"
+          decoding="async"
           priority={false}
           className="object-cover"
         />
@@ -535,6 +536,7 @@ export function ShowMoodSection() {
           alt=""
           fill
           sizes="(min-width: 640px) 50vw, 100vw"
+          decoding="async"
           priority={false}
           className="object-cover"
         />
@@ -565,6 +567,7 @@ export function ShowMoodSection() {
           alt=""
           fill
           sizes="(min-width: 640px) 50vw, 100vw"
+          decoding="async"
           priority={false}
           className="object-cover"
         />
@@ -593,6 +596,7 @@ export function ShowMoodSection() {
           alt=""
           fill
           sizes="(min-width: 640px) 50vw, 100vw"
+          decoding="async"
           priority={false}
           className="object-cover"
         />

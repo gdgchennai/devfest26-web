@@ -7,8 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { siteConfig, uiCopy } from "@/site.config";
-import { FALLBACK_BG } from "@/components/Frame";
-import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
+import { FALLBACK_BG, fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
@@ -17,6 +16,23 @@ import { GlowButton } from "@/components/GlowButton";
 import { ArrowGlyph } from "@/components/ArrowGlyph";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
+
+const EXPECT_CARD_SIZES = "(min-width: 1024px) 65vw, (min-width: 768px) 78vw, 84vw";
+
+function ExpectCardPhoto({ src, eager }: { src: string; eager: boolean }) {
+  return (
+    <Image
+      src={src}
+      alt=""
+      aria-hidden
+      fill
+      preload={eager}
+      decoding="async"
+      sizes={EXPECT_CARD_SIZES}
+      className="object-cover"
+    />
+  );
+}
 
 const EXPECT_CARDS = (() => {
   let previousColor: FallbackColor | undefined;
@@ -57,7 +73,8 @@ function ExpectCarousel() {
                       alt=""
                       aria-hidden
                       fill
-                      sizes="(min-width: 1024px) 65vw, (min-width: 768px) 80vw, 100vw"
+                      decoding="async"
+                      sizes="(min-width: 1152px) 72rem, calc(100vw - 3rem)"
                       className="object-cover"
                     />
                   )}
@@ -458,7 +475,7 @@ export function ExpectShowcase() {
 
           <div className="absolute inset-0 flex items-center overflow-hidden [scrollbar-width:none]">
             <div ref={trackRef} className="flex will-change-transform">
-              {EXPECT_CARDS.map(({ item, photo, panelColor }) => {
+              {EXPECT_CARDS.map(({ item, photo, panelColor }, cardIndex) => {
                 return (
                   <article
                     key={item.title}
@@ -487,19 +504,7 @@ export function ExpectShowcase() {
                          */
                         <div aria-hidden className={`absolute inset-0 ${FALLBACK_BG[panelColor]}`} />
                       ) : (
-                        photo && (
-                          // next/image, not <img>: the raw tag served the full
-                          // original at every viewport. Same `object-cover`
-                          // crop, a fraction of the bytes.
-                          <Image
-                            src={photo.src}
-                            alt=""
-                            aria-hidden
-                            fill
-                            sizes="(min-width: 1024px) 65vw, (min-width: 768px) 80vw, 115vw"
-                            className="object-cover"
-                          />
-                        )
+                        photo && <ExpectCardPhoto src={photo.src} eager={cardIndex < 2} />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
                     </div>

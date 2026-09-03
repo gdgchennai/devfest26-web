@@ -33,6 +33,7 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
         alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
         title={speaker.name}
         aspectRatio="1 / 1"
+        sizes="(max-width: 640px) 100vw, 20rem"
         className="max-w-xs"
       />
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">{speaker.name}</h1>
