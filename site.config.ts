@@ -699,7 +699,7 @@ export const uiCopy = {
   },
 
   venueReveal: {
-    roadshowsText: "Roadshows and Meetups from Sep 5th onwards",
+    roadshowsText: "Roadshows and Meetups from Sep 12th onwards",
     disclaimerText: "Note: Roadshow and meetup venues differ and tickets sold separately.",
     locationHeading: "Location",
     saveTheDateHeading: "Save the Date",
