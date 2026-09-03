@@ -361,27 +361,27 @@ export const siteConfig = {
   whatYoullGet: [
     {
       title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city.",
-      image: "/archive/2025-roadshow.jpg"
+      image: "/archive/2025-roadshow.webp"
     },
     {
       title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience.",
-      image: "/archive/2025-build.jpg"
+      image: "/archive/2025-build.webp"
     },
     {
       title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs.",
-      image: "/archive/2025-compete.jpg"
+      image: "/archive/2025-compete.webp"
     },
     {
       title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects.",
-      image: "/archive/2025-full-house.jpg"
+      image: "/archive/2025-full-house.webp"
     },
     {
       title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations.",
-      image: "/archive/2025-registration-desk.jpg"
+      image: "/archive/2025-registration-desk.webp"
     },
     {
       title: "Community", description: "Join us as we celebrate the community while you find your tribe here.",
-      image: "/archive/2025-group.jpg"
+      image: "/archive/2025-group.webp"
     },
   ],
 

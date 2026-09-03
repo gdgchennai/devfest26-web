@@ -7,23 +7,6 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Whether the connection is metered/slow. NOTE: no longer used for gating — the
- * experience is deliberately identical on every connection (the preloader holds
- * until everything is ready, rather than downgrading slow visitors to a static
- * page). Kept for potential future use / diagnostics. Also: Chrome DevTools
- * network throttling reports `effectiveType: "slow-2g"` for its 3G presets, so
- * gating on this made the intro impossible to test under throttling.
- */
-export function isSaveData(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
-    .connection;
-  if (!connection) return false;
-  if (connection.saveData) return true;
-  return connection.effectiveType === "2g" || connection.effectiveType === "slow-2g";
-}
-
-/**
  * `?lite=1` turns it on, `?lite=0` turns it off, and either way the answer is
  * remembered. Both directions matter: the toggle drives the preference through
  * the URL so the choice is linkable, bookmarkable and testable — "open the site

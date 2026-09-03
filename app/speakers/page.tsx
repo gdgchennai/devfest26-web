@@ -18,10 +18,6 @@ export default function SpeakersPage() {
         {speakers.length === 0 ? uiCopy.speakersPage.cfpOpenBody : uiCopy.speakersPage.moreToComeBody}
       </p>
 
-      {/* Same roster component as the homepage — showing every confirmed
-          speaker rather than a preview, so the open places and the CFP
-          invitation read identically on both surfaces. Replaces a lone
-          EmptyState that said the same thing with none of the affordance. */}
       <div className="mt-8">
         <SpeakerWall limit={Math.max(6, speakers.length + 1)} />
       </div>

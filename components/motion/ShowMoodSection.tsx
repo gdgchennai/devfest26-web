@@ -19,8 +19,8 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 /** Placeholder art — any two images work here; these are just two from
  *  public/archive already in the repo. Swap for the real CDN images later,
  *  nothing else in this file depends on which images these are. */
-const IMAGE_LEFT = "/archive/2025-speaker-research-park.jpg";
-const IMAGE_RIGHT = "/archive/2025-attend.jpg";
+const IMAGE_LEFT = "/archive/2025-speaker-research-park.webp";
+const IMAGE_RIGHT = "/archive/2025-attend.webp";
 
 const TITLE_LEFT = uiCopy.showMoodSection.presentTitle;
 const BODY_LEFT = uiCopy.showMoodSection.presentBody;

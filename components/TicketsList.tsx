@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
-import { ArrowGlyph } from "@/components/motion/ScrollCue";
+import { ArrowGlyph } from "@/components/ArrowGlyph";
 import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";

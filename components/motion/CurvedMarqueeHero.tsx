@@ -13,6 +13,7 @@ import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy, heroButtons } from "@/components/motion/HeroCopy";
 import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
 import { GlowButton } from "@/components/GlowButton";
+import { createAlphaRenderer } from "@/lib/webgl";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -115,13 +116,7 @@ export function CurvedMarqueeHero() {
     let teardown: (() => void) | undefined;
 
     void (async () => {
-      // three.js is fetched on demand so it lands in its own chunk rather than
-      // the homepage's initial JS. This is the "Loading External Libraries"
-      // pattern from the Next lazy-loading guide; next/dynamic is not usable
-      // here because app/page.tsx is a Server Component, and Next does not
-      // code-split Client Components dynamically imported from one.
       const T = await import("three");
-      // The effect may already have been cleaned up while this was in flight.
       if (disposed) return;
 
       const scene = new T.Scene();
@@ -129,10 +124,10 @@ export function CurvedMarqueeHero() {
       camera.position.z = 2;
 
       const lowPower = isLowPowerDevice();
-      const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
-      renderer.setSize(view.clientWidth, view.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1 : 2));
-      view.appendChild(renderer.domElement);
+      const renderer = createAlphaRenderer(T.WebGLRenderer, view, {
+        pixelRatio: Math.min(window.devicePixelRatio, lowPower ? 1 : 2),
+        antialias: !lowPower,
+      });
 
       const geometry = new T.PlaneGeometry(1, 1, lowPower ? 8 : 20, lowPower ? 8 : 20);
       const loader = new T.TextureLoader();

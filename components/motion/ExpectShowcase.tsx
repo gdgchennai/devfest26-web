@@ -6,8 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { siteConfig } from "@/site.config";
-import { archivePhotos } from "@/lib/content";
+import { siteConfig, uiCopy } from "@/site.config";
 import { FALLBACK_BG } from "@/components/Frame";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
@@ -15,22 +14,13 @@ import { useClientValue } from "@/lib/useClientValue";
 import { setHorizontalCue } from "@/components/motion/scrollCueRegistry";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { GlowButton } from "@/components/GlowButton";
-import { uiCopy } from "@/site.config";
+import { ArrowGlyph } from "@/components/ArrowGlyph";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
-/*
- * Resolved once at module scope, not per render: every input is static config,
- * and the running `previousColor` is a reassignment the React Compiler
- * (correctly) rejects inside a render body.
- *
- * Colour is picked the same way <Frame> picks it — deterministic from the
- * title, never repeating the previous card's — so lite's panels come out as
- * four different brand colours in a fixed order rather than a run of one.
- */
 const EXPECT_CARDS = (() => {
   let previousColor: FallbackColor | undefined;
-  return siteConfig.whatYoullGet.map((item, i) => {
+  return siteConfig.whatYoullGet.map((item) => {
     previousColor = fallbackColorFor(item.title, previousColor);
     return {
       item,
@@ -40,35 +30,6 @@ const EXPECT_CARDS = (() => {
   });
 })();
 
-/** A single chevron, reused left/right by flipping it — same mark either way. */
-function ArrowGlyph({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      aria-hidden="true"
-      style={{ transform: direction === "left" ? "rotate(90deg)" : "rotate(-90deg)" }}
-    >
-      <path
-        d="M5 9l7 7 7-7"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * Lite's version of this section: no GSAP, no scroll pin — a click-to-slide
- * carousel of straight-edged cards, one in frame at a time. Photos are kept
- * here (unlike the fallback-colour panels lite uses elsewhere): this is only
- * four `next/image` requests, sized to the card rather than the raw
- * originals, so the section reads as designed rather than flat colour.
- */
 function ExpectCarousel() {
   const [index, setIndex] = useState(0);
 

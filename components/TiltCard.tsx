@@ -3,22 +3,8 @@
 import { useRef, type ReactNode } from "react";
 
 /**
- * A surface that tilts slightly toward the pointer, with a soft sheen tracking
- * it — the way a foil-stamped ticket catches the light when you turn it.
- *
- * The tilt is capped at a deliberately small angle. This wraps the site's one
- * conversion element, and a card that swings far enough to move its own button
- * out from under an approaching cursor costs more than the effect is worth.
- * At this amplitude the CTA shifts a couple of pixels.
- *
- * Values are written to CSS custom properties directly on the node rather than
- * held in state: pointermove fires continuously, and re-rendering React on
- * every frame to move a gradient is not a trade worth making. Same approach as
- * TrackCards.
- *
- * Both the tilt and the sheen are opted into in CSS behind `hover: hover` and
- * `prefers-reduced-motion: no-preference` — on touch there is no pointer to
- * follow and the value would stick after a tap.
+ * Pointer-follow tilt. Writes CSS vars on the node (not React state) so
+ * pointermove does not re-render. Disabled in CSS for touch / reduced-motion.
  */
 export function TiltCard({
   children,

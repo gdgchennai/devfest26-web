@@ -3,37 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { GlowButton } from "@/components/GlowButton";
+import { ArrowGlyph, type ArrowDirection } from "@/components/ArrowGlyph";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { getHorizontalCueFor, subscribeHorizontalCue } from "@/components/motion/scrollCueRegistry";
 import { uiCopy } from "@/site.config";
 
-export type ScrollCueDirection = "down" | "up" | "left" | "right";
-
-/*
- * A single chevron drawn pointing down; every other direction is this same
- * mark rotated, so the four arrows stay pixel-identical in weight and size.
- */
-export function ArrowGlyph({ direction }: { direction: ScrollCueDirection }) {
-  const rotation = { down: 0, right: -90, up: 180, left: 90 }[direction];
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      aria-hidden="true"
-      style={{ transform: `rotate(${rotation}deg)`, transition: "transform 220ms ease" }}
-    >
-      <path
-        d="M5 9l7 7 7-7"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+export type ScrollCueDirection = ArrowDirection;
 
 type ScrollCueButtonProps = {
   direction: ScrollCueDirection;

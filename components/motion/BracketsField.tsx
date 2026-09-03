@@ -10,6 +10,7 @@ import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
 import { isLowPowerDevice, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { markReady, markFailed, BRACKETS_READY } from "@/lib/assetReady";
+import { createAlphaRenderer } from "@/lib/webgl";
 
 /** The dynamically-imported three.js namespace, passed to the builders below. */
 type Three = typeof import("three");
@@ -267,35 +268,12 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
   camera.position.z = 6;
 
   const lowPower = isLowPowerDevice();
-  const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
-  renderer.setSize(host.clientWidth, host.clientHeight);
-  // Two resolutions, swapped live (see poll() below): full quality at rest,
-  // reduced while actively re-rendering every frame during a scroll.
-  //
-  // Used to render at a flat, forced-minimum 2× pixel ratio always, on the
-  // premise that "this renders on scroll only, so the cost is fine." That
-  // premise no longer holds: renderNow() now runs on every animation frame
-  // during a scroll (see poll() below, added to fix the WebGL layer
-  // freezing mid-fling on touch devices), not just on scroll events — so a
-  // full-viewport render at 2× is now paid ~60 times a second while
-  // scrolling, not a handful. On anything short of a flagship GPU that's
-  // enough to drop real frames — most visible on the footer logo, which
-  // fades in (transparent, overlapping bevelled geometry — real overdraw
-  // cost) exactly during that same scroll-near-the-bottom stretch, and
-  // sits pixel-locked over a live DOM element, so a dropped frame there
-  // reads as a stutter/step. The brackets are present the entire time and
-  // don't push things over budget on their own, and have no fixed
-  // reference to reveal a dropped frame against — so they read as smooth
-  // even under the exact same frame drops.
-  //
-  // Trading resolution for frame rate specifically during the demanding
-  // continuous-render phase (and only there — a still frame costs nothing
-  // extra to render at full quality) addresses that without needing to
-  // strip detail all the time.
   const fullRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 2);
   const activeRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 1);
-  renderer.setPixelRatio(fullRatio);
-  host.appendChild(renderer.domElement);
+  const renderer = createAlphaRenderer(T.WebGLRenderer, host, {
+    pixelRatio: fullRatio,
+    antialias: !lowPower,
+  });
 
   scene.add(new T.AmbientLight(0xffffff, 0.9));
   const key = new T.DirectionalLight(0xffffff, 2.2);
