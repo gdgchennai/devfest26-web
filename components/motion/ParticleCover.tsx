@@ -59,10 +59,12 @@ export function ParticleCover({
       const canvas = canvasRef.current;
       const container = wrapRef.current;
       const quality = gpuQuality();
-      const ctx = canvas?.getContext("2d", {
-        alpha: true,
-        desynchronized: quality.hardware,
-      });
+      // `desynchronized` is a throughput hint for opaque HUD canvases. On
+      // several mobile browsers it silently allocates an opaque backing
+      // store even with `alpha: true`, so clearRect paints black and the
+      // VenueReveal dissolve (the CSS gradient behind this canvas) reads
+      // as a flat slab. Transparency is load-bearing here.
+      const ctx = canvas?.getContext("2d", { alpha: true });
       if (!canvas || !container || !ctx || shapes.length === 0) return;
 
       let cw = 0;
@@ -171,7 +173,7 @@ export function ParticleCover({
 
   return (
     <div ref={wrapRef} className={className}>
-      <canvas ref={canvasRef} aria-hidden className="block h-full w-full" />
+      <canvas ref={canvasRef} aria-hidden className="block h-full w-full bg-transparent" />
     </div>
   );
 }

@@ -250,6 +250,62 @@ html.gpu .hallway-rise {
   will-change: transform, opacity;
 }
 
+/*
+ * VenueReveal's black cover panel. Fill is solid; the dissolve is a mask so
+ * WebKit does not flatten a transparent gradient on a transformed layer
+ * (mobile was painting a hard black slab). Both prefixes: Firefox needs
+ * `mask-image`, Safari needs `-webkit-mask-image`.
+ */
+.venue-overlay-dissolve {
+  background-color: #000;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.08) 10%,
+    rgba(0, 0, 0, 0.28) 18%,
+    rgba(0, 0, 0, 0.58) 26%,
+    rgba(0, 0, 0, 0.82) 32%,
+    #000 40%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.08) 10%,
+    rgba(0, 0, 0, 0.28) 18%,
+    rgba(0, 0, 0, 0.58) 26%,
+    rgba(0, 0, 0, 0.82) 32%,
+    #000 40%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Short viewports: stretch the feather so it is not a thin strip at the top. */
+@media (max-width: 1023px) {
+  .venue-overlay-dissolve {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.06) 8%,
+      rgba(0, 0, 0, 0.22) 16%,
+      rgba(0, 0, 0, 0.48) 28%,
+      rgba(0, 0, 0, 0.78) 38%,
+      #000 50%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.06) 8%,
+      rgba(0, 0, 0, 0.22) 16%,
+      rgba(0, 0, 0, 0.48) 28%,
+      rgba(0, 0, 0, 0.78) 38%,
+      #000 50%
+    );
+  }
+}
+
 /* Darkened space the hallway photos fly through; opacity is driven by the hook. */
 .hallway-backdrop {
   position: absolute;
