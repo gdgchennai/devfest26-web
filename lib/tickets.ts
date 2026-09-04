@@ -26,6 +26,43 @@ async function getTicketByEmail(email: string): Promise<TicketRecord | null> {
   return db.prepare("SELECT * FROM tickets WHERE email = ?").bind(email).first<TicketRecord>();
 }
 
+/** One add-on within `TicketRecord.addons`, as written by the ticketing Worker. */
+export type TicketAddon = {
+  booking_id: string;
+  ticket_name: string | null;
+  /** Ticket PDF link for the add-on (`https://`), or null if the Worker never saw one. */
+  attachment_link: string | null;
+};
+
+/** Decode `TicketRecord.addons` (a JSON string) into a clean, typed list.
+ *  Any malformed entry is dropped rather than thrown. */
+export function parseTicketAddons(addons: string | null): TicketAddon[] {
+  if (!addons) return [];
+  let raw: unknown;
+  try {
+    raw = JSON.parse(addons);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(raw)) return [];
+  const out: TicketAddon[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+    const e = entry as Record<string, unknown>;
+    const bookingId = typeof e.booking_id === "string" ? e.booking_id : null;
+    if (!bookingId) continue;
+    out.push({
+      booking_id: bookingId,
+      ticket_name: typeof e.ticket_name === "string" ? e.ticket_name : null,
+      attachment_link:
+        typeof e.attachment_link === "string" && e.attachment_link.startsWith("https://")
+          ? e.attachment_link
+          : null,
+    });
+  }
+  return out;
+}
+
 /**
  * The ticket to show a signed-in account:
  *   1. an explicit `ticket_claims` link (booked under a different email) wins,
