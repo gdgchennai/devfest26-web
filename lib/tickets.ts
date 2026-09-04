@@ -13,7 +13,7 @@ export type TicketRecord = {
   ticket_url: string | null;
   /** Main ticket name, e.g. "Professional". */
   ticket_name: string | null;
-  /** JSON array of `{ booking_id, ticket_name }` add-ons, or null. */
+  /** JSON array of `{ booking_id, ticket_name, attachment_link }` add-ons, or null. */
   addons: string | null;
   checked_in: number;
   check_in_time: number | null;

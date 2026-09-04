@@ -20,7 +20,13 @@
  */
 
 import { parseWebhook } from "./konfhub";
-import { applyRegistration, applyCancel, applyCheckIn, applyCheckOut } from "./store";
+import {
+  applyRegistration,
+  applyAddonRegistration,
+  applyCancel,
+  applyCheckIn,
+  applyCheckOut,
+} from "./store";
 
 export interface Env {
   DB: D1Database;
@@ -59,7 +65,9 @@ export default {
       let result: string;
       switch (e.eventType) {
         case "registration":
-          result = await applyRegistration(env.DB, e);
+          result = e.parentBookingId
+            ? await applyAddonRegistration(env.DB, e)
+            : await applyRegistration(env.DB, e);
           break;
         case "cancel":
           result = await applyCancel(env.DB, e);
