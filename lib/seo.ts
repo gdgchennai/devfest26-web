@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { formatEventDate, siteConfig } from "@/site.config";
 
 export const OG_IMAGE = {
-  url: "/banner/main.jpg",
+  url: "/banner/main.webp",
   width: 2160,
   height: 1080,
   alt: siteConfig.name,

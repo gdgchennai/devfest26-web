@@ -271,7 +271,7 @@ export const siteConfig = {
         "Dive into the world of AI workflows, build, network and have fun.",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/1jjkxsmy",
-      image: "/banner/purple.jpg",
+      image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
     {
@@ -281,7 +281,7 @@ export const siteConfig = {
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
       ctaLabel: "Coming soon →",
-      image: "/banner/green.jpg",
+      image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
     {
@@ -292,7 +292,7 @@ export const siteConfig = {
         "React in 2026: bigger, faster, still your favorite. Let's talk.",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/49bulo2m",
-      image: "/banner/blue.jpg",
+      image: "/banner/blue.webp",
       color: "bg-blue-pastel",
     },
     {
@@ -302,7 +302,7 @@ export const siteConfig = {
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
       ctaLabel: "Coming soon →",
-      image: "/banner/yellow.jpg",
+      image: "/banner/yellow.webp",
       color: "bg-yellow-pastel",
     },
     {
@@ -312,7 +312,7 @@ export const siteConfig = {
       description:
         "Learn about building security and privacy into agentic systems.",
       ctaLabel: "Coming soon →",
-      image: "/banner/red.jpg",
+      image: "/banner/red.webp",
       color: "bg-red-pastel",
     },
     {
@@ -323,7 +323,7 @@ export const siteConfig = {
         "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
       ctaLabel: "Register Now →",
       href: "https://luma.com/mprx0ocg",
-      image: "/banner/purple.jpg",
+      image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
     {
@@ -333,7 +333,7 @@ export const siteConfig = {
       description:
         "Enabling our protectors, protect their data.",
       ctaLabel: "Not open to public",
-      image: "/banner/green.jpg",
+      image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
     {
@@ -343,7 +343,7 @@ export const siteConfig = {
       description:
         "Women come, learn, build and talk about AI.",
       ctaLabel: "Coming soon →",
-      image: "/banner/blue.jpg",
+      image: "/banner/blue.webp",
       color: "bg-blue-pastel",
     },
     {
@@ -353,7 +353,7 @@ export const siteConfig = {
       description:
         "Bringing the DevFest spirit to campus.",
       ctaLabel: "Coming soon →",
-      image: "/banner/on-campus.jpg",
+      image: "/banner/on-campus.webp",
       color: "bg-yellow-pastel",
     },
   ] satisfies SubEvent[],

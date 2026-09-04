@@ -5,19 +5,20 @@ import { usePathname } from "next/navigation";
 import { useMotion } from "@/components/motion/MotionProvider";
 
 /**
- * Thin, floating bar at the bottom of the viewport: how far the visitor has
- * scrolled toward the end of the current page. Driven off rAF (same reason
- * BracketsField polls scrollY rather than waiting on Lenis/native "scroll"
- * events — those go quiet during a mobile fling).
+ * Thin, floating bar at the bottom of the viewport on the homepage
+ * experience only. Driven off rAF (same reason BracketsField polls scrollY
+ * rather than waiting on Lenis/native "scroll" events — those go quiet
+ * during a mobile fling).
  */
 export function ScrollProgress() {
   const fillRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { lenisRef } = useMotion();
+  const onExperience = pathname === "/";
 
   useEffect(() => {
     const fill = fillRef.current;
-    if (!fill) return;
+    if (!fill || !onExperience) return;
 
     let raf = 0;
     let last = -1;
@@ -36,7 +37,9 @@ export function ScrollProgress() {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [pathname, lenisRef]);
+  }, [pathname, lenisRef, onExperience]);
+
+  if (!onExperience) return null;
 
   return (
     <div

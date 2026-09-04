@@ -38,7 +38,7 @@ export function EventJsonLd() {
         endDate: `${siteConfig.date}T17:00:00+05:30`,
         eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
         eventStatus: "https://schema.org/EventScheduled",
-        image: [`${siteConfig.url}/banner/main.jpg`],
+        image: [`${siteConfig.url}/banner/main.webp`],
         location: {
           "@type": "Place",
           name: siteConfig.venue.name,
