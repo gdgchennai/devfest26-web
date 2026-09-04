@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { speakers } from "@/lib/content";
 import { SpeakerWall } from "@/components/SpeakerWall";
-import { uiCopy } from "@/site.config";
+import { siteConfig, uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Speakers" };
+export const metadata: Metadata = pageMetadata({
+  title: "Speakers",
+  description: `Speakers at ${siteConfig.name} — talks, workshops and the call for proposals from ${siteConfig.chapter}.`,
+  path: "/speakers",
+});
 export const dynamic = "force-static";
 
 export default function SpeakersPage() {

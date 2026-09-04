@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Frame } from "@/components/Frame";
 import { SectionDivider } from "@/components/SectionDivider";
 import { NotFoundRecovery } from "@/components/NotFoundRecovery";
@@ -30,6 +31,11 @@ import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 // which is the right note to end an error page on.
 const CONSOLATION =
   archivePhotos.find((p) => p.src.includes("group-photo")) ?? archivePhotos[0];
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

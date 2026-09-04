@@ -6,8 +6,13 @@ import { SectionBoundary } from "@/components/SectionBoundary";
 import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { uiCopy } from "@/site.config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Memories", description: uiCopy.memoriesPage.body };
+export const metadata: Metadata = pageMetadata({
+  title: "Memories",
+  description: uiCopy.memoriesPage.body,
+  path: "/memories",
+});
 export const dynamic = "force-static";
 
 export default function MemoriesPage() {

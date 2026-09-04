@@ -10,6 +10,8 @@ import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
+import { SiteJsonLd } from "@/components/SiteJsonLd";
+import { OG_IMAGE, siteDescription } from "@/lib/seo";
 
 // Google Sans from fonts.googleapis.com (not next/font). next/font/google
 // self-hosts the files and has no fallback metrics for this family, which
@@ -22,33 +24,40 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s — ${siteConfig.name}`,
   },
-  description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
+  description: siteDescription,
+  applicationName: siteConfig.shortName,
+  authors: [{ name: siteConfig.chapter, url: siteConfig.url }],
+  creator: siteConfig.chapter,
+  publisher: siteConfig.chapter,
+  category: "technology",
   // Resolves every relative URL in metadata (OpenGraph, alternates, icons)
   // against the real domain — required for crawlers/agents to treat this
   // site's URLs as canonical rather than relative/unresolvable.
   metadataBase: new URL(siteConfig.url),
-  alternates: { canonical: "/" },
+  // Canonical URLs are per-page (see pageMetadata in lib/seo.ts). A layout-level
+  // `canonical: "/"` would make Google treat every route as a duplicate of home.
   openGraph: {
     type: "website",
-    url: siteConfig.url,
     siteName: siteConfig.name,
     locale: "en_IN",
-    // No `title` / `description` here on purpose: with them omitted, Next fills
-    // og:title and og:description from each page's own resolved `title` /
-    // `description` ("Agenda — DevFest 2026 Chennai", the partner page's own
-    // blurb, etc.), so a shared link unfurls as the page it points to. Pages
-    // that set neither fall back to the `title.default` / `description` at the
-    // top of this object.
-    //
-    // `images` DOES stay here — the social-card raster (WhatsApp/Slack/
-    // LinkedIn/X/Discord). Relative path; metadataBase makes it absolute for
-    // crawlers. 2160×1080 (2:1); platforms wanting 1.91:1 crop a hair.
-    images: [{ url: "/banner/main.jpg", width: 2160, height: 1080, alt: siteConfig.name }],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    // Same as openGraph above — title/description inferred per page.
-    images: ["/banner/main.jpg"],
+    site: "@gdgchennai",
+    creator: "@gdgchennai",
+    images: [OG_IMAGE.url],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   // Controls iOS "Add to Home Screen" behaviour — apple-icon.png (auto-detected
   // from app/) supplies the icon itself. Matches the site's committed-dark
@@ -81,8 +90,15 @@ export default function RootLayout({
     // suppressHydrationWarning: the inline script below intentionally toggles a
     // class on <html> before hydration, so the server and client class lists
     // differ by design (the standard pre-paint-script pattern).
-    <html lang="en" suppressHydrationWarning className="h-full antialiased">
+    <html lang="en-IN" suppressHydrationWarning className="h-full antialiased">
       <body className="flex min-h-full flex-col bg-ink text-paper" suppressHydrationWarning>
+        <a href="#main" className="skip-link">
+          {uiCopy.common.skipToContent}
+        </a>
+        <noscript>
+          <style>{`#boot-preloader{display:none!important}`}</style>
+        </noscript>
+        <SiteJsonLd />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={GOOGLE_SANS_CSS} />
@@ -116,7 +132,7 @@ export default function RootLayout({
             viewports below `lg` so first paint is the real page (LCP), not a
             full-screen white field. Inlined: it must run before any module. */}
         <Script id="intro-bridge" strategy="beforeInteractive">
-          {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var mobile=matchMedia('(max-width: 1023px)').matches;var home=location.pathname==='/'||location.pathname==='';if(reduce||lite||mobile||!home){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
+          {`(function(){try{var ua=navigator.userAgent;var bot=/Googlebot|Google-InspectionTool|AdsBot-Google|Storebot-Google|GoogleOther|bingbot|BingPreview|DuckDuckBot|Slurp|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|Applebot|Chrome-Lighthouse|GPTBot|ClaudeBot|Bytespider|CCBot/i.test(ua);var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var mobile=matchMedia('(max-width: 1023px)').matches;var home=location.pathname==='/'||location.pathname==='';if(bot||reduce||lite||mobile||!home){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
         </Script>
         <div id="boot-preloader">
           <div className="boot-dots" aria-hidden="true">

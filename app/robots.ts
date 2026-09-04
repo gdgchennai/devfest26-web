@@ -2,16 +2,28 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/site.config";
 
 export default function robots(): MetadataRoute.Robots {
+  const origin = siteConfig.url;
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      // Account-gated, per-user pages — nothing for a crawler to index.
-      disallow: ["/profile", "/my-agenda", "/signin", "/api/"],
-      other: {
-        "Content-Signal": "ai-train=no, search=yes, ai-input=no",
+    rules: [
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
       },
-    },
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+      {
+        userAgent: "Google-InspectionTool",
+        allow: "/",
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
+      },
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
+        other: {
+          "Content-Signal": "search=yes, ai-train=no, ai-input=no",
+        },
+      },
+    ],
+    sitemap: `${origin}/sitemap.xml`,
   };
 }

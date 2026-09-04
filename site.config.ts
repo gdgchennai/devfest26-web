@@ -472,6 +472,7 @@ export const uiCopy = {
      *  differently ("← Get tickets", see showMoodSection below) and is not
      *  this. */
     getTicketsLabel: "Get tickets →",
+    skipToContent: "Skip to content",
   },
 
   /** X/Instagram/LinkedIn/YouTube/GitHub/Discord display names — shared by

@@ -8,8 +8,14 @@ import { sessionsForKeys } from "@/lib/session-key";
 import { AGENDA_READY } from "@/lib/routes";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { AgendaList } from "@/components/AgendaList";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "My agenda", robots: { index: false } };
+export const metadata: Metadata = pageMetadata({
+  title: "My agenda",
+  description: "Sessions you've saved for DevFest Chennai.",
+  path: "/my-agenda",
+  index: false,
+});
 export const dynamic = "force-dynamic";
 
 export default async function MyAgendaPage() {

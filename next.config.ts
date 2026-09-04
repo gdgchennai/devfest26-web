@@ -26,6 +26,18 @@ const nextConfig: NextConfig = {
   // safe on the Cloudflare Worker OpenNext target — keep the previous-model
   // `export const dynamic = "force-static"` on public pages instead.
   poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/md/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      },
+    ];
+  },
   experimental: {
     optimizePackageImports: ["gsap", "@gsap/react", "three", "lenis"],
   },

@@ -13,7 +13,14 @@ import { CopyField } from "@/components/auth/CopyField";
 import { ClaimTicketForm } from "@/components/auth/ClaimTicketForm";
 import { EditTicket } from "@/components/auth/EditTicket";
 
-export const metadata: Metadata = { title: "My profile", robots: { index: false } };
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "My profile",
+  description: "Your DevFest Chennai account, ticket and saved sessions.",
+  path: "/profile",
+  index: false,
+});
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {

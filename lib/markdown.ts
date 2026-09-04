@@ -14,6 +14,20 @@ import { AGENDA_READY, siteRoutes } from "@/lib/routes";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import type { Speaker } from "@/lib/schemas";
 
+/** Direct `/md/*` URLs must not compete with the HTML canonical in Google. */
+export function markdownResponse(body: string, canonicalPath: string, status = 200) {
+  const canonical = canonicalPath === "/" ? siteConfig.url : `${siteConfig.url}${canonicalPath}`;
+  return new Response(body, {
+    status,
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      Vary: "Accept",
+      "X-Robots-Tag": "noindex, follow",
+      Link: `<${canonical}>; rel="canonical"`,
+    },
+  });
+}
+
 function frontMatter(title: string): string {
   return `# ${title}\n\n> Machine-readable version of ${siteConfig.url}. See ${siteConfig.url}/llms.txt for a full site overview.\n\n`;
 }

@@ -1,13 +1,17 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { agenda } from "@/lib/content";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AgendaView } from "@/components/AgendaView";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { AGENDA_READY } from "@/lib/routes";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Agenda" };
+export const metadata = pageMetadata({
+  title: "Agenda",
+  description: `Full session schedule for ${siteConfig.name} at ${siteConfig.venue.name} — talks, workshops and lounges across every track.`,
+  path: "/agenda",
+});
 export const dynamic = "force-static";
 
 export default function AgendaPage() {
