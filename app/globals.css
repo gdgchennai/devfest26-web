@@ -229,6 +229,9 @@ html::-webkit-scrollbar {
  */
 .hallway-rise {
   opacity: 0;
+}
+
+html.gpu .hallway-rise {
   will-change: transform, opacity;
 }
 
@@ -264,8 +267,11 @@ html::-webkit-scrollbar {
   transform: translate(-50%, -50%) scale(0.18);
   opacity: 0;
   pointer-events: none;
-  will-change: transform, opacity;
   z-index: 1;
+}
+
+html.gpu .hallway-beacon {
+  will-change: transform, opacity;
 }
 
 /*
@@ -292,9 +298,10 @@ html::-webkit-scrollbar {
 /*
  * A photo card in the scroll hallway (see components/motion/usePhotoHallway.ts).
  * Starts hidden and centred so nothing flashes at full size before the first
- * frame renders. will-change/backface-visibility go on the cards themselves —
- * these are the elements that transform; promoting the pinned container instead
- * buys nothing. No blurred box-shadow: re-rendering a large blur on a dozen
+ * frame renders. Layer promotion (will-change / backface-visibility) is
+ * gated on html.gpu — a hardware GPU (see lib/gpu.ts). Software rasterizers
+ * pay more for extra compositor layers than they save.
+ * No blurred box-shadow: re-rendering a large blur on a dozen
  * scaling cards every frame is what tanks the frame rate.
  */
 .hallway-card {
@@ -305,9 +312,12 @@ html::-webkit-scrollbar {
   aspect-ratio: var(--card-ar, 3 / 2);
   transform: translate(-50%, -50%) scale(0.15);
   opacity: 0;
+  pointer-events: none;
+}
+
+html.gpu .hallway-card {
   will-change: transform, opacity;
   backface-visibility: hidden;
-  pointer-events: none;
 }
 
 /*
@@ -327,8 +337,11 @@ html::-webkit-scrollbar {
   transform: translate(-50%, -50%) scale(0.07);
   opacity: 0;
   pointer-events: none;
-  will-change: transform, opacity;
   z-index: 2;
+}
+
+html.gpu .hallway-stack {
+  will-change: transform, opacity;
 }
 
 .stack-card {

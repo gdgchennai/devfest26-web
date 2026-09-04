@@ -8,7 +8,8 @@ import { useEffect, useRef } from "react";
 // library back into the initial bundle.
 import type * as THREE from "three";
 import { clamp } from "@/lib/easing";
-import { isLowPowerDevice, shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { gpuQuality } from "@/lib/gpu";
 import { markReady, markFailed, BRACKETS_READY } from "@/lib/assetReady";
 import { createAlphaRenderer } from "@/lib/webgl";
 
@@ -267,12 +268,12 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
   const camera = new T.PerspectiveCamera(50, host.clientWidth / host.clientHeight, 0.1, 100);
   camera.position.z = 6;
 
-  const lowPower = isLowPowerDevice();
-  const fullRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 2);
-  const activeRatio = lowPower ? 1 : Math.min(window.devicePixelRatio, 1);
+  const quality = gpuQuality();
+  const fullRatio = quality.pixelRatio;
+  const activeRatio = quality.hardware ? Math.min(window.devicePixelRatio || 1, 1) : 1;
   const renderer = createAlphaRenderer(T.WebGLRenderer, host, {
     pixelRatio: fullRatio,
-    antialias: !lowPower,
+    antialias: quality.antialias,
   });
 
   scene.add(new T.AmbientLight(0xffffff, 0.9));

@@ -98,10 +98,15 @@ export default function RootLayout({
          * HeroSection adds `boot-done`. Colours are literal hex, not var()s, so
          * the dots are right even before globals.css applies. Geometry mirrors
          * the <Loader> SVG (same viewBox + dot centres) for a seamless hand-off.
+         *
+         * Dots are HTML, not SVG: CSS `transform-box: fill-box` on SVG circles
+         * forces a bounding-box recalc every frame and was the intro's main
+         * paint cost. Nested slots keep position transforms off the bouncing
+         * balls so the animation is compositor-only (`translate3d`).
          */}
         <style
           dangerouslySetInnerHTML={{
-            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff}#boot-preloader svg{display:block;width:min(82vw,720px);height:auto}#boot-preloader circle{transform-box:fill-box;transform-origin:center;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader circle:nth-of-type(2){animation-delay:.12s}#boot-preloader circle:nth-of-type(3){animation-delay:.24s}#boot-preloader circle:nth-of-type(4){animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-20%)}}#boot-preloader>p{position:absolute;bottom:1.5rem;left:0;right:0;margin:0;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.5)}@media(min-width:1024px){#boot-preloader>p{display:none}}#boot-lite-prompt{position:absolute;left:50%;bottom:3.75rem;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:.5rem;width:min(88vw,340px);padding:.75rem 1rem;border:1px solid rgba(0,0,0,.2);border-radius:1rem;background:#fff;text-align:center}#boot-lite-prompt .msg{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.875rem;line-height:1.35;color:rgba(0,0,0,.8)}#boot-lite-prompt .row{display:flex;gap:1rem}#boot-lite-prompt button{background:none;border:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#000;cursor:pointer}#boot-lite-prompt button.dismiss{font-weight:500;color:rgba(0,0,0,.6)}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}@media(max-width:1023px){#boot-preloader{display:none}}`,
+            __html: `#boot-preloader{position:fixed;inset:0;z-index:995;display:flex;align-items:center;justify-content:center;background:#fff;contain:layout paint}#boot-preloader .boot-dots{position:relative;width:min(82vw,720px);aspect-ratio:1728/535}#boot-preloader .boot-dot-slot{position:absolute;top:49.813%;width:9.086%;aspect-ratio:1;transform:translate(-50%,-50%)}#boot-preloader .boot-dot-slot:nth-child(1){left:24.045%}#boot-preloader .boot-dot-slot:nth-child(2){left:41.348%}#boot-preloader .boot-dot-slot:nth-child(3){left:58.651%}#boot-preloader .boot-dot-slot:nth-child(4){left:75.955%}#boot-preloader .boot-dot{width:100%;height:100%;border-radius:50%;will-change:transform;animation:boot-bounce 1.25s ease-in-out infinite}#boot-preloader .boot-dot-slot:nth-child(2) .boot-dot{animation-delay:.12s}#boot-preloader .boot-dot-slot:nth-child(3) .boot-dot{animation-delay:.24s}#boot-preloader .boot-dot-slot:nth-child(4) .boot-dot{animation-delay:.36s}@keyframes boot-bounce{0%,45%,100%{transform:translate3d(0,0,0)}22%{transform:translate3d(0,-20%,0)}}#boot-preloader>p{position:absolute;bottom:1.5rem;left:0;right:0;margin:0;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.5)}@media(min-width:1024px){#boot-preloader>p{display:none}}#boot-lite-prompt{position:absolute;left:50%;bottom:3.75rem;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:.5rem;width:min(88vw,340px);padding:.75rem 1rem;border:1px solid rgba(0,0,0,.2);border-radius:1rem;background:#fff;text-align:center}#boot-lite-prompt .msg{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.875rem;line-height:1.35;color:rgba(0,0,0,.8)}#boot-lite-prompt .row{display:flex;gap:1rem}#boot-lite-prompt button{background:none;border:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#000;cursor:pointer}#boot-lite-prompt button.dismiss{font-weight:500;color:rgba(0,0,0,.6)}html.no-boot #boot-preloader,html.boot-done #boot-preloader{display:none}@media(prefers-reduced-motion:reduce){#boot-preloader{display:none}}@media(max-width:1023px){#boot-preloader{display:none}}`,
           }}
         />
         {/* Mirrors isLiteMode() / isNarrowViewport() in lib/motion-prefs.ts,
@@ -114,12 +119,20 @@ export default function RootLayout({
           {`(function(){try{var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var mobile=matchMedia('(max-width: 1023px)').matches;var home=location.pathname==='/'||location.pathname==='';if(reduce||lite||mobile||!home){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
         </Script>
         <div id="boot-preloader">
-          <svg viewBox="0 250 1728 535" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="415.5" cy="516.5" r="78.5" fill="#4285f4" />
-            <circle cx="714.5" cy="516.5" r="78.5" fill="#ea4335" />
-            <circle cx="1013.5" cy="516.5" r="78.5" fill="#f9ab00" />
-            <circle cx="1312.5" cy="516.5" r="78.5" fill="#34a853" />
-          </svg>
+          <div className="boot-dots" aria-hidden="true">
+            <div className="boot-dot-slot">
+              <div className="boot-dot" style={{ background: "#4285f4" }} />
+            </div>
+            <div className="boot-dot-slot">
+              <div className="boot-dot" style={{ background: "#ea4335" }} />
+            </div>
+            <div className="boot-dot-slot">
+              <div className="boot-dot" style={{ background: "#f9ab00" }} />
+            </div>
+            <div className="boot-dot-slot">
+              <div className="boot-dot" style={{ background: "#34a853" }} />
+            </div>
+          </div>
           <p>{uiCopy.loader.desktopHint}</p>
           {/* Slow-load opt-out for the pre-hydration window — the JS bundle
               itself is what's slow on a bad connection, so the React <Loader>'s

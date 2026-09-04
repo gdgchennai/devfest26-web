@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { gpuQuality } from "@/lib/gpu";
 
 gsap.registerPlugin(useGSAP);
 
@@ -57,7 +58,11 @@ export function ParticleCover({
     () => {
       const canvas = canvasRef.current;
       const container = wrapRef.current;
-      const ctx = canvas?.getContext("2d");
+      const quality = gpuQuality();
+      const ctx = canvas?.getContext("2d", {
+        alpha: true,
+        desynchronized: quality.hardware,
+      });
       if (!canvas || !container || !ctx || shapes.length === 0) return;
 
       let cw = 0;
@@ -130,8 +135,16 @@ export function ParticleCover({
       tl.seek(99);
 
       function resize() {
-        cw = canvas!.width = container!.clientWidth;
-        ch = canvas!.height = container!.clientHeight;
+        const dpr = quality.canvasDpr;
+        const cssW = container!.clientWidth;
+        const cssH = container!.clientHeight;
+        canvas!.width = Math.max(1, Math.round(cssW * dpr));
+        canvas!.height = Math.max(1, Math.round(cssH * dpr));
+        canvas!.style.width = `${cssW}px`;
+        canvas!.style.height = `${cssH}px`;
+        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cw = cssW;
+        ch = cssH;
         radius = Math.max(cw, ch);
         tl.invalidate();
         draw();

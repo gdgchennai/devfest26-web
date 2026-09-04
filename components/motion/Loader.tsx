@@ -9,12 +9,14 @@ import { useLiteModeToggle } from "@/lib/useLiteModeToggle";
 import { shouldSuggestLiteMode, litePromptOverride } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { siteConfig, uiCopy } from "@/site.config";
+import { hasHardwareGpu } from "@/lib/gpu";
 
 /* ------------------------------------------------------------------ *
  * Geometry + timeline, lifted verbatim from loader.html.
  *
  * Start: a row of four circles (diameter 157) on a white field. They bounce
- * in a staggered wave — that wave is the loader loop. Once loading finishes,
+ * in a staggered wave — that wave is the loader loop, driven as compositor
+ * transforms on HTML discs (not SVG attributes). Once loading finishes,
  * the wave plays out its current cycle, then the circles spiral inward, orbit,
  * and stretch into the DevFest `> <` mark, at which point the enter CTA fades in.
  * ------------------------------------------------------------------ */
@@ -148,6 +150,7 @@ type LoaderProps = {
 export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal, onDismiss }: LoaderProps) {
   const mounted = useClientValue(() => true, false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const bounceRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const ctaRef = useRef<HTMLButtonElement>(null);
   const liteLinkRef = useRef<HTMLButtonElement>(null);
@@ -212,11 +215,20 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
   useGSAP(
     () => {
       const svg = svgRef.current;
-      if (!svg) return;
+      const bounceLayer = bounceRef.current;
+      if (!svg || !bounceLayer) return;
       const rects = Array.from(svg.querySelectorAll<SVGRectElement>("rect[data-dot]"));
-      if (rects.length !== SPEC.length) return;
+      const balls = Array.from(bounceLayer.querySelectorAll<HTMLElement>("[data-bounce-dot]"));
+      if (rects.length !== SPEC.length || balls.length !== SPEC.length) return;
 
-      /** Circles at rest in the start row — the state both the bounce and the morph begin from. */
+      // Compositor-only bounce: yPercent on HTML discs, never SVG attributes.
+      // Amplitude matches the old SVG bump (B_AMP / START_D ≈ 20% of the disc).
+      // force3D (translate3d) only when a hardware GPU is compositing — on
+      // software GL the extra layers cost more than they save.
+      gsap.set(balls, { force3D: hasHardwareGpu(), yPercent: 0 });
+      const setBounceY = balls.map((el) => gsap.quickSetter(el, "yPercent"));
+
+      /** Circles at rest in the start row — the state the morph begins from. */
       function layoutRow() {
         rects.forEach((el, i) => {
           const cx = SPEC[i].sx;
@@ -230,11 +242,18 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
         });
       }
 
-      /** The bounce, at wave-time t. Only the vertical translate changes. */
+      /** The bounce, at wave-time t. Only the inner disc's translateY changes. */
       function renderBounce(t: number) {
-        rects.forEach((el, i) => {
-          el.setAttribute("transform", `translate(0 ${bounceY(i, t).toFixed(2)})`);
-        });
+        for (let i = 0; i < SPEC.length; i += 1) {
+          setBounceY[i]((bounceY(i, t) / START_D) * 100);
+        }
+      }
+
+      function showMarkSvg() {
+        if (!bounceLayer) return;
+        bounceLayer.style.visibility = "hidden";
+        gsap.set(balls, { yPercent: 0, force3D: false });
+        gsap.set(svg, { autoAlpha: 1 });
       }
 
       /** loader.html's render(), for the spiral → orbit → morph window (t: 0 → 1). */
@@ -266,14 +285,11 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
       }
 
       layoutRow();
-
-      // Start fully visible — the server-rendered #boot-preloader has been
-      // bouncing since first paint, so this takes over from it seamlessly
-      // rather than fading in from nothing.
-      gsap.set(rects, { opacity: 1 });
+      gsap.set(svg, { autoAlpha: 0 });
 
       const morph = { p: 0 };
       function startMorph() {
+        showMarkSvg();
         gsap.to(morph, {
           p: 1,
           duration: MORPH_DUR,
@@ -410,7 +426,8 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
       ref={rootRef}
       role="dialog"
       aria-label={`${siteConfig.name}${uiCopy.loader.introAriaSuffix}`}
-      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white will-change-transform"
+      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-2 bg-white"
+      style={{ contain: "paint" }}
     >
       {/*
        * The only announced loading state. The dots are a decorative rendering
@@ -423,24 +440,51 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
           : `${uiCopy.loader.loadingStatusPrefix}${siteConfig.name}${uiCopy.loader.loadingStatusSuffix}`}
       </p>
 
-      <svg
-        ref={svgRef}
-        aria-hidden="true"
-        viewBox="0 250 1728 535"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-auto w-[min(82vw,720px)]"
-      >
-        {SPEC.map((s) => (
-          <rect
-            key={s.key}
-            data-dot={s.key}
-            fill={s.colorVar}
-            stroke="var(--ink)"
-            strokeWidth={5}
-            style={{ strokeOpacity: 0 }}
-          />
-        ))}
-      </svg>
+      <div className="relative w-[min(82vw,720px)]" style={{ aspectRatio: "1728 / 535" }}>
+        {/*
+         * Bounce lives on HTML discs so GSAP only writes compositor transforms
+         * (yPercent). The SVG stays hidden until the morph, which still needs
+         * rounded-rect geometry the discs cannot do.
+         */}
+        <div ref={bounceRef} aria-hidden="true" className="absolute inset-0">
+          {SPEC.map((s) => (
+            <div
+              key={s.key}
+              className="absolute aspect-square"
+              style={{
+                left: `${(s.sx / 1728) * 100}%`,
+                top: `${((SY - 250) / 535) * 100}%`,
+                width: `${(START_D / 1728) * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div
+                data-bounce-dot
+                className="h-full w-full rounded-full"
+                style={{ background: s.colorVar, willChange: "transform" }}
+              />
+            </div>
+          ))}
+        </div>
+        <svg
+          ref={svgRef}
+          aria-hidden="true"
+          viewBox="0 250 1728 535"
+          xmlns="http://www.w3.org/2000/svg"
+          className="absolute inset-0 block h-full w-full"
+        >
+          {SPEC.map((s) => (
+            <rect
+              key={s.key}
+              data-dot={s.key}
+              fill={s.colorVar}
+              stroke="var(--ink)"
+              strokeWidth={5}
+              style={{ strokeOpacity: 0 }}
+            />
+          ))}
+        </svg>
+      </div>
 
       {/* Bottom-anchored stack, absolutely positioned so nothing here shifts the
           dots/mark off centre:

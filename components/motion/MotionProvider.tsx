@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type Lenis from "lenis";
 import { isLiteMode, shouldUseStaticBaseline, subscribeLiteModeChange } from "@/lib/motion-prefs";
+import { hasHardwareGpu } from "@/lib/gpu";
 import { EASE_CURTAIN } from "@/components/motion/eases";
 import { useClientValue } from "@/lib/useClientValue";
 
@@ -79,6 +80,19 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
   // click lands at the top of its destination. Consumed (and cleared) by the
   // per-pathname effect once the new route has rendered.
   const scrollResetPendingRef = useRef(false);
+
+  // Promote GSAP tweens to compositor layers (translate3d) only when a
+  // hardware GPU is actually driving them. Software GL pays extra for those
+  // layers; html.gpu gates CSS will-change the same way (see globals.css).
+  useEffect(() => {
+    const gpu = hasHardwareGpu();
+    document.documentElement.classList.toggle("gpu", gpu);
+    gsap.config({ force3D: gpu });
+    return () => {
+      document.documentElement.classList.remove("gpu");
+      gsap.config({ force3D: "auto" });
+    };
+  }, []);
 
   // One Lenis instance for the whole site, created here and kept alive
   // across route changes (root layout never remounts on navigation).

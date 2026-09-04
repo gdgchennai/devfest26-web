@@ -8,7 +8,8 @@ import type { Font } from "three/addons/loaders/FontLoader.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { archivePhotos } from "@/lib/content";
-import { isLowPowerDevice, prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
+import { gpuQuality } from "@/lib/gpu";
+import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy, heroButtons } from "@/components/motion/HeroCopy";
 import { optimizedSrc } from "@/components/motion/useAssetsLoaded";
@@ -97,10 +98,20 @@ const FRAGMENT_SHADER = /* glsl */ `
 
 const planeStep = () => 1 + OPTS.gap / 100;
 
-export function CurvedMarqueeHero() {
+export function CurvedMarqueeHero({ paused = false }: { paused?: boolean } = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
+  const loopRef = useRef<{ start: () => void; stop: () => void; intersecting: boolean } | null>(null);
+
+  useEffect(() => {
+    const loop = loopRef.current;
+    if (!loop) return;
+    if (paused) loop.stop();
+    else if (loop.intersecting) loop.start();
+  }, [paused]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -123,13 +134,14 @@ export function CurvedMarqueeHero() {
       const camera = new T.PerspectiveCamera(75, view.clientWidth / view.clientHeight, 0.1, 20);
       camera.position.z = 2;
 
-      const lowPower = isLowPowerDevice();
+      const quality = gpuQuality();
       const renderer = createAlphaRenderer(T.WebGLRenderer, view, {
-        pixelRatio: Math.min(window.devicePixelRatio, lowPower ? 1 : 2),
-        antialias: !lowPower,
+        pixelRatio: quality.pixelRatio,
+        antialias: quality.antialias,
       });
 
-      const geometry = new T.PlaneGeometry(1, 1, lowPower ? 8 : 20, lowPower ? 8 : 20);
+      const segs = quality.antialias ? 20 : 8;
+      const geometry = new T.PlaneGeometry(1, 1, segs, segs);
       const loader = new T.TextureLoader();
       const slideAmount = MARQUEE_TEXTURES.length;
 
@@ -245,9 +257,10 @@ export function CurvedMarqueeHero() {
       // nothing on screen to show for it, and the single biggest source of the
       // "feels heavy" reports on weaker devices. An IntersectionObserver stops
       // it the moment the strip leaves the viewport and restarts it when it
-      // scrolls back in.
+      // scrolls back in. The intro overlay also pauses it (see `paused`) so
+      // the bouncing loader isn't competing with a hidden WebGL strip.
       function startLoop() {
-        if (reduce || raf) return;
+        if (reduce || raf || pausedRef.current) return;
         prev = performance.now();
         raf = requestAnimationFrame(animate);
       }
@@ -255,17 +268,20 @@ export function CurvedMarqueeHero() {
         cancelAnimationFrame(raf);
         raf = 0;
       }
+      const loop = { start: startLoop, stop: stopLoop, intersecting: true };
+      loopRef.current = loop;
       const visibility = reduce
         ? null
         : new IntersectionObserver(
             ([entry]) => {
+              loop.intersecting = entry.isIntersecting;
               if (entry.isIntersecting) startLoop();
               else stopLoop();
             },
             { rootMargin: "200px 0px" },
           );
       visibility?.observe(sectionRef.current ?? view);
-      if (!reduce) startLoop();
+      if (!reduce && !pausedRef.current) startLoop();
 
       function onResize() {
         camera.aspect = view.clientWidth / view.clientHeight;
@@ -277,6 +293,7 @@ export function CurvedMarqueeHero() {
 
       teardown = () => {
         stopLoop();
+        loopRef.current = null;
         visibility?.disconnect();
         trigger?.kill();
         window.removeEventListener("resize", onResize);
@@ -317,11 +334,11 @@ export function CurvedMarqueeHero() {
 
       const scene = new T.Scene();
       const camera = new T.PerspectiveCamera(40, host.clientWidth / host.clientHeight, 0.1, 100);
-      const lowPower = isLowPowerDevice();
-      const renderer = new T.WebGLRenderer({ alpha: true, antialias: !lowPower });
-      renderer.setSize(host.clientWidth, host.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1 : 2));
-      host.appendChild(renderer.domElement);
+      const quality = gpuQuality();
+      const renderer = createAlphaRenderer(T.WebGLRenderer, host, {
+        pixelRatio: quality.pixelRatio,
+        antialias: quality.antialias,
+      });
 
       // Lights shape the bevels — that shading is what sells "solid 3D".
       scene.add(new T.AmbientLight(0xffffff, 0.75));

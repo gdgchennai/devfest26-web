@@ -276,7 +276,7 @@ export function HeroMotion() {
         ) : degraded ? (
           <StaticHero />
         ) : (
-          <CurvedMarqueeHero />
+          <CurvedMarqueeHero paused={showLoader && !entering && !revealDone} />
         )}
       </div>
 
