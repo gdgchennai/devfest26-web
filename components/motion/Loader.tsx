@@ -486,14 +486,9 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
         </svg>
       </div>
 
-      {/* Bottom-anchored stack, absolutely positioned so nothing here shifts the
-          dots/mark off centre:
-           • the viewport hint — pinned to `bottom:1.5rem` to match the
-             first-paint #boot-preloader's own hint (app/layout.tsx), so it
-             doesn't jump position on hand-off from that to this;
-           • above it, while still loading, the slow-connection / low-power
-             lite-mode prompt. Stacked so toggling the prompt never moves the
-             hint. */}
+      {/* Bottom-anchored: while still loading, the slow-connection / low-power
+          lite-mode prompt. Absolutely positioned so it never shifts the
+          dots/mark off centre. */}
       <div className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-3 px-4">
         {showLitePrompt && (
           <div
@@ -522,9 +517,6 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
             </div>
           </div>
         )}
-        <p className="font-mono text-xs uppercase tracking-wider text-ink/50 lg:hidden">
-          {uiCopy.loader.desktopHint}
-        </p>
       </div>
 
       <button

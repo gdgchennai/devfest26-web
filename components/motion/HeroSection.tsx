@@ -8,10 +8,10 @@ import type { ArchivePhoto } from "@/lib/schemas";
 
 /**
  * The WebGL intro + curved marquee. Loaded only when `shouldSkipHeavyAssets`
- * is false (wide screens, not lite). `ssr: false` so the first HTML — and the
- * PageSpeed LCP element — is always the server-rendered StaticHero heading,
- * not a blank canvas waiting on three.js. Desktop hydrates StaticHero, then
- * swaps in this chunk; the GSAP Loader covers that swap on first visit.
+ * is false (not lite). `ssr: false` so the first HTML is always StaticHero;
+ * the chunk (and three.js inside it) loads after hydration. The GSAP Loader
+ * covers that swap on first visit. Import is async — a failed chunk falls
+ * through SectionBoundary to StaticHero.
  */
 const HeroMotion = dynamic(() => import("./HeroMotion").then((m) => ({ default: m.HeroMotion })), {
   ssr: false,
@@ -20,9 +20,8 @@ const HeroMotion = dynamic(() => import("./HeroMotion").then((m) => ({ default: 
 
 /**
  * Chooses the hero. SSR and no-JS always get StaticHero (the `true` default on
- * `shouldSkipHeavyAssets`). After hydration, lite mode and narrow viewports
- * stay on that HTML; wide screens load HeroMotion in a separate chunk so
- * phones never download three.js / the hallway just to show a title.
+ * `shouldSkipHeavyAssets`). After hydration, lite stays on that HTML; everyone
+ * else loads HeroMotion in a separate chunk, including phones.
  */
 export function HeroSection({ photos }: { photos: ArchivePhoto[] }) {
   const skipHeavy = useClientValue(shouldSkipHeavyAssets, true);

@@ -130,12 +130,9 @@ export function shouldSuggestLiteMode(): boolean {
 }
 
 /**
- * Phone / small-tablet viewports. Matches the site's `lg` (1024px) breakpoint
- * and the pre-paint script in app/layout.tsx — change one, change the other.
- *
- * PageSpeed Insights (and real phones) cannot run the WebGL hero + hallway
- * intro without tanking LCP and TBT; the SSR StaticHero is the page they get.
- * Desktop / wide screens keep the full motion layer.
+ * Phone / small-tablet viewports. Matches the site's `lg` (1024px) breakpoint.
+ * Used to thin hallway photo counts and marquee plane size — not to skip the
+ * intro. The experience plays on this width unless lite or reduced-motion.
  */
 export function isNarrowViewport(): boolean {
   if (typeof window === "undefined") return false;
@@ -147,20 +144,19 @@ export function isNarrowViewport(): boolean {
  * skipped entirely and the visitor sent straight to the static site.
  *
  * Connection speed is intentionally not a gate — the bouncing preloader holds
- * until everything is ready rather than downgrading slow/save-data visitors.
- * Opt-outs: reduced-motion, the manual lite toggle, and narrow viewports
- * (see isNarrowViewport).
+ * until everything is ready, and offers lite if the wait drags. Opt-outs:
+ * reduced-motion and the manual lite toggle (`?lite=1` / footer).
  */
 export function shouldUseStaticBaseline(): boolean {
-  return prefersReducedMotion() || isLiteMode() || isNarrowViewport();
+  return prefersReducedMotion() || isLiteMode();
 }
 
 /**
  * True when a heavy optional download (three.js, chiefly) must not be fetched
- * at all. Lite mode and narrow viewports skip it; reduced-motion on a wide
- * screen still gets still WebGL imagery (a vestibular preference, not a
- * bandwidth one — rendered once instead of animated).
+ * at all. Lite mode skips it; reduced-motion still gets still WebGL imagery
+ * (a vestibular preference, not a bandwidth one — rendered once instead of
+ * animated).
  */
 export function shouldSkipHeavyAssets(): boolean {
-  return isLiteMode() || isNarrowViewport();
+  return isLiteMode();
 }

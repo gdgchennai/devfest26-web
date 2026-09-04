@@ -32,16 +32,24 @@ function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown, label: string): T 
   return result.data;
 }
 
+/** Don't let a hung D1 binding stall HTML (especially `next dev` / cold Worker). */
+const D1_BUDGET_MS = 2000;
+
 async function readDocument(kind: ContentKind): Promise<unknown> {
-  try {
-    const db = await getDb();
-    const row = await db.prepare("SELECT payload FROM content_documents WHERE kind = ?").bind(kind).first<{ payload: string }>();
-    if (row?.payload) return JSON.parse(row.payload) as unknown;
-  } catch {
-    // `next build` has no D1 binding; an unsynced local D1 is also empty.
-    // content/*.json is the authoring copy and the fallback in both cases.
-  }
-  return FILE_FALLBACK[kind];
+  const fromD1 = (async (): Promise<unknown | null> => {
+    try {
+      const db = await getDb();
+      const row = await db.prepare("SELECT payload FROM content_documents WHERE kind = ?").bind(kind).first<{ payload: string }>();
+      return row?.payload ? (JSON.parse(row.payload) as unknown) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const timedOut = new Promise<null>((resolve) => {
+    setTimeout(() => resolve(null), D1_BUDGET_MS);
+  });
+  const payload = await Promise.race([fromD1, timedOut]);
+  return payload ?? FILE_FALLBACK[kind];
 }
 
 export async function getAgenda(): Promise<AgendaSession[]> {

@@ -646,7 +646,6 @@ export const uiCopy = {
     loadingStatusSuffix: "…",
     enterCtaLabel: "Enter the DevFest experience →",
     switchToLiteLabel: "I don't like animations →",
-    desktopHint: "Best experienced in Desktop/wide screens",
     // Shown while the loader is still loading, once the load has been dragging
     // (see SLOW_AFTER in useAssetsLoaded) or a slow connection / modest device
     // is detected. Gone the moment the Enter CTA appears.

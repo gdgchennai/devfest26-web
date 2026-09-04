@@ -17,7 +17,7 @@ import {
   HALLWAY_BACKDROP_CLASS,
 } from "@/components/motion/usePhotoHallway";
 import { useMotion } from "@/components/motion/MotionProvider";
-import { INTRO_SEEN_KEY, shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { INTRO_SEEN_KEY, isNarrowViewport, shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { clamp } from "@/lib/easing";
 import { hallwayPhotosFrom } from "@/lib/archive-roles";
@@ -67,7 +67,7 @@ export function HeroMotion({ photos }: { photos: ArchivePhoto[] }) {
   // preference, not a bandwidth one (see shouldSkipHeavyAssets). Only lite (and
   // the server/no-JS render, hence the `true` default) drops to StaticHero.
   const liteAssets = useClientValue(shouldSkipHeavyAssets, true);
-  const isDesktop = useClientValue(() => window.matchMedia("(min-width: 1024px)").matches, true);
+  const isDesktop = useClientValue(() => !isNarrowViewport(), true);
   const seenIntro = useClientValue(hasSeenIntro, true);
   // Captured once at this mount: false on the first load of the document, true
   // on any later client-side return to `/` (see hasBootedThisLoad). The latter
