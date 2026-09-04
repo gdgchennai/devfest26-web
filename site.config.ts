@@ -165,7 +165,7 @@ export const siteConfig = {
         opens: "2026-09-05T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
         visible: false,
-        href: "#",
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118814&ticketId=118814%7C1",
       },
       {
         id: "late-professional",
@@ -177,7 +177,7 @@ export const siteConfig = {
         opens: "2026-10-03T00:00:00+05:30",
         closes: "2026-10-10T23:59:00+05:30",
         visible: false,
-        href: "#",
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118813&ticketId=118813%7C1",
       },
       {
         id: "professional-women-diverse",
@@ -214,7 +214,7 @@ export const siteConfig = {
         opens: "2026-09-12T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
         visible: false,
-        href: "#",
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=118812&ticketId=118812%7C1",
       },
       {
         id: "late-students",
@@ -226,7 +226,7 @@ export const siteConfig = {
         opens: "2026-10-02T00:00:00+05:30",
         closes: "2026-10-10T23:59:00+05:30",
         visible: false,
-        href: "#",
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=118811&ticketId=118811%7C1",
       },
       {
         id: "student-women-diverse",
