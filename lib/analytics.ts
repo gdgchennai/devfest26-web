@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { siteConfig } from "@/site.config";
 
 /**
@@ -14,8 +15,10 @@ export type AnalyticsParams = Record<string, string | number>;
  * in the same Arguments-tuple shape `gtag()` uses, so events fired before the
  * root-layout snippet hydrates are still flushed when gtag.js loads.
  *
- * Don't send emails, booking IDs, or other PII — measurement IDs are public
- * and this stream is the production property.
+ * Don't send emails, booking IDs, or other PII on the GA4 path — measurement
+ * IDs are public and this stream is the production property. PostHog identify
+ * (see PostHogIdentify) is the only place email/name are attached, as person
+ * properties on the opaque `usr_…` distinct id.
  */
 export function track(name: string, params?: AnalyticsParams) {
   if (typeof window === "undefined") return;
@@ -29,6 +32,15 @@ export function track(name: string, params?: AnalyticsParams) {
     w.dataLayer!.push(arguments);
   }
   (pushCommand as (...args: unknown[]) => void)("event", name, params);
+
+  // Same conversion names as GA4, dual-written so PostHog dashboards and
+  // self-driving scouts see the hotspots without a second call site.
+  // `__loaded` is false until instrumentation-client.ts finishes init —
+  // capture() would no-op / queue either way, but skip when the key was
+  // omitted so we don't create a stub distinct id.
+  if (posthog.__loaded) {
+    posthog.capture(name, params);
+  }
 }
 
 function parseUrl(href: string): URL | null {

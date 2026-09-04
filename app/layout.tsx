@@ -13,6 +13,7 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
 import { CtaTracker } from "@/components/CtaTracker";
+import { PostHogIdentify } from "@/components/PostHogIdentify";
 
 // Self-hosted at build time by next/font/google — no runtime request to
 // Google. Only `normal` style: nothing in the site renders italic.
@@ -155,6 +156,7 @@ export default function RootLayout({
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
         <AuthProvider>
+          <PostHogIdentify />
           <FavoritesProvider>
             <MotionProvider>
           {/* Capture-phase click listener for conversion hrefs. Must be a
