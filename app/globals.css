@@ -50,6 +50,11 @@
    * Dark mode is unaffected (--theme 0 → #f0f0f0).
    */
   --theme: 0;
+  /* Solid fallbacks first: Safari < 16.2 / older Chromium drop the whole
+     declaration if they don't understand `color-mix`, which would leave
+     text and surfaces unstyled. */
+  --ink: #000;
+  --paper: #f0f0f0;
   --ink: color-mix(in srgb, var(--black), #ffffff calc(var(--theme) * 100%));
   --paper: color-mix(in srgb, #f0f0f0, var(--black) calc(var(--theme) * 100%));
 
@@ -195,6 +200,13 @@ body {
   background: var(--page-bg);
   color: var(--paper);
   font-family: var(--font-google-sans), system-ui, sans-serif;
+  overflow-x: clip;
+}
+
+button,
+a,
+summary {
+  touch-action: manipulation;
 }
 
 /*
@@ -204,6 +216,9 @@ body {
  */
 html {
   scrollbar-width: none;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar {
@@ -755,6 +770,7 @@ html.gpu .hallway-stack {
   isolation: isolate;
   display: inline-block;
   --glow-angle: 0deg;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .glow-btn::before,
@@ -779,6 +795,7 @@ html.gpu .hallway-stack {
   padding: 1.5px;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 
@@ -1126,6 +1143,7 @@ html.gpu .hallway-stack {
   background: conic-gradient(from var(--glow-angle), var(--red), var(--yellow), var(--green), var(--blue), var(--red));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   pointer-events: none;
 }

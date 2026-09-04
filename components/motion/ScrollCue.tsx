@@ -350,8 +350,12 @@ export function ScrollCueController() {
   // both untouched from where they started. Everywhere in between, the two
   // buttons split to opposite edges: back left, forward right.
   const isHero = activeIndex === 0;
-  const forwardPositionClass = isHero ? "left-1/2 -translate-x-1/2" : "right-4 sm:right-8";
-  const backPositionClass = isLastSection ? "left-1/2 -translate-x-1/2" : "left-4 sm:left-8";
+  const forwardPositionClass = isHero
+    ? "left-1/2 -translate-x-1/2"
+    : "right-[max(1rem,env(safe-area-inset-right,0px))] sm:right-[max(2rem,env(safe-area-inset-right,0px))]";
+  const backPositionClass = isLastSection
+    ? "left-1/2 -translate-x-1/2"
+    : "left-[max(1rem,env(safe-area-inset-left,0px))] sm:left-[max(2rem,env(safe-area-inset-left,0px))]";
 
   return (
     <>
@@ -360,14 +364,14 @@ export function ScrollCueController() {
         label={forwardDirection === "right" ? uiCopy.scrollCue.nextCardLabel : uiCopy.scrollCue.scrollToNextSectionLabel}
         visible={forwardVisible}
         onClick={scrollToNext}
-        className={`bottom-6 sm:bottom-8 ${forwardPositionClass}`}
+        className={`bottom-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))] sm:bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] ${forwardPositionClass}`}
       />
       <ScrollCueButton
         direction={backDirection}
         label={backDirection === "left" ? uiCopy.scrollCue.previousCardLabel : uiCopy.scrollCue.previousSectionLabel}
         visible={backVisible}
         onClick={scrollBack}
-        className={`bottom-6 sm:bottom-8 ${backPositionClass}`}
+        className={`bottom-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))] sm:bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] ${backPositionClass}`}
       />
     </>
   );

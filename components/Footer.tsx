@@ -22,7 +22,7 @@ export function Footer() {
     // relative z-10: lift the footer above the fixed BracketsField backdrop
     // (z-0), which lives inside <main> and would otherwise paint its opaque
     // layer over the footer's non-positioned card, wordmark and pill.
-    <footer className="relative z-10 mt-auto px-4 py-16 sm:px-8">
+    <footer className="relative z-10 mt-auto px-4 py-16 pb-[max(4rem,calc(env(safe-area-inset-bottom,0px)+2rem))] sm:px-8">
       <FooterLogo social={socialLinks} />
 
       {/* Utility + legal strip. Kept below the brand lock-up so the Google

@@ -457,7 +457,7 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden"
+      className="relative flex min-h-[100vh] min-h-[100dvh] flex-col items-center justify-center overflow-hidden"
     >
       {/* The strip/title/darken group renders vertically centred by the
           WebGL camera math, which on a phone's tall aspect leaves a bigger

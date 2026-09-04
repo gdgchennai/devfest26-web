@@ -153,7 +153,13 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
 
     void import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
-      instance = new Lenis({ autoRaf: false });
+      instance = new Lenis({
+        autoRaf: false,
+        // Default Lenis hijacks touch and feels broken on iOS/Android (rubber-band
+        // fights, scroll dying mid-page). `syncTouch` keeps ScrollTrigger in
+        // lockstep while letting the browser own the gesture.
+        syncTouch: window.matchMedia("(pointer: coarse)").matches,
+      });
       if (!isHistoryNav) instance.scrollTo(0, { immediate: true, force: true });
       tick = (time: number) => instance!.raf(time * 1000);
       instance.on("scroll", ScrollTrigger.update);

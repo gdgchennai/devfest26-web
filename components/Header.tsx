@@ -72,7 +72,7 @@ export function Header() {
   );
 
   return (
-    <header className="nav-lite-only pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 py-3 sm:px-8">
+    <header className="nav-lite-only pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center py-3 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))] sm:pl-[max(2rem,env(safe-area-inset-left,0px))] sm:pr-[max(2rem,env(safe-area-inset-right,0px))]">
       {/* bg-surface, not an alpha wash: BracketsField paints a fixed 3D layer
           behind the homepage and globals.css is explicit that a panel carrying
           text over it needs an occluding surface. See --surface there. */}

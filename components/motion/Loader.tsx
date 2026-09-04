@@ -489,7 +489,7 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
       {/* Bottom-anchored: while still loading, the slow-connection / low-power
           lite-mode prompt. Absolutely positioned so it never shifts the
           dots/mark off centre. */}
-      <div className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-3 px-4">
+      <div className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom,0px))] flex flex-col items-center gap-3 px-4">
         {showLitePrompt && (
           <div
             ref={promptRef}
