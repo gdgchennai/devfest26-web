@@ -270,7 +270,13 @@ function mount(host: HTMLDivElement, T: Three, Loader: SvgLoaderCtor, mode: "scr
 
   const quality = gpuQuality();
   const fullRatio = quality.pixelRatio;
-  const activeRatio = quality.hardware ? Math.min(window.devicePixelRatio || 1, 1) : 1;
+  // Desktop still drops to 1× while the camera is moving (fill-rate). On
+  // phones a 1× canvas is what made silhouettes jaggy during the fling —
+  // keep a floor of 1.5× so MSAA/supersampling stay in play mid-scroll.
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  const activeRatio = quality.hardware
+    ? (coarse ? Math.min(fullRatio, Math.max(1.5, fullRatio * 0.75)) : 1)
+    : 1;
   const renderer = createAlphaRenderer(T.WebGLRenderer, host, {
     pixelRatio: fullRatio,
     antialias: quality.antialias,

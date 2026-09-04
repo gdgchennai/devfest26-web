@@ -132,7 +132,7 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         antialias: quality.antialias,
       });
 
-      const segs = quality.antialias ? 20 : 8;
+      const segs = quality.antialias || quality.pixelRatio > 1 ? 20 : 8;
       const geometry = new T.PlaneGeometry(1, 1, segs, segs);
       const loader = new T.TextureLoader();
       const slideAmount = urls.length;
@@ -381,11 +381,11 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
           font,
           size: 1,
           depth: 0.32,
-          curveSegments: 8,
+          curveSegments: quality.antialias || quality.pixelRatio > 1 ? 12 : 8,
           bevelEnabled: true,
           bevelThickness: 0.05,
           bevelSize: 0.035,
-          bevelSegments: 4,
+          bevelSegments: quality.antialias || quality.pixelRatio > 1 ? 5 : 3,
         });
       }
 

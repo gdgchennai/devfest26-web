@@ -60,17 +60,47 @@ export type GpuQuality = {
   canvasDpr: number;
 };
 
+function isCoarsePointer(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+}
+
 /**
- * Quality knobs for GPU-backed work. Hardware GPU + a capable device gets
- * antialias and 2× pixel ratio; software GL or a low-power box stays at 1×
- * with no AA so we do not spend CPU pretending to be a GPU.
+ * Quality knobs for GPU-backed work.
+ *
+ * Software GL stays at 1× with MSAA off — extra samples on a CPU rasterizer
+ * just burn the main thread. Hardware GPUs get MSAA plus a capped device-pixel
+ * ratio. Phones used to fall through `isLowPowerDevice()` (deviceMemory ≤ 4
+ * is common) into that 1× / no-AA path, which upscaled the canvas and made
+ * every silhouette sawtoothed.
  */
 export function gpuQuality(): GpuQuality {
   const hardware = hasHardwareGpu();
-  const lowPower = isLowPowerDevice();
-  if (!hardware || lowPower) {
+  if (typeof window === "undefined" || !hardware) {
     return { hardware, pixelRatio: 1, antialias: false, canvasDpr: 1 };
   }
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  return { hardware, pixelRatio: dpr, antialias: true, canvasDpr: dpr };
+
+  const native = window.devicePixelRatio || 1;
+  const lowPower = isLowPowerDevice();
+  const coarse = isCoarsePointer();
+
+  if (coarse) {
+    // Cap DPR so MSAA (4×) still has fill-rate left on tiled GPUs. 1.5× +
+    // antialias is the usual mobile three.js pairing — 1× with AA off is
+    // what made edges look sawtoothed.
+    const pixelRatio = Math.min(native, lowPower ? 1.5 : 1.75);
+    return {
+      hardware: true,
+      pixelRatio,
+      antialias: true,
+      canvasDpr: pixelRatio,
+    };
+  }
+
+  if (lowPower) {
+    const pixelRatio = Math.min(native, 1.5);
+    return { hardware: true, pixelRatio, antialias: true, canvasDpr: pixelRatio };
+  }
+
+  const dpr = Math.min(native, 2);
+  return { hardware: true, pixelRatio: dpr, antialias: true, canvasDpr: dpr };
 }

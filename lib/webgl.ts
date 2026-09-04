@@ -25,9 +25,10 @@ export function createAlphaRenderer(
 ): WebGLRenderer {
   const quality = gpuQuality();
   const gpu = hasHardwareGpu();
+  const antialias = opts?.antialias ?? quality.antialias;
   const renderer = new WebGLRenderer({
     alpha: true,
-    antialias: opts?.antialias ?? quality.antialias,
+    antialias,
     powerPreference: gpu ? "high-performance" : "low-power",
     stencil: false,
     depth: true,
@@ -35,6 +36,7 @@ export function createAlphaRenderer(
     preserveDrawingBuffer: false,
   });
   renderer.setPixelRatio(opts?.pixelRatio ?? quality.pixelRatio);
+  renderer.domElement.style.imageRendering = "auto";
   renderer.setSize(host.clientWidth, host.clientHeight);
   renderer.setClearColor(0x000000, 0);
   host.appendChild(renderer.domElement);
