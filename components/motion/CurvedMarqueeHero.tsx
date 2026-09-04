@@ -344,21 +344,101 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
       rim.position.set(0, 2, -5);
       scene.add(rim);
 
-      // Group rather than a single mesh: on mobile the title splits into two
-      // stacked line-meshes so it can render bigger in the narrower width;
-      // desktop keeps the one-line group so the rest of the logic (fit,
-      // rotation, disposal) doesn't need to branch.
+      // Group of per-line meshes (DevFest / Chennai) so each line can be
+      // centered independently. Same layout at every width — desktop used to
+      // stay one line and looked undersized next to the stacked phone title.
       let group: THREE.Group | null = null;
       let geometries: THREE.BufferGeometry[] = [];
       let material: THREE.Material | null = null;
       let loadedFont: Font | null = null;
       let lastIsMobile: boolean | null = null;
+      let raf = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+      let originBeta: number | null = null;
+      let originGamma: number | null = null;
+      const BASE_ROT = { x: -0.04, y: 0.17, z: 0 };
+      const POINTER_TILT = 0.22;
+      /** Degrees of physical tilt that maps to full pointerX/Y. */
+      const GYRO_RANGE = 24;
+      const reduceMotion = prefersReducedMotion();
+      const followPointer =
+        window.matchMedia("(pointer: fine)").matches && !reduceMotion;
+      const followGyro =
+        window.matchMedia("(pointer: coarse)").matches &&
+        !reduceMotion &&
+        typeof window.DeviceOrientationEvent !== "undefined";
+      const follow = followPointer || followGyro;
 
       const render = () => renderer.render(scene, camera);
 
-      // Frame the text so it spans most of the width AND height, whatever the
-      // viewport — height matters here because the mobile two-line layout is
-      // taller than it is wide, unlike the single-line desktop title.
+      function tick() {
+        if (disposed || !group) return;
+        const targetX = BASE_ROT.x - pointerY * POINTER_TILT;
+        const targetY = BASE_ROT.y + pointerX * POINTER_TILT;
+        const targetZ = BASE_ROT.z - pointerX * 0.05;
+        group.rotation.x += (targetX - group.rotation.x) * 0.08;
+        group.rotation.y += (targetY - group.rotation.y) * 0.08;
+        group.rotation.z += (targetZ - group.rotation.z) * 0.08;
+        render();
+        raf = requestAnimationFrame(tick);
+      }
+
+      function onPointerMove(e: PointerEvent) {
+        const rect = host.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        pointerX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        pointerY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+        pointerX = Math.max(-1, Math.min(1, pointerX));
+        pointerY = Math.max(-1, Math.min(1, pointerY));
+      }
+
+      function onPointerLeave() {
+        pointerX = 0;
+        pointerY = 0;
+      }
+
+      function onDeviceOrientation(e: DeviceOrientationEvent) {
+        if (e.beta == null || e.gamma == null) return;
+        if (originBeta == null || originGamma == null) {
+          originBeta = e.beta;
+          originGamma = e.gamma;
+          return;
+        }
+        pointerX = Math.max(-1, Math.min(1, (e.gamma - originGamma) / GYRO_RANGE));
+        pointerY = Math.max(-1, Math.min(1, -(e.beta - originBeta) / GYRO_RANGE));
+      }
+
+      function resetGyroOrigin() {
+        originBeta = null;
+        originGamma = null;
+      }
+
+      function attachGyro() {
+        window.addEventListener("deviceorientation", onDeviceOrientation);
+        window.addEventListener("orientationchange", resetGyroOrigin);
+      }
+
+      function requestGyroPermission() {
+        const DOE = window.DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<string>;
+        };
+        if (typeof DOE.requestPermission !== "function") {
+          attachGyro();
+          return;
+        }
+        void DOE.requestPermission()
+          .then((state) => {
+            if (!disposed && state === "granted") attachGyro();
+          })
+          .catch(() => {
+            // Denied or not a trusted gesture — title stays still.
+          });
+      }
+
+      // Frame the lockup just inside the marquee strip (a 1-unit plane at
+      // z=2 / fov 75 is ~33% of the viewport on desktop, ~47% on the
+      // scaled phone strip) so it does not cover the CTAs below.
       function fit() {
         if (!group) return;
         const box = new T.Box3().setFromObject(group);
@@ -366,8 +446,8 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         const h = box.max.y - box.min.y;
         const aspect = host.clientWidth / host.clientHeight;
         const vFov = (camera.fov * Math.PI) / 180;
-        const fillFracW = aspect < 0.9 ? 0.92 : 0.8; // portrait phones: allow wider
-        const fillFracH = 0.82;
+        const fillFracW = aspect < 0.9 ? 0.78 : 0.52;
+        const fillFracH = aspect < 0.9 ? 0.4 : 0.36;
         const zFromWidth = w / fillFracW / (2 * Math.tan(vFov / 2) * aspect);
         const zFromHeight = h / fillFracH / (2 * Math.tan(vFov / 2));
         camera.position.set(0, 0, Math.max(zFromWidth, zFromHeight));
@@ -389,10 +469,8 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         });
       }
 
-      // (Re)builds the title group for the current viewport. Called once the
-      // font is ready, and again on resize if mobile-ness flips, so a phone
-      // rotated to landscape (or a desktop window narrowed past the
-      // breakpoint) gets the right layout rather than a stale one.
+      // Rebuilds the stacked title. Called once the font is ready, and again
+      // on resize if the mobile/desktop line-gap flips.
       function buildText() {
         if (!loadedFont || disposed) return;
         if (group) scene.remove(group);
@@ -407,10 +485,8 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
 
         group = new T.Group();
         const words = heroCopy.title.split(" ");
-        // Two lines on mobile so each word can render bigger in the narrower
-        // width; falls back to one line if the title is a single word.
-        const lines = isMobile && words.length > 1 ? [words[0], words.slice(1).join(" ")] : [heroCopy.title];
-        const lineGap = 1.15;
+        const lines = words.length > 1 ? [words[0], words.slice(1).join(" ")] : [heroCopy.title];
+        const lineGap = isMobile ? 1.15 : 1.08;
         const startY = ((lines.length - 1) * lineGap) / 2;
         lines.forEach((line, i) => {
           const geo = makeLineGeometry(line, loadedFont!);
@@ -421,9 +497,7 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
           group!.add(lineMesh);
         });
 
-        // Held at a fixed slight angle so the extruded sides stay visible —
-        // the text reads as a solid 3D object without moving.
-        group.rotation.set(-0.04, 0.17, 0);
+        group.rotation.set(BASE_ROT.x, BASE_ROT.y, BASE_ROT.z);
         scene.add(group);
         fit();
         render();
@@ -433,6 +507,7 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         if (disposed) return;
         loadedFont = font;
         buildText();
+        if (follow && !raf) raf = requestAnimationFrame(tick);
       });
 
       function onResize() {
@@ -441,13 +516,53 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
           buildText();
         } else {
           fit();
-          render();
+          if (!follow) render();
         }
       }
+      function onVis() {
+        if (!follow) return;
+        if (document.hidden) {
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+        } else if (!raf) {
+          raf = requestAnimationFrame(tick);
+        }
+      }
+
       window.addEventListener("resize", onResize);
+      if (follow) document.addEventListener("visibilitychange", onVis);
+      if (followPointer) {
+        window.addEventListener("pointermove", onPointerMove, { passive: true });
+        document.documentElement.addEventListener("mouseleave", onPointerLeave);
+        window.addEventListener("blur", onPointerLeave);
+      }
+      if (followGyro) {
+        const DOE = window.DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<string>;
+        };
+        // iOS 13+ only grants this from a user gesture. Capture-phase
+        // pointerdown catches the intro tap (and any later tap) once.
+        if (typeof DOE.requestPermission === "function") {
+          window.addEventListener("pointerdown", requestGyroPermission, { once: true, capture: true });
+        } else {
+          attachGyro();
+        }
+      }
 
       teardown = () => {
         window.removeEventListener("resize", onResize);
+        if (follow) document.removeEventListener("visibilitychange", onVis);
+        if (followPointer) {
+          window.removeEventListener("pointermove", onPointerMove);
+          document.documentElement.removeEventListener("mouseleave", onPointerLeave);
+          window.removeEventListener("blur", onPointerLeave);
+        }
+        if (followGyro) {
+          window.removeEventListener("pointerdown", requestGyroPermission, true);
+          window.removeEventListener("deviceorientation", onDeviceOrientation);
+          window.removeEventListener("orientationchange", resetGyroOrigin);
+        }
+        if (raf) cancelAnimationFrame(raf);
         if (group) scene.remove(group);
         geometries.forEach((g) => g.dispose());
         material?.dispose();
