@@ -15,6 +15,7 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { siteConfig, uiCopy, shortEventDate } from "@/site.config";
 import type { Ticket } from "@/site.config";
+import { track } from "@/lib/analytics";
 
 /**
  * A single "I'm a ___" / "and I identify as ___" choice. Renders as an
@@ -458,7 +459,16 @@ function TicketCard({
           <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
           <button
             type="button"
-            onClick={handleBuyClick}
+            onClick={() => {
+              track("begin_checkout", {
+                currency: ticket.currency,
+                value: ticket.price,
+                item_id: ticket.id,
+                item_name: ticket.name,
+                item_category: ticket.category,
+              });
+              handleBuyClick();
+            }}
             className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90"
           >
             {uiCopy.ticketSelector.buyTicketLabel}
@@ -650,6 +660,16 @@ export function TicketSelector() {
   const resolved = bothPicked
     ? tickets.find((t) => t.visible && t.category === category && t.audience === audience) ?? null
     : null;
+
+  useEffect(() => {
+    if (!resolved) return;
+    track("select_item", {
+      item_list_name: "ticket_picker",
+      item_id: resolved.id,
+      item_name: resolved.name,
+      item_category: resolved.category,
+    });
+  }, [resolved]);
 
   // Every possible card is mounted at all times so the fan can *slide* between
   // them (a freshly-mounted card can't animate in from a stacked position):

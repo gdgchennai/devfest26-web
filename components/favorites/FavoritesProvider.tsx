@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { track } from "@/lib/analytics";
 import { currentInternalPath } from "@/lib/safe-redirect";
 
 type FavoritesContextValue = {
@@ -52,6 +53,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const toggle = useCallback(
     (key: string) => {
       if (!authed) {
+        track("login_prompt", { source: "save_session" });
         setPrompt(true);
         return;
       }
@@ -59,6 +61,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       inFlight.current.add(key);
 
       const adding = !keys.has(key);
+      track("save_session", { saved: adding ? 1 : 0 });
       setKeys((prev) => {
         const next = new Set(prev);
         if (adding) next.add(key);
@@ -116,7 +119,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
               <span>Sign in to save sessions to your agenda.</span>
               <button
                 type="button"
-                onClick={() => signIn("google", { callbackUrl: currentInternalPath("/agenda") })}
+                onClick={() => {
+                  track("login", { method: "google", source: "save_session" });
+                  signIn("google", { callbackUrl: currentInternalPath("/agenda") });
+                }}
                 className="rounded-full bg-paper px-3 py-1 text-xs font-medium text-ink transition-opacity hover:opacity-90"
               >
                 Sign in

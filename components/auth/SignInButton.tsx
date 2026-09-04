@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { GlowButton } from "@/components/GlowButton";
+import { track } from "@/lib/analytics";
 import { safeInternalPath } from "@/lib/safe-redirect";
 
 /**
@@ -22,7 +23,15 @@ export function SignInButton({ callbackUrl }: { callbackUrl: string }) {
   }, [status, target, router]);
 
   return (
-    <GlowButton onClick={() => signIn("google", { callbackUrl: target })} shape="pill" size="lg" className="mt-8">
+    <GlowButton
+      onClick={() => {
+        track("login", { method: "google" });
+        signIn("google", { callbackUrl: target });
+      }}
+      shape="pill"
+      size="lg"
+      className="mt-8"
+    >
       {/* `flex` (not inline-flex) so the row isn't baseline-aligned inside
           glow-btn__label — that was leaving extra space below the text.
           translate-x nudges it right so the Google glyph doesn't make the

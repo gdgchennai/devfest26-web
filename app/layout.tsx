@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Google_Sans } from "next/font/google";
 import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { siteConfig, uiCopy } from "@/site.config";
@@ -11,6 +12,7 @@ import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
+import { CtaTracker } from "@/components/CtaTracker";
 
 // Self-hosted at build time by next/font/google — no runtime request to
 // Google. Only `normal` style: nothing in the site renders italic.
@@ -155,6 +157,10 @@ export default function RootLayout({
         <AuthProvider>
           <FavoritesProvider>
             <MotionProvider>
+          {/* Capture-phase click listener for conversion hrefs. Must be a
+              child of MotionProvider so its effect registers before the
+              route-transition interceptor — see CtaTracker. */}
+          <CtaTracker />
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets
@@ -173,6 +179,7 @@ export default function RootLayout({
           </FavoritesProvider>
         </AuthProvider>
       </body>
+      <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />
     </html>
   );
 }
