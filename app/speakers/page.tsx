@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { speakers } from "@/lib/content";
+import { getSpeakers } from "@/lib/content";
 import { SpeakerWall } from "@/components/SpeakerWall";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
@@ -11,10 +11,11 @@ export const metadata: Metadata = pageMetadata({
   description: `Speakers at ${siteConfig.name} — talks, workshops and the call for proposals from ${siteConfig.chapter}.`,
   path: "/speakers",
 });
-export const dynamic = "force-static";
+export const revalidate = 300;
 
-export default function SpeakersPage() {
+export default async function SpeakersPage() {
   if (!AGENDA_READY) notFound();
+  const speakers = await getSpeakers();
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
@@ -24,7 +25,7 @@ export default function SpeakersPage() {
       </p>
 
       <div className="mt-8">
-        <SpeakerWall limit={Math.max(6, speakers.length + 1)} />
+        <SpeakerWall speakers={speakers} limit={Math.max(6, speakers.length + 1)} />
       </div>
     </div>
   );

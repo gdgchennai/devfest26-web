@@ -80,7 +80,7 @@ Configured in [`wrangler.jsonc`](../wrangler.jsonc), surfaced on `CloudflareEnv`
 
 | Binding | What | Set up by |
 | --- | --- | --- |
-| `DB` | D1 database — accounts + saved sessions | `wrangler d1 create devfest-chennai-2026`, then paste `database_id` |
+| `DB` | D1 — accounts, favorites, tickets, and `content_documents` (agenda / speakers / archive). Seed content with `npm run content:sync` | `wrangler d1 create devfest-chennai-2026`, then paste `database_id` |
 | `ASSETS` | static asset serving | OpenNext default |
 | `NEXT_INC_CACHE_R2_BUCKET` | ISR/incremental cache | `wrangler r2 bucket create devfest-chennai-2026-opennext-cache` |
 | `IMAGES` | Cloudflare image optimization | OpenNext default |
@@ -94,5 +94,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-`DB` is only touched after a real Google login, so local dev works for
-everything else without D1 configured.
+`DB` is required for sign-in, saved sessions, and live content. Marketing
+pages fall back to `content/*.json` when D1 is empty (including `next build`).
+After applying migrations, run `npm run content:sync` so local/prod D1 match
+the JSON files.

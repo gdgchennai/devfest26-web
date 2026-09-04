@@ -7,18 +7,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "Googlebot",
-        allow: "/",
-        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
+        allow: ["/", "/api/content"],
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/auth/", "/api/favorites", "/md"],
       },
       {
         userAgent: "Google-InspectionTool",
-        allow: "/",
-        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
+        allow: ["/", "/api/content"],
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/auth/", "/api/favorites", "/md"],
       },
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/profile", "/my-agenda", "/signin", "/api/", "/md"],
+        allow: ["/", "/api/content"],
+        disallow: ["/profile", "/my-agenda", "/signin", "/api/auth/", "/api/favorites", "/md"],
         other: {
           "Content-Signal": "search=yes, ai-train=no, ai-input=no",
         },

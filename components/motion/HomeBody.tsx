@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
+import type { ArchivePhoto } from "@/lib/schemas";
 
 /**
  * Homepage sections below the hero. Imported with `next/dynamic` from this
@@ -22,7 +23,7 @@ const SeeYouThereSection = dynamic(() =>
   import("./SeeYouThereSection").then((m) => ({ default: m.SeeYouThereSection })),
 );
 
-export function HomeBody({ brandShapes }: { brandShapes: string[] }) {
+export function HomeBody({ brandShapes, archivePhotos }: { brandShapes: string[]; archivePhotos: ArchivePhoto[] }) {
   return (
     <>
       {/* The sticky 3D brackets backdrop: a fixed black layer behind the whole
@@ -47,7 +48,7 @@ export function HomeBody({ brandShapes }: { brandShapes: string[] }) {
          */}
         <div data-scroll-cue-section>
           <SectionBoundary label="hero" fallback={<StaticHero />}>
-            <HeroSection />
+            <HeroSection photos={archivePhotos} />
           </SectionBoundary>
         </div>
 

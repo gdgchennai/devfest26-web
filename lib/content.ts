@@ -1,6 +1,8 @@
-import agendaData from "@/content/agenda.json";
-import speakersData from "@/content/speakers.json";
-import archiveData from "@/content/archive.json";
+import "server-only";
+import agendaFile from "@/content/agenda.json";
+import speakersFile from "@/content/speakers.json";
+import archiveFile from "@/content/archive.json";
+import { getDb } from "@/lib/db";
 import {
   agendaSchema,
   speakerSchema,
@@ -11,6 +13,17 @@ import {
 } from "@/lib/schemas";
 import { z } from "zod";
 
+export type ContentKind = "agenda" | "speakers" | "archive";
+
+const speakersSchema = z.array(speakerSchema);
+const archiveSchema = z.array(archivePhotoSchema);
+
+const FILE_FALLBACK: Record<ContentKind, unknown> = {
+  agenda: agendaFile,
+  speakers: speakersFile,
+  archive: archiveFile,
+};
+
 function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown, label: string): T {
   const result = schema.safeParse(data);
   if (!result.success) {
@@ -19,20 +32,35 @@ function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown, label: string): T 
   return result.data;
 }
 
-export const agenda: AgendaSession[] = parseOrThrow(agendaSchema, agendaData, "content/agenda.json");
-export const speakers: Speaker[] = parseOrThrow(z.array(speakerSchema), speakersData, "content/speakers.json");
-export const archivePhotos: ArchivePhoto[] = parseOrThrow(
-  z.array(archivePhotoSchema),
-  archiveData,
-  "content/archive.json",
-);
+async function readDocument(kind: ContentKind): Promise<unknown> {
+  try {
+    const db = await getDb();
+    const row = await db.prepare("SELECT payload FROM content_documents WHERE kind = ?").bind(kind).first<{ payload: string }>();
+    if (row?.payload) return JSON.parse(row.payload) as unknown;
+  } catch {
+    // `next build` has no D1 binding; an unsynced local D1 is also empty.
+    // content/*.json is the authoring copy and the fallback in both cases.
+  }
+  return FILE_FALLBACK[kind];
+}
 
-/** Photos that fly past the camera in the hero tunnel. */
-export const hallwayPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "hallway");
+export async function getAgenda(): Promise<AgendaSession[]> {
+  return parseOrThrow(agendaSchema, await readDocument("agenda"), "agenda");
+}
 
-/** Photos waiting at the end of it. Disjoint from the above by construction. */
-export const stackPhotos: ArchivePhoto[] = archivePhotos.filter((p) => p.role === "stack");
+export async function getSpeakers(): Promise<Speaker[]> {
+  return parseOrThrow(speakersSchema, await readDocument("speakers"), "speakers");
+}
 
-export function getSpeaker(slug: string): Speaker | undefined {
+export async function getArchivePhotos(): Promise<ArchivePhoto[]> {
+  return parseOrThrow(archiveSchema, await readDocument("archive"), "archive");
+}
+
+export async function getSpeaker(slug: string): Promise<Speaker | undefined> {
+  const speakers = await getSpeakers();
   return speakers.find((s) => s.slug === slug);
 }
+
+export { hallwayPhotosFrom, stackPhotosFrom } from "@/lib/archive-roles";
+
+export const CONTENT_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=86400";

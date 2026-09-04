@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { archivePhotos } from "@/lib/content";
+import { getArchivePhotos } from "@/lib/content";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { Frame } from "@/components/Frame";
 import { SectionBoundary } from "@/components/SectionBoundary";
@@ -13,9 +13,10 @@ export const metadata: Metadata = pageMetadata({
   description: uiCopy.memoriesPage.body,
   path: "/memories",
 });
-export const dynamic = "force-static";
+export const revalidate = 300;
 
-export default function MemoriesPage() {
+export default async function MemoriesPage() {
+  const archivePhotos = await getArchivePhotos();
   let previousColor: FallbackColor | undefined;
 
   const photosWithColor = archivePhotos.map((photo) => {

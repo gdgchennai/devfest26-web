@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/site.config";
 import { AGENDA_READY, siteRoutes } from "@/lib/routes";
-import { speakers } from "@/lib/content";
+import { getSpeakers } from "@/lib/content";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const revalidate = 300;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
+  const speakers = await getSpeakers();
 
   const staticEntries: MetadataRoute.Sitemap = siteRoutes
     .filter((route) => !route.noIndex)

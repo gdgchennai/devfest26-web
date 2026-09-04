@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import type { AgendaSession } from "@/lib/schemas";
+import type { AgendaSession, Speaker } from "@/lib/schemas";
 import type { Track } from "@/site.config";
 import { AgendaList } from "@/components/AgendaList";
 import { AgendaBoard } from "@/components/AgendaBoard";
@@ -10,7 +10,15 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { uiCopy } from "@/site.config";
 
-export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tracks: Track[] }) {
+export function AgendaView({
+  sessions,
+  speakers,
+  tracks,
+}: {
+  sessions: AgendaSession[];
+  speakers: Speaker[];
+  tracks: Track[];
+}) {
   const searchParams = useSearchParams();
   const requestedTrack = searchParams.get("track");
   const activeTrack = tracks.some((t) => t.slug === requestedTrack) ? requestedTrack! : "all";
@@ -21,7 +29,7 @@ export function AgendaView({ sessions, tracks }: { sessions: AgendaSession[]; tr
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
 
   if (!staticBaseline) {
-    return <AgendaBoard sessions={sessions} tracks={tracks} activeTrack={activeTrack} />;
+    return <AgendaBoard sessions={sessions} speakers={speakers} tracks={tracks} activeTrack={activeTrack} />;
   }
 
   const filtered = activeTrack === "all" ? sessions : sessions.filter((s) => s.track === activeTrack);

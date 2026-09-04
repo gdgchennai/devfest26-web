@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "archive": "node scripts/ingest-archive.mjs",
+    "content:sync": "node scripts/sync-content.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",

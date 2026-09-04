@@ -15,7 +15,8 @@ import type { Track } from "@/site.config";
 import { formatSessionTime, sessionHour } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
-import { getSpeaker } from "@/lib/content";
+import { findSpeaker } from "@/lib/find-speaker";
+import type { Speaker } from "@/lib/schemas";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
@@ -106,10 +107,12 @@ function columnStyle(offset: number): CSSProperties {
 
 export function AgendaBoard({
   sessions,
+  speakers,
   tracks,
   activeTrack,
 }: {
   sessions: AgendaSession[];
+  speakers: Speaker[];
   tracks: Track[];
   activeTrack: string;
 }) {
@@ -193,6 +196,7 @@ export function AgendaBoard({
               active={i === activeIndex}
               now={now}
               syncTime={focusedSession?.start ?? null}
+              speakers={speakers}
               onFocusChange={setFocusedSession}
             />
           ))}
@@ -274,9 +278,10 @@ const TrackColumn = forwardRef<
     active: boolean;
     now: Date | null;
     syncTime: string | null;
+    speakers: Speaker[];
     onFocusChange: (session: AgendaSession | null) => void;
   }
->(function TrackColumn({ items, offset, active, now, syncTime, onFocusChange }, ref) {
+>(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange }, ref) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
 
@@ -413,6 +418,7 @@ const TrackColumn = forwardRef<
               session={item.session}
               distance={active ? distance : 0}
               isNow={isNow}
+              speakers={speakers}
             />
           );
         })}
@@ -441,11 +447,13 @@ function SessionCard({
   dataKey,
   distance,
   isNow,
+  speakers,
 }: {
   session: AgendaSession;
   dataKey: string;
   distance: number;
   isNow: boolean;
+  speakers: Speaker[];
 }) {
   const abs = Math.abs(distance);
 
@@ -474,7 +482,7 @@ function SessionCard({
   }
 
   const color = trackColor(session.track);
-  const speaker = session.speakerSlug ? getSpeaker(session.speakerSlug) : undefined;
+  const speaker = findSpeaker(speakers, session.speakerSlug);
 
   return (
     <div className="agenda-board-card agenda-board-card--focused" data-key={dataKey}>

@@ -38,5 +38,6 @@ Tech (general tech talks), Deep Tech (science, math, hardware), Experience (open
 ## Notes for agents
 
 - Always prefer the live pages above over this file for prices, the schedule, and CFP/volunteer links — those change as the event nears.
+- Machine-readable copies of the agenda, speakers, and photo archive: https://devfest.gdgchennai.in/api/content (also `/api/content/agenda`, `/speakers`, `/archive`).
 - `/profile`, `/my-agenda` and `/signin` are personal account pages. Do not send readers there as public destinations.
 - Community satellite events (roadshows, meetups) run in the lead-up to the flagship day and are ticketed separately, listed on `/tickets`.

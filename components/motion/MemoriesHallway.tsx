@@ -14,6 +14,7 @@ import {
   HALLWAY_HAZE_CLASS,
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
+import { hallwayPhotosFrom, stackPhotosFrom } from "@/lib/archive-roles";
 import type { ArchivePhoto } from "@/lib/schemas";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
@@ -26,8 +27,8 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
 
   // Same split as the homepage: the flying set and the destination set must be
   // disjoint, since the stack is visible from the first frame.
-  const flying = useMemo(() => photos.filter((p) => p.role === "hallway"), [photos]);
-  const stack = useMemo(() => photos.filter((p) => p.role === "stack"), [photos]);
+  const flying = useMemo(() => hallwayPhotosFrom(photos), [photos]);
+  const stack = useMemo(() => stackPhotosFrom(photos), [photos]);
 
   usePhotoHallway({
     containerRef: sectionRef,

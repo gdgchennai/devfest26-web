@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { agenda } from "@/lib/content";
+import { getAgenda, getSpeakers } from "@/lib/content";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AgendaView } from "@/components/AgendaView";
 import { BracketsField } from "@/components/motion/BracketsField";
@@ -12,10 +12,11 @@ export const metadata = pageMetadata({
   description: `Full session schedule for ${siteConfig.name} at ${siteConfig.venue.name} — talks, workshops and lounges across every track.`,
   path: "/agenda",
 });
-export const dynamic = "force-static";
+export const revalidate = 300;
 
-export default function AgendaPage() {
+export default async function AgendaPage() {
   if (!AGENDA_READY) notFound();
+  const [agenda, speakers] = await Promise.all([getAgenda(), getSpeakers()]);
 
   return (
     <>
@@ -28,7 +29,7 @@ export default function AgendaPage() {
         <h1 className="text-center text-4xl font-semibold tracking-tight sm:text-5xl">{uiCopy.agendaPage.heading}</h1>
 
         <Suspense fallback={null}>
-          <AgendaView sessions={agenda} tracks={[...siteConfig.tracks]} />
+          <AgendaView sessions={agenda} speakers={speakers} tracks={[...siteConfig.tracks]} />
         </Suspense>
       </div>
     </>

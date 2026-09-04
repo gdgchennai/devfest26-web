@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
-import { hallwayPhotos } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { Loader } from "@/components/motion/Loader";
-import { CurvedMarqueeHero, MARQUEE_TEXTURES } from "@/components/motion/CurvedMarqueeHero";
+import { CurvedMarqueeHero, marqueeTexturesFrom } from "@/components/motion/CurvedMarqueeHero";
 import { StaticHero } from "@/components/motion/StaticHero";
 import { useAssetsLoaded } from "@/components/motion/useAssetsLoaded";
 import {
@@ -21,6 +20,8 @@ import { useMotion } from "@/components/motion/MotionProvider";
 import { INTRO_SEEN_KEY, shouldSkipHeavyAssets, shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { clamp } from "@/lib/easing";
+import { hallwayPhotosFrom } from "@/lib/archive-roles";
+import type { ArchivePhoto } from "@/lib/schemas";
 
 /** Desktop flies every hallway photo; mobile takes the first few. */
 const MOBILE_FLY_COUNT = 6;
@@ -50,8 +51,10 @@ let hasBootedThisLoad = false;
 
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
-export function HeroMotion() {
+export function HeroMotion({ photos }: { photos: ArchivePhoto[] }) {
   const { lenisRef } = useMotion();
+  const hallwayPhotos = hallwayPhotosFrom(photos);
+  const marqueeTextures = marqueeTexturesFrom(photos);
 
   const flythroughRef = useRef<HTMLElement>(null);
   const heroWrapRef = useRef<HTMLDivElement>(null);
@@ -199,7 +202,7 @@ export function HeroMotion() {
   //    they must be warmed at the exact widths `cardSizes` will ask for.
   const flyAssets = flying.map((p, i) => ({ src: p.src, sizes: cardSizes(i, maxScale) }));
   const { ready: loadingComplete, degraded, slow: slowLoad } = useAssetsLoaded(
-    MARQUEE_TEXTURES,
+    marqueeTextures,
     !showLoader,
     flyAssets,
     // Only the first-visit intro holds the minimum bounce; a return to `/`
@@ -276,7 +279,7 @@ export function HeroMotion() {
         ) : degraded ? (
           <StaticHero />
         ) : (
-          <CurvedMarqueeHero paused={showLoader && !entering && !revealDone} />
+          <CurvedMarqueeHero photos={photos} paused={showLoader && !entering && !revealDone} />
         )}
       </div>
 

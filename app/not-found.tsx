@@ -5,7 +5,7 @@ import { SectionDivider } from "@/components/SectionDivider";
 import { NotFoundRecovery } from "@/components/NotFoundRecovery";
 import { NotFoundHighlights } from "@/components/NotFoundHighlights";
 import { siteRoutes } from "@/lib/routes";
-import { archivePhotos } from "@/lib/content";
+import { getArchivePhotos } from "@/lib/content";
 import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 
 /*
@@ -29,15 +29,15 @@ import { siteConfig, formatEventDate, uiCopy } from "@/site.config";
 // A stable pick, not a random one: a random photo would differ between the
 // prerender and hydration. The group shot is the warmest thing in the archive,
 // which is the right note to end an error page on.
-const CONSOLATION =
-  archivePhotos.find((p) => p.src.includes("group-photo")) ?? archivePhotos[0];
 
 export const metadata: Metadata = {
   title: "Page not found",
   robots: { index: false, follow: true },
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  const archivePhotos = await getArchivePhotos();
+  const consolation = archivePhotos.find((p) => p.src.includes("group-photo")) ?? archivePhotos[0];
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8">
       {/*
@@ -93,7 +93,7 @@ export default function NotFound() {
         ))}
       </ul>
 
-      {CONSOLATION && (
+      {consolation && (
         <>
           <div className="mt-12">
             <SectionDivider />
@@ -102,9 +102,9 @@ export default function NotFound() {
           <Link href="/memories" className="group mt-8 block sm:flex sm:items-center sm:gap-6">
             <div className="w-full opacity-60 transition-opacity group-hover:opacity-100 sm:w-56 sm:shrink-0">
               <Frame
-                src={CONSOLATION.src}
-                alt={CONSOLATION.description}
-                title={CONSOLATION.title}
+                src={consolation.src}
+                alt={consolation.description}
+                title={consolation.title}
                 aspectRatio="3 / 2"
                 sizes="(max-width: 640px) 100vw, 14rem"
               />
@@ -112,7 +112,7 @@ export default function NotFound() {
             <div className="mt-4 sm:mt-0">
               <p className="font-semibold">{uiCopy.notFoundPage.whileYoureHere}</p>
               <p className="mt-1 max-w-md text-sm text-paper/70">
-                {uiCopy.notFoundPage.archiveBlurb} {CONSOLATION.title} &rarr;
+                {uiCopy.notFoundPage.archiveBlurb} {consolation.title} &rarr;
               </p>
             </div>
           </Link>

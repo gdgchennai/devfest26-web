@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSpeaker, speakers } from "@/lib/content";
+import { getSpeaker, getSpeakers } from "@/lib/content";
 import { Frame } from "@/components/Frame";
 import { JsonLd } from "@/components/JsonLd";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
 
-export const dynamic = "force-static";
+export const revalidate = 300;
 
-export function generateStaticParams() {
-  return AGENDA_READY ? speakers.map((speaker) => ({ slug: speaker.slug })) : [];
+export async function generateStaticParams() {
+  if (!AGENDA_READY) return [];
+  const speakers = await getSpeakers();
+  return speakers.map((speaker) => ({ slug: speaker.slug }));
 }
 
 export async function generateMetadata({
@@ -19,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const speaker = getSpeaker(slug);
+  const speaker = await getSpeaker(slug);
   if (!speaker) {
     return pageMetadata({ title: "Speaker", description: `Speaker at ${siteConfig.name}.`, path: `/speakers/${slug}`, index: false });
   }
@@ -34,7 +36,7 @@ export async function generateMetadata({
 
 export default async function SpeakerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const speaker = getSpeaker(slug);
+  const speaker = await getSpeaker(slug);
   if (!AGENDA_READY || !speaker) notFound();
 
   const sameAs = [speaker.links.twitter, speaker.links.linkedin, speaker.links.github].filter(

@@ -2,3 +2,14 @@
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Immutable media. Production also serves these through ImageKit
+# (`NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`); these headers cover origin / fallback.
+/archive/*
+  Cache-Control: public,max-age=31536000,immutable
+/banner/*
+  Cache-Control: public,max-age=31536000,immutable
+/fonts/*
+  Cache-Control: public,max-age=31536000,immutable
+/brand-shapes/*
+  Cache-Control: public,max-age=31536000,immutable

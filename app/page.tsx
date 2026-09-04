@@ -1,13 +1,13 @@
 import { getBrandShapes } from "@/lib/brandShapes";
 import { EventJsonLd } from "@/components/EventJsonLd";
 import { HomeBody } from "@/components/motion/HomeBody";
+import { getArchivePhotos } from "@/lib/content";
 import { pageMetadata, siteDescription } from "@/lib/seo";
 import { siteConfig } from "@/site.config";
 
-// Public marketing page — same HTML for every visitor. Prerender at build and
-// serve from the Worker/R2 cache (see open-next.config.ts). Do NOT add this to
-// the root layout: /profile and /my-agenda call auth() and must stay dynamic.
-export const dynamic = "force-static";
+// Public marketing page. Content (archive photos) comes from D1 via
+// lib/content.ts; `revalidate` lets a `content:sync` show up without a rebuild.
+export const revalidate = 300;
 
 export const metadata = pageMetadata({
   title: siteConfig.name,
@@ -15,11 +15,12 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-export default function Home() {
+export default async function Home() {
+  const archivePhotos = await getArchivePhotos();
   return (
     <>
       <EventJsonLd />
-      <HomeBody brandShapes={getBrandShapes()} />
+      <HomeBody brandShapes={getBrandShapes()} archivePhotos={archivePhotos} />
     </>
   );
 }

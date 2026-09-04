@@ -7,8 +7,8 @@ import type * as THREE from "three";
 import type { Font } from "three/addons/loaders/FontLoader.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { archivePhotos } from "@/lib/content";
 import { gpuQuality } from "@/lib/gpu";
+import type { ArchivePhoto } from "@/lib/schemas";
 import { prefersReducedMotion, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { RollingText } from "@/components/motion/RollingText";
 import { heroCopy, heroButtons } from "@/components/motion/HeroCopy";
@@ -32,28 +32,11 @@ gsap.registerPlugin(ScrollTrigger);
  * is ~3× oversampled at 1x and still comfortable on a 2x display — and the
  * strip is a moving, bent, dark-overlaid backdrop, not a gallery.
  */
-const TEXTURE_WIDTH = 1200;
+export const MARQUEE_TEXTURE_WIDTH = 1200;
 
-/**
- * The exact URLs this component will hand to TextureLoader — exported so the
- * preloader can warm THESE, not something merely equivalent.
- *
- * This export is the guardrail. The preloader is only useful if it warms the
- * identical URL the consumer later requests; when the two drift, the dots bounce
- * on a file nothing wants and then hand off to a hero that still has to fetch —
- * which has already been the bug here twice. A shared helper is not enough, since
- * two call sites can still pass different widths. One array, owned by the
- * consumer, imported by the warmer: drift becomes impossible rather than
- * discouraged.
- *
- * These were raw originals until it was measured: 8 files at 230–505 KB each,
- * warmed as part of ~5 MB on the default path. TextureLoader is just an <img>
- * underneath, so it reads an optimizer URL fine and still gets AVIF/WebP by
- * content negotiation — 86% smaller, same picture.
- */
-export const MARQUEE_TEXTURES = archivePhotos
-  .slice(0, 8)
-  .map((p) => optimizedSrc(p.src, TEXTURE_WIDTH));
+export function marqueeTexturesFrom(photos: ArchivePhoto[]): string[] {
+  return photos.slice(0, 8).map((p) => optimizedSrc(p.src, MARQUEE_TEXTURE_WIDTH));
+}
 
 /** Marquee speed, inter-plane gap (%), bend strength, scroll direction. */
 const OPTS = { speed: 22, gap: 24, curve: 14, direction: -1 };
@@ -98,7 +81,8 @@ const FRAGMENT_SHADER = /* glsl */ `
 
 const planeStep = () => 1 + OPTS.gap / 100;
 
-export function CurvedMarqueeHero({ paused = false }: { paused?: boolean } = {}) {
+export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchivePhoto[]; paused?: boolean }) {
+  const urls = marqueeTexturesFrom(photos);
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -143,7 +127,7 @@ export function CurvedMarqueeHero({ paused = false }: { paused?: boolean } = {})
       const segs = quality.antialias ? 20 : 8;
       const geometry = new T.PlaneGeometry(1, 1, segs, segs);
       const loader = new T.TextureLoader();
-      const slideAmount = MARQUEE_TEXTURES.length;
+      const slideAmount = urls.length;
 
       let planes: THREE.Mesh[] = [];
       let materials: THREE.ShaderMaterial[] = [];
@@ -183,7 +167,7 @@ export function CurvedMarqueeHero({ paused = false }: { paused?: boolean } = {})
         const initialOffset = Math.ceil(view.clientWidth / (2 * planeSpacePx) - 0.5);
 
         for (let i = 0; i < total; i += 1) {
-          const src = MARQUEE_TEXTURES[i % slideAmount];
+          const src = urls[i % slideAmount];
           loader.load(src, (texture) => {
             // A texture can still arrive after teardown; dropping it here stops
             // it being added to a scene whose renderer is already disposed.

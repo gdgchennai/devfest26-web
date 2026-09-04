@@ -99,6 +99,22 @@ npx wrangler d1 migrations apply devfest-chennai-2026 --remote    # production D
 
 Re-run the `--remote` command after every new file in `migrations/`.
 
+Then seed public content (agenda, speakers, archive photos) from `content/*.json`:
+
+```bash
+npm run content:sync            # local D1 used by `npm run dev`
+npm run content:sync -- --remote
+```
+
+Edit the JSON by hand (or `npm run archive` for photos), then sync again. Pages
+read D1 through `lib/content.ts` with a 5-minute ISR window (`revalidate = 300`);
+clients can also hit `GET /api/content` and `GET /api/content/{agenda|speakers|archive}`.
+`next build` falls back to the JSON files when D1 is empty or unbound.
+
+Images stay in `public/` (and ImageKit in production). The Worker cache headers
+in `public/_headers` mark `/archive`, `/banner`, `/fonts`, and `/brand-shapes`
+immutable so the edge keeps them.
+
 ### 2. R2 bucket (ISR / incremental cache)
 
 ```bash
@@ -212,7 +228,7 @@ npm run deploy
 This runs `opennextjs-cloudflare build` (which runs `next build`) then
 `opennextjs-cloudflare deploy`. First deploy checklist:
 
-1. D1 created, `database_id` pasted into `wrangler.jsonc`, migrations applied `--remote`.
+1. D1 created, `database_id` pasted into `wrangler.jsonc`, migrations applied `--remote`, then `npm run content:sync -- --remote`.
 2. R2 bucket created.
 3. `wrangler secret put` for the three `AUTH_*` values.
 4. Build-time vars available (see above).

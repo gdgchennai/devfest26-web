@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { isLiteMode, shouldSkipHeavyAssets } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { StaticHero } from "@/components/motion/StaticHero";
+import type { ArchivePhoto } from "@/lib/schemas";
 
 /**
  * The WebGL intro + curved marquee. Loaded only when `shouldSkipHeavyAssets`
@@ -23,9 +24,9 @@ const HeroMotion = dynamic(() => import("./HeroMotion").then((m) => ({ default: 
  * stay on that HTML; wide screens load HeroMotion in a separate chunk so
  * phones never download three.js / the hallway just to show a title.
  */
-export function HeroSection() {
+export function HeroSection({ photos }: { photos: ArchivePhoto[] }) {
   const skipHeavy = useClientValue(shouldSkipHeavyAssets, true);
   const lite = useClientValue(isLiteMode, false);
   if (skipHeavy) return <StaticHero offerFullExperience={lite} />;
-  return <HeroMotion />;
+  return <HeroMotion photos={photos} />;
 }

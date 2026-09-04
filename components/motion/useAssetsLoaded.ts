@@ -308,7 +308,7 @@ export function useAssetsLoaded(
      * list of "the photos involved": warm a raw original while the consumer asks
      * the optimizer and the dots bounce on a file nothing wants, then hand off
      * to a hero that still has to fetch. The caller therefore passes the array
-     * the consumer itself exports (MARQUEE_TEXTURES) rather than rebuilding it.
+     * the consumer itself builds (`marqueeTexturesFrom`) rather than rebuilding it.
      *
      * This list used to be all 15 raw archive originals — ~5 MB on the default
      * path — for two stated consumers. Neither holds now: ExpectShowcase renders
