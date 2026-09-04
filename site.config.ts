@@ -20,15 +20,19 @@ export type Ticket = {
   audience: "all" | "women-diverse";
   price: number;
   currency: string;
-  /** Sale window, ISO 8601 with the IST offset. Informational only — shown on
-   *  the card and in the Event JSON-LD. NOT used to auto-show/hide; that's
-   *  `visible`. */
+  /** Sale window, ISO 8601 with the IST offset. This is the single source of
+   *  truth for whether the ticket shows in the /tickets/select picker: a
+   *  ticket is offered exactly when "now" falls within [opens, closes] (see
+   *  `isTicketOnSale`). Also shown on the card and in the Event JSON-LD. Keep
+   *  the windows for a given (category, audience) pair non-overlapping; if two
+   *  do overlap, the one earlier in `tickets` wins. */
   opens: string;
   closes: string;
-  /** Whether this ticket appears in the /tickets/select picker. Organisers
-   *  flip this by hand as sale windows change — keep exactly one `true` per
-   *  (category, audience) pair. */
-  visible: boolean;
+  /** Flip to `true` when a ticket sells out mid-window: the picker hides it and
+   *  moves on to the next tier for that (category, audience) pair — the soonest
+   *  one still to open, shown as "Coming soon", or the "not on sale" card if
+   *  there's nothing after it. Omit or set `false` while on sale. */
+  soldOut?: boolean;
   /** The KonfHub widget URL "Buy ticket" opens in-page (see TicketCard's
    *  checkout overlay). Same shared widget for now — swap in the real
    *  per-ticket embed URLs as they arrive. */
@@ -123,10 +127,10 @@ export const siteConfig = {
   // The /tickets/select page's ticket picker. "I'm a ___" chooses the
   // `category`; "and I identify as ___" maps to `audience` (Female / Non
   // binary → the "women & diverse groups" ticket, Male / Prefer not to say →
-  // the general one). The card shown is the one entry matching that pair with
-  // `visible: true` — organisers flip `visible` by hand as sale windows open
-  // and close. Every price / date / checkout link lives here so the component
-  // never changes for a ticket edit.
+  // the general one). The card shown is the one entry matching that pair whose
+  // `opens`/`closes` window is currently open (see `isTicketOnSale`) — no hand
+  // flipping as sale windows change. Every price / date / checkout link lives
+  // here so the component never changes for a ticket edit.
   ticketSelector: {
     taxNote: "Taxes and payment gateway charges additional",
     addOnsNote: "Add-ons sold separately",
@@ -152,7 +156,6 @@ export const siteConfig = {
         currency: "₹",
         opens: "2026-09-01T11:11:00+05:30",
         closes: "2026-09-05T23:59:00+05:30",
-        visible: true,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118817&ticketId=118817%7C1"
       },
       {
@@ -162,9 +165,8 @@ export const siteConfig = {
         audience: "all",
         price: 800,
         currency: "₹",
-        opens: "2026-09-05T00:00:00+05:30",
+        opens: "2026-09-06T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
-        visible: false,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118814&ticketId=118814%7C1",
       },
       {
@@ -176,7 +178,6 @@ export const siteConfig = {
         currency: "₹",
         opens: "2026-10-03T00:00:00+05:30",
         closes: "2026-10-10T23:59:00+05:30",
-        visible: false,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118813&ticketId=118813%7C1",
       },
       {
@@ -188,7 +189,6 @@ export const siteConfig = {
         currency: "₹",
         opens: "2026-09-01T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
-        visible: true,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118810&ticketId=118810%7C0",
       },
       // ── Students ───────────────────────────────────────────────────
@@ -201,7 +201,7 @@ export const siteConfig = {
         currency: "₹",
         opens: "2026-08-28T00:00:00+05:30",
         closes: "2026-09-05T23:59:00+05:30",
-        visible: true,
+        soldOut: true,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118816&ticketId=118816%7C1",
       },
       {
@@ -211,9 +211,8 @@ export const siteConfig = {
         audience: "all",
         price: 600,
         currency: "₹",
-        opens: "2026-09-12T00:00:00+05:30",
+        opens: "2026-09-13T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
-        visible: false,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=118812&ticketId=118812%7C1",
       },
       {
@@ -223,9 +222,8 @@ export const siteConfig = {
         audience: "all",
         price: 800,
         currency: "₹",
-        opens: "2026-10-02T00:00:00+05:30",
+        opens: "2026-10-03T00:00:00+05:30",
         closes: "2026-10-10T23:59:00+05:30",
-        visible: false,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=118811&ticketId=118811%7C1",
       },
       {
@@ -237,7 +235,6 @@ export const siteConfig = {
         currency: "₹",
         opens: "2026-09-01T00:00:00+05:30",
         closes: "2026-10-02T23:59:00+05:30",
-        visible: true,
         href: "https://konfhub.com/widget/devfest-2026-chennai?desc=false&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=standard&tickets=118994&ticketId=118994%7C1",
       },
     ] satisfies Ticket[],
@@ -604,7 +601,12 @@ export const uiCopy = {
     imAPrompt: "I'm a",
     identifyPrompt: "and I identify as",
     buyTicketLabel: "Buy ticket",
+    comingSoonLabel: "Coming soon",
     placeholderPrompt: "Pick your details above to find the right ticket",
+    /** Shown on an upcoming ticket's card in place of "On sale until …". */
+    onSaleFromPrefix: "On sale from",
+    /** The fallback card when a (category, audience) pair has no ticket on sale
+     *  now and none still to open — i.e. sales for that pair are over. */
     notOnSalePrompt: "That ticket isn't on sale right now. Check back soon.",
     closeCheckoutLabel: "Close checkout",
   },
@@ -713,6 +715,29 @@ export const uiCopy = {
     getDirectionsLabel: "Get directions →",
   },
 } as const;
+
+/**
+ * Whether `ticket` is on sale at `now` — i.e. `now` falls within
+ * [opens, closes]. This is what decides which ticket the /tickets/select
+ * picker offers for a given (category, audience) pair, replacing the old
+ * hand-flipped `visible` flag. `now` defaults to the current time; callers
+ * that must stay hydration-stable pass an explicit value.
+ */
+export function isTicketOnSale(ticket: Ticket, now: Date | number = Date.now()): boolean {
+  const t = typeof now === "number" ? now : now.getTime();
+  return t >= Date.parse(ticket.opens) && t <= Date.parse(ticket.closes);
+}
+
+/**
+ * Whether `ticket`'s sale window is still entirely in the future at `now`.
+ * When nothing in a (category, audience) pair is on sale yet, the picker
+ * shows the soonest-opening such ticket with a "Coming soon" button instead
+ * of leaving the user on a dead end.
+ */
+export function isTicketUpcoming(ticket: Ticket, now: Date | number = Date.now()): boolean {
+  const t = typeof now === "number" ? now : now.getTime();
+  return t < Date.parse(ticket.opens);
+}
 
 export function formatEventDate(date: string | null): string {
   if (!date) return "Date to be announced";
