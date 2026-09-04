@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { fallbackColorFor, FALLBACK_BG, type FallbackColor } from "@/lib/fallback-color";
+import { isSaveData } from "@/lib/motion-prefs";
+import { useClientValue } from "@/lib/useClientValue";
 
 /*
  * A brand shape per fallback colour, so a frame without its photo reads as a
@@ -63,9 +65,10 @@ export function Frame({
 }: FrameProps) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
+  const saveData = useClientValue(isSaveData, false);
 
   const color = fallbackColorFor(title || src || alt, previousColor);
-  const showFallback = !src || errored || !loaded;
+  const showFallback = !src || errored || !loaded || saveData;
 
   return (
     <div
@@ -100,13 +103,14 @@ export function Frame({
         <span className="relative font-mono text-[0.75rem] text-ink tabular-nums">{title}</span>
       </div>
 
-      {src && (
+      {src && !saveData && (
         <Image
           src={src}
           alt={alt}
           fill
           preload={preload}
           loading={preload ? "eager" : "lazy"}
+          fetchPriority={preload ? "high" : "low"}
           unoptimized={unoptimized}
           sizes={sizes}
           decoding="async"

@@ -104,6 +104,9 @@ export default function RootLayout({
         <SiteJsonLd />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT ? (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT} />
+        ) : null}
         <link rel="stylesheet" href={GOOGLE_SANS_CSS} />
         {/*
          * First-paint preloader. Server-rendered AND styled inline (below) so

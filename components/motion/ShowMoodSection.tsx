@@ -392,6 +392,7 @@ export function ShowMoodSection() {
   const rightRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
+  const stacked = useClientValue(() => window.matchMedia("(max-width: 639px)").matches, true);
 
   // self-end (not self-start) and a leading arrow — right-aligned within the
   // left panel, by request, rather than matching the panel's own
@@ -477,7 +478,7 @@ export function ShowMoodSection() {
         });
       }
     },
-    { scope: wrapRef, dependencies: [staticBaseline] },
+    { scope: wrapRef, dependencies: [staticBaseline, stacked] },
   );
 
   return (
@@ -493,22 +494,24 @@ export function ShowMoodSection() {
         </h2>
       )}
       <section ref={wrapRef} className="relative h-dvh overflow-hidden">
-        {/* Desktop: left/right panels. Hidden below sm, where the top/bottom
-          pair takes over instead. */}
+        {/* One pair per breakpoint. Both used to stay mounted (`hidden sm:block`),
+            which still fetched four full-bleed photos. */}
+      {!stacked && (
+      <>
       <div
         ref={(el) => {
           leftRefs.current[0] = el;
         }}
-        className="absolute inset-0 hidden sm:block"
+        className="absolute inset-0"
         style={{ clipPath: desktopClipLeft }}
       >
         <Image
           src={IMAGE_LEFT}
           alt=""
           fill
-          sizes="(min-width: 640px) 50vw, 100vw"
+          sizes="50vw"
           decoding="async"
-          priority={false}
+          fetchPriority="low"
           className="object-cover"
         />
         <TextScrim corner="top left" />
@@ -528,16 +531,16 @@ export function ShowMoodSection() {
         ref={(el) => {
           rightRefs.current[0] = el;
         }}
-        className="absolute inset-0 hidden sm:block"
+        className="absolute inset-0"
         style={{ clipPath: desktopClipRight }}
       >
         <Image
           src={IMAGE_RIGHT}
           alt=""
           fill
-          sizes="(min-width: 640px) 50vw, 100vw"
+          sizes="50vw"
           decoding="async"
-          priority={false}
+          fetchPriority="low"
           className="object-cover"
         />
         <TextScrim corner="bottom right" />
@@ -553,22 +556,25 @@ export function ShowMoodSection() {
           direction="up"
         />
       </div>
+      </>
+      )}
 
-      {/* Narrow: top/bottom panels. Hidden at sm and up. */}
+      {stacked && (
+      <>
       <div
         ref={(el) => {
           leftRefs.current[1] = el;
         }}
-        className="absolute inset-0 block sm:hidden"
+        className="absolute inset-0"
         style={{ clipPath: narrowClipTop }}
       >
         <Image
           src={IMAGE_LEFT}
           alt=""
           fill
-          sizes="(min-width: 640px) 50vw, 100vw"
+          sizes="100vw"
           decoding="async"
-          priority={false}
+          fetchPriority="low"
           className="object-cover"
         />
         <TextScrim corner="top left" />
@@ -588,16 +594,16 @@ export function ShowMoodSection() {
         ref={(el) => {
           rightRefs.current[1] = el;
         }}
-        className="absolute inset-0 block sm:hidden"
+        className="absolute inset-0"
         style={{ clipPath: narrowClipBottom }}
       >
         <Image
           src={IMAGE_RIGHT}
           alt=""
           fill
-          sizes="(min-width: 640px) 50vw, 100vw"
+          sizes="100vw"
           decoding="async"
-          priority={false}
+          fetchPriority="low"
           className="object-cover"
         />
         <TextScrim corner="bottom right" />
@@ -613,6 +619,8 @@ export function ShowMoodSection() {
           direction="up"
         />
       </div>
+      </>
+      )}
       </section>
     </>
   );

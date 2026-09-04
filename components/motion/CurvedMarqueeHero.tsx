@@ -33,9 +33,17 @@ gsap.registerPlugin(ScrollTrigger);
  * strip is a moving, bent, dark-overlaid backdrop, not a gallery.
  */
 export const MARQUEE_TEXTURE_WIDTH = 1200;
+/** Phone-width planes; must be in IMAGE_DEVICE_SIZES. */
+const MARQUEE_TEXTURE_WIDTH_NARROW = 750;
+
+export function marqueeTextureWidth(): number {
+  if (typeof window === "undefined") return MARQUEE_TEXTURE_WIDTH;
+  return window.innerWidth < 640 ? MARQUEE_TEXTURE_WIDTH_NARROW : MARQUEE_TEXTURE_WIDTH;
+}
 
 export function marqueeTexturesFrom(photos: ArchivePhoto[]): string[] {
-  return photos.slice(0, 8).map((p) => optimizedSrc(p.src, MARQUEE_TEXTURE_WIDTH));
+  const width = marqueeTextureWidth();
+  return photos.slice(0, 8).map((p) => optimizedSrc(p.src, width));
 }
 
 /** Marquee speed, inter-plane gap (%), bend strength, scroll direction. */

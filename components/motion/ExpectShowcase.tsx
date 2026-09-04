@@ -27,6 +27,7 @@ function ExpectCardPhoto({ src, eager }: { src: string; eager: boolean }) {
       aria-hidden
       fill
       preload={eager}
+      fetchPriority={eager ? "high" : "low"}
       decoding="async"
       sizes={EXPECT_CARD_SIZES}
       className="object-cover"
@@ -74,6 +75,7 @@ function ExpectCarousel() {
                       aria-hidden
                       fill
                       decoding="async"
+                      fetchPriority={item === EXPECT_CARDS[0]?.item ? "high" : "low"}
                       sizes="(min-width: 1152px) 72rem, calc(100vw - 3rem)"
                       className="object-cover"
                     />

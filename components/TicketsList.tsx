@@ -137,7 +137,7 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
       style={{ containerType: "inline-size" }}
     >
       <div className="relative h-2/5 w-full shrink-0">
-        <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" className="object-cover" />
+        <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" decoding="async" fetchPriority="low" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-[2cqw] p-[5cqw]">
         <h3 className="text-[clamp(0.95rem,7.5cqw,1.75rem)] font-bold leading-snug text-black">{event.title}</h3>

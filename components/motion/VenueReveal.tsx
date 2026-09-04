@@ -908,8 +908,9 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 70vw, 100vw"
+                  decoding="async"
+                  fetchPriority="low"
                   className="object-fill"
-                  priority={false}
                 />
               </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)

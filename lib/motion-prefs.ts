@@ -83,6 +83,13 @@ export function isLowPowerDevice(): boolean {
   return false;
 }
 
+export function isSaveData(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return Boolean(
+    (navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData,
+  );
+}
+
 /**
  * Whether the connection is genuinely slow — `saveData`, or a `2g`/`slow-2g`
  * effective type. Deliberately NOT `3g`: Chrome's `effectiveType` is a rolling
@@ -93,11 +100,10 @@ export function isLowPowerDevice(): boolean {
  * absent on Safari/Firefox → `false` (no signal, no downgrade).
  */
 export function isSlowConnection(): boolean {
+  if (isSaveData()) return true;
   if (typeof navigator === "undefined") return false;
-  const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
-    .connection;
+  const connection = (navigator as unknown as { connection?: { effectiveType?: string } }).connection;
   if (!connection) return false;
-  if (connection.saveData) return true;
   return connection.effectiveType === "slow-2g" || connection.effectiveType === "2g";
 }
 

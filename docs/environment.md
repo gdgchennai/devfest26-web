@@ -23,9 +23,7 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 - **Used by:** [`lib/imagekit-loader.ts`](../lib/imagekit-loader.ts) — the custom
   `next/image` loader used in production, and the preloader warm-up in
   `components/motion/useAssetsLoaded.ts`
-- **Required:** production only. Dev serves images straight from `/public` and
-  ignores this. If unset in production, images fall back to their raw `/public`
-  paths (no resizing/format negotiation).
+- **Required:** production only for ImageKit. Dev uses Next/sharp (`/_next/image`). If unset in production, OpenNext uses the Worker `IMAGES` binding instead of raw `/public` files.
 - **Example:** `https://ik.imagekit.io/gdgchennai`
 
 ### `AGENDA_READY`

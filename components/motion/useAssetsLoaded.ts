@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { whenReady, didFail, BRACKETS_READY } from "@/lib/assetReady";
-import imagekitLoader, { IMAGEKIT_QUALITY } from "@/lib/imagekit-loader";
+import imagekitLoader, { IMAGEKIT_QUALITY, usesImageKit } from "@/lib/imagekit-loader";
 import { IMAGE_DEVICE_SIZES } from "@/lib/image-sizes";
 
 /**
@@ -111,7 +111,7 @@ const DEV_QUALITY = 75;
  * configured set.
  */
 export function optimizedSrc(src: string, width: number): string {
-  if (process.env.NODE_ENV === "production") {
+  if (usesImageKit()) {
     return imagekitLoader({ src, width, quality: IMAGEKIT_QUALITY });
   }
   return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEV_QUALITY}`;
