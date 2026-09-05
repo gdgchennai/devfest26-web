@@ -12,7 +12,7 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 | `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
 | Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 | Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
-| Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`, `AGENDA_READY`, `HERO_BUTTONS` |
+| Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`, `AGENDA_READY`, `HERO_BUTTONS`, optional PostHog overrides |
 
 Full deploy walkthrough: [`deployment.md`](./deployment.md).
 
@@ -69,6 +69,39 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 - Set automatically by `next dev` / `next build` / Wrangler. Never set it by
   hand. `lib/imagekit-loader.ts`, `next.config.ts`, and
   `components/motion/useAssetsLoaded.ts` branch on it.
+
+### `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` / `NEXT_PUBLIC_POSTHOG_KEY`
+- **Type:** build-time, public (inlined into the client bundle)
+- **Used by:** [`instrumentation-client.ts`](../instrumentation-client.ts) —
+  `posthog-js` init. Either name works; `PROJECT_TOKEN` is what current
+  PostHog Next.js docs use, `KEY` is the older alias.
+- **Required:** no. Unset → the committed `siteConfig.analytics.posthogKey`.
+  Set this to point a preview/staging build at a different project.
+- **Example:** `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_…`
+
+### `NEXT_PUBLIC_POSTHOG_HOST`
+- **Type:** build-time, public
+- **Used by:** `posthog-js` `api_host`, and `@posthog/nextjs-config` when
+  sourcemaps are uploaded
+- **Required:** no. Defaults to `https://us.i.posthog.com` (US cloud ingestion).
+  EU would be `https://eu.i.posthog.com`. This is the **ingestion** host, not
+  `https://us.posthog.com` (the app).
+
+### `POSTHOG_PERSONAL_API_KEY` / `POSTHOG_API_KEY`
+- **Type:** build-time secret (never `NEXT_PUBLIC_`)
+- **Used by:** [`next.config.ts`](../next.config.ts) `withPostHogConfig` —
+  uploads JS sourcemaps to PostHog Error Tracking during `next build`
+- **Required:** no. Without it the plugin is skipped and the site still
+  captures events; stack traces stay minified. Create a personal API key at
+  PostHog → Settings → Personal API keys with error-tracking write access
+  (`phx_…`, not the public `phc_…` project token).
+- **Not** a Worker runtime secret — `next build` reads it, Wrangler does not.
+
+### `POSTHOG_PROJECT_ID` / `POSTHOG_ENV_ID`
+- **Type:** build-time (not secret, but only useful with the personal API key)
+- **Used by:** `withPostHogConfig` `projectId` (`ENV_ID` is the older name)
+- **Required:** only when uploading sourcemaps. The GDG Chennai project id is
+  `593813`.
 
 ## Not env vars, but related: Cloudflare bindings
 

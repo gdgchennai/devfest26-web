@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/users";
-import { getTicketForUser, type TicketRecord } from "@/lib/tickets";
+import { getTicketForUser, parseTicketAddons, type TicketRecord } from "@/lib/tickets";
 import { countFavorites } from "@/lib/favorites";
 import { AGENDA_READY } from "@/lib/routes";
 import { EVENT_TIME_ZONE } from "@/lib/format";
@@ -12,6 +12,7 @@ import { SignOutButton } from "@/components/auth/SignOutButton";
 import { CopyField } from "@/components/auth/CopyField";
 import { ClaimTicketForm } from "@/components/auth/ClaimTicketForm";
 import { EditTicket } from "@/components/auth/EditTicket";
+import { AddonTickets } from "@/components/auth/AddonTickets";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -164,6 +165,7 @@ function ProfileContent({
               </GlowButton>
             </div>
           )}
+          <AddonTickets addons={parseTicketAddons(ticket.addons)} />
           <EditTicket />
         </div>
       )}

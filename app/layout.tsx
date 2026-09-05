@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { siteConfig, uiCopy } from "@/site.config";
@@ -13,6 +14,8 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { OG_IMAGE, siteDescription } from "@/lib/seo";
+import { CtaTracker } from "@/components/CtaTracker";
+import { PostHogIdentify } from "@/components/PostHogIdentify";
 
 // Google Sans from fonts.googleapis.com (not next/font). next/font/google
 // self-hosts the files and has no fallback metrics for this family, which
@@ -182,8 +185,13 @@ export default function RootLayout({
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
         <AuthProvider>
+          <PostHogIdentify />
           <FavoritesProvider>
             <MotionProvider>
+          {/* Capture-phase click listener for conversion hrefs. Must be a
+              child of MotionProvider so its effect registers before the
+              route-transition interceptor — see CtaTracker. */}
+          <CtaTracker />
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets
@@ -203,6 +211,7 @@ export default function RootLayout({
           </FavoritesProvider>
         </AuthProvider>
       </body>
+      <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />
     </html>
   );
 }

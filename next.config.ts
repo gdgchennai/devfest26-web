@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withPostHogConfig } from "@posthog/nextjs-config";
 import { IMAGE_DEVICE_SIZES, IMAGE_IMAGE_SIZES } from "./lib/image-sizes";
 
 const IMAGEKIT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
@@ -66,6 +67,34 @@ const nextConfig: NextConfig = {
       }),
 };
 
-export default nextConfig;
+/**
+ * `@posthog/nextjs-config` uploads error-tracking sourcemaps during
+ * `next build`. It needs a personal API key (phx_…, never the public phc_
+ * token) — skip the wrap when that isn't in the environment so local
+ * `next dev` / deploys without the secret still build. Must be the
+ * outermost config wrapper when it does run.
+ *
+ * Do not set `productionBrowserSourceMaps` ourselves: the plugin turns
+ * that on only for the upload, then `deleteAfterUpload` strips the maps
+ * so they don't ride along in the OpenNext Worker (3 MiB gz cap).
+ */
+function withOptionalPostHog(config: NextConfig): NextConfig {
+  const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY ?? process.env.POSTHOG_API_KEY;
+  const projectId = process.env.POSTHOG_PROJECT_ID ?? process.env.POSTHOG_ENV_ID;
+  if (!personalApiKey || !projectId) {
+    return config;
+  }
+  return withPostHogConfig(config, {
+    personalApiKey,
+    projectId,
+    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    sourcemaps: {
+      enabled: true,
+      deleteAfterUpload: true,
+    },
+  });
+}
 
-import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+export default withOptionalPostHog(nextConfig);
+
+import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());
