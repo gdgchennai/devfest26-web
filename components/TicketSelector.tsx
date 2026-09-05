@@ -463,7 +463,7 @@ function TicketCard({
             {ticket.currency} {ticket.price}
             <sup className="text-sm font-semibold">*</sup>
           </p>
-          <p className="mt-1 text-xs text-black/60">* {taxNote}</p>  
+          <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
           <button
             type="button"
             onClick={
@@ -699,14 +699,14 @@ export function TicketSelector() {
   const shown = onSale ?? upcoming;
 
   useEffect(() => {
-    if (!resolved) return;
+    if (!shown) return;
     track("select_item", {
       item_list_name: "ticket_picker",
-      item_id: resolved.id,
-      item_name: resolved.name,
-      item_category: resolved.category,
+      item_id: shown.id,
+      item_name: shown.name,
+      item_category: shown.category,
     });
-  }, [resolved]);
+  }, [shown]);
 
   // Every possible card is mounted at all times so the fan can *slide* between
   // them (a freshly-mounted card can't animate in from a stacked position):
