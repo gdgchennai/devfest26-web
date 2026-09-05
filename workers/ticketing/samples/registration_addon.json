@@ -1,0 +1,19 @@
+{
+  "Id": "c5213399-88ae-4d60-8b49-b4d856277e13",
+  "Module": "attendees",
+  "Event Type": "registration",
+  "Event At": 1788238287684,
+  "Data": {
+    "Attendee Details": {
+      "Name": "John Doe",
+      "Email Address(Please make sure to use the same email ID as used in devfest.gdgchennai.in)We will auto add your ticket info in your profile": "johndoe@example.com",
+      "Booking Id": "addon123",
+      "Parent Booking Id": "236e865f",
+      "Parent Ticket Name": "Professional",
+      "Ticket Details": { "Ticket Name": "GDG Chennai Tshirt", "Ticket Price": 200 },
+      "Ticket URL": "https://files.konfhub.com/7a2207d5-3fe2-440e-ac0f-d5003359e27f/tickets/addon123_ticket.pdf",
+      "Invoice URL": null,
+      "Buyer Email": "john@mailinator.com"
+    }
+  }
+}

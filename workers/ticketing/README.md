@@ -14,7 +14,8 @@ that table (`../../lib/tickets.ts`).
 
 | `Event Type` | Effect on the `tickets` row (keyed by attendee email) |
 | --- | --- |
-| `registration` | Write `booking_id`, `payment_id`, `ticket_url` (only if `https://`), `ticket_name`, `addons`. Keeps check-in state. If a *different* booking is already stored, leaves it (KonfHub won't sell a 2nd live ticket per attendee). |
+| `registration` (main) | Write `booking_id`, `payment_id`, `ticket_url` (only if `https://`), `ticket_name`, `addons`. Keeps check-in state and merges existing add-ons. If a *different* booking is already stored, leaves it (KonfHub won't sell a 2nd live ticket per attendee). |
+| `registration` (add-on) | Payload carries `Parent Booking Id`. Never touches the main row's `booking_id` / `ticket_url` / `ticket_name` — upserts `{ booking_id, ticket_name, attachment_link }` into the `addons` array by booking id. Stashes a bare row if the add-on webhook beats the main registration. |
 | `cancel` | `booking_id` matches the stored main booking → delete the whole row (and any `ticket_claims` pointing at it). Else ticket name matches → no-op (hand-mapped). Else the id is a stored add-on → drop that add-on only. Else no-op. |
 | `check_in` | `checked_in = 1`, `check_in_time` from the payload's `CheckIn Time` (UTC). Creates a bare row if the attendee was never registered with us. |
 | `check_out` | `checked_in = 0`, `check_in_time = NULL`. |
@@ -57,7 +58,8 @@ npm run worker:ticketing:check    # tsc -p workers/ticketing/tsconfig.json
 > `lib/db.ts`, that's this — restart `npm run dev`.
 
 Copy `.dev.vars.example` → `.dev.vars` first (`WEBHOOK_PATH` is required — the
-example sets it to `webhook`). `samples/` holds one payload per event type:
+example sets it to `webhook`). `samples/` holds one payload per event type
+(plus `registration_addon.json` — an add-on's own registration webhook):
 
 ```bash
 curl -X POST http://localhost:8787/webhook \
