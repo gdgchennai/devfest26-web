@@ -55,6 +55,14 @@ const MOBILE_BREAKPOINT = 640;
 /** How much bigger each plane renders on mobile. */
 const MOBILE_PLANE_SCALE = 1.45;
 
+/** Tamil lockup shown on the back of the Chennai line after a click-flip. */
+const CHENNAI_TAMIL = "சென்னை";
+/** Shaped word stored as one PUA glyph — see scripts/build-tamil-typeface.mjs. */
+const TAMIL_TYPEFACE = "/fonts/noto-sans-tamil-chennai.typeface.json";
+const TAMIL_GLYPH = "\uE000";
+/** Google red on the “ai” of Chennai (matches --red). */
+const GOOGLE_RED = 0xea4335;
+
 /** Max forward "coin flip" tilt (about the horizontal axis) as the hero scrolls out. */
 const SCROLL_FLIP_RAD = (65 * Math.PI) / 180;
 
@@ -348,15 +356,26 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
       // centered independently. Same layout at every width — desktop used to
       // stay one line and looked undersized next to the stacked phone title.
       let group: THREE.Group | null = null;
+      let chennaiPivot: THREE.Group | null = null;
+      let englishFace: THREE.Group | null = null;
+      let tamilFace: THREE.Group | null = null;
       let geometries: THREE.BufferGeometry[] = [];
-      let material: THREE.Material | null = null;
+      let extraMaterials: THREE.Material[] = [];
+      let paperMat: THREE.MeshStandardMaterial | null = null;
+      let aiMat: THREE.MeshStandardMaterial | null = null;
       let loadedFont: Font | null = null;
+      let loadedTamilFont: Font | null = null;
       let lastIsMobile: boolean | null = null;
       let raf = 0;
       let pointerX = 0;
       let pointerY = 0;
       let originBeta: number | null = null;
       let originGamma: number | null = null;
+      let tamilShown = false;
+      let flipping = false;
+      let flipTween: gsap.core.Tween | null = null;
+      const raycaster = new T.Raycaster();
+      const ndc = new T.Vector2();
       const BASE_ROT = { x: -0.04, y: 0.17, z: 0 };
       const POINTER_TILT = 0.22;
       /** Degrees of physical tilt that maps to full pointerX/Y. */
@@ -372,8 +391,17 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
 
       const render = () => renderer.render(scene, camera);
 
+      /** English until the card is edge-on; Tamil only on the far side of the flip. */
+      function syncFlipFaces() {
+        if (!englishFace || !tamilFace || !chennaiPivot) return;
+        const showTamil = Math.cos(chennaiPivot.rotation.y) <= 0;
+        englishFace.visible = !showTamil;
+        tamilFace.visible = showTamil;
+      }
+
       function tick() {
         if (disposed || !group) return;
+        syncFlipFaces();
         const targetX = BASE_ROT.x - pointerY * POINTER_TILT;
         const targetY = BASE_ROT.y + pointerX * POINTER_TILT;
         const targetZ = BASE_ROT.z - pointerX * 0.05;
@@ -382,6 +410,15 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         group.rotation.z += (targetZ - group.rotation.z) * 0.08;
         render();
         raf = requestAnimationFrame(tick);
+      }
+
+      function needsLoop() {
+        return follow;
+      }
+
+      function startLoop() {
+        if (!needsLoop()) return;
+        if (!raf && !document.hidden) raf = requestAnimationFrame(tick);
       }
 
       function onPointerMove(e: PointerEvent) {
@@ -396,6 +433,51 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
       function onPointerLeave() {
         pointerX = 0;
         pointerY = 0;
+        host.style.cursor = "";
+        renderer.domElement.style.cursor = "";
+      }
+
+      function pointerNdc(e: PointerEvent | MouseEvent) {
+        const el = renderer.domElement;
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return false;
+        ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        ndc.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+        return true;
+      }
+
+      function hitsChennai(e: PointerEvent | MouseEvent) {
+        if (!chennaiPivot) return false;
+        if (!pointerNdc(e)) return false;
+        chennaiPivot.updateWorldMatrix(true, true);
+        raycaster.setFromCamera(ndc, camera);
+        return raycaster.intersectObject(chennaiPivot, true).length > 0;
+      }
+
+      function onHostPointerMove(e: PointerEvent) {
+        renderer.domElement.style.cursor = hitsChennai(e) ? "pointer" : "";
+      }
+
+      function onHostClick(e: MouseEvent) {
+        if (flipping || !chennaiPivot || !hitsChennai(e)) return;
+        e.preventDefault();
+        flipping = true;
+        tamilShown = !tamilShown;
+        flipTween?.kill();
+        flipTween = gsap.to(chennaiPivot.rotation, {
+          y: tamilShown ? Math.PI : 0,
+          duration: reduceMotion ? 0.01 : 0.75,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            syncFlipFaces();
+            if (!needsLoop()) render();
+          },
+          onComplete: () => {
+            flipping = false;
+            syncFlipFaces();
+            render();
+          },
+        });
       }
 
       function onDeviceOrientation(e: DeviceOrientationEvent) {
@@ -469,18 +551,58 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         });
       }
 
+      function disposeBuilt() {
+        geometries.forEach((g) => g.dispose());
+        extraMaterials.forEach((m) => m.dispose());
+        geometries = [];
+        extraMaterials = [];
+      }
+
+      function layoutWord(stem: string, glow: string, font: Font, parent: THREE.Group) {
+        const stemGeo = makeLineGeometry(stem, font);
+        const glowGeo = makeLineGeometry(glow, font);
+        stemGeo.computeBoundingBox();
+        glowGeo.computeBoundingBox();
+        geometries.push(stemGeo, glowGeo);
+        const s = stemGeo.boundingBox!;
+        const g = glowGeo.boundingBox!;
+        const stemW = s.max.x - s.min.x;
+        const glowW = g.max.x - g.min.x;
+        const gap = 0;
+        const total = stemW + gap + glowW;
+        const minY = Math.min(s.min.y, g.min.y);
+        const maxY = Math.max(s.max.y, g.max.y);
+        const midY = (minY + maxY) / 2;
+        const stemMesh = new T.Mesh(stemGeo, paperMat!);
+        const glowMesh = new T.Mesh(glowGeo, aiMat!);
+        stemMesh.position.set(-total / 2 - s.min.x, -midY, 0);
+        glowMesh.position.set(-total / 2 + stemW + gap - g.min.x, -midY, 0);
+        parent.add(stemMesh, glowMesh);
+      }
+
       // Rebuilds the stacked title. Called once the font is ready, and again
       // on resize if the mobile/desktop line-gap flips.
       function buildText() {
         if (!loadedFont || disposed) return;
         if (group) scene.remove(group);
-        geometries.forEach((g) => g.dispose());
-        geometries = [];
+        disposeBuilt();
+        chennaiPivot = null;
+        englishFace = null;
+        tamilFace = null;
 
         const isMobile = host.clientWidth < MOBILE_BREAKPOINT;
         lastIsMobile = isMobile;
-        if (!material) {
-          material = new T.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.38, metalness: 0.12 });
+        if (!paperMat) {
+          paperMat = new T.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.38, metalness: 0.12 });
+        }
+        if (!aiMat) {
+          aiMat = new T.MeshStandardMaterial({
+            color: GOOGLE_RED,
+            roughness: 0.28,
+            metalness: 0.18,
+            emissive: GOOGLE_RED,
+            emissiveIntensity: reduceMotion ? 0 : 0.4,
+          });
         }
 
         group = new T.Group();
@@ -489,12 +611,59 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         const lineGap = isMobile ? 1.15 : 1.08;
         const startY = ((lines.length - 1) * lineGap) / 2;
         lines.forEach((line, i) => {
-          const geo = makeLineGeometry(line, loadedFont!);
-          geo.center();
-          geometries.push(geo);
-          const lineMesh = new T.Mesh(geo, material!);
-          lineMesh.position.y = startY - i * lineGap;
-          group!.add(lineMesh);
+          const y = startY - i * lineGap;
+          const glowSplit =
+            i === lines.length - 1 && line.toLowerCase().endsWith("ai") && line.length > 2
+              ? ([line.slice(0, -2), line.slice(-2)] as const)
+              : null;
+          if (!glowSplit) {
+            const geo = makeLineGeometry(line, loadedFont!);
+            geo.center();
+            geometries.push(geo);
+            const lineMesh = new T.Mesh(geo, paperMat!);
+            lineMesh.position.y = y;
+            group!.add(lineMesh);
+            return;
+          }
+
+          const pivot = new T.Group();
+          pivot.position.y = y;
+          pivot.rotation.y = tamilShown ? Math.PI : 0;
+          const english = new T.Group();
+          layoutWord(glowSplit[0], glowSplit[1], loadedFont!, english);
+          pivot.add(english);
+
+          const ebox = new T.Box3().setFromObject(english);
+          const ew = Math.max(0.5, ebox.max.x - ebox.min.x);
+          let eh = Math.max(0.4, ebox.max.y - ebox.min.y);
+          const tamil = new T.Group();
+          tamil.rotation.y = Math.PI;
+          if (loadedTamilFont) {
+            const tamilGeo = makeLineGeometry(TAMIL_GLYPH, loadedTamilFont);
+            tamilGeo.center();
+            geometries.push(tamilGeo);
+            const tbox = tamilGeo.boundingBox!;
+            const tw = Math.max(0.01, tbox.max.x - tbox.min.x);
+            const th = Math.max(0.01, tbox.max.y - tbox.min.y);
+            const tamilMesh = new T.Mesh(tamilGeo, paperMat!);
+            tamilMesh.scale.setScalar(ew / tw);
+            tamil.add(tamilMesh);
+            eh = Math.max(eh, th * (ew / tw));
+          }
+          const hitGeo = new T.BoxGeometry(ew * 1.08, eh * 1.25, 0.4);
+          const hitMat = new T.MeshBasicMaterial({
+            colorWrite: false,
+            depthWrite: false,
+          });
+          geometries.push(hitGeo);
+          extraMaterials.push(hitMat);
+          const hit = new T.Mesh(hitGeo, hitMat);
+          pivot.add(tamil, hit);
+          group!.add(pivot);
+          chennaiPivot = pivot;
+          englishFace = english;
+          tamilFace = tamil;
+          syncFlipFaces();
         });
 
         group.rotation.set(BASE_ROT.x, BASE_ROT.y, BASE_ROT.z);
@@ -503,11 +672,20 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         render();
       }
 
-      new FontLoader().load("/fonts/google-sans-bold.typeface.json", (font) => {
+      const loader = new FontLoader();
+      const loadFont = (url: string) =>
+        new Promise<Font>((resolve, reject) => {
+          loader.load(url, resolve, undefined, reject);
+        });
+      void Promise.all([
+        loadFont("/fonts/google-sans-bold.typeface.json"),
+        loadFont(TAMIL_TYPEFACE),
+      ]).then(([latin, tamil]) => {
         if (disposed) return;
-        loadedFont = font;
+        loadedFont = latin;
+        loadedTamilFont = tamil;
         buildText();
-        if (follow && !raf) raf = requestAnimationFrame(tick);
+        startLoop();
       });
 
       function onResize() {
@@ -516,21 +694,23 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
           buildText();
         } else {
           fit();
-          if (!follow) render();
+          if (!raf) render();
         }
       }
       function onVis() {
-        if (!follow) return;
         if (document.hidden) {
           if (raf) cancelAnimationFrame(raf);
           raf = 0;
-        } else if (!raf) {
-          raf = requestAnimationFrame(tick);
+        } else {
+          startLoop();
         }
       }
 
       window.addEventListener("resize", onResize);
-      if (follow) document.addEventListener("visibilitychange", onVis);
+      document.addEventListener("visibilitychange", onVis);
+      renderer.domElement.style.pointerEvents = "auto";
+      renderer.domElement.addEventListener("pointermove", onHostPointerMove, { passive: true });
+      renderer.domElement.addEventListener("click", onHostClick);
       if (followPointer) {
         window.addEventListener("pointermove", onPointerMove, { passive: true });
         document.documentElement.addEventListener("mouseleave", onPointerLeave);
@@ -550,8 +730,11 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
       }
 
       teardown = () => {
+        flipTween?.kill();
         window.removeEventListener("resize", onResize);
-        if (follow) document.removeEventListener("visibilitychange", onVis);
+        document.removeEventListener("visibilitychange", onVis);
+        renderer.domElement.removeEventListener("pointermove", onHostPointerMove);
+        renderer.domElement.removeEventListener("click", onHostClick);
         if (followPointer) {
           window.removeEventListener("pointermove", onPointerMove);
           document.documentElement.removeEventListener("mouseleave", onPointerLeave);
@@ -564,8 +747,9 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
         }
         if (raf) cancelAnimationFrame(raf);
         if (group) scene.remove(group);
-        geometries.forEach((g) => g.dispose());
-        material?.dispose();
+        disposeBuilt();
+        paperMat?.dispose();
+        aiMat?.dispose();
         renderer.dispose();
         if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
       };
@@ -604,8 +788,12 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
 
       {/* The title as extruded 3D text (WebGL), above the strip and the darken.
           An sr-only heading carries the same text for assistive tech. */}
-      <div ref={textRef} className="pointer-events-none absolute inset-0 z-10 max-sm:-translate-y-[8%]" />
-      <h1 className="sr-only">{heroCopy.title}</h1>
+      <div
+        ref={textRef}
+        className="absolute inset-0 z-10 max-sm:-translate-y-[8%]"
+        style={{ touchAction: "pan-y" }}
+      />
+      <h1 className="sr-only">{`${heroCopy.title} / ${CHENNAI_TAMIL}`}</h1>
 
       {/* Calls to action. Labels and destinations come from heroCopy so this
           hero and StaticHero always say the same thing — and so the ticket CTA

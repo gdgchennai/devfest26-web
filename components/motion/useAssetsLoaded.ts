@@ -117,8 +117,9 @@ export function optimizedSrc(src: string, width: number): string {
   return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEV_QUALITY}`;
 }
 
-/** The 3D title's typeface, fetched here so the extruded wordmark is ready too. */
+/** The 3D title's typefaces, fetched here so the extruded wordmark is ready too. */
 const TITLE_TYPEFACE = "/fonts/google-sans-bold.typeface.json";
+const TAMIL_TYPEFACE = "/fonts/noto-sans-tamil-chennai.typeface.json";
 
 /**
  * Resolves to `true` once the initial experience is genuinely ready — web fonts
@@ -292,10 +293,14 @@ export function useAssetsLoaded(
      */
     waits.push(
       watch(
-        fetch(TITLE_TYPEFACE).then((r) => {
-          if (!r.ok) throw new Error(`typeface ${r.status}`);
-          return r.arrayBuffer();
-        }),
+        Promise.all(
+          [TITLE_TYPEFACE, TAMIL_TYPEFACE].map((url) =>
+            fetch(url).then((r) => {
+              if (!r.ok) throw new Error(`typeface ${r.status}`);
+              return r.arrayBuffer();
+            }),
+          ),
+        ),
         "typeface",
       ),
     );
