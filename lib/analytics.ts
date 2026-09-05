@@ -33,8 +33,8 @@ export function track(name: string, params?: AnalyticsParams) {
   }
   (pushCommand as (...args: unknown[]) => void)("event", name, params);
 
-  // Same conversion names as GA4, dual-written so PostHog dashboards and
-  // self-driving scouts see the hotspots without a second call site.
+  // Same conversion names as GA4, dual-written so PostHog dashboards see
+  // the same conversion hotspots without a second call site.
   // `__loaded` is false until instrumentation-client.ts finishes init —
   // capture() would no-op / queue either way, but skip when the key was
   // omitted so we don't create a stub distinct id.

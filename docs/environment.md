@@ -102,8 +102,8 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 ### `POSTHOG_PROJECT_ID` / `POSTHOG_ENV_ID`
 - **Type:** build-time (not secret, but only useful with the personal API key)
 - **Used by:** `withPostHogConfig` `projectId` (`ENV_ID` is the older name)
-- **Required:** only when uploading sourcemaps. The DevFest project id is
-  `593827`.
+- **Required:** only when uploading sourcemaps. The GDG Chennai project id is
+  `593813`.
 
 ## Not env vars, but related: Cloudflare bindings
 

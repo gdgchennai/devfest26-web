@@ -94,11 +94,11 @@ export const siteConfig = {
     // the GA4 ID. `instrumentation-client.ts` inits posthog-js with this
     // unless NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN / NEXT_PUBLIC_POSTHOG_KEY
     // overrides it. Host is the US ingestion endpoint, not the app URL.
-    posthogKey: "phc_vwaAgxGmbFVsErXcFJa6DXBM3xheNLBjHjTxTj8i9wNc",
+    posthogKey: "phc_yaFKrEM2wngUPB5AwDPWk7NLWYrSUSTWoGMCauJxg8TB",
     posthogHost: "https://us.i.posthog.com",
     // Numeric project id — only needed by @posthog/nextjs-config sourcemap
     // uploads (with a personal API key). Safe to commit; not a secret.
-    posthogProjectId: "593827",
+    posthogProjectId: "593813",
   },
 
   /*
