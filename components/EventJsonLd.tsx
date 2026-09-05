@@ -1,4 +1,4 @@
-import { siteConfig } from "@/site.config";
+import { siteConfig, isTicketOnSale } from "@/site.config";
 import { JsonLd } from "@/components/JsonLd";
 import { ORG_ID } from "@/components/SiteJsonLd";
 import { siteDescription, venuePostalAddress } from "@/lib/seo";
@@ -10,7 +10,7 @@ import { siteDescription, venuePostalAddress } from "@/lib/seo";
 export function EventJsonLd() {
   if (!siteConfig.date) return null;
 
-  const tickets = siteConfig.ticketSelector.tickets.filter((t) => t.visible);
+  const tickets = siteConfig.ticketSelector.tickets.filter((t) => isTicketOnSale(t));
   const offers = (tickets.length > 0 ? tickets : siteConfig.ticketSelector.tickets).map((t) => ({
     "@type": "Offer",
     name: t.name,
