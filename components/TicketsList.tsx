@@ -249,6 +249,9 @@ function TicketsCarouselMotion() {
       const cardsEl = cardsRef.current;
       const stageEl = stageRef.current;
       if (!cardsEl || !stageEl) return;
+      // Nested listeners don't keep the narrowing above — copy after the guard.
+      const cards = cardsEl;
+      const stage = stageEl;
 
       // Sizes the card off the SMALLER of "what this breakpoint wants" and
       // "what actually fits the stage's real height" — computed here in JS,
@@ -270,15 +273,15 @@ function TicketsCarouselMotion() {
         const desiredWidth = BREAKPOINT_WIDTHS.find(([min]) => w >= min)![1];
         // 0.92: a little breathing room above/below rather than the card
         // touching the stage's edges exactly.
-        const maxWidthFromHeight = (stageEl!.clientHeight * (3 / 4)) * 0.92;
+        const maxWidthFromHeight = (stage.clientHeight * (3 / 4)) * 0.92;
         const width = Math.min(desiredWidth, maxWidthFromHeight);
-        cardsEl!.style.width = `${width}px`;
-        cardsEl!.style.height = `${(width * 4) / 3}px`;
+        cards.style.width = `${width}px`;
+        cards.style.height = `${(width * 4) / 3}px`;
       }
       sizeCard();
       window.addEventListener("resize", sizeCard);
 
-      const cardEls = gsap.utils.toArray<HTMLElement>(cardsEl.children);
+      const cardEls = gsap.utils.toArray<HTMLElement>(cards.children);
       const spacing = 0.1;
       // ±1 at 76% of card width (the readable centre three); ±2 at 152%
       // and a smaller scale — a peek that there is more deck past the trio.
@@ -403,7 +406,7 @@ function TicketsCarouselMotion() {
         vel = 0;
         axis = null;
         didDrag = false;
-        stageEl.setPointerCapture(e.pointerId);
+        stage.setPointerCapture(e.pointerId);
       }
 
       function onPointerMove(e: PointerEvent) {
@@ -423,7 +426,7 @@ function TicketsCarouselMotion() {
         vel = d / Math.max(1, now - lastT);
         lastX = e.clientX;
         lastT = now;
-        const w = cardsEl.offsetWidth || 1;
+        const w = cards.offsetWidth || 1;
         playhead.offset += (-d / w) * spacing;
         scrub.vars.offset = playhead.offset;
         seamlessLoop.time(wrapTime(playhead.offset));
@@ -446,11 +449,11 @@ function TicketsCarouselMotion() {
         didDrag = false;
       }
 
-      stageEl.addEventListener("pointerdown", onPointerDown);
-      stageEl.addEventListener("pointermove", onPointerMove, { passive: false });
-      stageEl.addEventListener("pointerup", onPointerUp);
-      stageEl.addEventListener("pointercancel", onPointerUp);
-      stageEl.addEventListener("click", onClickCapture, true);
+      stage.addEventListener("pointerdown", onPointerDown);
+      stage.addEventListener("pointermove", onPointerMove, { passive: false });
+      stage.addEventListener("pointerup", onPointerUp);
+      stage.addEventListener("pointercancel", onPointerUp);
+      stage.addEventListener("click", onClickCapture, true);
 
       // Laptop trackpads fire `wheel` with deltaX for a two-finger horizontal
       // swipe. Axis-lock the gesture (same idea as pointer drag) so a vertical
@@ -481,7 +484,7 @@ function TicketsCarouselMotion() {
         if (wheelAxis !== "h") return;
         e.preventDefault();
         scrub.pause();
-        const w = cardsEl.offsetWidth || 1;
+        const w = cards.offsetWidth || 1;
         playhead.offset += (dx / w) * spacing;
         scrub.vars.offset = playhead.offset;
         seamlessLoop.time(wrapTime(playhead.offset));
@@ -497,11 +500,11 @@ function TicketsCarouselMotion() {
         window.clearTimeout(wheelTimer);
         window.clearTimeout(wheelAxisTimer);
         galleryEl?.removeEventListener("wheel", onWheel, true);
-        stageEl.removeEventListener("pointerdown", onPointerDown);
-        stageEl.removeEventListener("pointermove", onPointerMove);
-        stageEl.removeEventListener("pointerup", onPointerUp);
-        stageEl.removeEventListener("pointercancel", onPointerUp);
-        stageEl.removeEventListener("click", onClickCapture, true);
+        stage.removeEventListener("pointerdown", onPointerDown);
+        stage.removeEventListener("pointermove", onPointerMove);
+        stage.removeEventListener("pointerup", onPointerUp);
+        stage.removeEventListener("pointercancel", onPointerUp);
+        stage.removeEventListener("click", onClickCapture, true);
       };
     },
     { scope: galleryRef },
