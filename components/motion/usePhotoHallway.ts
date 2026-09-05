@@ -234,15 +234,19 @@ const PEAK_VISIBLE_P = 0.92;
 /**
  * The `sizes` attribute for a flying photo.
  *
- * A card's CSS width is only its width at scale 1; the transform blows it up to
- * ~2.7x while it is still fully opaque, so a 44vw card covers ~118vw of screen.
- * Declaring the base width made the browser fetch a copy 2.6x too small and
- * upscale it — softest exactly when the photo is biggest and most looked at.
- * Viewport-relative, so this costs desktop bandwidth and barely touches mobile.
+ * CSS width × peak scale can exceed 100vw, but the card is rotated in a
+ * perspective corridor and drifts off-axis, so it never paints that wide.
+ * Declaring `100vw` made next/image pick a 1920–3840px candidate; decoding
+ * that the first time the card is visible is the scroll hitch, and Next warns
+ * because the bounding box is nowhere near the viewport.
+ *
+ * Cap at 70vw: enough for the fly-by at typical laptop DPR, without a
+ * full-viewport master. Do not raise this back to 100 without measuring —
+ * Next's warning is the tell that the extra pixels are unused.
  */
 export function cardSizes(index: number, maxScale: number): string {
   const peak = 0.15 + (maxScale - 0.15) * easeInAccelerating(PEAK_VISIBLE_P);
-  return `${Math.min(100, Math.round(cardWidthVw(index) * peak))}vw`;
+  return `${Math.min(70, Math.round(cardWidthVw(index) * peak))}vw`;
 }
 
 /**

@@ -96,6 +96,9 @@ export function FooterLogo({
           src="/brand-assets/devfest-logo-wo-brackets-dark.svg"
           alt={uiCopy.footerLogo.alt}
           className="h-full w-full"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
           // In 3D mode the WebGL lockup is the visible logo; keep this laid out
           // for measurement but invisible. Otherwise show it flat, no filter.
           style={field3D ? { opacity: 0 } : undefined}

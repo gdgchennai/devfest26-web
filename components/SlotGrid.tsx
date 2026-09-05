@@ -2,21 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 /**
- * A grid of fixed slots that are mostly empty on purpose.
- *
- * The speaker lineup is a list whose content has not landed yet, and it was
- * rendering a single apologetic EmptyState. A roster with visible unfilled
- * slots reads as an open call instead: you can see how many places there are,
- * how many are taken, and one of the gaps is a live invitation to take one.
- *
- * Generic rather than folded into SpeakerWall because it was written for the
- * sponsor wall as well; 2026 then dropped sponsorship, so there is one
- * consumer today. Kept general — this is the shape any "roster with open
- * places" needs, and the sponsor tiers may come back.
- *
- * The three slot states share one footprint so the grid never reflows as
- * content arrives — the caller passes a single `slotClassName` that sizes all
- * of them.
+ * Fixed-count roster grid. Empty slots stay so the layout does not reflow
+ * as speakers (or other entries) fill in.
  */
 
 export type FilledSlot = {

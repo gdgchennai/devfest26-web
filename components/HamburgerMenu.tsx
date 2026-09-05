@@ -16,9 +16,6 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
 gsap.registerPlugin(useGSAP);
 
-/** Picked by eye with the (since removed) live Y-offset adjuster. */
-const TOP = 28;
-
 /**
  * Full-mode navigation. Replaces the old always-visible pill bar (still used
  * in lite mode — see components/Header.tsx) with a glow button that morphs
@@ -238,8 +235,7 @@ export function HamburgerMenu() {
           opposite corner. */}
       {!isHome && (
         <div
-          className="pointer-events-none fixed left-4 z-50 sm:left-8"
-          style={{ top: `${TOP}px` }}
+          className="pointer-events-none fixed left-[max(1rem,env(safe-area-inset-left,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:left-[max(2rem,env(safe-area-inset-left,0px))]"
         >
           <Link
             href="/"
@@ -266,8 +262,7 @@ export function HamburgerMenu() {
       )}
 
       <div
-        className="pointer-events-none fixed right-4 z-50 sm:right-8"
-        style={{ top: `${TOP}px` }}
+        className="pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))]"
       >
         <button
           ref={buttonRef}

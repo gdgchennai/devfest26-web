@@ -1,7 +1,5 @@
-import { partnerMarkdown } from "@/lib/markdown";
+import { partnerMarkdown, markdownResponse } from "@/lib/markdown";
 
 export function GET() {
-  return new Response(partnerMarkdown(), {
-    headers: { "Content-Type": "text/markdown; charset=utf-8", Vary: "Accept" },
-  });
+  return markdownResponse(partnerMarkdown(), "/partner");
 }

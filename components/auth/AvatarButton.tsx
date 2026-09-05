@@ -29,7 +29,7 @@ export function AvatarButton({ hidden = false }: { hidden?: boolean }) {
 
   return (
     <div
-      className={`pointer-events-none fixed right-[calc(1rem_+_3.25rem)] top-7 z-50 transition-opacity duration-200 sm:right-[calc(2rem_+_3.25rem)] ${
+      className={`pointer-events-none fixed right-[max(calc(1rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 transition-opacity duration-200 sm:right-[max(calc(2rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] ${
         hidden ? "opacity-0 [&_button]:pointer-events-none" : "opacity-100"
       }`}
     >

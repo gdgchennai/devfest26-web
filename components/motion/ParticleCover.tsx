@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { gpuQuality } from "@/lib/gpu";
 
 gsap.registerPlugin(useGSAP);
 
@@ -57,12 +58,19 @@ export function ParticleCover({
     () => {
       const canvas = canvasRef.current;
       const container = wrapRef.current;
-      const ctx = canvas?.getContext("2d");
+      const quality = gpuQuality();
+      // `desynchronized` is a throughput hint for opaque HUD canvases. On
+      // several mobile browsers it silently allocates an opaque backing
+      // store even with `alpha: true`, so clearRect paints black and the
+      // VenueReveal dissolve (the CSS gradient behind this canvas) reads
+      // as a flat slab. Transparency is load-bearing here.
+      const ctx = canvas?.getContext("2d", { alpha: true });
       if (!canvas || !container || !ctx || shapes.length === 0) return;
 
       let cw = 0;
       let ch = 0;
       let radius = 0;
+      let dpr = 1;
 
       const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
         const img = new Image();
@@ -74,6 +82,11 @@ export function ParticleCover({
         // Sort by scale to fake z-order: bigger (closer to the vanishing
         // point) particles paint over smaller ones.
         particles.sort((a, b) => a.scale - b.scale);
+        // CSS-pixel space under a DPR scale. `resetTransform()` after each
+        // particle used to wipe that scale, so on Retina the first sprite
+        // drew correctly and the rest landed in the top-left at 1× — the
+        // vortex read as a broken cluster after canvasDpr landed.
+        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx!.clearRect(0, 0, cw, ch);
         const target = radius * TARGET_RATIO;
         particles.forEach((p) => {
@@ -82,12 +95,13 @@ export function ParticleCover({
           // at load time, not hardcoded) so, say, a 300px-wide shape and a
           // 100px-wide one still land at the same on-screen size.
           const unitScale = target / Math.max(p.img.naturalWidth, p.img.naturalHeight);
+          ctx!.save();
           ctx!.translate(cw / 2, ch / 2);
           ctx!.rotate(p.rotate);
           const w = p.img.naturalWidth * unitScale * p.scale;
           const h = p.img.naturalHeight * unitScale * p.scale;
           ctx!.drawImage(p.img, p.x - w / 2, p.y - h / 2, w, h);
-          ctx!.resetTransform();
+          ctx!.restore();
         });
       }
 
@@ -130,8 +144,15 @@ export function ParticleCover({
       tl.seek(99);
 
       function resize() {
-        cw = canvas!.width = container!.clientWidth;
-        ch = canvas!.height = container!.clientHeight;
+        dpr = quality.canvasDpr;
+        const cssW = container!.clientWidth;
+        const cssH = container!.clientHeight;
+        canvas!.width = Math.max(1, Math.round(cssW * dpr));
+        canvas!.height = Math.max(1, Math.round(cssH * dpr));
+        canvas!.style.width = `${cssW}px`;
+        canvas!.style.height = `${cssH}px`;
+        cw = cssW;
+        ch = cssH;
         radius = Math.max(cw, ch);
         tl.invalidate();
         draw();
@@ -152,7 +173,7 @@ export function ParticleCover({
 
   return (
     <div ref={wrapRef} className={className}>
-      <canvas ref={canvasRef} aria-hidden className="block h-full w-full" />
+      <canvas ref={canvasRef} aria-hidden className="block h-full w-full bg-transparent" />
     </div>
   );
 }

@@ -23,3 +23,12 @@ export function fallbackColorFor(filename: string, previousColor?: FallbackColor
   }
   return FALLBACK_COLORS[index];
 }
+
+/** Tailwind halftone class for a fallback colour — lives here so `Frame.tsx`
+ *  can stay a component-only module (Fast Refresh). */
+export const FALLBACK_BG: Record<FallbackColor, string> = {
+  blue: "bg-blue-halftone",
+  red: "bg-red-halftone",
+  yellow: "bg-yellow-halftone",
+  green: "bg-green-halftone",
+};

@@ -3,16 +3,30 @@
  * canonical URL via content negotiation — a Cloudflare Transform Rule rewrites
  * a request to `/md<path>` when `Accept: text/markdown` is present (see
  * docs/markdown-negotiation.md). Built straight from the same content sources
- * the React pages render from (site.config.ts, content/*.json via
- * lib/content.ts) rather than by converting rendered HTML, since there's no
- * reliable way to turn arbitrary JSX back into clean markdown.
+ * the React pages render from (site.config.ts, D1 via lib/content.ts) rather
+ * than by converting rendered HTML, since there's no reliable way to turn
+ * arbitrary JSX back into clean markdown.
  */
 import { siteConfig, formatEventDate, shortEventDate } from "@/site.config";
-import { agenda, speakers, getSpeaker } from "@/lib/content";
+import { getAgenda, getSpeaker, getSpeakers } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
 import { AGENDA_READY, siteRoutes } from "@/lib/routes";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import type { Speaker } from "@/lib/schemas";
+
+/** Direct `/md/*` URLs must not compete with the HTML canonical in Google. */
+export function markdownResponse(body: string, canonicalPath: string, status = 200) {
+  const canonical = canonicalPath === "/" ? siteConfig.url : `${siteConfig.url}${canonicalPath}`;
+  return new Response(body, {
+    status,
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      Vary: "Accept",
+      "X-Robots-Tag": "noindex, follow",
+      Link: `<${canonical}>; rel="canonical"`,
+    },
+  });
+}
 
 function frontMatter(title: string): string {
   return `# ${title}\n\n> Machine-readable version of ${siteConfig.url}. See ${siteConfig.url}/llms.txt for a full site overview.\n\n`;
@@ -40,11 +54,12 @@ export function homeMarkdown(): string {
   return lines.join("\n") + "\n";
 }
 
-export function agendaMarkdown(): string {
+export async function agendaMarkdown(): Promise<string> {
   if (!AGENDA_READY) {
     return frontMatter("Agenda") + "The schedule is still being finalised. Check back closer to the event.\n";
   }
 
+  const [agenda, speakers] = await Promise.all([getAgenda(), getSpeakers()]);
   const byTrack = new Map<string, typeof agenda>();
   for (const session of agenda) {
     byTrack.set(session.track, [...(byTrack.get(session.track) ?? []), session]);
@@ -57,7 +72,7 @@ export function agendaMarkdown(): string {
     if (!sessions?.length) continue;
     lines.push(`## ${track.name}`, "");
     for (const session of sessions) {
-      const speaker = session.speakerSlug ? getSpeaker(session.speakerSlug) : undefined;
+      const speaker = session.speakerSlug ? speakers.find((s) => s.slug === session.speakerSlug) : undefined;
       const time = `${formatSessionTime(session.start)}–${formatSessionTime(session.end)}`;
       const by = speaker ? ` — ${speaker.name}, ${speaker.title} at ${speaker.company}` : "";
       lines.push(`- **${time}** (${session.hall}) ${session.title}${by}`);
@@ -73,7 +88,8 @@ function speakerSummary(speaker: Speaker): string {
   return `- [${speaker.name}](${siteConfig.url}/speakers/${speaker.slug}), ${speaker.title} at ${speaker.company}${talk}`;
 }
 
-export function speakersMarkdown(): string {
+export async function speakersMarkdown(): Promise<string> {
+  const speakers = await getSpeakers();
   const lines = [frontMatter(`Speakers — ${siteConfig.name}`)];
   if (!AGENDA_READY || speakers.length === 0) {
     lines.push(
@@ -87,8 +103,8 @@ export function speakersMarkdown(): string {
   return lines.join("\n") + "\n";
 }
 
-export function speakerMarkdown(slug: string): string | undefined {
-  const speaker = getSpeaker(slug);
+export async function speakerMarkdown(slug: string): Promise<string | undefined> {
+  const speaker = await getSpeaker(slug);
   if (!speaker) return undefined;
 
   const lines = [

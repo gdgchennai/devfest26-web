@@ -1,4 +1,4 @@
-import { speakers } from "@/lib/content";
+import type { Speaker } from "@/lib/schemas";
 import { Frame } from "@/components/Frame";
 import { SlotGrid, type FilledSlot } from "@/components/SlotGrid";
 import { speakerCta } from "@/lib/cta";
@@ -7,8 +7,8 @@ import { uiCopy } from "@/site.config";
 /**
  * The speaker lineup as a roster with open places.
  *
- * `content/speakers.json` is `[]`, and both the homepage (which had no speaker
- * section at all) and /speakers were handling that with a single sentence of
+ * `speakers` is empty until the lineup is published, and both the homepage
+ * (which had no speaker section at all) and /speakers were handling that with
  * apology. Showing the empty places instead turns the gap into the CFP pitch —
  * the invitation sits in the lineup, where someone browsing for speakers is
  * already looking. Destination comes from `speakerCta()`, so setting
@@ -21,7 +21,7 @@ import { uiCopy } from "@/site.config";
 /** Places shown in the lineup before it starts scrolling past a screenful. */
 const SLOTS = 6;
 
-export function SpeakerWall({ limit = SLOTS }: { limit?: number }) {
+export function SpeakerWall({ speakers, limit = SLOTS }: { speakers: Speaker[]; limit?: number }) {
   const shown = speakers.slice(0, limit);
   const cta = speakerCta();
 

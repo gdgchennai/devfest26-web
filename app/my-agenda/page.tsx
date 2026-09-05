@@ -2,14 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { agenda } from "@/lib/content";
+import { getAgenda } from "@/lib/content";
 import { listFavorites } from "@/lib/favorites";
 import { sessionsForKeys } from "@/lib/session-key";
 import { AGENDA_READY } from "@/lib/routes";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { AgendaList } from "@/components/AgendaList";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "My agenda", robots: { index: false } };
+export const metadata: Metadata = pageMetadata({
+  title: "My agenda",
+  description: "Sessions you've saved for DevFest Chennai.",
+  path: "/my-agenda",
+  index: false,
+});
 export const dynamic = "force-dynamic";
 
 export default async function MyAgendaPage() {
@@ -21,6 +27,7 @@ export default async function MyAgendaPage() {
   }
 
   const keys = await listFavorites(session.user.uid);
+  const agenda = await getAgenda();
   const sessions = sessionsForKeys(agenda, keys).sort((a, b) => a.start.localeCompare(b.start));
 
   return (

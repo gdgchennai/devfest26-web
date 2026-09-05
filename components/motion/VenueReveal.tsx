@@ -406,7 +406,10 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       if (roadshowsRef.current) swapTargets.set(roadshowsRef.current, "");
       if (disclaimerRef.current) swapTargets.set(disclaimerRef.current, "");
 
-      gsap.set(overlayRef.current, { yPercent: 100 });
+      // force3D: false — a GPU layer on iOS rasterizes this panel against
+      // opaque black, which kills the feathered top edge. 2D compositing
+      // keeps the mask/gradient alpha.
+      gsap.set(overlayRef.current, { yPercent: 100, force3D: false });
 
       // Everything below only exists once the sketch has actually loaded —
       // rebuilds automatically (dependencies below) the moment it does.
@@ -903,7 +906,15 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                     object-fill stretches it to do that (a ~6% width/height
                     difference, imperceptible on a building facade) instead
                     of cropping it. */}
-                <Image src="/venue.webp" alt="" fill className="object-fill" priority={false} />
+                <Image
+                  src="/venue.webp"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 70vw, 100vw"
+                  decoding="async"
+                  fetchPriority="low"
+                  className="object-fill"
+                />
               </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)
                   property to an invalid colour, not stroke-width — Tailwind's
@@ -1017,28 +1028,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           at the end of the held sequence (see the pin's OVERLAY phase in the
           effect above). BLACK — deliberately not pastel blue like the rest of
           Location: this panel rising IS the "turn black" cue. Its own fill is
-          a top-to-bottom gradient — a thin fully-transparent strip at the very
-          top easing to solid black by the bottom — so its leading (top) edge
-          feathers into the blue frame beneath as it climbs rather than cutting
-          a hard line across it, while staying opaque enough over most of its
-          height to read as a cover. --page-bg itself stays pastel blue for as long as this
-          hasn't finished its rise (see overlayProgress in the pin's onUpdate)
-          and hard-flips to black exactly as the panel lands at full height —
-          so by the time the feathered top would otherwise reveal the frame,
-          there's black behind it anyway. */}
+          a mask, not a gradient fill: a `linear-gradient` background on a
+          transformed layer is rasterized opaque on iOS (the dissolve looked
+          like a flat black slab). Masking a solid fill keeps the same
+          S-curve fade — transparent at the leading edge, solid by ~24% —
+          including over the particle canvas. Hex/rgba stops, not var(--black):
+          WebKit often drops alpha interpolation when a CSS variable is a
+          gradient stop. --page-bg stays pastel blue until the panel lands
+          (see overlayProgress) and hard-flips to black as it finishes. */}
       {!staticBaseline && (
         <div
           ref={overlayRef}
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-30"
-          style={{
-            // Multi-stop S-curve rather than a two-stop ramp: a plain
-            // `transparent → black` linear stop reads as a visible hard band
-            // where it lands on the photo. These stops ease in slowly, run
-            // through the middle, then ease into solid — no perceptible edge.
-            backgroundImage:
-              "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.04) 3%, rgba(0,0,0,0.15) 6.5%, rgba(0,0,0,0.35) 10%, rgba(0,0,0,0.6) 13%, rgba(0,0,0,0.82) 16.5%, rgba(0,0,0,0.95) 20%, var(--black) 24%)",
-          }}
+          className="venue-overlay-dissolve pointer-events-none absolute inset-0 z-30"
         >
           {/* Brand-shape particle vortex, reskinned from GSAP's own "canvas
               particles" demo — streams inward toward the center for as long

@@ -3,10 +3,17 @@ import type { Metadata } from "next";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { SignInPanel } from "@/components/auth/SignInPanel";
 
+import { pageMetadata } from "@/lib/seo";
+
 export const metadata: Metadata = {
-  title: "Sign in",
-  description: "Sign in to save sessions to your DevFest Chennai agenda.",
+  ...pageMetadata({
+    title: "Sign in",
+    description: "Sign in to save sessions to your DevFest Chennai agenda.",
+    path: "/signin",
+    index: false,
+  }),
 };
+export const dynamic = "force-static";
 
 export default function SignInPage() {
   return (

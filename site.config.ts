@@ -287,7 +287,7 @@ export const siteConfig = {
         "Dive into the world of AI workflows, build, network and have fun.",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/1jjkxsmy",
-      image: "/banner/purple.jpg",
+      image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
     {
@@ -297,7 +297,7 @@ export const siteConfig = {
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
       ctaLabel: "Coming soon →",
-      image: "/banner/green.jpg",
+      image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
     {
@@ -308,7 +308,7 @@ export const siteConfig = {
         "React in 2026: bigger, faster, still your favorite. Let's talk.",
       ctaLabel: "RSVP now →",
       href: "https://luma.com/49bulo2m",
-      image: "/banner/blue.jpg",
+      image: "/banner/blue.webp",
       color: "bg-blue-pastel",
     },
     {
@@ -318,7 +318,7 @@ export const siteConfig = {
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
       ctaLabel: "Coming soon →",
-      image: "/banner/yellow.jpg",
+      image: "/banner/yellow.webp",
       color: "bg-yellow-pastel",
     },
     {
@@ -328,7 +328,7 @@ export const siteConfig = {
       description:
         "Learn about building security and privacy into agentic systems.",
       ctaLabel: "Coming soon →",
-      image: "/banner/red.jpg",
+      image: "/banner/red.webp",
       color: "bg-red-pastel",
     },
     {
@@ -339,7 +339,7 @@ export const siteConfig = {
         "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
       ctaLabel: "Register Now →",
       href: "https://luma.com/mprx0ocg",
-      image: "/banner/purple.jpg",
+      image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
     {
@@ -349,7 +349,7 @@ export const siteConfig = {
       description:
         "Enabling our protectors, protect their data.",
       ctaLabel: "Not open to public",
-      image: "/banner/green.jpg",
+      image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
     {
@@ -359,7 +359,7 @@ export const siteConfig = {
       description:
         "Women come, learn, build and talk about AI.",
       ctaLabel: "Coming soon →",
-      image: "/banner/blue.jpg",
+      image: "/banner/blue.webp",
       color: "bg-blue-pastel",
     },
     {
@@ -369,7 +369,7 @@ export const siteConfig = {
       description:
         "Bringing the DevFest spirit to campus.",
       ctaLabel: "Coming soon →",
-      image: "/banner/on-campus.jpg",
+      image: "/banner/on-campus.webp",
       color: "bg-yellow-pastel",
     },
   ] satisfies SubEvent[],
@@ -377,27 +377,27 @@ export const siteConfig = {
   whatYoullGet: [
     {
       title: "Roadshows", description: "Catch a DevFest Roadshow near you. A month long celebration hosted across the city.",
-      image: "/archive/2025-roadshow.jpg"
+      image: "/archive/2025-roadshow.webp"
     },
     {
       title: "Build sessions", description: "Come, vibe, build, share your projects with an amazing audience.",
-      image: "/archive/2025-build.jpg"
+      image: "/archive/2025-build.webp"
     },
     {
       title: "Competitions", description: "Bring your A game to our favorite competitions ranging from pitchathons to CTFs.",
-      image: "/archive/2025-compete.jpg"
+      image: "/archive/2025-compete.webp"
     },
     {
       title: "Talks", description: "Hear from some of the best minds out there as they talk about real stories and projects.",
-      image: "/archive/2025-full-house.jpg"
+      image: "/archive/2025-full-house.webp"
     },
     {
       title: "Networking", description: "Not your average social media connections. Real networking, projects, careers and collaborations.",
-      image: "/archive/2025-registration-desk.jpg"
+      image: "/archive/2025-registration-desk.webp"
     },
     {
       title: "Community", description: "Join us as we celebrate the community while you find your tribe here.",
-      image: "/archive/2025-group.jpg"
+      image: "/archive/2025-group.webp"
     },
   ],
 
@@ -488,6 +488,7 @@ export const uiCopy = {
      *  differently ("← Get tickets", see showMoodSection below) and is not
      *  this. */
     getTicketsLabel: "Get tickets →",
+    skipToContent: "Skip to content",
   },
 
   /** X/Instagram/LinkedIn/YouTube/GitHub/Discord display names — shared by
@@ -666,7 +667,6 @@ export const uiCopy = {
     loadingStatusSuffix: "…",
     enterCtaLabel: "Enter the DevFest experience →",
     switchToLiteLabel: "I don't like animations →",
-    desktopHint: "Best experienced in Desktop/wide screens",
     // Shown while the loader is still loading, once the load has been dragging
     // (see SLOW_AFTER in useAssetsLoaded) or a slow connection / modest device
     // is detected. Gone the moment the Enter CTA appears.

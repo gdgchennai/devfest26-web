@@ -7,23 +7,6 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Whether the connection is metered/slow. NOTE: no longer used for gating — the
- * experience is deliberately identical on every connection (the preloader holds
- * until everything is ready, rather than downgrading slow visitors to a static
- * page). Kept for potential future use / diagnostics. Also: Chrome DevTools
- * network throttling reports `effectiveType: "slow-2g"` for its 3G presets, so
- * gating on this made the intro impossible to test under throttling.
- */
-export function isSaveData(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
-    .connection;
-  if (!connection) return false;
-  if (connection.saveData) return true;
-  return connection.effectiveType === "2g" || connection.effectiveType === "slow-2g";
-}
-
-/**
  * `?lite=1` turns it on, `?lite=0` turns it off, and either way the answer is
  * remembered. Both directions matter: the toggle drives the preference through
  * the URL so the choice is linkable, bookmarkable and testable — "open the site
@@ -100,6 +83,13 @@ export function isLowPowerDevice(): boolean {
   return false;
 }
 
+export function isSaveData(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return Boolean(
+    (navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData,
+  );
+}
+
 /**
  * Whether the connection is genuinely slow — `saveData`, or a `2g`/`slow-2g`
  * effective type. Deliberately NOT `3g`: Chrome's `effectiveType` is a rolling
@@ -110,11 +100,10 @@ export function isLowPowerDevice(): boolean {
  * absent on Safari/Firefox → `false` (no signal, no downgrade).
  */
 export function isSlowConnection(): boolean {
+  if (isSaveData()) return true;
   if (typeof navigator === "undefined") return false;
-  const connection = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
-    .connection;
+  const connection = (navigator as unknown as { connection?: { effectiveType?: string } }).connection;
   if (!connection) return false;
-  if (connection.saveData) return true;
   return connection.effectiveType === "slow-2g" || connection.effectiveType === "2g";
 }
 
@@ -147,14 +136,22 @@ export function shouldSuggestLiteMode(): boolean {
 }
 
 /**
+ * Phone / small-tablet viewports. Matches the site's `lg` (1024px) breakpoint.
+ * Used to thin hallway photo counts and marquee plane size — not to skip the
+ * intro. The experience plays on this width unless lite or reduced-motion.
+ */
+export function isNarrowViewport(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(max-width: 1023px)").matches;
+}
+
+/**
  * True when the full motion layer (preloader, intro, hallway, 3D) should be
  * skipped entirely and the visitor sent straight to the static site.
  *
- * The experience is intentionally consistent on every connection speed — the
- * bouncing preloader holds until everything is ready rather than downgrading
- * slow/save-data visitors. So the ONLY opt-outs are an explicit accessibility
- * preference (reduced-motion) and the manual lite toggle (`?lite=1`). Save-data
- * / slow-connection deliberately does NOT downgrade anymore (see isSaveData).
+ * Connection speed is intentionally not a gate — the bouncing preloader holds
+ * until everything is ready, and offers lite if the wait drags. Opt-outs:
+ * reduced-motion and the manual lite toggle (`?lite=1` / footer).
  */
 export function shouldUseStaticBaseline(): boolean {
   return prefersReducedMotion() || isLiteMode();
@@ -162,12 +159,9 @@ export function shouldUseStaticBaseline(): boolean {
 
 /**
  * True when a heavy optional download (three.js, chiefly) must not be fetched
- * at all. Now only the manual lite toggle opts out — every real connection gets
- * the full 3D experience, with the preloader covering the download time.
- *
- * Deliberately NOT gated on reduced-motion: that is a vestibular preference, not
- * a bandwidth one, so those visitors still get still imagery (rendered once
- * instead of animated), just nothing that moves.
+ * at all. Lite mode skips it; reduced-motion still gets still WebGL imagery
+ * (a vestibular preference, not a bandwidth one — rendered once instead of
+ * animated).
  */
 export function shouldSkipHeavyAssets(): boolean {
   return isLiteMode();

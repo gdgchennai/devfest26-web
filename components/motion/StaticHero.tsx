@@ -39,7 +39,7 @@ export function StaticHero({
   offerFullExperience?: boolean;
 }) {
   return (
-    <section className="relative flex min-h-[100vh] flex-col items-center justify-center overflow-hidden px-4 py-24 sm:px-8">
+    <section className="relative flex min-h-[100vh] min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-4 py-24 sm:px-8">
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
         <Eyebrow dotColor="blue">{heroCopy.eyebrow}</Eyebrow>
 

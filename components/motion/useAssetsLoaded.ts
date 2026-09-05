@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { whenReady, didFail, BRACKETS_READY } from "@/lib/assetReady";
-import imagekitLoader, { IMAGEKIT_QUALITY } from "@/lib/imagekit-loader";
+import imagekitLoader, { IMAGEKIT_QUALITY, usesImageKit } from "@/lib/imagekit-loader";
+import { IMAGE_DEVICE_SIZES } from "@/lib/image-sizes";
 
 /**
  * Minimum time the preloader stays up even on an instant (cached) load — a
@@ -71,29 +72,22 @@ const ASSET_BUDGET = 8000;
 const SLOW_AFTER = 4000;
 
 /**
- * Next's default `images.deviceSizes`. next/image builds its srcset from
- * these, so mirroring the list here lets the preloader hand the browser the
- * SAME candidates a <Frame> will render. The browser then applies its own
- * selection to both, picks the identical URL, and the <Frame> gets a cache hit
- * instead of a fresh fetch.
- *
- * This is the one place coupled to Next's defaults: if `images.deviceSizes`
- * is ever set in next.config, update this to match or the preloader silently
- * warms URLs nothing asks for.
+ * Srcset widths — must match `images.deviceSizes` in next.config (see
+ * `lib/image-sizes.ts`). The preloader warms these so a later <Frame> hits
+ * the cache instead of fetching a fresh size.
  */
-const DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
 
 /** An image the optimizer serves, so it must be warmed at the same widths. */
 export type SizedAsset = { src: string; sizes: string };
 
 function optimizedSrcSet(src: string): string {
-  return DEVICE_SIZES.map((w) => `${optimizedSrc(src, w)} ${w}w`).join(", ");
+  return IMAGE_DEVICE_SIZES.map((w) => `${optimizedSrc(src, w)} ${w}w`).join(", ");
 }
 
 /**
  * Next's own default quality (v16: `qualities: [75]`) — the built-in
  * optimizer rejects a quality outside its configured set, same constraint as
- * DEVICE_SIZES above.
+ * IMAGE_DEVICE_SIZES above.
  */
 const DEV_QUALITY = 75;
 
@@ -113,18 +107,19 @@ const DEV_QUALITY = 75;
  * exactly the "warmed URL ≠ consumer URL" bug this file's other comments
  * already warn about.
  *
- * `w` must be one of DEVICE_SIZES — the optimizer rejects widths outside the
+ * `w` must be one of IMAGE_DEVICE_SIZES — the optimizer rejects widths outside the
  * configured set.
  */
 export function optimizedSrc(src: string, width: number): string {
-  if (process.env.NODE_ENV === "production") {
+  if (usesImageKit()) {
     return imagekitLoader({ src, width, quality: IMAGEKIT_QUALITY });
   }
   return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEV_QUALITY}`;
 }
 
-/** The 3D title's typeface, fetched here so the extruded wordmark is ready too. */
+/** The 3D title's typefaces, fetched here so the extruded wordmark is ready too. */
 const TITLE_TYPEFACE = "/fonts/google-sans-bold.typeface.json";
+const TAMIL_TYPEFACE = "/fonts/noto-sans-tamil-chennai.typeface.json";
 
 /**
  * Resolves to `true` once the initial experience is genuinely ready — web fonts
@@ -298,10 +293,14 @@ export function useAssetsLoaded(
      */
     waits.push(
       watch(
-        fetch(TITLE_TYPEFACE).then((r) => {
-          if (!r.ok) throw new Error(`typeface ${r.status}`);
-          return r.arrayBuffer();
-        }),
+        Promise.all(
+          [TITLE_TYPEFACE, TAMIL_TYPEFACE].map((url) =>
+            fetch(url).then((r) => {
+              if (!r.ok) throw new Error(`typeface ${r.status}`);
+              return r.arrayBuffer();
+            }),
+          ),
+        ),
         "typeface",
       ),
     );
@@ -314,7 +313,7 @@ export function useAssetsLoaded(
      * list of "the photos involved": warm a raw original while the consumer asks
      * the optimizer and the dots bounce on a file nothing wants, then hand off
      * to a hero that still has to fetch. The caller therefore passes the array
-     * the consumer itself exports (MARQUEE_TEXTURES) rather than rebuilding it.
+     * the consumer itself builds (`marqueeTexturesFrom`) rather than rebuilding it.
      *
      * This list used to be all 15 raw archive originals — ~5 MB on the default
      * path — for two stated consumers. Neither holds now: ExpectShowcase renders

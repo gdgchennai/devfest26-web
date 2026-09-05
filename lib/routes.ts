@@ -44,7 +44,7 @@ export const siteRoutes: SiteRoute[] = [
     : []),
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: true },
-  { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false, noIndex: true },
+  { href: "/contact", label: "Contact", description: "Reach the chapter directly.", inNav: false },
   { href: "/profile", label: "Profile", description: "Your account and saved sessions.", inNav: false, noIndex: true },
 ];
 

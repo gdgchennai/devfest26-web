@@ -1,7 +1,5 @@
-import { agendaMarkdown } from "@/lib/markdown";
+import { agendaMarkdown, markdownResponse } from "@/lib/markdown";
 
-export function GET() {
-  return new Response(agendaMarkdown(), {
-    headers: { "Content-Type": "text/markdown; charset=utf-8", Vary: "Accept" },
-  });
+export async function GET() {
+  return markdownResponse(await agendaMarkdown(), "/agenda");
 }

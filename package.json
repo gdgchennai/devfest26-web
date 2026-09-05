@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "archive": "node scripts/ingest-archive.mjs",
+    "content:sync": "node scripts/sync-content.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
@@ -41,7 +42,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^16.3.3",
-    "opentype.js": "^1.3.4",
+    "fontkit": "^2.0.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.126.0"

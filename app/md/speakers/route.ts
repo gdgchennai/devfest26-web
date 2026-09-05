@@ -1,7 +1,5 @@
-import { speakersMarkdown } from "@/lib/markdown";
+import { speakersMarkdown, markdownResponse } from "@/lib/markdown";
 
-export function GET() {
-  return new Response(speakersMarkdown(), {
-    headers: { "Content-Type": "text/markdown; charset=utf-8", Vary: "Accept" },
-  });
+export async function GET() {
+  return markdownResponse(await speakersMarkdown(), "/speakers");
 }

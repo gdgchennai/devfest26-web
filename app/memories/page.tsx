@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
-import { archivePhotos } from "@/lib/content";
+import { getArchivePhotos } from "@/lib/content";
 import { fallbackColorFor, type FallbackColor } from "@/lib/fallback-color";
 import { Frame } from "@/components/Frame";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { MemoriesHallway } from "@/components/motion/MemoriesHallway";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { uiCopy } from "@/site.config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Memories", description: uiCopy.memoriesPage.body };
+export const metadata: Metadata = pageMetadata({
+  title: "Memories",
+  description: uiCopy.memoriesPage.body,
+  path: "/memories",
+});
+export const revalidate = 300;
 
-export default function MemoriesPage() {
+export default async function MemoriesPage() {
+  const archivePhotos = await getArchivePhotos();
   let previousColor: FallbackColor | undefined;
 
   const photosWithColor = archivePhotos.map((photo) => {
@@ -51,6 +58,7 @@ export default function MemoriesPage() {
                     alt={photo.description}
                     title={photo.title}
                     previousColor={priorColor}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                   />
                 ))}
             </div>

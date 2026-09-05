@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { TicketSelector } from "@/components/TicketSelector";
+import { pageMetadata } from "@/lib/seo";
+import { siteConfig } from "@/site.config";
 
-export const metadata: Metadata = { title: "Get Tickets" };
+export const metadata: Metadata = pageMetadata({
+  title: "Get Tickets",
+  description: `Choose a ${siteConfig.name} ticket — student or professional — and complete checkout for the flagship day at ${siteConfig.venue.name}.`,
+  path: "/tickets/select",
+});
+export const dynamic = "force-static";
 
 export default function TicketSelectPage() {
   return (

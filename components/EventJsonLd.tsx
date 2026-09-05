@@ -1,74 +1,54 @@
-import { siteConfig } from "@/site.config";
+import { siteConfig, isTicketOnSale } from "@/site.config";
+import { JsonLd } from "@/components/JsonLd";
+import { ORG_ID } from "@/components/SiteJsonLd";
+import { siteDescription, venuePostalAddress } from "@/lib/seo";
 
 /**
- * schema.org/Event structured data for the flagship day — read by Google's
- * event rich results and by AI answer engines, so date/venue/ticket-URL stay
- * driven off siteConfig instead of a hand-typed duplicate that can drift.
- * Renders nothing while `siteConfig.date` is null ("date to be announced" —
- * there's no real startDate to publish yet).
+ * schema.org/Event for the flagship day — Google event rich results.
+ * Renders nothing while `siteConfig.date` is null.
  */
 export function EventJsonLd() {
   if (!siteConfig.date) return null;
 
-  const json = {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: siteConfig.name,
-    description: `${siteConfig.tagline} — the flagship annual conference from ${siteConfig.chapter}.`,
-    startDate: `${siteConfig.date}T09:00:00+05:30`,
-    endDate: `${siteConfig.date}T17:00:00+05:30`,
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    eventStatus: "https://schema.org/EventScheduled",
-    location: {
-      "@type": "Place",
-      name: siteConfig.venue.name,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: siteConfig.venue.line1,
-        addressLocality: "Chennai",
-        addressRegion: "Tamil Nadu",
-        addressCountry: "IN",
-      },
-    },
-    image: [`${siteConfig.url}/web-app-manifest-512x512.png`],
-    organizer: {
-      "@type": "Organization",
-      name: siteConfig.chapter,
-      url: siteConfig.url,
-      logo: `${siteConfig.url}/web-app-manifest-512x512.png`,
-      sameAs: Object.values(siteConfig.social),
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: siteConfig.venue.line1,
-        addressLocality: "Chennai",
-        addressRegion: "Tamil Nadu",
-        addressCountry: "IN",
-      },
-      contactPoint: {
-        "@type": "ContactPoint",
-        email: siteConfig.contact.email,
-        contactType: "customer support",
-      },
-    },
-    // One Offer per ticket rather than an AggregateOffer price range — every
-    // ticket, its price, and its sale window come straight from siteConfig.
-    offers: siteConfig.ticketSelector.tickets.map((t) => ({
-      "@type": "Offer",
-      name: t.name,
-      category: t.category === "student" ? "Student" : "Professional",
-      price: t.price,
-      priceCurrency: "INR",
-      url: t.href || `${siteConfig.url}${siteConfig.ticketing.href}`,
-      validFrom: t.opens,
-      priceValidUntil: t.closes,
-      availability: "https://schema.org/InStock",
-    })),
-  };
+  const tickets = siteConfig.ticketSelector.tickets.filter((t) => isTicketOnSale(t));
+  const offers = (tickets.length > 0 ? tickets : siteConfig.ticketSelector.tickets).map((t) => ({
+    "@type": "Offer",
+    name: t.name,
+    category: t.category === "student" ? "Student" : "Professional",
+    price: t.price,
+    priceCurrency: "INR",
+    url: t.href || `${siteConfig.url}${siteConfig.ticketing.href}`,
+    validFrom: t.opens,
+    priceValidUntil: t.closes,
+    availability: "https://schema.org/InStock",
+  }));
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+    <JsonLd
+      data={{
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "@id": `${siteConfig.url}/#event`,
+        name: siteConfig.name,
+        description: siteDescription,
+        url: siteConfig.url,
+        inLanguage: "en-IN",
+        isAccessibleForFree: false,
+        startDate: `${siteConfig.date}T09:00:00+05:30`,
+        endDate: `${siteConfig.date}T17:00:00+05:30`,
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        eventStatus: "https://schema.org/EventScheduled",
+        image: [`${siteConfig.url}/banner/main.webp`],
+        location: {
+          "@type": "Place",
+          name: siteConfig.venue.name,
+          url: siteConfig.venue.mapUrl,
+          address: venuePostalAddress(),
+        },
+        organizer: { "@id": ORG_ID },
+        performer: { "@id": ORG_ID },
+        offers,
+      }}
     />
   );
 }

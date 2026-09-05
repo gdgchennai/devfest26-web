@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
-import { ArrowGlyph } from "@/components/motion/ScrollCue";
+import { ArrowGlyph } from "@/components/ArrowGlyph";
 import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
@@ -70,7 +70,7 @@ function buildEvents(): EventCard[] {
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
-    image: { src: "/banner/main.jpg", alt: siteConfig.name },
+    image: { src: "/banner/main.webp", alt: siteConfig.name },
   });
 
   return cards;
@@ -137,7 +137,7 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
       style={{ containerType: "inline-size" }}
     >
       <div className="relative h-2/5 w-full shrink-0">
-        <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" className="object-cover" />
+        <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" decoding="async" fetchPriority="low" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-[2cqw] p-[5cqw]">
         <h3 className="text-[clamp(0.95rem,7.5cqw,1.75rem)] font-bold leading-snug text-black">{event.title}</h3>
@@ -249,6 +249,9 @@ function TicketsCarouselMotion() {
       const cardsEl = cardsRef.current;
       const stageEl = stageRef.current;
       if (!cardsEl || !stageEl) return;
+      // Nested listeners don't keep the narrowing above — copy after the guard.
+      const cards = cardsEl;
+      const stage = stageEl;
 
       // Sizes the card off the SMALLER of "what this breakpoint wants" and
       // "what actually fits the stage's real height" — computed here in JS,
@@ -270,22 +273,31 @@ function TicketsCarouselMotion() {
         const desiredWidth = BREAKPOINT_WIDTHS.find(([min]) => w >= min)![1];
         // 0.92: a little breathing room above/below rather than the card
         // touching the stage's edges exactly.
-        const maxWidthFromHeight = (stageEl!.clientHeight * (3 / 4)) * 0.92;
+        const maxWidthFromHeight = (stage.clientHeight * (3 / 4)) * 0.92;
         const width = Math.min(desiredWidth, maxWidthFromHeight);
-        cardsEl!.style.width = `${width}px`;
-        cardsEl!.style.height = `${(width * 4) / 3}px`;
+        cards.style.width = `${width}px`;
+        cards.style.height = `${(width * 4) / 3}px`;
       }
       sizeCard();
       window.addEventListener("resize", sizeCard);
 
-      const cardEls = gsap.utils.toArray<HTMLElement>(cardsEl.children);
-      gsap.set(cardEls, { xPercent: 400, opacity: 0, scaleX: 0, scaleY: 0 });
-
-      // Seconds between adjacent cards on rawSequence, and the visual gap: each
-      // card's xPercent tween sweeps 800% over its 1s life, so a resting
-      // neighbour sits `800 * spacing`% off centre — 80% at 0.1, just past the
-      // card edge, the intended tight peek.
+      const cardEls = gsap.utils.toArray<HTMLElement>(cards.children);
       const spacing = 0.1;
+      // ±1 at 76% of card width (the readable centre three); ±2 at 152%
+      // and a smaller scale — a peek that there is more deck past the trio.
+      const X_TRAVEL = 380;
+      gsap.set(cardEls, { xPercent: X_TRAVEL, opacity: 0, scaleX: 0.5, scaleY: 0.5 });
+
+      // Visible window is centre ±2 (five cards). Ease stays at 0 until
+      // global t≈0.25 so ±3 never appear; the remainder is power2.out so
+      // the ±2 peeks land smaller/dimmer than the neighbours.
+      const packEase = (t: number) => {
+        const start = 0.48;
+        if (t <= start) return 0;
+        const u = (t - start) / (1 - start);
+        return u * (2 - u);
+      };
+
       const snapTime = gsap.utils.snap(spacing);
       const animateFunc = (element: HTMLElement) => {
         const tl = gsap.timeline();
@@ -299,9 +311,19 @@ function TicketsCarouselMotion() {
         // lockstep.
         tl.fromTo(
           element,
-          { scaleX: 0, scaleY: 0, opacity: 0 },
-          { scaleX: 1, scaleY: 1, opacity: 1, zIndex: 100, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.in", immediateRender: false },
-        ).fromTo(element, { xPercent: 400 }, { xPercent: -400, duration: 1, ease: "none", immediateRender: false }, 0);
+          { scaleX: 0.5, scaleY: 0.5, opacity: 0.5 },
+          {
+            scaleX: 1,
+            scaleY: 1,
+            opacity: 1,
+            zIndex: 100,
+            duration: 0.5,
+            yoyo: true,
+            repeat: 1,
+            ease: packEase,
+            immediateRender: false,
+          },
+        ).fromTo(element, { xPercent: X_TRAVEL }, { xPercent: -X_TRAVEL, duration: 1, ease: "none", immediateRender: false }, 0);
         return tl;
       };
 
@@ -327,8 +349,8 @@ function TicketsCarouselMotion() {
         onUpdate() {
           seamlessLoop.time(wrapTime(playhead.offset));
         },
-        duration: 0.5,
-        ease: "power3",
+        duration: 0.85,
+        ease: "power2.inOut",
         paused: true,
       });
 
@@ -338,8 +360,9 @@ function TicketsCarouselMotion() {
       // negative, onto a valid spot on the repeating seamlessLoop timeline,
       // so "infinite" here falls straight out of that wrap — it never
       // needed to be tied to how far the PAGE has scrolled.
-      function scrollToOffset(offset: number) {
+      function scrollToOffset(offset: number, duration = 0.85) {
         scrub.vars.offset = snapTime(offset);
+        scrub.duration(duration);
         scrub.invalidate().restart();
       }
 
@@ -347,26 +370,141 @@ function TicketsCarouselMotion() {
       // buildSeamlessLoop's `time = i * spacing`), so the currently-centred
       // card's index is just the offset in units of spacing, wrapped to the
       // real card count — no separate "which card is showing" state to keep
-      // in sync with the tween. jumpToIndex() always steps FORWARD to the
-      // target (never picks the shorter backward path), so the animation
-      // direction stays predictable no matter where you jump from.
+      // in sync with the tween. Shorter path (forward or back) so "Main
+      // event" does not spin the long way around the deck; duration scales
+      // with steps so a one-card nudge stays snappy and a longer jump still
+      // eases the target into the middle.
       function jumpToIndex(targetIndex: number) {
+        const n = cardEls.length;
         const current = Math.round((scrub.vars.offset as number) / spacing);
-        const currentIndex = ((current % cardEls.length) + cardEls.length) % cardEls.length;
-        const delta = ((targetIndex - currentIndex) % cardEls.length + cardEls.length) % cardEls.length;
-        scrollToOffset((scrub.vars.offset as number) + delta * spacing);
+        const currentIndex = ((current % n) + n) % n;
+        let delta = ((targetIndex - currentIndex) % n + n) % n;
+        if (delta > n / 2) delta -= n;
+        const steps = Math.abs(delta);
+        scrollToOffset((scrub.vars.offset as number) + delta * spacing, 0.7 + Math.min(steps, 4) * 0.18);
       }
 
-      // Buttons only — no wheel handler and no Draggable. This section used to
-      // capture wheel/drag to drive the loop (standing in for a pinned
-      // ScrollTrigger), but it deliberately never called preventDefault (so
-      // the page could still scroll past to the footer), which made the two
-      // gestures fight: the same wheel that scrolled the page also spun the
-      // cards. Prev / Next / Main event are now the only way to move it.
+      // Horizontal swipe / click-drag on the stage. Axis-locked: a mostly
+      // vertical gesture is left to the page (this used to fight scroll).
+      // Buttons/links inside a card are ignored so CTAs still click.
+      let pointerId: number | null = null;
+      let originX = 0;
+      let originY = 0;
+      let lastX = 0;
+      let lastT = 0;
+      let vel = 0;
+      let axis: "h" | "v" | null = null;
+      let didDrag = false;
+
+      function onPointerDown(e: PointerEvent) {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        if ((e.target as HTMLElement).closest("a,button")) return;
+        pointerId = e.pointerId;
+        originX = lastX = e.clientX;
+        originY = e.clientY;
+        lastT = performance.now();
+        vel = 0;
+        axis = null;
+        didDrag = false;
+        stage.setPointerCapture(e.pointerId);
+      }
+
+      function onPointerMove(e: PointerEvent) {
+        if (e.pointerId !== pointerId) return;
+        const dx = e.clientX - originX;
+        const dy = e.clientY - originY;
+        if (!axis) {
+          if (Math.hypot(dx, dy) < 8) return;
+          axis = Math.abs(dx) > Math.abs(dy) * 1.1 ? "h" : "v";
+          if (axis === "h") scrub.pause();
+        }
+        if (axis !== "h") return;
+        e.preventDefault();
+        didDrag = true;
+        const now = performance.now();
+        const d = e.clientX - lastX;
+        vel = d / Math.max(1, now - lastT);
+        lastX = e.clientX;
+        lastT = now;
+        const w = cards.offsetWidth || 1;
+        playhead.offset += (-d / w) * spacing;
+        scrub.vars.offset = playhead.offset;
+        seamlessLoop.time(wrapTime(playhead.offset));
+      }
+
+      function onPointerUp(e: PointerEvent) {
+        if (e.pointerId !== pointerId) return;
+        pointerId = null;
+        if (axis === "h") {
+          const flick = Math.abs(vel) > 0.35 ? (vel < 0 ? spacing : -spacing) : 0;
+          scrollToOffset(playhead.offset + flick);
+        }
+        axis = null;
+      }
+
+      function onClickCapture(e: MouseEvent) {
+        if (!didDrag) return;
+        e.preventDefault();
+        e.stopPropagation();
+        didDrag = false;
+      }
+
+      stage.addEventListener("pointerdown", onPointerDown);
+      stage.addEventListener("pointermove", onPointerMove, { passive: false });
+      stage.addEventListener("pointerup", onPointerUp);
+      stage.addEventListener("pointercancel", onPointerUp);
+      stage.addEventListener("click", onClickCapture, true);
+
+      // Laptop trackpads fire `wheel` with deltaX for a two-finger horizontal
+      // swipe. Axis-lock the gesture (same idea as pointer drag) so a vertical
+      // scroll that carries a little deltaX is not stolen — that was eating
+      // page/Lenis scroll and leaving Chrome to treat leftover horizontal
+      // overscroll as back/forward. Never stopPropagation: Lenis listens on
+      // window. preventDefault only after we have locked to X.
+      const galleryEl = galleryRef.current;
+      let wheelTimer = 0;
+      let wheelAxis: "h" | "v" | null = null;
+      let wheelAxisTimer = 0;
+      function onWheel(e: WheelEvent) {
+        let dx = e.deltaX;
+        let dy = e.deltaY;
+        if (e.deltaMode === 1) {
+          dx *= 16;
+          dy *= 16;
+        }
+        window.clearTimeout(wheelAxisTimer);
+        wheelAxisTimer = window.setTimeout(() => {
+          wheelAxis = null;
+        }, 140);
+        if (!wheelAxis) {
+          if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
+          // Strict: equal or greater Y is page scroll, not the deck.
+          wheelAxis = Math.abs(dx) > Math.abs(dy) * 1.75 ? "h" : "v";
+        }
+        if (wheelAxis !== "h") return;
+        e.preventDefault();
+        scrub.pause();
+        const w = cards.offsetWidth || 1;
+        playhead.offset += (dx / w) * spacing;
+        scrub.vars.offset = playhead.offset;
+        seamlessLoop.time(wrapTime(playhead.offset));
+        window.clearTimeout(wheelTimer);
+        wheelTimer = window.setTimeout(() => scrollToOffset(playhead.offset), 90);
+      }
+      galleryEl?.addEventListener("wheel", onWheel, { passive: false, capture: true });
+
       apiRef.current = { scrub, scrollToOffset, jumpToIndex, spacing };
 
       return () => {
         window.removeEventListener("resize", sizeCard);
+        window.clearTimeout(wheelTimer);
+        window.clearTimeout(wheelAxisTimer);
+        galleryEl?.removeEventListener("wheel", onWheel, true);
+        stage.removeEventListener("pointerdown", onPointerDown);
+        stage.removeEventListener("pointermove", onPointerMove);
+        stage.removeEventListener("pointerup", onPointerUp);
+        stage.removeEventListener("pointercancel", onPointerUp);
+        stage.removeEventListener("click", onClickCapture, true);
       };
     },
     { scope: galleryRef },
@@ -379,7 +517,7 @@ function TicketsCarouselMotion() {
     // the fold and needed a scroll before either the buttons or the pin's
     // start point were reachable. This way title (shrink-0) + gallery
     // (flex-1) always add up to exactly one viewport.
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-dvh flex-col overscroll-x-none">
       <TicketsTitleBar />
 
       {/* Not pinned to page scroll and not scroll-driven — the page scrolls
@@ -390,11 +528,11 @@ function TicketsCarouselMotion() {
           short viewport height put the card's top edge above this
           container's top, and overflow-hidden clipped it) and letting the
           button row overlap the card's bottom edge. */}
-      <div ref={galleryRef} className="relative flex w-full flex-1 flex-col overflow-hidden bg-black">
+      <div ref={galleryRef} className="relative flex w-full flex-1 flex-col overflow-hidden overscroll-x-none bg-black">
         {/* The card stage: truly centred (top-1/2/-translate-y-1/2) WITHIN
             this box specifically, not some percentage of the whole gallery
             that also has to leave room for the button row below it. */}
-        <div ref={stageRef} className="relative min-h-0 flex-1">
+        <div ref={stageRef} className="relative min-h-0 flex-1 cursor-grab touch-pan-y select-none active:cursor-grabbing">
           {/* No width classes / aspect-ratio here — sizeCard() in the
               useGSAP effect sets width+height directly, in px, computed
               together from the same number so the 3:4 ratio is exact

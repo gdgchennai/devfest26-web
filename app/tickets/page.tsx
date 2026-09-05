@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { TicketsList } from "@/components/TicketsList";
+import { pageMetadata } from "@/lib/seo";
+import { siteConfig } from "@/site.config";
 
-export const metadata: Metadata = { title: "Tickets" };
+export const metadata: Metadata = pageMetadata({
+  title: "Tickets",
+  description: `Get tickets for ${siteConfig.name} at ${siteConfig.venue.name}, plus community roadshows and meetups leading up to the festival.`,
+  path: "/tickets",
+});
+export const dynamic = "force-static";
 
 export default function TicketsPage() {
   return (

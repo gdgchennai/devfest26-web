@@ -1,13 +1,9 @@
 import { auth } from "@/auth";
-import { agenda } from "@/lib/content";
+import { getAgenda } from "@/lib/content";
 import { sessionKey } from "@/lib/session-key";
 import { addFavorite, listFavorites, removeFavorite } from "@/lib/favorites";
 
 export const runtime = "nodejs";
-
-// Only keys that name a real session get written — a favorite for a made-up
-// key is just junk in the table.
-const VALID_KEYS = new Set(agenda.map(sessionKey));
 
 async function requireUid(): Promise<string | Response> {
   const session = await auth();
@@ -17,10 +13,10 @@ async function requireUid(): Promise<string | Response> {
   return session.user.uid;
 }
 
-async function readKey(req: Request): Promise<string | null> {
+async function readKey(req: Request, validKeys: Set<string>): Promise<string | null> {
   const body = (await req.json().catch(() => null)) as { sessionKey?: unknown } | null;
   const key = body?.sessionKey;
-  return typeof key === "string" && VALID_KEYS.has(key) ? key : null;
+  return typeof key === "string" && validKeys.has(key) ? key : null;
 }
 
 export async function GET() {
@@ -32,7 +28,9 @@ export async function GET() {
 export async function POST(req: Request) {
   const uid = await requireUid();
   if (uid instanceof Response) return uid;
-  const key = await readKey(req);
+  const agenda = await getAgenda();
+  const key = await readKey(req, new Set(agenda.map(sessionKey)));
+  // Only keys that name a real session get written.
   if (!key) return Response.json({ error: "unknown session" }, { status: 400 });
   await addFavorite(uid, key);
   return Response.json({ favorites: await listFavorites(uid) });
@@ -41,7 +39,9 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   const uid = await requireUid();
   if (uid instanceof Response) return uid;
-  const key = await readKey(req);
+  const agenda = await getAgenda();
+  const key = await readKey(req, new Set(agenda.map(sessionKey)));
+  // Only keys that name a real session get written.
   if (!key) return Response.json({ error: "unknown session" }, { status: 400 });
   await removeFavorite(uid, key);
   return Response.json({ favorites: await listFavorites(uid) });

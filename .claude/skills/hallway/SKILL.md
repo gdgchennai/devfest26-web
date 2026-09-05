@@ -31,8 +31,8 @@ gone by; that contradiction is why an earlier version used one set and needed a
 crossfade kludge to bring everything back from `opacity: 0` at the end. With two
 sets there is nothing to bring back — the stack simply arrives.
 
-`lib/content.ts` exports `hallwayPhotos` and `stackPhotos`; nothing should
-re-derive the split.
+`lib/archive-roles.ts` exports `hallwayPhotosFrom` and `stackPhotosFrom`;
+nothing should re-derive the split.
 
 ## The corridor
 

@@ -50,6 +50,11 @@
    * Dark mode is unaffected (--theme 0 → #f0f0f0).
    */
   --theme: 0;
+  /* Solid fallbacks first: Safari < 16.2 / older Chromium drop the whole
+     declaration if they don't understand `color-mix`, which would leave
+     text and surfaces unstyled. */
+  --ink: #000;
+  --paper: #f0f0f0;
   --ink: color-mix(in srgb, var(--black), #ffffff calc(var(--theme) * 100%));
   --paper: color-mix(in srgb, #f0f0f0, var(--black) calc(var(--theme) * 100%));
 
@@ -187,6 +192,7 @@ html.lite .nav-lite-only {
   --color-red-pastel: var(--red-pastel);
   --color-purple-pastel: var(--purple-pastel);
 
+  --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
 }
 
@@ -194,6 +200,13 @@ body {
   background: var(--page-bg);
   color: var(--paper);
   font-family: var(--font-google-sans), system-ui, sans-serif;
+  overflow-x: clip;
+}
+
+button,
+a,
+summary {
+  touch-action: manipulation;
 }
 
 /*
@@ -203,6 +216,9 @@ body {
  */
 html {
   scrollbar-width: none;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar {
@@ -228,7 +244,48 @@ html::-webkit-scrollbar {
  */
 .hallway-rise {
   opacity: 0;
+}
+
+html.gpu .hallway-rise {
   will-change: transform, opacity;
+}
+
+/*
+ * VenueReveal's black cover panel. Fill is solid; the dissolve is a mask so
+ * WebKit does not flatten a transparent gradient on a transformed layer
+ * (mobile was painting a hard black slab). Both prefixes: Firefox needs
+ * `mask-image`, Safari needs `-webkit-mask-image`.
+ */
+.venue-overlay-dissolve {
+  background-color: #000;
+  /* Same stop positions as the original overlay fill on main — solid by 24%
+     so the leading-edge feather stays short as the panel rises. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.04) 3%,
+    rgba(0, 0, 0, 0.15) 6.5%,
+    rgba(0, 0, 0, 0.35) 10%,
+    rgba(0, 0, 0, 0.6) 13%,
+    rgba(0, 0, 0, 0.82) 16.5%,
+    rgba(0, 0, 0, 0.95) 20%,
+    #000 24%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.04) 3%,
+    rgba(0, 0, 0, 0.15) 6.5%,
+    rgba(0, 0, 0, 0.35) 10%,
+    rgba(0, 0, 0, 0.6) 13%,
+    rgba(0, 0, 0, 0.82) 16.5%,
+    rgba(0, 0, 0, 0.95) 20%,
+    #000 24%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* Darkened space the hallway photos fly through; opacity is driven by the hook. */
@@ -263,8 +320,11 @@ html::-webkit-scrollbar {
   transform: translate(-50%, -50%) scale(0.18);
   opacity: 0;
   pointer-events: none;
-  will-change: transform, opacity;
   z-index: 1;
+}
+
+html.gpu .hallway-beacon {
+  will-change: transform, opacity;
 }
 
 /*
@@ -291,9 +351,10 @@ html::-webkit-scrollbar {
 /*
  * A photo card in the scroll hallway (see components/motion/usePhotoHallway.ts).
  * Starts hidden and centred so nothing flashes at full size before the first
- * frame renders. will-change/backface-visibility go on the cards themselves —
- * these are the elements that transform; promoting the pinned container instead
- * buys nothing. No blurred box-shadow: re-rendering a large blur on a dozen
+ * frame renders. Layer promotion (will-change / backface-visibility) is
+ * gated on html.gpu — a hardware GPU (see lib/gpu.ts). Software rasterizers
+ * pay more for extra compositor layers than they save.
+ * No blurred box-shadow: re-rendering a large blur on a dozen
  * scaling cards every frame is what tanks the frame rate.
  */
 .hallway-card {
@@ -304,9 +365,12 @@ html::-webkit-scrollbar {
   aspect-ratio: var(--card-ar, 3 / 2);
   transform: translate(-50%, -50%) scale(0.15);
   opacity: 0;
+  pointer-events: none;
+}
+
+html.gpu .hallway-card {
   will-change: transform, opacity;
   backface-visibility: hidden;
-  pointer-events: none;
 }
 
 /*
@@ -326,8 +390,11 @@ html::-webkit-scrollbar {
   transform: translate(-50%, -50%) scale(0.07);
   opacity: 0;
   pointer-events: none;
-  will-change: transform, opacity;
   z-index: 2;
+}
+
+html.gpu .hallway-stack {
+  will-change: transform, opacity;
 }
 
 .stack-card {
@@ -741,6 +808,7 @@ html::-webkit-scrollbar {
   isolation: isolate;
   display: inline-block;
   --glow-angle: 0deg;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .glow-btn::before,
@@ -765,6 +833,7 @@ html::-webkit-scrollbar {
   padding: 1.5px;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 
@@ -1112,6 +1181,7 @@ html::-webkit-scrollbar {
   background: conic-gradient(from var(--glow-angle), var(--red), var(--yellow), var(--green), var(--blue), var(--red));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   pointer-events: none;
 }

@@ -14,6 +14,7 @@ import {
   HALLWAY_HAZE_CLASS,
   STACK_CARD_CLASS,
 } from "@/components/motion/usePhotoHallway";
+import { hallwayPhotosFrom, stackPhotosFrom } from "@/lib/archive-roles";
 import type { ArchivePhoto } from "@/lib/schemas";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
@@ -26,8 +27,8 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
 
   // Same split as the homepage: the flying set and the destination set must be
   // disjoint, since the stack is visible from the first frame.
-  const flying = useMemo(() => photos.filter((p) => p.role === "hallway"), [photos]);
-  const stack = useMemo(() => photos.filter((p) => p.role === "stack"), [photos]);
+  const flying = useMemo(() => hallwayPhotosFrom(photos), [photos]);
+  const stack = useMemo(() => stackPhotosFrom(photos), [photos]);
 
   usePhotoHallway({
     containerRef: sectionRef,
@@ -50,7 +51,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
     // z-[500] matches HeroSection's flythrough overlay — both sit above the
     // fixed hamburger button (z-50) so the pinned hallway covers it while
     // it's playing, same as the homepage intro does.
-    <section ref={sectionRef} className="relative z-[500] mb-12 min-h-[100vh] overflow-hidden rounded-lg">
+    <section ref={sectionRef} className="relative z-[500] mb-12 min-h-[100vh] min-h-[100dvh] overflow-hidden rounded-lg">
       <div className={HALLWAY_BACKDROP_CLASS} />
       <div className={HALLWAY_BEACON_CLASS} />
       <div className="absolute inset-0">
@@ -70,6 +71,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
                 title={photo.title}
                 aspectRatio="auto"
                 sizes={cardSizes(i, 2.6)}
+                preload
                 className="h-full w-full"
               />
             </div>

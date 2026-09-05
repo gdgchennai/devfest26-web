@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { SectionDivider } from "@/components/SectionDivider";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: partnership.heading,
   description:
     "Team up with GDG Chennai on DevFest Chennai — promote the event, host a Roadshow, and get passes, discounts, stage time and more in return.",
-};
+  path: "/partner",
+});
+export const dynamic = "force-static";
 
 /**
  * /partner — the community partnership doc. A community-to-community deal

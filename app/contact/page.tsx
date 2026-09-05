@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { siteConfig, uiCopy } from "@/site.config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = pageMetadata({
+  title: "Contact",
+  description: `Contact ${siteConfig.chapter} about ${siteConfig.name} — speaking, volunteering, partnership, or tickets. ${siteConfig.contact.email}`,
+  path: "/contact",
+});
+export const dynamic = "force-static";
 
 export default function ContactPage() {
   return (
