@@ -258,52 +258,34 @@ html.gpu .hallway-rise {
  */
 .venue-overlay-dissolve {
   background-color: #000;
+  /* Same stop positions as the original overlay fill on main — solid by 24%
+     so the leading-edge feather stays short as the panel rises. */
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.08) 10%,
-    rgba(0, 0, 0, 0.28) 18%,
-    rgba(0, 0, 0, 0.58) 26%,
-    rgba(0, 0, 0, 0.82) 32%,
-    #000 40%
+    rgba(0, 0, 0, 0.04) 3%,
+    rgba(0, 0, 0, 0.15) 6.5%,
+    rgba(0, 0, 0, 0.35) 10%,
+    rgba(0, 0, 0, 0.6) 13%,
+    rgba(0, 0, 0, 0.82) 16.5%,
+    rgba(0, 0, 0, 0.95) 20%,
+    #000 24%
   );
   mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.08) 10%,
-    rgba(0, 0, 0, 0.28) 18%,
-    rgba(0, 0, 0, 0.58) 26%,
-    rgba(0, 0, 0, 0.82) 32%,
-    #000 40%
+    rgba(0, 0, 0, 0.04) 3%,
+    rgba(0, 0, 0, 0.15) 6.5%,
+    rgba(0, 0, 0, 0.35) 10%,
+    rgba(0, 0, 0, 0.6) 13%,
+    rgba(0, 0, 0, 0.82) 16.5%,
+    rgba(0, 0, 0, 0.95) 20%,
+    #000 24%
   );
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-}
-
-/* Short viewports: stretch the feather so it is not a thin strip at the top. */
-@media (max-width: 1023px) {
-  .venue-overlay-dissolve {
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.06) 8%,
-      rgba(0, 0, 0, 0.22) 16%,
-      rgba(0, 0, 0, 0.48) 28%,
-      rgba(0, 0, 0, 0.78) 38%,
-      #000 50%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.06) 8%,
-      rgba(0, 0, 0, 0.22) 16%,
-      rgba(0, 0, 0, 0.48) 28%,
-      rgba(0, 0, 0, 0.78) 38%,
-      #000 50%
-    );
-  }
 }
 
 /* Darkened space the hallway photos fly through; opacity is driven by the hook. */

@@ -1031,7 +1031,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           a mask, not a gradient fill: a `linear-gradient` background on a
           transformed layer is rasterized opaque on iOS (the dissolve looked
           like a flat black slab). Masking a solid fill keeps the same
-          S-curve fade — transparent at the leading edge, solid by ~40% —
+          S-curve fade — transparent at the leading edge, solid by ~24% —
           including over the particle canvas. Hex/rgba stops, not var(--black):
           WebKit often drops alpha interpolation when a CSS variable is a
           gradient stop. --page-bg stays pastel blue until the panel lands
