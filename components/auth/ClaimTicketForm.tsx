@@ -2,12 +2,17 @@
 
 import { useActionState } from "react";
 import { claimTicket, type ClaimTicketState } from "@/app/profile/actions";
+import { track } from "@/lib/analytics";
 
 export function ClaimTicketForm() {
   const [state, action, pending] = useActionState<ClaimTicketState, FormData>(claimTicket, {});
 
   return (
-    <form action={action} className="flex flex-col gap-2">
+    <form
+      action={action}
+      onSubmit={() => track("claim_ticket")}
+      className="flex flex-col gap-2"
+    >
       <label htmlFor="bookingId" className="sr-only">
         KonfHub booking ID
       </label>

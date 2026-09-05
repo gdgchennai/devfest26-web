@@ -148,6 +148,10 @@ into the bundle — **changing one requires a rebuild + redeploy**.
 | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | Production `next/image` loader endpoint | prod only |
 | `AGENDA_READY` | `"true"` brings `/agenda` + `/speakers` + `/md` twins online | no (default off) |
 | `HERO_BUTTONS` | comma-separated allow-list `tickets,cfp,volunteer,agenda` for the hero CTA row | no (default: all) |
+| `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` / `NEXT_PUBLIC_POSTHOG_KEY` | Override the committed PostHog project token | no (defaults to `siteConfig.analytics.posthogKey`) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host | no (defaults to `https://us.i.posthog.com`) |
+| `POSTHOG_PERSONAL_API_KEY` / `POSTHOG_API_KEY` | Personal API key (`phx_…`) so `@posthog/nextjs-config` can upload error-tracking sourcemaps | no (plugin skipped if unset) |
+| `POSTHOG_PROJECT_ID` / `POSTHOG_ENV_ID` | Numeric PostHog project id for sourcemap upload | with the personal API key |
 
 `AGENDA_READY` / `HERO_BUTTONS` are re-exposed unprefixed via `next.config.ts`
 `env` because client components read them.

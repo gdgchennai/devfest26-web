@@ -15,6 +15,7 @@ import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { siteConfig, uiCopy, shortEventDate, isTicketOnSale, isTicketUpcoming } from "@/site.config";
 import type { Ticket } from "@/site.config";
+import { track } from "@/lib/analytics";
 
 /**
  * A single "I'm a ___" / "and I identify as ___" choice. Renders as an
@@ -465,7 +466,20 @@ function TicketCard({
           <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
           <button
             type="button"
-            onClick={upcoming ? undefined : handleBuyClick}
+            onClick={
+              upcoming
+                ? undefined
+                : () => {
+                    track("begin_checkout", {
+                      currency: ticket.currency,
+                      value: ticket.price,
+                      item_id: ticket.id,
+                      item_name: ticket.name,
+                      item_category: ticket.category,
+                    });
+                    handleBuyClick();
+                  }
+            }
             disabled={upcoming}
             aria-disabled={upcoming}
             className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:opacity-50"
@@ -683,6 +697,16 @@ export function TicketSelector() {
         .filter((t) => isTicketUpcoming(t, nowMs))
         .sort((a, b) => Date.parse(a.opens) - Date.parse(b.opens))[0] ?? null;
   const shown = onSale ?? upcoming;
+
+  useEffect(() => {
+    if (!shown) return;
+    track("select_item", {
+      item_list_name: "ticket_picker",
+      item_id: shown.id,
+      item_name: shown.name,
+      item_category: shown.category,
+    });
+  }, [shown]);
 
   // Every possible card is mounted at all times so the fan can *slide* between
   // them (a freshly-mounted card can't animate in from a stacked position):

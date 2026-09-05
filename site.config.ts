@@ -86,6 +86,25 @@ export const siteConfig = {
   // the homepage. Single source of truth so a domain change is a one-line edit.
   url: "https://devfest.gdgchennai.in",
 
+  analytics: {
+    // GA4 web stream measurement ID. Public by design (ships in every page's
+    // gtag snippet) — lives here with the other site-wide constants rather
+    // than an env var, so a property swap is a one-line edit and local
+    // `next dev` hits the same stream as production. Loaded from the root
+    // layout via `@next/third-parties/google`; conversion clicks are mapped
+    // in lib/analytics.ts.
+    measurementId: "G-JR8SW54DV9",
+    // PostHog project token (phc_…) — also public by design, same reason as
+    // the GA4 ID. `instrumentation-client.ts` inits posthog-js with this
+    // unless NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN / NEXT_PUBLIC_POSTHOG_KEY
+    // overrides it. Host is the US ingestion endpoint, not the app URL.
+    posthogKey: "phc_yaFKrEM2wngUPB5AwDPWk7NLWYrSUSTWoGMCauJxg8TB",
+    posthogHost: "https://us.i.posthog.com",
+    // Numeric project id — only needed by @posthog/nextjs-config sourcemap
+    // uploads (with a personal API key). Safe to commit; not a secret.
+    posthogProjectId: "593813",
+  },
+
   /*
    * THE event date. Change it here and it changes everywhere at once — the
    * hero, the agenda header and the ticket stub all read this one field, and
