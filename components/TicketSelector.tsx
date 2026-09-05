@@ -13,7 +13,7 @@ import gsap from "gsap";
 import { TiltCard } from "@/components/TiltCard";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
-import { siteConfig, uiCopy, shortEventDate } from "@/site.config";
+import { siteConfig, uiCopy, shortEventDate, isTicketOnSale, isTicketUpcoming } from "@/site.config";
 import type { Ticket } from "@/site.config";
 import { track } from "@/lib/analytics";
 
@@ -95,7 +95,7 @@ function TicketDropdown({
           {longestLabel}
         </span>
         <span
-          className="inline-block text-left"
+          className="inline-block whitespace-nowrap text-left"
           style={labelWidth !== undefined ? { width: labelWidth } : undefined}
         >
           {current?.label ?? " "}
@@ -400,11 +400,15 @@ function TicketCard({
   perks,
   addOnsNote,
   taxNote,
+  upcoming = false,
 }: {
   ticket: Ticket;
   perks: string[];
   addOnsNote: string;
   taxNote: string;
+  /** Sale window is still in the future — show the dates and a disabled
+   *  "Coming soon" button instead of a working "Buy ticket". */
+  upcoming?: boolean;
 }) {
   const color = ticketColor(ticket);
   const { bodyRef, endFlipRef, handleBuyClick, checkoutOpen, closeCheckout } = useTicketTearTransition();
@@ -442,7 +446,10 @@ function TicketCard({
           ))}
         </ol>
         <p className="mt-auto pt-6 text-sm text-black/60">
-          On sale until {shortEventDate(ticket.closes)} · {addOnsNote}
+          {upcoming
+            ? `${uiCopy.ticketSelector.onSaleFromPrefix} ${shortEventDate(ticket.opens)}`
+            : `On sale until ${shortEventDate(ticket.closes)}`}{" "}
+          · {addOnsNote}
         </p>
       </div>
 
@@ -456,22 +463,28 @@ function TicketCard({
             {ticket.currency} {ticket.price}
             <sup className="text-sm font-semibold">*</sup>
           </p>
-          <p className="mt-1 text-xs text-black/60">* {taxNote}</p>
+          <p className="mt-1 text-xs text-black/60">* {taxNote}</p>  
           <button
             type="button"
-            onClick={() => {
-              track("begin_checkout", {
-                currency: ticket.currency,
-                value: ticket.price,
-                item_id: ticket.id,
-                item_name: ticket.name,
-                item_category: ticket.category,
-              });
-              handleBuyClick();
-            }}
-            className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90"
+            onClick={
+              upcoming
+                ? undefined
+                : () => {
+                    track("begin_checkout", {
+                      currency: ticket.currency,
+                      value: ticket.price,
+                      item_id: ticket.id,
+                      item_name: ticket.name,
+                      item_category: ticket.category,
+                    });
+                    handleBuyClick();
+                  }
+            }
+            disabled={upcoming}
+            aria-disabled={upcoming}
+            className="mt-4 inline-block rounded-full bg-[var(--tier-accent)] px-6 py-3 text-sm font-medium text-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:opacity-50"
           >
-            {uiCopy.ticketSelector.buyTicketLabel}
+            {upcoming ? uiCopy.ticketSelector.comingSoonLabel : uiCopy.ticketSelector.buyTicketLabel}
           </button>
         </div>
         <div className="ticket-tier-card__end-back" aria-hidden />
@@ -552,8 +565,10 @@ function TicketPlaceholder() {
   );
 }
 
-/** Shown when both dropdowns are picked but nothing in that (category,
- *  audience) pair is currently `visible` — same silhouette as the placeholder,
+/** Shown when both dropdowns are picked but that (category, audience) pair has
+ *  no ticket on sale now AND none still to open — i.e. its sales are over.
+ *  While a future window still exists, the upcoming ticket's own card (with a
+ *  "Coming soon" button) is shown instead. Same silhouette as the placeholder,
  *  different copy. */
 function TicketClosed() {
   return (
@@ -648,7 +663,11 @@ const AUDIENCE_BY_IDENTITY: Record<string, Ticket["audience"]> = {
 
 export function TicketSelector() {
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
-  const { profiles, identities, tickets, perks, taxNote, addOnsNote } = siteConfig.ticketSelector;
+  const { profiles, identities, perks, taxNote, addOnsNote } = siteConfig.ticketSelector;
+  // Widened to `Ticket[]`: the `as const` config narrows each entry to its
+  // literal shape, which drops the optional `soldOut` unless some entry sets
+  // it — this keeps `t.soldOut` readable whether or not any ticket is flagged.
+  const tickets = siteConfig.ticketSelector.tickets as readonly Ticket[];
   // Both dropdowns start unpicked — an empty underline, not a preselected
   // value — so nobody's professional status or gender gets assumed for them.
   const [profileKey, setProfileKey] = useState("");
@@ -657,9 +676,27 @@ export function TicketSelector() {
   const category = profileKey as Ticket["category"] | "";
   const audience = AUDIENCE_BY_IDENTITY[identity] as Ticket["audience"] | undefined;
   const bothPicked = category !== "" && audience !== undefined;
-  const resolved = bothPicked
-    ? tickets.find((t) => t.visible && t.category === category && t.audience === audience) ?? null
-    : null;
+
+  // Which tickets are on sale is a function of the clock. Snapshot it once on
+  // first render (lazy init, so it's stable across re-renders) — the initial
+  // render output doesn't depend on it anyway, since both dropdowns start
+  // empty and the placeholder is shown until the user picks.
+  const [nowMs] = useState(() => Date.now());
+  const pairTickets = bothPicked
+    ? tickets.filter((t) => t.category === category && t.audience === audience)
+    : [];
+  // Whichever ticket in the pair is on sale now and not sold out; failing
+  // that, the soonest one still to open (shown with a "Coming soon" button).
+  // A `soldOut` ticket is skipped entirely — the picker moves on to the next
+  // tier just as if its window had closed. Date-driven, so a window edit (or a
+  // soldOut flip) tomorrow flips this automatically.
+  const onSale = pairTickets.find((t) => isTicketOnSale(t, nowMs) && !t.soldOut) ?? null;
+  const upcoming = onSale
+    ? null
+    : pairTickets
+        .filter((t) => isTicketUpcoming(t, nowMs))
+        .sort((a, b) => Date.parse(a.opens) - Date.parse(b.opens))[0] ?? null;
+  const shown = onSale ?? upcoming;
 
   useEffect(() => {
     if (!resolved) return;
@@ -673,21 +710,28 @@ export function TicketSelector() {
 
   // Every possible card is mounted at all times so the fan can *slide* between
   // them (a freshly-mounted card can't animate in from a stacked position):
-  // the placeholder, one card per currently-visible ticket, and the "not on
-  // sale" fallback. `activeSlot` is which one comes to the front.
-  const visibleTickets = tickets.filter((t) => t.visible);
+  // the placeholder, one card per ticket, and the "sales over" fallback.
+  // `activeSlot` is which one comes to the front.
   const cards: { key: string; content: ReactNode }[] = [
     { key: "placeholder", content: <TicketPlaceholder /> },
-    ...visibleTickets.map((t) => ({
+    ...tickets.map((t) => ({
       key: t.id,
-      content: <TicketCard ticket={t} perks={perks[t.category]} addOnsNote={addOnsNote} taxNote={taxNote} />,
+      content: (
+        <TicketCard
+          ticket={t}
+          perks={perks[t.category]}
+          addOnsNote={addOnsNote}
+          taxNote={taxNote}
+          upcoming={upcoming?.id === t.id}
+        />
+      ),
     })),
     { key: "closed", content: <TicketClosed /> },
   ];
-  const activeSlot = resolved
-    ? visibleTickets.findIndex((t) => t.id === resolved.id) + 1
+  const activeSlot = shown
+    ? tickets.findIndex((t) => t.id === shown.id) + 1
     : bothPicked
-      ? cards.length - 1 // the "not on sale" card
+      ? cards.length - 1 // the "sales over" card
       : 0; // the placeholder
 
   return (

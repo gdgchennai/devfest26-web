@@ -14,6 +14,8 @@ export type EventType = "registration" | "cancel" | "check_in" | "check_out";
 export interface Addon {
   booking_id: string;
   ticket_name: string | null;
+  /** Ticket PDF link for the add-on. `https://` only (see `httpsUrl`). */
+  attachment_link: string | null;
 }
 
 export interface ParsedEvent {
@@ -26,6 +28,11 @@ export interface ParsedEvent {
   bookingId: string | null;
   ticketName: string | null;
   addons: Addon[];
+  /** Set only on an add-on's own registration webhook (the payload carries a
+   *  "Parent Booking Id" pointing at the main booking). When set, this event
+   *  describes one add-on — `bookingId` / `ticketName` / `ticketUrl` are the
+   *  add-on's — and must NOT overwrite the main ticket row. */
+  parentBookingId: string | null;
   /** Ticket PDF link — only kept if it's a plain `https://` URL (guards
    *  against a forged `javascript:` / `data:` link becoming stored XSS). */
   ticketUrl: string | null;
@@ -100,7 +107,11 @@ function parseAddons(d: Record<string, unknown>): Addon[] {
     const bookingId = str(rec["Booking Id"]);
     if (!bookingId) continue;
     const td = asRecord(rec["Ticket Details"]);
-    out.push({ booking_id: bookingId, ticket_name: td ? str(td["Ticket Name"]) : null });
+    out.push({
+      booking_id: bookingId,
+      ticket_name: td ? str(td["Ticket Name"]) : null,
+      attachment_link: httpsUrl(rec["Ticket URL"]),
+    });
   }
   return out;
 }
@@ -147,6 +158,7 @@ export function parseWebhook(body: unknown): ParseResult {
       bookingId: str(d["Booking Id"]),
       ticketName: ticketNameOf(d),
       addons: parseAddons(d),
+      parentBookingId: str(d["Parent Booking Id"]),
       ticketUrl: httpsUrl(d["Ticket URL"]),
       paymentId: str(d["payment_id"]),
       checkInTime: parseCheckInTime(d["CheckIn Time"]),

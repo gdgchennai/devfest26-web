@@ -37,6 +37,26 @@ function encodeAddons(addons: Addon[]): string | null {
   return addons.length > 0 ? JSON.stringify(addons) : null;
 }
 
+/**
+ * Merge incoming add-ons into the ones already stored, keyed by `booking_id`.
+ * An incoming entry updates a stored one in place (never blanking a field the
+ * incoming payload doesn't carry); an unknown `booking_id` is appended. Used so
+ * a main `registration` doesn't wipe an add-on we stored from its own webhook.
+ */
+function mergeAddons(stored: Addon[], incoming: Addon[]): Addon[] {
+  const out = stored.map((a) => ({ ...a }));
+  for (const inc of incoming) {
+    const existing = out.find((a) => a.booking_id === inc.booking_id);
+    if (existing) {
+      existing.ticket_name = inc.ticket_name ?? existing.ticket_name;
+      existing.attachment_link = inc.attachment_link ?? existing.attachment_link;
+    } else {
+      out.push({ ...inc });
+    }
+  }
+  return out;
+}
+
 function warnUnknownNames(e: ParsedEvent): void {
   if (e.ticketName && !isKnownTicketName(e.ticketName)) {
     console.warn(`unrecognised ticket name "${e.ticketName}" (${e.email})`);
@@ -53,6 +73,10 @@ function warnUnknownNames(e: ParsedEvent): void {
  * any existing check-in state. KonfHub doesn't allow a second live ticket per
  * attendee, so if we somehow see a different booking already stored we leave
  * it alone rather than clobber a (possibly hand-fixed) mapping.
+ *
+ * Add-on registrations arrive as their own webhook and are routed to
+ * `applyAddonRegistration` before reaching here (see index.ts) — this path only
+ * ever handles a main ticket. Existing add-ons are merged, not replaced.
  */
 export async function applyRegistration(db: D1Database, e: ParsedEvent): Promise<string> {
   warnUnknownNames(e);
@@ -63,7 +87,9 @@ export async function applyRegistration(db: D1Database, e: ParsedEvent): Promise
     return `ignored — ${e.email} already holds booking ${existing.booking_id}`;
   }
 
-  const addons = encodeAddons(e.addons);
+  const addons = encodeAddons(
+    existing ? mergeAddons(decodeAddons(existing.addons), e.addons) : e.addons,
+  );
 
   if (existing) {
     await db
@@ -88,6 +114,62 @@ export async function applyRegistration(db: D1Database, e: ParsedEvent): Promise
     .bind(e.email, e.bookingId, e.paymentId, e.ticketUrl, e.ticketName, addons, now, now)
     .run();
   return `created ${e.email}`;
+}
+
+/**
+ * registration of an *add-on* (payload carried a "Parent Booking Id" — see
+ * `ParsedEvent.parentBookingId`). KonfHub sends these as their own webhook,
+ * with the add-on's booking id / name / ticket URL at the top level. We must
+ * NOT touch the main ticket row's `booking_id` / `ticket_url` / `ticket_name`;
+ * the add-on only ever lives inside the `addons` array.
+ *
+ * Match the stored row by attendee email, then upsert the add-on into `addons`
+ * by its `booking_id`. If the add-on webhook beats the main registration, stash
+ * a bare row so the link isn't lost (the main registration later merges it).
+ */
+export async function applyAddonRegistration(db: D1Database, e: ParsedEvent): Promise<string> {
+  if (!e.bookingId) return `skipped add-on for ${e.email} — no booking id`;
+  if (e.ticketName && !ADDON_TICKET_NAMES.has(e.ticketName)) {
+    console.warn(`unrecognised add-on name "${e.ticketName}" (${e.email})`);
+  }
+
+  const now = Date.now();
+  const incoming: Addon = {
+    booking_id: e.bookingId,
+    ticket_name: e.ticketName,
+    attachment_link: e.ticketUrl,
+  };
+  const row = await getByEmail(db, e.email);
+
+  if (!row) {
+    await db
+      .prepare(
+        `INSERT INTO tickets
+           (email, booking_id, payment_id, ticket_url, ticket_name,
+            addons, checked_in, check_in_time, created_at, updated_at)
+         VALUES (?, NULL, NULL, NULL, NULL, ?, 0, NULL, ?, ?)`,
+      )
+      .bind(e.email, encodeAddons([incoming]), now, now)
+      .run();
+    return `stashed add-on ${e.bookingId} for ${e.email} (main ticket not seen yet)`;
+  }
+
+  const addons = decodeAddons(row.addons);
+  const idx = addons.findIndex((a) => a.booking_id === e.bookingId);
+  if (idx !== -1) {
+    addons[idx] = {
+      ...addons[idx],
+      ticket_name: e.ticketName ?? addons[idx].ticket_name,
+      attachment_link: e.ticketUrl ?? addons[idx].attachment_link,
+    };
+  } else {
+    addons.push(incoming);
+  }
+  await db
+    .prepare("UPDATE tickets SET addons = ?, updated_at = ? WHERE email = ?")
+    .bind(encodeAddons(addons), now, e.email)
+    .run();
+  return `${idx !== -1 ? "updated" : "added"} add-on ${e.bookingId} (${e.ticketName ?? "?"}) for ${e.email}`;
 }
 
 /**
