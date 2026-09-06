@@ -292,11 +292,12 @@ export const siteConfig = {
     },
     {
       slug: "ai-for-science",
-      title: "AI for Science",
+      title: "From Mind to Universe",
       date: "2026-09-13",
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
-      ctaLabel: "Coming soon →",
+      ctaLabel: "RSVP Now →",
+      href: "https://gdg.community.dev/events/details/google-gdg-chennai-presents-devfest-roadshow-2-from-mind-to-universe-how-neuro-science-shapes-ai-and-ai-unlocks-cosmic-discoveries/",
       image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
