@@ -202,7 +202,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
           score: finalScore,
           timeMs: finalTime,
           moves: finalMoves,
-          levelData: `${gridSize}x${gridSize} Grid • ${selectedPhoto.title} (${selectedPhoto.year})`,
+          levelData: `${gridSize}x${gridSize} Grid • DevFest ${selectedPhoto.year}`,
         });
       }
     },
@@ -328,8 +328,8 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
           </div>
         </div>
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Target Photo</div>
-          <div className="text-xs font-medium text-paper truncate mt-1">{selectedPhoto.title}</div>
+          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Archive Year</div>
+          <div className="text-xs font-medium font-mono text-paper truncate mt-1">{selectedPhoto.year}</div>
         </div>
       </div>
 
@@ -525,9 +525,6 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
                 )}
               </button>
             </div>
-
-            <p className="mt-3 text-xs text-paper/80 font-medium">{selectedPhoto.title}</p>
-            <p className="text-[11px] text-paper/60 leading-tight mt-0.5">{selectedPhoto.description}</p>
           </div>
 
           {/* Photo Gallery Picker */}
