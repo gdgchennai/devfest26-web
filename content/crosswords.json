@@ -1,0 +1,466 @@
+[
+  {
+    "id": "daily-devfest-1",
+    "title": "Google & DevFest Tech Matrix",
+    "category": "Gemini, Cloud, Android & Web",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Google's flagship multimodal foundation AI model family",
+        "answer": "GEMINI",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "Google's compiled systems programming language",
+        "answer": "GOLANG",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "number": 3,
+        "direction": "down",
+        "clue": "Google's open design system and component guidelines",
+        "answer": "MATERIAL",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "number": 4,
+        "direction": "across",
+        "clue": "Autonomous software entity powered by Gemini LLMs",
+        "answer": "AGENT",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "number": 5,
+        "direction": "down",
+        "clue": "Tensor Processing Unit neural accelerator hardware",
+        "answer": "TPU",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "number": 6,
+        "direction": "across",
+        "clue": "CSS layout specification for responsive 2D matrices",
+        "answer": "GRID",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Distributed on-demand computing infrastructure",
+        "answer": "CLOUD",
+        "row": 7,
+        "col": 2
+      },
+      {
+        "number": 8,
+        "direction": "down",
+        "clue": "Short form for software developer in tech communities",
+        "answer": "DEV",
+        "row": 7,
+        "col": 6
+      },
+      {
+        "number": 9,
+        "direction": "across",
+        "clue": "Annual flagship community tech conference hosted by GDG",
+        "answer": "DEVFEST",
+        "row": 8,
+        "col": 4
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-2",
+    "title": "Mobile, AI & Cloud Stack",
+    "category": "Android, Kotlin, Flutter & Cloud",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Preferred modern programming language for Android development",
+        "answer": "KOTLIN",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "Android UI toolkit for declarative interface building",
+        "answer": "COMPOSE",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "Multi-platform UI toolkit built with Dart from Google",
+        "answer": "FLUTTER",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "ORM database persistence library in Android Jetpack",
+        "answer": "ROOM",
+        "row": 2,
+        "col": 7
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "Messaging object requesting an action from another component",
+        "answer": "INTENT",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "Android build automation system and dependency manager",
+        "answer": "GRADLE",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Google flagship smartphone lineup powered by Tensor",
+        "answer": "PIXEL",
+        "row": 7,
+        "col": 4
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-3",
+    "title": "Cloud Native & Neural Architecture",
+    "category": "K8s, Go, Vertex AI & GCP",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Open source container orchestration platform born at Google",
+        "answer": "KUBERNETES",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "Google's statically typed compiled systems programming language",
+        "answer": "GOLANG",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "Serverless, highly scalable cloud data warehouse by Google",
+        "answer": "BIGQUERY",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "Container virtualization standard across cloud workflows",
+        "answer": "DOCKER",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "Globally distributed ACID-compliant cloud relational database",
+        "answer": "SPANNER",
+        "row": 6,
+        "col": 2
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "Cloud execution model where infrastructure is fully managed",
+        "answer": "SERVER",
+        "row": 0,
+        "col": 9
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Asynchronous many-to-many messaging service in Google Cloud",
+        "answer": "PUBSUB",
+        "row": 8,
+        "col": 0
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-4",
+    "title": "Modern Web, Chrome & AI Integration",
+    "category": "Chromium, Angular, V8 & Gemini",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Open source browser engine backing Google Chrome and Edge",
+        "answer": "CHROMIUM",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "High-performance JavaScript and WebAssembly engine in Chrome",
+        "answer": "V8",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "Google's TypeScript-based web application framework",
+        "answer": "ANGULAR",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "UI component view library widely used in frontend apps",
+        "answer": "REACT",
+        "row": 1,
+        "col": 8
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "Automated open-source tool for auditing web performance",
+        "answer": "LIGHTHOUSE",
+        "row": 6,
+        "col": 0
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "Client-side script running in background enabling offline PWAs",
+        "answer": "SERVICE",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Google libraries that simplify Service Worker caching",
+        "answer": "WORKBOX",
+        "row": 8,
+        "col": 2
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-5",
+    "title": "Full-Stack Mobile & Cloud Backend",
+    "category": "Flutter, Dart, Firebase & Mobile",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Multi-platform UI software development kit by Google",
+        "answer": "FLUTTER",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "Client-optimized programming language powering Flutter",
+        "answer": "DART",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "The fundamental visual building block of a Flutter app interface",
+        "answer": "WIDGET",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "Sub-second code update without losing runtime app state",
+        "answer": "RELOAD",
+        "row": 1,
+        "col": 7
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "Google's open design system and component guidelines",
+        "answer": "MATERIAL",
+        "row": 6,
+        "col": 0
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "2D graphic library rendering Flutter's canvas elements",
+        "answer": "SKIA",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Information read synchronously when a Flutter widget renders",
+        "answer": "STATE",
+        "row": 8,
+        "col": 3
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-6",
+    "title": "DevFest Chennai & Tech Community",
+    "category": "Community, Open Source & Engineering",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Annual flagship community-led tech conference hosted by GDG",
+        "answer": "DEVFEST",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "The host city for DevFest Chennai 2026",
+        "answer": "CHENNAI",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "Hands-on coding session and lab conducted at DevFest",
+        "answer": "WORKSHOP",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "Google Developer Groups community acronym",
+        "answer": "GDG",
+        "row": 0,
+        "col": 8
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "Software whose source code is openly available for inspection",
+        "answer": "OPENSOURCE",
+        "row": 6,
+        "col": 0
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "Domain expert presenting engineering insights on stage",
+        "answer": "SPEAKER",
+        "row": 2,
+        "col": 7
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Collective group of developers collaborating and learning",
+        "answer": "COMMUNITY",
+        "row": 8,
+        "col": 1
+      }
+    ]
+  },
+  {
+    "id": "daily-devfest-7",
+    "title": "Vertex AI & Machine Learning Cloud",
+    "category": "AI/ML, Vertex, JAX & TPU",
+    "size": 10,
+    "clues": [
+      {
+        "number": 1,
+        "direction": "across",
+        "clue": "Unified artificial intelligence platform on Google Cloud",
+        "answer": "VERTEX",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "number": 2,
+        "direction": "down",
+        "clue": "Google's comprehensive backend platform for web and mobile",
+        "answer": "FIREBASE",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "number": 3,
+        "direction": "across",
+        "clue": "Evaluating a trained model against live queries to predict output",
+        "answer": "INFERENCE",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "number": 4,
+        "direction": "down",
+        "clue": "Multi-dimensional numeric grid data structure in deep learning",
+        "answer": "TENSOR",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "number": 5,
+        "direction": "across",
+        "clue": "High-performance numerical computing and ML library by Google",
+        "answer": "JAX",
+        "row": 6,
+        "col": 0
+      },
+      {
+        "number": 6,
+        "direction": "down",
+        "clue": "Google custom silicon chip for neural acceleration",
+        "answer": "TPU",
+        "row": 4,
+        "col": 7
+      },
+      {
+        "number": 7,
+        "direction": "across",
+        "clue": "Retrieval-Augmented Generation acronym used with LLMs",
+        "answer": "RAG",
+        "row": 8,
+        "col": 4
+      }
+    ]
+  }
+]

@@ -1,235 +1,32 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import initialCrosswords from "@/content/crosswords.json";
 import type { GameScoreSubmission } from "./ScoreModal";
+import type { CrosswordPuzzle, CrosswordClue } from "@/lib/games-content";
 
-export type CrosswordClue = {
-  number: number;
-  direction: "across" | "down";
-  clue: string;
-  answer: string;
-  row: number;
-  col: number;
-};
+// Calculate current 24-hour cycle day index
+function getDailyPuzzleIndex(poolLength: number): number {
+  if (!poolLength) return 0;
+  const now = new Date();
+  const utcDays = Math.floor((now.getTime() - now.getTimezoneOffset() * 60000) / 86400000);
+  return Math.abs(utcDays) % poolLength;
+}
 
-export type CrosswordPuzzle = {
-  id: string;
-  title: string;
-  category: string;
-  size: number;
-  clues: CrosswordClue[];
-};
+function getFormattedDate(): string {
+  const now = new Date();
+  return now.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
-const CROSSWORD_PUZZLES: CrosswordPuzzle[] = [
-  {
-    id: "android-ecosystem",
-    title: "Android & Modern Mobile",
-    category: "Android & Kotlin",
-    size: 10,
-    clues: [
-      {
-        number: 1,
-        direction: "across",
-        clue: "Google's preferred modern language for Android development",
-        answer: "KOTLIN",
-        row: 0,
-        col: 0,
-      },
-      {
-        number: 2,
-        direction: "down",
-        clue: "Android UI toolkit for declarative interface building",
-        answer: "COMPOSE",
-        row: 0,
-        col: 5,
-      },
-      {
-        number: 3,
-        direction: "across",
-        clue: "Multi-platform UI toolkit built with Dart from Google",
-        answer: "FLUTTER",
-        row: 2,
-        col: 2,
-      },
-      {
-        number: 4,
-        direction: "down",
-        clue: "Lightweight concurrency primitives in Kotlin",
-        answer: "COROUTINE",
-        row: 1,
-        col: 8,
-      },
-      {
-        number: 5,
-        direction: "across",
-        clue: "ORM persistence library part of Android Jetpack",
-        answer: "ROOM",
-        row: 5,
-        col: 0,
-      },
-      {
-        number: 6,
-        direction: "down",
-        clue: "Android build automation system",
-        answer: "GRADLE",
-        row: 4,
-        col: 2,
-      },
-      {
-        number: 7,
-        direction: "across",
-        clue: "Google flagship smartphone lineup",
-        answer: "PIXEL",
-        row: 7,
-        col: 4,
-      },
-      {
-        number: 8,
-        direction: "down",
-        clue: "Messaging object used to request an action from another component",
-        answer: "INTENT",
-        row: 4,
-        col: 0,
-      },
-    ],
-  },
-  {
-    id: "google-ai-cloud",
-    title: "Google Cloud & AI Odyssey",
-    category: "Cloud, AI & Web",
-    size: 10,
-    clues: [
-      {
-        number: 1,
-        direction: "across",
-        clue: "Google's next-generation multimodal foundation AI model",
-        answer: "GEMINI",
-        row: 0,
-        col: 1,
-      },
-      {
-        number: 2,
-        direction: "down",
-        clue: "Open source container orchestration platform born at Google",
-        answer: "KUBERNETES",
-        row: 0,
-        col: 7,
-      },
-      {
-        number: 3,
-        direction: "across",
-        clue: "Open source machine learning framework by Google (Flow)",
-        answer: "TENSOR",
-        row: 3,
-        col: 0,
-      },
-      {
-        number: 4,
-        direction: "down",
-        clue: "Google's statically typed compiled systems programming language",
-        answer: "GOLANG",
-        row: 0,
-        col: 1,
-      },
-      {
-        number: 5,
-        direction: "across",
-        clue: "Google's comprehensive backend-as-a-service platform",
-        answer: "FIREBASE",
-        row: 5,
-        col: 2,
-      },
-      {
-        number: 6,
-        direction: "down",
-        clue: "Google's TypeScript-based web application framework",
-        answer: "ANGULAR",
-        row: 3,
-        col: 4,
-      },
-      {
-        number: 7,
-        direction: "across",
-        clue: "Open source browser engine backing Chrome & Edge",
-        answer: "CHROMIUM",
-        row: 8,
-        col: 0,
-      },
-      {
-        number: 8,
-        direction: "down",
-        clue: "High-performance JavaScript and WebAssembly engine in Chrome",
-        answer: "V8",
-        row: 7,
-        col: 8,
-      },
-    ],
-  },
-  {
-    id: "devfest-ecosystem",
-    title: "DevFest & Tech Community",
-    category: "DevFest & Ecosystem",
-    size: 10,
-    clues: [
-      {
-        number: 1,
-        direction: "across",
-        clue: "Annual flagship community-led tech conference hosted by GDG",
-        answer: "DEVFEST",
-        row: 0,
-        col: 0,
-      },
-      {
-        number: 2,
-        direction: "down",
-        clue: "The vibrant host city for DevFest Chennai",
-        answer: "CHENNAI",
-        row: 0,
-        col: 5,
-      },
-      {
-        number: 3,
-        direction: "across",
-        clue: "Hands-on coding session often held at DevFest",
-        answer: "WORKSHOP",
-        row: 3,
-        col: 1,
-      },
-      {
-        number: 4,
-        direction: "down",
-        clue: "Google Developer Groups community acronym",
-        answer: "GDG",
-        row: 0,
-        col: 8,
-      },
-      {
-        number: 5,
-        direction: "across",
-        clue: "Code that is publicly accessible and freely shared",
-        answer: "OPENSOURCE",
-        row: 6,
-        col: 0,
-      },
-      {
-        number: 6,
-        direction: "down",
-        clue: "Containerization tool used in modern cloud workflows",
-        answer: "DOCKER",
-        row: 4,
-        col: 2,
-      },
-      {
-        number: 7,
-        direction: "across",
-        clue: "Client-optimized programming language for multi-platform apps",
-        answer: "DART",
-        row: 8,
-        col: 5,
-      },
-    ],
-  },
-];
+function getRemainingCycleTime(): string {
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 0, 0);
+  const diffSec = Math.max(0, Math.floor((nextMidnight.getTime() - now.getTime()) / 1000));
+  const hours = Math.floor(diffSec / 3600);
+  const minutes = Math.floor((diffSec % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+}
 
 type CrosswordGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
@@ -245,13 +42,48 @@ type CellData = {
 };
 
 export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
-  const [selectedPuzzleIndex, setSelectedPuzzleIndex] = useState<number>(0);
-  const puzzle = CROSSWORD_PUZZLES[selectedPuzzleIndex];
+  const [puzzles, setPuzzles] = useState<CrosswordPuzzle[]>(initialCrosswords as CrosswordPuzzle[]);
+  const dailyIdx = useMemo(() => getDailyPuzzleIndex(puzzles.length), [puzzles.length]);
+  const puzzle = puzzles[dailyIdx] || puzzles[0] || (initialCrosswords[0] as CrosswordPuzzle);
 
-  // Derive model and 2D grid with useMemo
-  const { gridMatrix } = useMemo(() => {
-    const matrix: (CellData | null)[][] = Array.from({ length: puzzle.size }, () =>
-      Array.from({ length: puzzle.size }, () => null),
+  const [cycleTimeLeft, setCycleTimeLeft] = useState<string>("");
+
+  // API-first fetch for latest crosswords
+  useEffect(() => {
+    fetch("/api/games/content?kind=crosswords")
+      .then((res) => res.json() as Promise<{ data?: CrosswordPuzzle[] }>)
+      .then((payload) => {
+        if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          setPuzzles(payload.data);
+        }
+      })
+      .catch((err) => console.warn("Using fallback crosswords content", err));
+  }, []);
+
+  useEffect(() => {
+    const updateCycle = () => {
+      setCycleTimeLeft(getRemainingCycleTime());
+    };
+    const timeout = setTimeout(updateCycle, 0);
+    const interval = setInterval(updateCycle, 60000);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Derive model and 2D grid with useMemo & defensive boundary sizing
+  const { gridMatrix, actualSize } = useMemo(() => {
+    let computedSize = puzzle.size || 10;
+    puzzle.clues.forEach((clue) => {
+      const maxRow = clue.direction === "down" ? clue.row + clue.answer.length : clue.row + 1;
+      const maxCol = clue.direction === "across" ? clue.col + clue.answer.length : clue.col + 1;
+      if (maxRow > computedSize) computedSize = maxRow;
+      if (maxCol > computedSize) computedSize = maxCol;
+    });
+
+    const matrix: (CellData | null)[][] = Array.from({ length: computedSize }, () =>
+      Array.from({ length: computedSize }, () => null),
     );
 
     puzzle.clues.forEach((clue, clueIdx) => {
@@ -260,30 +92,32 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
         const r = clue.direction === "across" ? clue.row : clue.row + i;
         const c = clue.direction === "across" ? clue.col + i : clue.col;
 
-        const existing = matrix[r][c] || { row: r, col: c, letter: clue.answer[i] };
-        if (i === 0) {
-          existing.number = clue.number;
+        if (r >= 0 && r < computedSize && c >= 0 && c < computedSize && matrix[r]) {
+          const existing = matrix[r][c] || { row: r, col: c, letter: clue.answer[i] };
+          if (i === 0) {
+            existing.number = clue.number;
+          }
+          if (clue.direction === "across") {
+            existing.acrossClueIndex = clueIdx;
+          } else {
+            existing.downClueIndex = clueIdx;
+          }
+          matrix[r][c] = existing;
         }
-        if (clue.direction === "across") {
-          existing.acrossClueIndex = clueIdx;
-        } else {
-          existing.downClueIndex = clueIdx;
-        }
-        matrix[r][c] = existing;
       }
     });
 
-    return { gridMatrix: matrix };
+    return { gridMatrix: matrix, actualSize: computedSize };
   }, [puzzle]);
 
   const [userGrid, setUserGrid] = useState<string[][]>(() =>
     Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => "")),
   );
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number }>({
-    row: puzzle.clues[0].row,
-    col: puzzle.clues[0].col,
+    row: puzzle.clues[0]?.row ?? 0,
+    col: puzzle.clues[0]?.col ?? 0,
   });
-  const [direction, setDirection] = useState<"across" | "down">(puzzle.clues[0].direction);
+  const [direction, setDirection] = useState<"across" | "down">(puzzle.clues[0]?.direction ?? "across");
 
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [elapsedMs, setElapsedMs] = useState<number>(0);
@@ -295,26 +129,22 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
   const startTimeRef = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const resetPuzzle = useCallback(
-    (idx: number) => {
-      setSelectedPuzzleIndex(idx);
-      const nextPuzzle = CROSSWORD_PUZZLES[idx];
-      setUserGrid(
-        Array.from({ length: nextPuzzle.size }, () =>
-          Array.from({ length: nextPuzzle.size }, () => ""),
-        ),
-      );
-      setSelectedCell({ row: nextPuzzle.clues[0].row, col: nextPuzzle.clues[0].col });
-      setDirection(nextPuzzle.clues[0].direction);
-      setCheckedCells({});
-      setHintsUsed(0);
-      setHasStarted(false);
-      setGameCompleted(false);
-      setElapsedMs(0);
-      startTimeRef.current = 0;
-    },
-    [],
-  );
+  const resetPuzzle = useCallback(() => {
+    const nextSize = puzzle.size || 10;
+    setUserGrid(
+      Array.from({ length: nextSize }, () =>
+        Array.from({ length: nextSize }, () => ""),
+      ),
+    );
+    setSelectedCell({ row: puzzle.clues[0]?.row ?? 0, col: puzzle.clues[0]?.col ?? 0 });
+    setDirection(puzzle.clues[0]?.direction ?? "across");
+    setCheckedCells({});
+    setHintsUsed(0);
+    setHasStarted(false);
+    setGameCompleted(false);
+    setElapsedMs(0);
+    startTimeRef.current = 0;
+  }, [puzzle]);
 
   const handleStartPuzzle = () => {
     setHasStarted(true);
@@ -372,7 +202,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
           score: finalScore,
           timeMs: finalTime,
           moves: hintsUsed,
-          levelData: `${puzzle.category} • ${puzzle.clues.length} Clues`,
+          levelData: `${puzzle.title} • ${puzzle.clues.length} Clues`,
         });
       }
     },
@@ -444,7 +274,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
     } else if (e.key === "Backspace") {
       e.preventDefault();
       const nextGrid = userGrid.map((r) => [...r]);
-      if (nextGrid[row][col]) {
+      if (nextGrid[row]?.[col]) {
         nextGrid[row][col] = "";
         setUserGrid(nextGrid);
       } else {
@@ -454,6 +284,9 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
       e.preventDefault();
       const letter = e.key.toUpperCase();
       const nextGrid = userGrid.map((r) => [...r]);
+      if (!nextGrid[row]) {
+        nextGrid[row] = Array.from({ length: actualSize }, () => "");
+      }
       nextGrid[row][col] = letter;
       setUserGrid(nextGrid);
       advanceToNextCell(row, col);
@@ -475,6 +308,9 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
     if (!cellData) return;
 
     const nextGrid = userGrid.map((r) => [...r]);
+    if (!nextGrid[row]) {
+      nextGrid[row] = Array.from({ length: actualSize }, () => "");
+    }
     nextGrid[row][col] = cellData.letter;
     setUserGrid(nextGrid);
     setHintsUsed((h) => h + 1);
@@ -532,29 +368,21 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
         tabIndex={-1}
       />
 
-      {/* Top Pack Selector */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-paper/10 bg-surface p-3.5 sm:p-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-paper/60">Pack:</span>
-          <div className="inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] p-1">
-            {CROSSWORD_PUZZLES.map((p, idx) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => resetPuzzle(idx)}
-                className={`rounded-lg px-2.5 sm:px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
-                  selectedPuzzleIndex === idx
-                    ? "bg-[var(--blue)] text-white shadow-sm"
-                    : "text-paper/70 hover:text-paper hover:bg-paper/5"
-                }`}
-              >
-                {p.title}
-              </button>
-            ))}
+      {/* Top 24-Hour Cycle Banner & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-paper/10 bg-surface p-3.5 sm:p-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-2.5 w-2.5 rounded-full bg-[var(--green)] animate-pulse shrink-0" />
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-paper">
+              Daily Tech Crossword ({getFormattedDate()})
+            </div>
+            <div className="text-[11px] font-mono text-paper/60 mt-0.5">
+              Next puzzle in: <span className="text-[var(--yellow)] font-bold">{cycleTimeLeft || "calculating..."}</span>
+            </div>
           </div>
         </div>
 
-        {/* Hints & Actions */}
+        {/* Action buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -574,7 +402,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
           </button>
           <button
             type="button"
-            onClick={() => resetPuzzle(selectedPuzzleIndex)}
+            onClick={resetPuzzle}
             className="rounded-xl border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs font-mono text-paper hover:bg-paper/20 transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2">
@@ -620,8 +448,8 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
                 !hasStarted ? "filter blur-md opacity-40 pointer-events-none select-none" : ""
               }`}
               style={{
-                gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))`,
-                gridTemplateRows: `repeat(${puzzle.size}, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(${actualSize}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${actualSize}, minmax(0, 1fr))`,
               }}
             >
               {gridMatrix.map((rowArr, r) =>
@@ -695,7 +523,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{puzzle.title}</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
-                  Solve {puzzle.clues.length} {puzzle.category} clues in a {puzzle.size}×{puzzle.size} grid.
+                  Solve {puzzle.clues.length} mixed Google, Android & Cloud clues in a {actualSize}×{actualSize} grid.
                 </p>
                 <button
                   type="button"

@@ -1,0 +1,18 @@
+[
+  { "id": "gemini", "name": "Gemini AI", "subtitle": "Multimodal Model", "icon": "♊", "accent": "#4285F4" },
+  { "id": "kotlin", "name": "Kotlin", "subtitle": "Modern Android", "icon": "⚡", "accent": "#A136F7" },
+  { "id": "compose", "name": "Compose", "subtitle": "Declarative UI", "icon": "🎨", "accent": "#34A853" },
+  { "id": "flutter", "name": "Flutter", "subtitle": "Multiplatform UI", "icon": "🎯", "accent": "#57CAFF" },
+  { "id": "firebase", "name": "Firebase", "subtitle": "App Platform", "icon": "🔥", "accent": "#F9AB00" },
+  { "id": "cloud", "name": "Google Cloud", "subtitle": "Infrastructure", "icon": "☁️", "accent": "#4285F4" },
+  { "id": "tpu", "name": "Tensor TPU", "subtitle": "Neural Silicon", "icon": "🦾", "accent": "#EA4335" },
+  { "id": "golang", "name": "Golang", "subtitle": "Systems Engine", "icon": "🚀", "accent": "#57CAFF" },
+  { "id": "k8s", "name": "Kubernetes", "subtitle": "Orchestration", "icon": "☸️", "accent": "#4285F4" },
+  { "id": "android-kitkat", "name": "KitKat", "subtitle": "Android 4.4", "icon": "🍫", "accent": "#EA4335" },
+  { "id": "android-lollipop", "name": "Lollipop", "subtitle": "Android 5.0", "icon": "🍭", "accent": "#34A853" },
+  { "id": "android-oreo", "name": "Oreo", "subtitle": "Android 8.0", "icon": "🍪", "accent": "#F9AB00" },
+  { "id": "android-pie", "name": "Pie", "subtitle": "Android 9.0", "icon": "🥧", "accent": "#EA4335" },
+  { "id": "angular", "name": "Angular", "subtitle": "Web Framework", "icon": "🅰️", "accent": "#EA4335" },
+  { "id": "devfest", "name": "DevFest", "subtitle": "GDG Chennai", "icon": "🎪", "accent": "#34A853" },
+  { "id": "room", "name": "Room DB", "subtitle": "Jetpack SQLite", "icon": "💾", "accent": "#F9AB00" }
+]

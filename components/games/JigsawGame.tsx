@@ -2,53 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import initialPhotos from "@/content/jigsaw-photos.json";
 import type { GameScoreSubmission } from "./ScoreModal";
-
-export type ArchivePhotoChoice = {
-  src: string;
-  title: string;
-  year: number;
-  description: string;
-};
-
-const ARCHIVE_PHOTOS: ArchivePhotoChoice[] = [
-  {
-    src: "/archive/2025-full-house.webp",
-    title: "Full House Auditorium",
-    year: 2025,
-    description: "A speaker facing a packed auditorium from the front of the stage.",
-  },
-  {
-    src: "/archive/2024-opening-stage.webp",
-    title: "Opening on Stage",
-    year: 2024,
-    description: "Two hosts opening DevFest Chennai 2024 in front of the title slide.",
-  },
-  {
-    src: "/archive/2025-badges-held-up.webp",
-    title: "Badges Held Up",
-    year: 2025,
-    description: "Attendees holding their badges above the seats.",
-  },
-  {
-    src: "/archive/2024-group-photo.webp",
-    title: "DevFest Group Photo",
-    year: 2024,
-    description: "Attendees, speakers and volunteers gathered on stage.",
-  },
-  {
-    src: "/archive/2025-keynote-hall.webp",
-    title: "Keynote Hall",
-    year: 2025,
-    description: "The auditorium watching the keynote play on the main screen.",
-  },
-  {
-    src: "/archive/2024-about-gdg-chennai.webp",
-    title: "About GDG Chennai",
-    year: 2024,
-    description: "A speaker introducing GDG Chennai community on stage.",
-  },
-];
+import type { ArchivePhotoChoice } from "@/lib/games-content";
 
 // Deterministic initial permutation for SSR to avoid hydration mismatch
 function getInitialTiles(size: number): number[] {
@@ -91,7 +47,8 @@ type JigsawGameProps = {
 };
 
 export function JigsawGame({ onFinishGame }: JigsawGameProps) {
-  const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(ARCHIVE_PHOTOS[0]);
+  const [photosPool, setPhotosPool] = useState<ArchivePhotoChoice[]>(initialPhotos as ArchivePhotoChoice[]);
+  const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(photosPool[0] || (initialPhotos[0] as ArchivePhotoChoice));
   const [gridSize, setGridSize] = useState<number>(3);
   const [isSlideMode, setIsSlideMode] = useState<boolean>(false);
   const [tiles, setTiles] = useState<number[]>(() => getInitialTiles(3));
@@ -112,6 +69,18 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
   const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalTiles = gridSize * gridSize;
+
+  // API-first fetch for latest archive photos
+  useEffect(() => {
+    fetch("/api/games/content?kind=photos")
+      .then((res) => res.json() as Promise<{ data?: ArchivePhotoChoice[] }>)
+      .then((payload) => {
+        if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          setPhotosPool(payload.data);
+        }
+      })
+      .catch((err) => console.warn("Using fallback photos content", err));
+  }, []);
 
   const restartPuzzle = useCallback(
     (size = gridSize, slide = isSlideMode, photo = selectedPhoto) => {
@@ -533,7 +502,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
               Choose Photo:
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {ARCHIVE_PHOTOS.map((photo) => (
+              {photosPool.map((photo) => (
                 <button
                   key={photo.src}
                   type="button"

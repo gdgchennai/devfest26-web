@@ -1,34 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import initialTechCards from "@/content/tech-cards.json";
 import type { GameScoreSubmission } from "./ScoreModal";
-
-type TechCardDefinition = {
-  id: string;
-  name: string;
-  subtitle: string;
-  icon: string;
-  accent: string;
-};
-
-const TECH_CARDS_POOL: TechCardDefinition[] = [
-  { id: "gemini", name: "Gemini AI", subtitle: "Multimodal Model", icon: "♊", accent: "#4285F4" },
-  { id: "kotlin", name: "Kotlin", subtitle: "Modern Android", icon: "⚡", accent: "#A136F7" },
-  { id: "compose", name: "Compose", subtitle: "Declarative UI", icon: "🎨", accent: "#34A853" },
-  { id: "flutter", name: "Flutter", subtitle: "Multiplatform UI", icon: "🎯", accent: "#57CAFF" },
-  { id: "firebase", name: "Firebase", subtitle: "App Platform", icon: "🔥", accent: "#F9AB00" },
-  { id: "cloud", name: "Google Cloud", subtitle: "Infrastructure", icon: "☁️", accent: "#4285F4" },
-  { id: "tpu", name: "Tensor TPU", subtitle: "Neural Silicon", icon: "🦾", accent: "#EA4335" },
-  { id: "golang", name: "Golang", subtitle: "Systems Engine", icon: "🚀", accent: "#57CAFF" },
-  { id: "k8s", name: "Kubernetes", subtitle: "Orchestration", icon: "☸️", accent: "#4285F4" },
-  { id: "android-kitkat", name: "KitKat", subtitle: "Android 4.4", icon: "🍫", accent: "#EA4335" },
-  { id: "android-lollipop", name: "Lollipop", subtitle: "Android 5.0", icon: "🍭", accent: "#34A853" },
-  { id: "android-oreo", name: "Oreo", subtitle: "Android 8.0", icon: "🍪", accent: "#F9AB00" },
-  { id: "android-pie", name: "Pie", subtitle: "Android 9.0", icon: "🥧", accent: "#EA4335" },
-  { id: "angular", name: "Angular", subtitle: "Web Framework", icon: "🅰️", accent: "#EA4335" },
-  { id: "devfest", name: "DevFest", subtitle: "GDG Chennai", icon: "🎪", accent: "#34A853" },
-  { id: "room", name: "Room DB", subtitle: "Jetpack SQLite", icon: "💾", accent: "#F9AB00" },
-];
+import type { TechCardDefinition } from "@/lib/games-content";
 
 type CardInstance = {
   instanceId: string;
@@ -42,8 +17,8 @@ type CardInstance = {
 };
 
 // Deterministic initial deck for SSR to avoid hydration mismatch
-function getInitialDeck(count: number): CardInstance[] {
-  const selectedDefinitions = TECH_CARDS_POOL.slice(0, count);
+function getInitialDeck(pool: TechCardDefinition[], count: number): CardInstance[] {
+  const selectedDefinitions = (pool.length >= count ? pool : (initialTechCards as TechCardDefinition[])).slice(0, count);
   const deck: CardInstance[] = [];
   selectedDefinitions.forEach((def) => {
     deck.push({
@@ -70,8 +45,8 @@ function getInitialDeck(count: number): CardInstance[] {
   return deck;
 }
 
-function generateShuffledDeck(count: number): CardInstance[] {
-  const shuffledPool = [...TECH_CARDS_POOL].sort(() => Math.random() - 0.5);
+function generateShuffledDeck(pool: TechCardDefinition[], count: number): CardInstance[] {
+  const shuffledPool = [...(pool.length >= count ? pool : (initialTechCards as TechCardDefinition[]))].sort(() => Math.random() - 0.5);
   const selectedDefinitions = shuffledPool.slice(0, count);
 
   const deck: CardInstance[] = [];
@@ -106,8 +81,9 @@ type MemoryGameProps = {
 };
 
 export function MemoryGame({ onFinishGame }: MemoryGameProps) {
+  const [cardsPool, setCardsPool] = useState<TechCardDefinition[]>(initialTechCards as TechCardDefinition[]);
   const [pairsCount, setPairsCount] = useState<number>(8);
-  const [cards, setCards] = useState<CardInstance[]>(() => getInitialDeck(8));
+  const [cards, setCards] = useState<CardInstance[]>(() => getInitialDeck(initialTechCards as TechCardDefinition[], 8));
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
   const [moves, setMoves] = useState<number>(0);
   const [matchedPairs, setMatchedPairs] = useState<number>(0);
@@ -123,10 +99,22 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
   const startTimeRef = useRef<number>(0);
   const lockBoardRef = useRef<boolean>(false);
 
+  // API-first fetch for card definitions
+  useEffect(() => {
+    fetch("/api/games/content?kind=cards")
+      .then((res) => res.json() as Promise<{ data?: TechCardDefinition[] }>)
+      .then((payload) => {
+        if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          setCardsPool(payload.data);
+        }
+      })
+      .catch((err) => console.warn("Using fallback cards content", err));
+  }, []);
+
   const restartGame = useCallback(
     (count = pairsCount) => {
       setPairsCount(count);
-      setCards(getInitialDeck(count));
+      setCards(getInitialDeck(cardsPool, count));
       setFlippedIndices([]);
       setMoves(0);
       setMatchedPairs(0);
@@ -139,11 +127,11 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
       lockBoardRef.current = false;
       startTimeRef.current = 0;
     },
-    [pairsCount],
+    [cardsPool, pairsCount],
   );
 
   const handleStartGame = () => {
-    setCards(generateShuffledDeck(pairsCount));
+    setCards(generateShuffledDeck(cardsPool, pairsCount));
     setHasStarted(true);
     setGameCompleted(false);
     setElapsedMs(0);
@@ -253,7 +241,7 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
   const timeFormatted = `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 max-w-4xl mx-auto w-full">
+    <div className="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto w-full">
       {/* Top Compact Controls & Stats Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-paper/10 bg-surface px-3.5 py-2 sm:px-4 sm:py-2.5">
         {/* Size Selection */}
@@ -319,19 +307,24 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
         </div>
       </div>
 
-      {/* Responsive Viewport-Fitted Cards Area */}
+      {/* Uniform Gap Cards Playground */}
       <div className="relative w-full h-[min(65vh,520px)] sm:h-[min(62vh,540px)] flex items-center justify-center">
-        {/* Cards Grid */}
+        {/* Cards Grid with Equal Row & Column Spacing */}
         <div
-          className={`grid w-full h-full gap-2 sm:gap-2.5 p-1 transition-all duration-300 justify-center items-center ${
+          className={`grid gap-2 sm:gap-3 p-1 transition-all duration-300 justify-center items-center max-w-full ${
             !hasStarted ? "filter blur-md opacity-40 pointer-events-none select-none" : ""
           } ${
             pairsCount === 6
-              ? "grid-cols-3 sm:grid-cols-4 grid-rows-4 sm:grid-rows-3"
+              ? "grid-cols-4 grid-rows-3"
               : pairsCount === 8
               ? "grid-cols-4 grid-rows-4"
-              : "grid-cols-4 sm:grid-cols-6 grid-rows-6 sm:grid-rows-4"
+              : "grid-cols-6 grid-rows-4"
           }`}
+          style={{
+            width: "fit-content",
+            height: "fit-content",
+            maxHeight: "100%",
+          }}
         >
           {cards.map((card, idx) => {
             const isOpen = card.isFlipped || card.isMatched;
@@ -340,7 +333,13 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
               <div
                 key={card.instanceId}
                 onClick={() => handleCardClick(idx)}
-                className="relative w-full h-full max-h-[14vh] sm:max-h-[16vh] max-w-[110px] aspect-[3/4] mx-auto cursor-pointer select-none group"
+                className={`relative aspect-[3/4] cursor-pointer select-none group ${
+                  pairsCount === 12
+                    ? "w-[min(13vw,84px)] h-[min(12vh,112px)] sm:w-[min(14vw,95px)] sm:h-[min(13vh,126px)]"
+                    : pairsCount === 8
+                    ? "w-[min(20vw,105px)] h-[min(13.5vh,140px)] sm:w-[min(18vw,120px)] sm:h-[min(14vh,160px)]"
+                    : "w-[min(20vw,115px)] h-[min(16vh,152px)] sm:w-[min(18vw,130px)] sm:h-[min(17vh,172px)]"
+                }`}
                 style={{ perspective: "1000px" }}
               >
                 <div
@@ -353,7 +352,7 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
                 >
                   {/* Front face (Card Back Cover) */}
                   <div
-                    className="absolute inset-0 rounded-xl sm:rounded-2xl border border-paper/20 bg-surface-raised flex flex-col items-center justify-center p-1.5 sm:p-2 text-center shadow-md group-hover:border-paper/40 group-hover:shadow-[0_0_12px_rgba(66,133,244,0.2)]"
+                    className="absolute inset-0 rounded-xl sm:rounded-2xl border border-paper/20 bg-surface-raised flex flex-col items-center justify-center p-1 sm:p-2 text-center shadow-md group-hover:border-paper/40 group-hover:shadow-[0_0_12px_rgba(66,133,244,0.2)]"
                     style={{
                       backfaceVisibility: "hidden",
                       WebkitBackfaceVisibility: "hidden",
@@ -365,17 +364,17 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
                       <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--yellow)]" />
                       <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--green)]" />
                     </div>
-                    <span className="text-base sm:text-xl font-mono font-bold text-paper/70 tracking-tight">
+                    <span className="text-sm sm:text-lg font-mono font-bold text-paper/70 tracking-tight">
                       &lt;/&gt;
                     </span>
-                    <span className="mt-0.5 sm:mt-1 text-[8px] sm:text-[9px] font-mono text-paper/40 uppercase tracking-wider font-semibold">
+                    <span className="mt-0.5 sm:mt-1 text-[7px] sm:text-[9px] font-mono text-paper/40 uppercase tracking-wider font-semibold">
                       DevFest
                     </span>
                   </div>
 
                   {/* Back face (Card Revealed Content) */}
                   <div
-                    className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 flex flex-col items-center justify-center p-1.5 sm:p-2 text-center shadow-lg bg-surface-raised"
+                    className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 flex flex-col items-center justify-center p-1 sm:p-2 text-center shadow-lg bg-surface-raised"
                     style={{
                       backfaceVisibility: "hidden",
                       WebkitBackfaceVisibility: "hidden",
@@ -386,15 +385,15 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
                         : `0 0 10px ${card.accent}33`,
                     }}
                   >
-                    <span className="text-xl sm:text-2xl md:text-3xl mb-0.5 sm:mb-1">{card.icon}</span>
-                    <span className="text-[10px] sm:text-xs font-bold text-paper line-clamp-1">
+                    <span className="text-lg sm:text-2xl md:text-3xl mb-0.5">{card.icon}</span>
+                    <span className="text-[9px] sm:text-xs font-bold text-paper line-clamp-1">
                       {card.name}
                     </span>
-                    <span className="text-[8px] sm:text-[9px] font-mono text-paper/60 leading-none mt-0.5 line-clamp-1 hidden sm:block">
+                    <span className="text-[7px] sm:text-[9px] font-mono text-paper/60 leading-none mt-0.5 line-clamp-1 hidden sm:block">
                       {card.subtitle}
                     </span>
                     {card.isMatched && (
-                      <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-[var(--green)]/20 px-1.5 py-0.2 text-[8px] font-mono font-bold text-[var(--green)]">
+                      <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-[var(--green)]/20 px-1 py-0.1 text-[7px] sm:text-[8px] font-mono font-bold text-[var(--green)]">
                         Matched
                       </span>
                     )}
@@ -416,7 +415,7 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Memory Matrix</h3>
             <p className="text-xs text-paper/70 mt-1 max-w-xs">
-              Flip and match {pairsCount} pairs of Android and Google tech stacks without scrolling.
+              Flip and match {pairsCount} pairs of Android and Google tech stacks.
             </p>
             <button
               type="button"
