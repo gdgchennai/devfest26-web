@@ -81,7 +81,7 @@ export function FooterLogo({
           width leaves the transparent gutters the brackets settle into, and the
           aspect-ratio keeps the box measured before the image loads so the 3D
           settle target is stable. */}
-      <div className="relative mx-auto aspect-[1370/531] w-[min(60vw,420px)]">
+      <div className="relative mx-auto aspect-[1370/531] w-[min(46vw,260px)]">
         <FooterBrackets />
         {/* eslint-disable-next-line @next/next/no-img-element -- a static brand
             SVG measured by the motion layer; next/image adds nothing here. */}
