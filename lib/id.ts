@@ -6,3 +6,7 @@
 export function newUserId(): string {
   return `usr_${crypto.randomUUID().replace(/-/g, "")}`;
 }
+
+export function newScoreId(): string {
+  return `sc_${crypto.randomUUID().replace(/-/g, "")}`;
+}
