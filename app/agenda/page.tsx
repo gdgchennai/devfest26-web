@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getAgenda, getSpeakers } from "@/lib/content";
-import { siteConfig, uiCopy } from "@/site.config";
+import { siteConfig } from "@/site.config";
 import { AgendaView } from "@/components/AgendaView";
 import { BracketsField } from "@/components/motion/BracketsField";
 import { AGENDA_READY } from "@/lib/routes";
@@ -25,9 +25,7 @@ export default async function AgendaPage() {
           to any route (page-agnostic, drives off scroll + #footer-logo).
           mode="settled": no drift-then-land sequence to lead into here. */}
       <BracketsField mode="settled" />
-      <div className="relative z-10 px-4 py-12 sm:px-8">
-        <h1 className="text-center text-4xl font-semibold tracking-tight sm:text-5xl">{uiCopy.agendaPage.heading}</h1>
-
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
         <Suspense fallback={null}>
           <AgendaView sessions={agenda} speakers={speakers} tracks={[...siteConfig.tracks]} />
         </Suspense>

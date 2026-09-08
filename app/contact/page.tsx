@@ -11,16 +11,15 @@ export const dynamic = "force-static";
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12 sm:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.contactPage.heading}</h1>
-      <p className="mt-4 text-paper/80">
+    <div className="mx-auto max-w-2xl px-4 pb-16 pt-24 text-center sm:px-8 sm:pt-28">
+      <p className="text-base text-paper/80 sm:text-lg">
         {uiCopy.contactPage.bodyPrefix}
         {siteConfig.chapter}
         {uiCopy.contactPage.bodySuffix}
       </p>
       <a
         href={`mailto:${siteConfig.contact.email}`}
-        className="mt-6 inline-block text-lg text-blue underline underline-offset-4 hover:decoration-2"
+        className="mt-6 inline-block text-lg text-blue underline underline-offset-4 hover:decoration-2 sm:text-xl"
       >
         {siteConfig.contact.email}
       </a>

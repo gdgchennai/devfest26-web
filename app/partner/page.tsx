@@ -29,9 +29,8 @@ export default function PartnerPage() {
           (agenda, tickets, memories) — page-agnostic, see BracketsField. */}
       <BracketsField mode="settled" />
 
-      <div className="relative z-10 mx-auto max-w-2xl px-4 py-16 sm:px-8">
+      <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
         <p className="font-mono text-xs uppercase tracking-wider text-paper/50">Community</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h1>
         <p className="mt-4 text-lg text-paper/80">{lede}</p>
 
         {/* What */}

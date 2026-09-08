@@ -11,6 +11,7 @@ import { uiCopy } from "@/site.config";
 import { RollingText } from "@/components/motion/RollingText";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { AvatarButton } from "@/components/auth/AvatarButton";
+import { useHeaderTitleContext, resolveHeaderTitle } from "@/components/HeaderTitleContext";
 import { TRANSITION_IN_MS } from "@/components/motion/MotionProvider";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 
@@ -42,6 +43,9 @@ export function HamburgerMenu() {
   const isHome = pathname === "/";
   const [open, setOpen] = useState(false);
   const panelId = useId();
+
+  const { title: customTitle } = useHeaderTitleContext();
+  const headerTitle = resolveHeaderTitle(pathname, customTitle);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -111,6 +115,9 @@ export function HamburgerMenu() {
   const closeMenu = contextSafe(() => {
     const panel = panelRef.current;
     if (!panel) return;
+    if (document.activeElement instanceof HTMLElement && panel.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     const { x, y } = buttonOrigin();
     const items = gsap.utils.toArray<HTMLElement>("[data-menu-item]", panel);
     const reduced = shouldUseStaticBaseline();
@@ -151,6 +158,9 @@ export function HamburgerMenu() {
   const closeInstant = contextSafe(() => {
     const panel = panelRef.current;
     if (!panel) return;
+    if (document.activeElement instanceof HTMLElement && panel.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     const items = gsap.utils.toArray<HTMLElement>("[data-menu-item]", panel);
     gsap.set(panel, { autoAlpha: 0, clipPath: "circle(0px at 0px 0px)" });
     gsap.set(items, { x: -48, autoAlpha: 0 });
@@ -227,72 +237,100 @@ export function HamburgerMenu() {
   const speaker = speakerCta();
   const volunteer = volunteerCta();
 
+  const hamburgerButton = (
+    <button
+      ref={buttonRef}
+      type="button"
+      aria-expanded={open}
+      aria-controls={panelId}
+      aria-label={open ? uiCopy.hamburgerMenu.closeAriaLabel : uiCopy.hamburgerMenu.openAriaLabel}
+      onClick={toggle}
+      className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
+      data-shape="box"
+    >
+      <span className="glow-btn__corners" aria-hidden="true" />
+      <span className="glow-btn__surface flex h-11 w-11 items-center justify-center rounded-2xl">
+        <span className="glow-btn__label relative block h-3.5 w-5">
+          <span
+            ref={barTopRef}
+            className="absolute inset-x-0 top-0 h-0.5 rounded-full bg-paper"
+          />
+          <span
+            ref={barBottomRef}
+            className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-paper"
+          />
+        </span>
+      </span>
+    </button>
+  );
+
   return (
     <div className="nav-hamburger-only">
-      {/* Floating "back to home" — only away from "/", where there's
-          otherwise no quick way back except the Home entry buried inside the
-          menu panel. Mirrors the hamburger's own positioning/z-index on the
-          opposite corner. */}
-      {!isHome && (
-        <div
-          className="pointer-events-none fixed left-[max(1rem,env(safe-area-inset-left,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:left-[max(2rem,env(safe-area-inset-left,0px))]"
-        >
-          <Link
-            href="/"
-            aria-label={uiCopy.hamburgerMenu.homeAriaLabel}
-            className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
-            data-shape="box"
-          >
-            <span className="glow-btn__corners" aria-hidden="true" />
-            <span className="glow-btn__surface flex h-11 w-11 items-center justify-center rounded-2xl">
-              <span className="glow-btn__label">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 11.5 12 4l8 7.5M6 9.5V20h5v-6h2v6h5V9.5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </span>
-          </Link>
-        </div>
+      {/*
+       * On the experience / home page ("/"), do not render the header bar.
+       * Keep only the floating Avatar and Hamburger menu buttons on top right.
+       */}
+      {isHome && (
+        <>
+          <AvatarButton hidden={open} />
+          <div className="pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))]">
+            {hamburgerButton}
+          </div>
+        </>
       )}
 
-      <div
-        className="pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))]"
-      >
-        <button
-          ref={buttonRef}
-          type="button"
-          aria-expanded={open}
-          aria-controls={panelId}
-          aria-label={open ? uiCopy.hamburgerMenu.closeAriaLabel : uiCopy.hamburgerMenu.openAriaLabel}
-          onClick={toggle}
-          className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
-          data-shape="box"
-        >
-          <span className="glow-btn__corners" aria-hidden="true" />
-          <span className="glow-btn__surface flex h-11 w-11 items-center justify-center rounded-2xl">
-            <span className="glow-btn__label relative block h-3.5 w-5">
-              <span
-                ref={barTopRef}
-                className="absolute inset-x-0 top-0 h-0.5 rounded-full bg-paper"
-              />
-              <span
-                ref={barBottomRef}
-                className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-paper"
-              />
-            </span>
-          </span>
-        </button>
-      </div>
+      {/*
+       * Only show when routed into other pages (!isHome):
+       * Dedicated Fixed Glassmorphic Header Bar with centered Page Title matching
+       * the in-page font size, Home button on left, and Avatar + Hamburger on right.
+       */}
+      {!isHome && (
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-paper/10 bg-ink/75 backdrop-blur-md transition-colors duration-300">
+          <div className="mx-auto flex w-full items-center justify-between px-4 py-3 sm:px-8 sm:py-3.5 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))]">
+            {/* Left section: Home button */}
+            <div className="flex items-center min-w-11">
+              <Link
+                href="/"
+                aria-label={uiCopy.hamburgerMenu.homeAriaLabel}
+                className="glow-btn pointer-events-auto h-11 w-11 rounded-2xl"
+                data-shape="box"
+              >
+                <span className="glow-btn__corners" aria-hidden="true" />
+                <span className="glow-btn__surface flex h-11 w-11 items-center justify-center rounded-2xl">
+                  <span className="glow-btn__label">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 11.5 12 4l8 7.5M6 9.5V20h5v-6h2v6h5V9.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </Link>
+            </div>
 
-      {/* Account control, docked just left of the hamburger. Fades out while
-          the panel is open so it doesn't sit on top of the overlay. */}
-      <AvatarButton hidden={open} />
+            {/* Center section: Dedicated page title matching in-page font size */}
+            <div
+              className={`flex-1 flex items-center justify-center px-2 sm:px-4 text-center min-w-0 transition-opacity duration-200 ${
+                open ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-paper sm:text-3xl md:text-4xl max-w-[50vw] sm:max-w-[60vw]">
+                {headerTitle}
+              </h1>
+            </div>
+
+            {/* Right section: Avatar button + Hamburger menu button */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-11 justify-end">
+              <AvatarButton hidden={open} inline />
+              {hamburgerButton}
+            </div>
+          </div>
+        </header>
+      )}
 
       {/*
        * Full-screen: a clip-path circle grown from the button's centre (see
@@ -305,9 +343,9 @@ export function HamburgerMenu() {
         role="dialog"
         aria-modal="true"
         aria-label={uiCopy.hamburgerMenu.panelAriaLabel}
-        aria-hidden={!open}
+        inert={!open}
         ref={panelRef}
-        className="invisible fixed inset-0 z-[45] flex flex-col items-center justify-center gap-8 bg-ink/75 px-6 text-3xl opacity-0 backdrop-blur-md sm:text-5xl"
+        className="invisible fixed inset-0 z-[55] flex flex-col items-center justify-center gap-8 bg-ink/75 px-6 text-3xl opacity-0 backdrop-blur-md sm:text-5xl"
       >
         {navRoutes
           .filter((route) => route.href !== "/")

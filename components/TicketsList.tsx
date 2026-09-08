@@ -160,15 +160,11 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
  *  motion variant keeps literal black — this was only ever meant for lite. */
 function TicketsTitleBar({ plain = false }: { plain?: boolean }) {
   return (
-    // pt-24: clears the floating home/hamburger buttons (fixed, top: 28px,
-    // h-11 ≈ 44px tall — see components/HamburgerMenu.tsx's TOP const).
     <div
-      className={`shrink-0 px-6 pb-8 pt-24 text-center sm:px-8 sm:pb-10 sm:pt-28 ${
+      className={`shrink-0 px-6 pb-2 pt-20 sm:px-8 sm:pb-4 sm:pt-24 ${
         plain ? "bg-[var(--orig-black)]" : "bg-black"
       }`}
-    >
-      <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">{uiCopy.ticketsList.heading}</h1>
-    </div>
+    />
   );
 }
 

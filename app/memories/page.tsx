@@ -33,9 +33,10 @@ export default async function MemoriesPage() {
           skips the drift-then-land intro. Under reduced-motion / lite / save-data
           it no-ops and FooterLogo falls back to the flat SVG. */}
       <BracketsField mode="settled" />
-      <div className="relative z-10 px-4 py-12 sm:px-8">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.memoriesPage.heading}</h1>
-        <p className="mt-2 max-w-xl text-paper/70">{uiCopy.memoriesPage.body}</p>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
+        <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
+          {uiCopy.memoriesPage.body}
+        </p>
 
         {/* Contained: if the hallway animation throws, it just vanishes and the
             static year grids below still render, no fallback needed. */}
