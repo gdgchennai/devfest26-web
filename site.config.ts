@@ -323,14 +323,15 @@ export const siteConfig = {
       color: "bg-yellow-pastel",
     },
     {
-      slug: "bwai-cyber",
-      title: "Build with AI: Cyber Security edition",
+      slug: "data-day",
+      title: "All about Data",
       date: "2026-09-26",
       description:
-        "Learn about building security and privacy into agentic systems.",
-      ctaLabel: "Coming soon →",
-      image: "/banner/red.webp",
-      color: "bg-red-pastel",
+        "Unlock the full power of GCP's data ecosystem.",
+      ctaLabel: "RSVP Now →",
+      href: "https://luma.com/ppsswqcs",
+      image: "/banner/blue.webp",
+      color: "bg-blue-pastel",
     },
     {
       slug: "kug-irl",
@@ -338,7 +339,7 @@ export const siteConfig = {
       date: "2026-09-26",
       description:
         "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
-      ctaLabel: "Register Now →",
+      ctaLabel: "RSVP Now →",
       href: "https://luma.com/mprx0ocg",
       image: "/banner/purple.webp",
       color: "bg-purple-pastel",
@@ -354,14 +355,14 @@ export const siteConfig = {
       color: "bg-green-pastel",
     },
     {
-      slug: "build-with-ai-wtm",
-      title: "Build with AI - WTM edition",
+      slug: "hardware-labs",
+      title: "Hardware Labs",
       date: "2026-10-03",
       description:
-        "Women come, learn, build and talk about AI.",
+        "Get busy tinkering with hardware kits",
       ctaLabel: "Coming soon →",
-      image: "/banner/blue.webp",
-      color: "bg-blue-pastel",
+      image: "/banner/red.webp",
+      color: "bg-red-pastel",
     },
     {
       slug: "devfest-on-campus",
