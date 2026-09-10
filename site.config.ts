@@ -285,8 +285,8 @@ export const siteConfig = {
       date: "2026-09-12",
       description:
         "Dive into the world of AI workflows, build, network and have fun.",
-      ctaLabel: "RSVP now →",
-      href: "https://luma.com/1jjkxsmy",
+      ctaLabel: "Sold out",
+      // href: "https://luma.com/1jjkxsmy",
       image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
@@ -296,8 +296,8 @@ export const siteConfig = {
       date: "2026-09-13",
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
-      ctaLabel: "RSVP Now →",
-      href: "https://gdg.community.dev/events/details/google-gdg-chennai-presents-devfest-roadshow-2-from-mind-to-universe-how-neuro-science-shapes-ai-and-ai-unlocks-cosmic-discoveries/",
+      ctaLabel: "Sold out",
+      // href: "https://gdg.community.dev/events/details/google-gdg-chennai-presents-devfest-roadshow-2-from-mind-to-universe-how-neuro-science-shapes-ai-and-ai-unlocks-cosmic-discoveries/",
       image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
@@ -318,7 +318,8 @@ export const siteConfig = {
       date: "2026-09-19",
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
-      ctaLabel: "Coming soon →",
+      ctaLabel: "RSVP Now →",
+      href: "https://konfhub.com/checkout/devfest-roadshow-4-code-for-communities?ticketId=119793%7C1%3B",
       image: "/banner/yellow.webp",
       color: "bg-yellow-pastel",
     },
