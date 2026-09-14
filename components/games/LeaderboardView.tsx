@@ -190,7 +190,7 @@ export function LeaderboardView() {
                     {"fastestTimeMs" in topThree[1]
                       ? `Fastest: ${formatTime(topThree[1].fastestTimeMs)}`
                       : "timeMs" in topThree[1]
-                      ? `Time: ${formatTime(topThree[1].timeMs)}`
+                      ? `Time: ${formatTime(topThree[1].timeMs)}${"attemptNumber" in topThree[1] && topThree[1].attemptNumber ? ` (Attempt #${topThree[1].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export function LeaderboardView() {
                     {"gamesPlayed" in topThree[0]
                       ? `${topThree[0].gamesPlayed} Games Completed`
                       : "timeMs" in topThree[0]
-                      ? `Time: ${formatTime(topThree[0].timeMs)}`
+                      ? `Time: ${formatTime(topThree[0].timeMs)}${"attemptNumber" in topThree[0] && topThree[0].attemptNumber ? ` (Attempt #${topThree[0].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export function LeaderboardView() {
                     {"fastestTimeMs" in topThree[2]
                       ? `Fastest: ${formatTime(topThree[2].fastestTimeMs)}`
                       : "timeMs" in topThree[2]
-                      ? `Time: ${formatTime(topThree[2].timeMs)}`
+                      ? `Time: ${formatTime(topThree[2].timeMs)}${"attemptNumber" in topThree[2] && topThree[2].attemptNumber ? ` (Attempt #${topThree[2].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export function LeaderboardView() {
                           {"fastestTimeMs" in entry
                             ? formatTime(entry.fastestTimeMs)
                             : "timeMs" in entry
-                            ? formatTime(entry.timeMs)
+                            ? `Time: ${formatTime(entry.timeMs)}${"attemptNumber" in entry && entry.attemptNumber ? ` (Attempt #${entry.attemptNumber})` : ""}`
                             : ""}
                         </div>
                       </div>
