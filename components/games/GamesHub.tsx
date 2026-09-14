@@ -245,6 +245,18 @@ export function GamesHub() {
 
               <button
                 type="button"
+                onClick={() => setHistoryOpen(true)}
+                aria-label="Play History"
+                title="View my game history"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-paper/10 bg-surface text-paper/80 hover:border-paper/30 hover:bg-surface-raised hover:text-paper transition-all cursor-pointer shadow-sm active:scale-95 text-[var(--blue-halftone)]"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setSettingsOpen(true)}
                 aria-label="Game Settings"
                 title="Game settings"
@@ -302,7 +314,6 @@ export function GamesHub() {
         memoryPairsCount={memoryPairsCount}
         onMemoryPairsCountChange={setMemoryPairsCount}
         onResetGame={handleResetGame}
-        onOpenHistory={() => setHistoryOpen(true)}
       />
 
       {/* Game Attempts History Modal Popup */}

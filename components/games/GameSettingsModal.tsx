@@ -19,7 +19,6 @@ type GameSettingsModalProps = {
   onMemoryPairsCountChange: (count: number) => void;
   // Reset
   onResetGame: () => void;
-  onOpenHistory?: () => void;
 };
 
 export function GameSettingsModal({
@@ -34,7 +33,6 @@ export function GameSettingsModal({
   memoryPairsCount,
   onMemoryPairsCountChange,
   onResetGame,
-  onOpenHistory,
 }: GameSettingsModalProps) {
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -258,37 +256,19 @@ export function GameSettingsModal({
 
         {/* Modal Footer (Sticky bottom bar) */}
         <div className="border-t border-paper/10 bg-surface/90 backdrop-blur-md px-5 sm:px-6 py-4 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                onResetGame();
-                handleClose();
-              }}
-              className="flex items-center gap-1.5 rounded-2xl border border-paper/20 bg-paper/10 px-3.5 py-2 text-xs font-mono font-medium text-paper hover:bg-paper/20 transition-colors cursor-pointer"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Restart</span>
-            </button>
-
-            {onOpenHistory && (
-              <button
-                type="button"
-                onClick={() => {
-                  handleClose();
-                  setTimeout(onOpenHistory, 150); // Small delay for super smooth slide transitions
-                }}
-                className="flex items-center gap-1.5 rounded-2xl border border-[var(--blue)]/30 bg-[var(--blue)]/10 px-3.5 py-2 text-xs font-mono font-medium text-[var(--blue-halftone)] hover:bg-[var(--blue)]/20 transition-colors cursor-pointer"
-              >
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>History</span>
-              </button>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onResetGame();
+              handleClose();
+            }}
+            className="flex items-center gap-1.5 rounded-2xl border border-paper/20 bg-paper/10 px-4 py-2 text-xs font-mono font-medium text-paper hover:bg-paper/20 transition-colors cursor-pointer"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Restart Game</span>
+          </button>
 
           <button
             type="button"
