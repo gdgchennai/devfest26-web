@@ -455,7 +455,8 @@ export function JigsawGame({
               <label className="text-[11px] font-mono uppercase tracking-wider text-paper/60 block mb-2.5">
                 Select Photo to Solve
               </label>
-              <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto pr-1 scrollbar-none">
+              {/* Added p-1.5 padding to prevent borders, rings, and scale-105 from being clipped at the scrollbox boundaries */}
+              <div className="grid grid-cols-4 gap-2.5 max-h-[185px] overflow-y-auto p-1.5 scrollbar-none">
                 {photosPool.map((photo) => {
                   const isCurrent = currentPhoto.src === photo.src;
                   return (
