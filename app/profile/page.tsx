@@ -40,22 +40,25 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <HeaderTitle title={user.name ?? "My profile"} />
+      <HeaderTitle title="My profile" />
       <BracketsField mode="settled" />
       <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <div className="flex flex-col items-center gap-3 text-center mb-8">
+        <div className="flex items-center gap-4 mb-8">
           {user.image && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={user.image}
-              alt=""
+              alt={user.name ?? "Profile Avatar"}
               width={64}
               height={64}
               referrerPolicy="no-referrer"
-              className="h-16 w-16 rounded-full border border-paper/10"
+              className="h-16 w-16 rounded-full border border-paper/10 shrink-0"
             />
           )}
-          {user.email && <p className="text-sm text-paper/60 sm:text-base">{user.email}</p>}
+          <div className="min-w-0">
+            {user.name && <h2 className="text-xl sm:text-2xl font-bold text-paper truncate">{user.name}</h2>}
+            {user.email && <p className="text-sm text-paper/60 sm:text-base truncate mt-0.5">{user.email}</p>}
+          </div>
         </div>
         <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} />
       </div>

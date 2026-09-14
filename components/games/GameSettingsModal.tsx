@@ -38,14 +38,62 @@ export function GameSettingsModal({
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
 
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("settings-bottomsheet-open");
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
     } else {
       document.body.classList.remove("settings-bottomsheet-open");
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
       document.body.classList.remove("settings-bottomsheet-open");
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const backdrop = backdropRef.current;
+    const dragHandle = dragHandleRef.current;
+    const header = headerRef.current;
+
+    const preventDefault = (e: Event) => {
+      e.preventDefault();
+    };
+
+    if (backdrop) {
+      backdrop.addEventListener("touchmove", preventDefault, { passive: false });
+      backdrop.addEventListener("wheel", preventDefault, { passive: false });
+    }
+    if (dragHandle) {
+      dragHandle.addEventListener("touchmove", preventDefault, { passive: false });
+      dragHandle.addEventListener("wheel", preventDefault, { passive: false });
+    }
+    if (header) {
+      header.addEventListener("touchmove", preventDefault, { passive: false });
+      header.addEventListener("wheel", preventDefault, { passive: false });
+    }
+
+    return () => {
+      if (backdrop) {
+        backdrop.removeEventListener("touchmove", preventDefault);
+        backdrop.removeEventListener("wheel", preventDefault);
+      }
+      if (dragHandle) {
+        dragHandle.removeEventListener("touchmove", preventDefault);
+        dragHandle.removeEventListener("wheel", preventDefault);
+      }
+      if (header) {
+        header.removeEventListener("touchmove", preventDefault);
+        header.removeEventListener("wheel", preventDefault);
+      }
     };
   }, [isOpen]);
 
@@ -66,8 +114,13 @@ export function GameSettingsModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 backdrop-blur-sm animate-fade-in pb-safe">
-      {/* Click outside backdrop to close */}
-      <div className="absolute inset-0 cursor-pointer" onClick={handleClose} aria-hidden="true" />
+      {/* Click outside backdrop to close. Handled with non-passive native event listeners. */}
+      <div 
+        ref={backdropRef}
+        className="absolute inset-0 cursor-pointer" 
+        onClick={handleClose} 
+        aria-hidden="true" 
+      />
 
       {/* Bottom Sheet Container */}
       <div
@@ -75,15 +128,16 @@ export function GameSettingsModal({
         style={{
           transform: `translateY(${dragOffsetY}px)`,
           transition: isDragging ? "none" : "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-          touchAction: "none", // Prevent touch scrolling during drag interaction
         }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="game-settings-title"
       >
-        {/* Interactable Drag Handle Bar */}
+        {/* Interactable Drag Handle Bar. Handled with non-passive native event listeners. */}
         <div
+          ref={dragHandleRef}
           className="flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing group select-none shrink-0"
+          style={{ touchAction: "none" }}
           onPointerDown={(e) => {
             setIsDragging(true);
             dragStartY.current = e.clientY;
@@ -111,8 +165,11 @@ export function GameSettingsModal({
           <div className="w-12 h-1.5 rounded-full bg-paper/20 group-hover:bg-paper/40 transition-colors" />
         </div>
 
-        {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-paper/10 px-5 sm:px-6 pb-4 shrink-0">
+        {/* Modal Header. Handled with non-passive native event listeners. */}
+        <div 
+          ref={headerRef}
+          className="flex items-center justify-between border-b border-paper/10 px-5 sm:px-6 pb-4 shrink-0"
+        >
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-paper/10 text-paper">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -137,8 +194,11 @@ export function GameSettingsModal({
           </button>
         </div>
 
-        {/* Modal Body: Game-Specific Options (Scrollable Content) */}
-        <div className="overflow-y-auto px-5 sm:px-6 py-5 space-y-6 flex-1 scrollbar-none">
+        {/* Modal Body: Game-Specific Options (Scrollable Content). Containing overscroll to prevent scroll chaining. */}
+        <div 
+          className="overflow-y-auto px-5 sm:px-6 py-5 space-y-6 flex-1 scrollbar-none"
+          style={{ overscrollBehavior: "contain" }}
+        >
           {/* 1. Jigsaw Settings */}
           {activeTab === "jigsaw" && (
             <>
