@@ -315,7 +315,7 @@ export const siteConfig = {
     {
       slug: "code-for-communities",
       title: "Code for communities",
-      date: "2026-09-19",
+      date: "2026-09-26",
       description:
         "Hackathon styled dev sprint. Build solutions for Resilience, Innovation, Sustainability and Cooperation.",
       ctaLabel: "RSVP Now →",
