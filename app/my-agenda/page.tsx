@@ -34,9 +34,11 @@ export default async function MyAgendaPage() {
     <>
       <BracketsField mode="settled" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
-          Sessions you&apos;ve saved for DevFest Chennai.
-        </p>
+        {sessions.length > 0 && (
+          <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
+            Sessions you&apos;ve saved for DevFest Chennai.
+          </p>
+        )}
 
         {sessions.length === 0 ? (
           <div className="rounded-lg border border-paper/10 p-8 text-center">
