@@ -273,7 +273,9 @@ export function HamburgerMenu() {
       {isHome && (
         <>
           <AvatarButton hidden={open} />
-          <div className="pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))]">
+          <div className={`pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))] ${
+            open ? "z-[60]" : "z-50"
+          }`}>
             {hamburgerButton}
           </div>
         </>
@@ -283,12 +285,20 @@ export function HamburgerMenu() {
        * Only show when routed into other pages (!isHome):
        * Dedicated Fixed Glassmorphic Header Bar with centered Page Title matching
        * the in-page font size, Home button on left, and Avatar + Hamburger on right.
+       * When the menu is open, make the header transparent, borderless, and raised to z-[60]
+       * so only the hamburger cross button stays visible and clickable on top of the menu panel.
        */}
       {!isHome && (
-        <header className="fixed inset-x-0 top-0 z-50 border-b border-paper/10 bg-ink/75 backdrop-blur-md transition-colors duration-300">
+        <header className={`fixed inset-x-0 top-0 transition-all duration-300 ${
+          open 
+            ? "z-[60] bg-transparent border-b-transparent backdrop-blur-none" 
+            : "z-50 border-b border-paper/10 bg-ink/75 backdrop-blur-md"
+        }`}>
           <div className="mx-auto flex w-full items-center justify-between px-4 py-3 sm:px-8 sm:py-3.5 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))]">
             {/* Left section: Home button */}
-            <div className="flex items-center min-w-11">
+            <div className={`flex items-center min-w-11 transition-opacity duration-200 ${
+              open ? "opacity-0 pointer-events-none" : "opacity-100"
+            }`}>
               <Link
                 href="/"
                 aria-label={uiCopy.hamburgerMenu.homeAriaLabel}

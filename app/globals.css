@@ -194,6 +194,27 @@ html.lite .nav-lite-only {
 
   --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
+
+  --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 body {
@@ -1464,4 +1485,15 @@ html.gpu .hallway-stack {
     justify-content: center;
     border-radius: 0 1.5rem 1.5rem 0;
   }
+}
+
+/* Slide header upwards when bottom sheet settings modal is open */
+body.settings-bottomsheet-open header {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+header {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
 }

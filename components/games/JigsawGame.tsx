@@ -44,14 +44,25 @@ function generateShuffledTiles(size: number, slide: boolean): number[] {
 
 type JigsawGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
+  gridSize?: number;
+  isSlideMode?: boolean;
+  selectedPhoto?: ArchivePhotoChoice;
+  onSelectPhoto?: (photo: ArchivePhotoChoice) => void;
 };
 
-export function JigsawGame({ onFinishGame }: JigsawGameProps) {
+export function JigsawGame({
+  onFinishGame,
+  gridSize: externalGridSize = 3,
+  isSlideMode: externalSlideMode = false,
+  selectedPhoto: externalSelectedPhoto,
+  onSelectPhoto,
+}: JigsawGameProps) {
   const [photosPool, setPhotosPool] = useState<ArchivePhotoChoice[]>(initialPhotos as ArchivePhotoChoice[]);
-  const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(photosPool[0] || (initialPhotos[0] as ArchivePhotoChoice));
-  const [gridSize, setGridSize] = useState<number>(3);
-  const [isSlideMode, setIsSlideMode] = useState<boolean>(false);
-  const [tiles, setTiles] = useState<number[]>(() => getInitialTiles(3));
+  const currentPhoto = externalSelectedPhoto || photosPool[0] || (initialPhotos[0] as ArchivePhotoChoice);
+  const gridSize = externalGridSize;
+  const isSlideMode = externalSlideMode;
+
+  const [tiles, setTiles] = useState<number[]>(() => getInitialTiles(gridSize));
   const [selectedTileIndex, setSelectedTileIndex] = useState<number | null>(null);
   const [moves, setMoves] = useState<number>(0);
 
@@ -83,10 +94,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
   }, []);
 
   const restartPuzzle = useCallback(
-    (size = gridSize, slide = isSlideMode, photo = selectedPhoto) => {
-      setGridSize(size);
-      setIsSlideMode(slide);
-      setSelectedPhoto(photo);
+    (size = gridSize) => {
       setTiles(getInitialTiles(size));
       setSelectedTileIndex(null);
       setMoves(0);
@@ -98,7 +106,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
       startTimeRef.current = 0;
       if (revealTimerRef.current) clearInterval(revealTimerRef.current);
     },
-    [gridSize, isSlideMode, selectedPhoto],
+    [gridSize],
   );
 
   const handleStartGame = () => {
@@ -171,11 +179,11 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
           score: finalScore,
           timeMs: finalTime,
           moves: finalMoves,
-          levelData: `${gridSize}x${gridSize} Grid • DevFest ${selectedPhoto.year}`,
+          levelData: `${gridSize}x${gridSize} Grid • DevFest ${currentPhoto.year}`,
         });
       }
     },
-    [gameCompleted, hasStarted, moves, gridSize, selectedPhoto, onFinishGame],
+    [gameCompleted, hasStarted, moves, gridSize, currentPhoto, onFinishGame],
   );
 
   function handleTileClick(index: number) {
@@ -223,61 +231,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
   const isPhotoRevealed = revealSecondsLeft > 0;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Top Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-paper/10 bg-surface p-3.5 sm:p-4">
-        {/* Difficulty Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-paper/60">Grid:</span>
-          <div className="inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] p-1">
-            {[
-              { size: 3, label: "3×3" },
-              { size: 4, label: "4×4" },
-              { size: 5, label: "5×5" },
-            ].map((option) => (
-              <button
-                key={option.size}
-                type="button"
-                onClick={() => restartPuzzle(option.size, isSlideMode, selectedPhoto)}
-                className={`rounded-lg px-2.5 sm:px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
-                  gridSize === option.size
-                    ? "bg-[var(--blue)] text-white shadow-sm"
-                    : "text-paper/70 hover:text-paper hover:bg-paper/5"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mode & Helpers */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => restartPuzzle(gridSize, !isSlideMode, selectedPhoto)}
-            className={`rounded-xl border px-3 py-1.5 text-xs font-mono transition-colors cursor-pointer ${
-              isSlideMode
-                ? "border-[var(--yellow)]/50 bg-[var(--yellow)]/10 text-[var(--yellow)]"
-                : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:text-paper"
-            }`}
-          >
-            Mode: {isSlideMode ? "Classic Slide" : "Tile Swap"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => restartPuzzle(gridSize, isSlideMode, selectedPhoto)}
-            className="rounded-xl border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs font-mono text-paper hover:bg-paper/20 transition-colors cursor-pointer flex items-center gap-1.5"
-          >
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-
+    <div className="flex flex-col gap-5">
       {/* Live Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
@@ -298,7 +252,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
         </div>
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
           <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Archive Year</div>
-          <div className="text-xs font-medium font-mono text-paper truncate mt-1">{selectedPhoto.year}</div>
+          <div className="text-xs font-medium font-mono text-paper truncate mt-1">{currentPhoto.year}</div>
         </div>
       </div>
 
@@ -355,7 +309,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
                         : "ring-1 ring-paper/15 hover:ring-paper/50"
                     }`}
                     style={{
-                      backgroundImage: `url(${selectedPhoto.src})`,
+                      backgroundImage: `url(${currentPhoto.src})`,
                       backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
                       backgroundPosition: `${xPos}% ${yPos}%`,
                       backgroundRepeat: "no-repeat",
@@ -381,7 +335,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Archive Jigsaw</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
-                  Reconstruct DevFest {selectedPhoto.year} in {gridSize}×{gridSize} tiles.
+                  Reconstruct DevFest {currentPhoto.year} in {gridSize}×{gridSize} tiles.
                 </p>
                 <button
                   type="button"
@@ -409,7 +363,7 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
                 <div className="mt-4 flex gap-3">
                   <button
                     type="button"
-                    onClick={() => restartPuzzle(gridSize, isSlideMode, selectedPhoto)}
+                    onClick={() => restartPuzzle(gridSize)}
                     className="rounded-full bg-[var(--green)] px-5 py-2 text-xs font-semibold text-black hover:bg-[var(--green)]/90 cursor-pointer"
                   >
                     Play Again
@@ -432,14 +386,12 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
           <div className="rounded-2xl border border-paper/10 bg-surface p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-mono uppercase tracking-wider text-paper/60">Reference Photo</span>
-              <span className="text-xs font-mono text-[var(--blue-halftone)]">{selectedPhoto.year}</span>
+              <span className="text-xs font-mono text-[var(--blue-halftone)]">{currentPhoto.year}</span>
             </div>
-
-            {/* Blurred Image Container with Reveal Countdown */}
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-paper/10 bg-black/60">
+            <div className="relative aspect-[4/3] w-full rounded-2xl border border-paper/20 overflow-hidden bg-black/60 shadow-lg">
               <Image
-                src={selectedPhoto.src}
-                alt={selectedPhoto.title}
+                src={currentPhoto.src}
+                alt={currentPhoto.title}
                 fill
                 className={`object-cover transition-all duration-500 ${
                   isPhotoRevealed ? "filter blur-0 scale-100" : "filter blur-xl scale-110 opacity-40"
@@ -496,37 +448,38 @@ export function JigsawGame({ onFinishGame }: JigsawGameProps) {
             </div>
           </div>
 
-          {/* Photo Gallery Picker */}
-          <div className="rounded-2xl border border-paper/10 bg-surface p-4">
-            <div className="text-xs font-mono uppercase tracking-wider text-paper/60 mb-3">
-              Choose Photo:
+          {/* Under Reference Photo Box: Photos Pool for selecting jigsaw photo */}
+          {/* Automatically hides once the game starts so players cannot guess from thumbnails */}
+          {!hasStarted && photosPool.length > 1 && (
+            <div className="rounded-2xl border border-paper/10 bg-surface p-4 animate-fade-in shadow-md">
+              <label className="text-[11px] font-mono uppercase tracking-wider text-paper/60 block mb-2.5">
+                Select Photo to Solve
+              </label>
+              <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto pr-1 scrollbar-none">
+                {photosPool.map((photo) => {
+                  const isCurrent = currentPhoto.src === photo.src;
+                  return (
+                    <button
+                      key={photo.src}
+                      type="button"
+                      onClick={() => onSelectPhoto?.(photo)}
+                      className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all cursor-pointer ${
+                        isCurrent
+                          ? "border-[var(--blue)] ring-2 ring-[var(--blue)]/40 scale-105 z-10 opacity-100"
+                          : "border-paper/10 opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo.src} alt={photo.title || ""} className="w-full h-full object-cover animate-fade-in" />
+                      <span className="absolute bottom-0 inset-x-0 bg-ink/80 text-[8px] font-mono py-0.5 text-center text-paper">
+                        {photo.year}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {photosPool.map((photo) => (
-                <button
-                  key={photo.src}
-                  type="button"
-                  onClick={() => restartPuzzle(gridSize, isSlideMode, photo)}
-                  className={`relative aspect-[4/3] rounded-lg overflow-hidden border transition-all cursor-pointer ${
-                    selectedPhoto.src === photo.src
-                      ? "border-[var(--blue)] ring-2 ring-[var(--blue)]/50 scale-[1.02]"
-                      : "border-paper/10 opacity-70 hover:opacity-100 hover:border-paper/40"
-                  }`}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.title}
-                    fill
-                    className="object-cover"
-                    sizes="100px"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-black/70 p-1 text-[9px] font-mono text-center text-paper truncate">
-                    {photo.year}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

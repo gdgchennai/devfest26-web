@@ -163,12 +163,14 @@ export function ScoreModal({
               <div>
                 <div className="flex items-center justify-center gap-3 mb-4">
                   {userImage ? (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={userImage}
                       alt={userName}
                       width={36}
                       height={36}
-                      className="rounded-full border border-[var(--blue)]/40 object-cover"
+                      referrerPolicy="no-referrer"
+                      className="h-9 w-9 rounded-full border border-[var(--blue)]/40 object-cover"
                     />
                   ) : (
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--blue)]/20 font-bold text-xs text-[var(--blue)]">

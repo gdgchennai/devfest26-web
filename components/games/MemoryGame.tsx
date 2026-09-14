@@ -78,12 +78,16 @@ function generateShuffledDeck(pool: TechCardDefinition[], count: number): CardIn
 
 type MemoryGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
+  pairsCount?: number;
 };
 
-export function MemoryGame({ onFinishGame }: MemoryGameProps) {
+export function MemoryGame({
+  onFinishGame,
+  pairsCount: externalPairsCount = 8,
+}: MemoryGameProps) {
   const [cardsPool, setCardsPool] = useState<TechCardDefinition[]>(initialTechCards as TechCardDefinition[]);
-  const [pairsCount, setPairsCount] = useState<number>(8);
-  const [cards, setCards] = useState<CardInstance[]>(() => getInitialDeck(initialTechCards as TechCardDefinition[], 8));
+  const pairsCount = externalPairsCount;
+  const [cards, setCards] = useState<CardInstance[]>(() => getInitialDeck(initialTechCards as TechCardDefinition[], externalPairsCount));
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
   const [moves, setMoves] = useState<number>(0);
   const [matchedPairs, setMatchedPairs] = useState<number>(0);
@@ -113,7 +117,6 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
 
   const restartGame = useCallback(
     (count = pairsCount) => {
-      setPairsCount(count);
       setCards(getInitialDeck(cardsPool, count));
       setFlippedIndices([]);
       setMoves(0);
@@ -242,68 +245,28 @@ export function MemoryGame({ onFinishGame }: MemoryGameProps) {
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto w-full">
-      {/* Top Compact Controls & Stats Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-paper/10 bg-surface px-3.5 py-2 sm:px-4 sm:py-2.5">
-        {/* Size Selection */}
+      {/* Live Stats Bar */}
+      <div className="flex items-center justify-around sm:justify-between gap-2.5 rounded-2xl border border-paper/10 bg-surface px-4 py-2.5 text-xs font-mono">
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-mono uppercase text-paper/60">Size:</span>
-          <div className="inline-flex rounded-lg border border-paper/10 bg-paper/[0.04] p-0.5">
-            {[
-              { count: 6, label: "12 Cards" },
-              { count: 8, label: "16 Cards" },
-              { count: 12, label: "24 Cards" },
-            ].map((option) => (
-              <button
-                key={option.count}
-                type="button"
-                onClick={() => restartGame(option.count)}
-                className={`rounded-md px-2 sm:px-2.5 py-0.5 text-xs font-medium transition-all cursor-pointer ${
-                  pairsCount === option.count
-                    ? "bg-[var(--blue)] text-white shadow-sm"
-                    : "text-paper/70 hover:text-paper hover:bg-paper/5"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          <span className="text-paper/50">Score:</span>
+          <span className="font-bold text-[var(--blue-halftone)] text-sm">{score}</span>
         </div>
 
-        {/* Live Stats Pills */}
-        <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono">
-          <div className="flex items-center gap-1">
-            <span className="text-paper/50">Score:</span>
-            <span className="font-bold text-[var(--blue-halftone)]">{score}</span>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-paper/50">Streak:</span>
+          <span className="font-bold text-[var(--yellow)] text-sm">{combo > 1 ? `${combo}x` : "1x"}</span>
+        </div>
 
-          <div className="flex items-center gap-1">
-            <span className="text-paper/50">Streak:</span>
-            <span className="font-bold text-[var(--yellow)]">{combo > 1 ? `${combo}x` : "1x"}</span>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-paper/50">Pairs:</span>
+          <span className="font-bold text-[var(--green)] text-sm">
+            {matchedPairs}/{pairsCount}
+          </span>
+        </div>
 
-          <div className="flex items-center gap-1">
-            <span className="text-paper/50">Pairs:</span>
-            <span className="font-bold text-[var(--green)]">
-              {matchedPairs}/{pairsCount}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <span className="text-paper/50">Time:</span>
-            <span className="font-bold text-paper">{hasStarted ? timeFormatted : "0:00"}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => restartGame(pairsCount)}
-            className="rounded-lg border border-paper/20 bg-paper/10 px-2 py-0.5 text-[11px] font-mono text-paper hover:bg-paper/20 transition-colors cursor-pointer flex items-center gap-1 ml-1"
-            title="Reset Game"
-          >
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span className="hidden sm:inline">Reset</span>
-          </button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-paper/50">Time:</span>
+          <span className="font-bold text-paper text-sm">{hasStarted ? timeFormatted : "0:00"}</span>
         </div>
       </div>
 

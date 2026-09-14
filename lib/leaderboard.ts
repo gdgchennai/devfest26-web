@@ -46,24 +46,56 @@ let tableEnsured = false;
 async function ensureTable(db: D1Database): Promise<void> {
   if (tableEnsured) return;
   try {
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS game_scores (
-        id          TEXT PRIMARY KEY,
-        user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        game_id     TEXT NOT NULL,
-        score       INTEGER NOT NULL,
-        time_ms     INTEGER NOT NULL,
-        moves       INTEGER NOT NULL DEFAULT 0,
-        level_data  TEXT,
-        created_at  INTEGER NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_game_scores_lookup ON game_scores(game_id, score DESC, time_ms ASC);
-      CREATE INDEX IF NOT EXISTS idx_game_scores_user ON game_scores(user_id, game_id);
-      CREATE INDEX IF NOT EXISTS idx_game_scores_created ON game_scores(created_at DESC);
-    `);
+    // Ensure users table exists first so queries joining on users succeed in local dev & prod
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS users (
+          id           TEXT PRIMARY KEY,
+          google_sub   TEXT NOT NULL UNIQUE,
+          email        TEXT NOT NULL,
+          name         TEXT,
+          image        TEXT,
+          created_at   INTEGER NOT NULL,
+          display_name TEXT
+        )`,
+      )
+      .run();
+
+    // Ensure game_scores table exists
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS game_scores (
+          id          TEXT PRIMARY KEY,
+          user_id     TEXT NOT NULL,
+          game_id     TEXT NOT NULL,
+          score       INTEGER NOT NULL,
+          time_ms     INTEGER NOT NULL,
+          moves       INTEGER NOT NULL DEFAULT 0,
+          level_data  TEXT,
+          created_at  INTEGER NOT NULL
+        )`,
+      )
+      .run();
+
+    // Ensure indices
+    await db
+      .prepare(
+        `CREATE INDEX IF NOT EXISTS idx_game_scores_lookup ON game_scores(game_id, score DESC, time_ms ASC)`,
+      )
+      .run()
+      .catch(() => {});
+    await db
+      .prepare(`CREATE INDEX IF NOT EXISTS idx_game_scores_user ON game_scores(user_id, game_id)`)
+      .run()
+      .catch(() => {});
+    await db
+      .prepare(`CREATE INDEX IF NOT EXISTS idx_game_scores_created ON game_scores(created_at DESC)`)
+      .run()
+      .catch(() => {});
+
     tableEnsured = true;
-  } catch {
-    tableEnsured = true;
+  } catch (err) {
+    console.warn("D1 game_scores table initialization fallback:", err);
   }
 }
 
@@ -144,7 +176,7 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
            COALESCE(u.display_name, u.name, 'DevFest Player') AS user_name,
            u.image AS user_image
          FROM game_scores s
-         JOIN users u ON u.id = s.user_id
+         LEFT JOIN users u ON u.id = s.user_id
          WHERE s.game_id = ?
          ORDER BY s.score DESC, s.time_ms ASC, s.created_at ASC
          LIMIT ?`,
@@ -245,8 +277,8 @@ export async function getOverallLeaderboard(limit = 50): Promise<OverallLeaderbo
            FROM game_scores
            GROUP BY user_id, game_id
          ) best_scores
-         JOIN users u ON u.id = best_scores.user_id
-         GROUP BY u.id, u.name, u.display_name, u.image
+         LEFT JOIN users u ON u.id = best_scores.user_id
+         GROUP BY best_scores.user_id, u.name, u.display_name, u.image
          ORDER BY total_score DESC, games_played DESC, fastest_time ASC
          LIMIT ?`,
       )

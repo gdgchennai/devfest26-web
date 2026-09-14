@@ -13,11 +13,6 @@ function getDailyPuzzleIndex(poolLength: number): number {
   return Math.abs(utcDays) % poolLength;
 }
 
-function getFormattedDate(): string {
-  const now = new Date();
-  return now.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
 function getRemainingCycleTime(): string {
   const now = new Date();
   const nextMidnight = new Date(now);
@@ -28,10 +23,6 @@ function getRemainingCycleTime(): string {
   return `${hours}h ${minutes}m`;
 }
 
-type CrosswordGameProps = {
-  onFinishGame: (submission: GameScoreSubmission) => void;
-};
-
 type CellData = {
   row: number;
   col: number;
@@ -41,12 +32,18 @@ type CellData = {
   downClueIndex?: number;
 };
 
-export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
+type CrosswordGameProps = {
+  onFinishGame: (submission: GameScoreSubmission) => void;
+  onCycleTimeCalculated?: (time: string) => void;
+};
+
+export function CrosswordGame({
+  onFinishGame,
+  onCycleTimeCalculated,
+}: CrosswordGameProps) {
   const [puzzles, setPuzzles] = useState<CrosswordPuzzle[]>(initialCrosswords as CrosswordPuzzle[]);
   const dailyIdx = useMemo(() => getDailyPuzzleIndex(puzzles.length), [puzzles.length]);
   const puzzle = puzzles[dailyIdx] || puzzles[0] || (initialCrosswords[0] as CrosswordPuzzle);
-
-  const [cycleTimeLeft, setCycleTimeLeft] = useState<string>("");
 
   // API-first fetch for latest crosswords
   useEffect(() => {
@@ -62,7 +59,8 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
 
   useEffect(() => {
     const updateCycle = () => {
-      setCycleTimeLeft(getRemainingCycleTime());
+      const remaining = getRemainingCycleTime();
+      onCycleTimeCalculated?.(remaining);
     };
     const timeout = setTimeout(updateCycle, 0);
     const interval = setInterval(updateCycle, 60000);
@@ -70,7 +68,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, []);
+  }, [onCycleTimeCalculated]);
 
   // Derive model and 2D grid with useMemo & defensive boundary sizing
   const { gridMatrix, actualSize } = useMemo(() => {
@@ -359,7 +357,7 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
   });
 
   return (
-    <div className="flex flex-col gap-6" onKeyDown={handleKeyDown}>
+    <div className="flex flex-col gap-5" onKeyDown={handleKeyDown}>
       <input
         ref={inputRef}
         type="text"
@@ -368,69 +366,42 @@ export function CrosswordGame({ onFinishGame }: CrosswordGameProps) {
         tabIndex={-1}
       />
 
-      {/* Top 24-Hour Cycle Banner & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-paper/10 bg-surface p-3.5 sm:p-4">
-        <div className="flex items-center gap-3">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-[var(--green)] animate-pulse shrink-0" />
-          <div>
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-paper">
-              Daily Tech Crossword ({getFormattedDate()})
+      {/* Active Clue Bar banner */}
+      <div className="rounded-2xl border border-[var(--blue)]/30 bg-[var(--blue)]/10 p-3.5 sm:p-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--blue)] text-xs font-bold text-white font-mono shrink-0">
+            {activeClue ? `${activeClue.number}${activeClue.direction[0].toUpperCase()}` : "—"}
+          </span>
+          <div className="min-w-0">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--blue-halftone)]">
+              {direction.toUpperCase()} CLUE
             </div>
-            <div className="text-[11px] font-mono text-paper/60 mt-0.5">
-              Next puzzle in: <span className="text-[var(--yellow)] font-bold">{cycleTimeLeft || "calculating..."}</span>
+            <div className="text-xs sm:text-sm font-medium text-paper truncate sm:whitespace-normal mt-0.5">
+              {activeClue ? activeClue.clue : "Select a cell to view the clue"}
             </div>
           </div>
         </div>
-
-        {/* Action buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             type="button"
             onClick={handleRevealLetter}
             disabled={!hasStarted}
-            className="rounded-xl border border-paper/10 bg-paper/[0.04] px-3 py-1.5 text-xs font-mono text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs font-mono text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Reveal Letter (-250 pts)
+            Reveal Letter
           </button>
           <button
             type="button"
             onClick={handleCheckAll}
             disabled={!hasStarted}
-            className="rounded-xl border border-[var(--blue)]/40 bg-[var(--blue)]/10 px-3 py-1.5 text-xs font-mono text-[var(--blue-halftone)] hover:bg-[var(--blue)]/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex rounded-xl border border-[var(--blue)]/40 bg-[var(--blue)]/10 px-2.5 py-1 text-xs font-mono text-[var(--blue-halftone)] hover:bg-[var(--blue)]/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Check Answers
+            Check
           </button>
-          <button
-            type="button"
-            onClick={resetPuzzle}
-            className="rounded-xl border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs font-mono text-paper hover:bg-paper/20 transition-colors cursor-pointer flex items-center gap-1.5"
-          >
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Active Clue Bar banner */}
-      <div className="rounded-2xl border border-[var(--blue)]/30 bg-[var(--blue)]/10 p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--blue)] text-xs font-bold text-white font-mono shrink-0">
-            {activeClue ? `${activeClue.number}${activeClue.direction[0].toUpperCase()}` : "—"}
-          </span>
-          <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--blue-halftone)]">
-              {direction.toUpperCase()} CLUE
-            </div>
-            <div className="text-xs sm:text-sm font-medium text-paper mt-0.5">
-              {activeClue ? activeClue.clue : "Select a cell to view the clue"}
-            </div>
+          <div className="text-right">
+            <div className="text-[10px] font-mono uppercase text-paper/60">Time</div>
+            <div className="text-base sm:text-lg font-bold font-mono text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
           </div>
-        </div>
-        <div className="text-right shrink-0">
-          <div className="text-[10px] font-mono uppercase text-paper/60">Time</div>
-          <div className="text-base sm:text-lg font-bold font-mono text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
         </div>
       </div>
 

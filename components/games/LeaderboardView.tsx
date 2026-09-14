@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useSession } from "next-auth/react";
 import type { LeaderboardEntry, OverallLeaderboardEntry } from "@/lib/leaderboard";
 
@@ -163,11 +162,12 @@ export function LeaderboardView() {
                   </span>
                   <div className="mx-auto mt-2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-paper/30 bg-paper/10 overflow-hidden relative">
                     {"userImage" in topThree[1] && topThree[1].userImage ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={topThree[1].userImage}
                         alt={topThree[1].userName}
-                        fill
-                        className="object-cover"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <span className="text-lg sm:text-xl font-bold text-paper">
@@ -206,11 +206,12 @@ export function LeaderboardView() {
                   </div>
                   <div className="mx-auto mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-3 border-[var(--yellow)] bg-[var(--yellow)]/10 overflow-hidden relative shadow-[0_0_20px_rgba(249,171,0,0.3)]">
                     {"userImage" in topThree[0] && topThree[0].userImage ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={topThree[0].userImage}
                         alt={topThree[0].userName}
-                        fill
-                        className="object-cover"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <span className="text-xl sm:text-2xl font-bold text-[var(--yellow)]">
@@ -247,11 +248,12 @@ export function LeaderboardView() {
                   </span>
                   <div className="mx-auto mt-2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-[#cd7f32]/40 bg-paper/10 overflow-hidden relative">
                     {"userImage" in topThree[2] && topThree[2].userImage ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={topThree[2].userImage}
                         alt={topThree[2].userName}
-                        fill
-                        className="object-cover"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <span className="text-lg sm:text-xl font-bold text-paper">
@@ -313,11 +315,12 @@ export function LeaderboardView() {
                         </span>
                         <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-paper/10 overflow-hidden relative shrink-0">
                           {entry.userImage ? (
-                            <Image
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
                               src={entry.userImage}
                               alt={entry.userName}
-                              fill
-                              className="object-cover"
+                              referrerPolicy="no-referrer"
+                              className="h-full w-full object-cover"
                             />
                           ) : (
                             <span className="text-xs font-bold text-paper">

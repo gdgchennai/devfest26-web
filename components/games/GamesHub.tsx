@@ -7,6 +7,9 @@ import { CrosswordGame } from "./CrosswordGame";
 import { MemoryGame } from "./MemoryGame";
 import { LeaderboardView } from "./LeaderboardView";
 import { ScoreModal, type GameScoreSubmission } from "./ScoreModal";
+import { GameSettingsModal } from "./GameSettingsModal";
+import initialPhotos from "@/content/jigsaw-photos.json";
+import type { ArchivePhotoChoice } from "@/lib/games-content";
 
 export type GameTab = "jigsaw" | "crossword" | "memory" | "leaderboard";
 
@@ -14,8 +17,40 @@ export function GamesHub() {
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<GameTab>("jigsaw");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [resetTrigger, setResetTrigger] = useState<number>(0);
   const [currentScoreData, setCurrentScoreData] = useState<GameScoreSubmission | null>(null);
   const [autoSubmitMessage, setAutoSubmitMessage] = useState<string | null>(null);
+
+  // Shared settings states across games
+  const [jigsawGridSize, setJigsawGridSize] = useState<number>(3);
+  const [jigsawSlideMode, setJigsawSlideMode] = useState<boolean>(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(
+    (initialPhotos[0] as ArchivePhotoChoice) || { src: "", title: "", year: 2025 },
+  );
+
+  const [crosswordCycleTime, setCrosswordCycleTime] = useState<string>("");
+  const [crosswordHasStarted, setCrosswordHasStarted] = useState<boolean>(false);
+  const [crosswordRevealTrigger, setCrosswordRevealTrigger] = useState<number>(0);
+  const [crosswordCheckTrigger, setCrosswordCheckTrigger] = useState<number>(0);
+
+  const [memoryPairsCount, setMemoryPairsCount] = useState<number>(8);
+
+  // API-first fetch for latest archive photos
+  useEffect(() => {
+    fetch("/api/games/content?kind=photos")
+      .then((res) => res.json() as Promise<{ data?: ArchivePhotoChoice[] }>)
+      .then((payload) => {
+        if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          setSelectedPhoto(payload.data[0]);
+        }
+      })
+      .catch((err) => console.warn("Using fallback photos content", err));
+  }, []);
+
+  function handleResetGame() {
+    setResetTrigger((prev) => prev + 1);
+  }
 
   // Check if there is a pending score in localStorage waiting for post-OAuth sign in
   useEffect(() => {
@@ -167,28 +202,82 @@ export function GamesHub() {
           })}
         </div>
 
-        {/* User Status pill */}
-        <div className="self-start md:self-auto flex items-center gap-2 rounded-full border border-paper/10 bg-surface px-3 py-1.5 text-xs font-mono text-paper/70 shrink-0">
-          <span
-            className={`h-2 w-2 rounded-full ${
-              status === "authenticated" ? "bg-[var(--green)] animate-pulse" : "bg-[var(--yellow)]"
-            }`}
-          />
-          <span className="truncate max-w-[200px] sm:max-w-none">
-            {status === "authenticated"
-              ? `Signed in as ${session?.user?.name || "Builder"}`
-              : "Sign in required for ranking"}
-          </span>
+        {/* Action Controls: Reset & Settings icons (replacing the sign-in pill) */}
+        <div className="self-end md:self-auto flex items-center gap-2 shrink-0">
+          {activeTab !== "leaderboard" && (
+            <>
+              <button
+                type="button"
+                onClick={handleResetGame}
+                aria-label="Restart Game"
+                title="Restart current game"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-paper/10 bg-surface text-paper/80 hover:border-paper/30 hover:bg-surface-raised hover:text-paper transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Game Settings"
+                title="Game settings"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-paper/10 bg-surface text-paper/80 hover:border-paper/30 hover:bg-surface-raised hover:text-paper transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Active Game / Leaderboard Display */}
       <div className="min-h-[450px]">
-        {activeTab === "jigsaw" && <JigsawGame onFinishGame={handleGameFinish} />}
-        {activeTab === "crossword" && <CrosswordGame onFinishGame={handleGameFinish} />}
-        {activeTab === "memory" && <MemoryGame onFinishGame={handleGameFinish} />}
+        {activeTab === "jigsaw" && (
+          <JigsawGame
+            key={`jigsaw-${jigsawGridSize}-${jigsawSlideMode}-${selectedPhoto.src}-${resetTrigger}`}
+            onFinishGame={handleGameFinish}
+            gridSize={jigsawGridSize}
+            isSlideMode={jigsawSlideMode}
+            selectedPhoto={selectedPhoto}
+            onSelectPhoto={setSelectedPhoto}
+          />
+        )}
+        {activeTab === "crossword" && (
+          <CrosswordGame
+            key={`crossword-${resetTrigger}`}
+            onFinishGame={handleGameFinish}
+            onCycleTimeCalculated={setCrosswordCycleTime}
+          />
+        )}
+        {activeTab === "memory" && (
+          <MemoryGame
+            key={`memory-${memoryPairsCount}-${resetTrigger}`}
+            onFinishGame={handleGameFinish}
+            pairsCount={memoryPairsCount}
+          />
+        )}
         {activeTab === "leaderboard" && <LeaderboardView />}
       </div>
+
+      {/* Game Settings Modal Popup */}
+      <GameSettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        activeTab={activeTab}
+        jigsawGridSize={jigsawGridSize}
+        onJigsawGridSizeChange={setJigsawGridSize}
+        jigsawSlideMode={jigsawSlideMode}
+        onJigsawSlideModeChange={setJigsawSlideMode}
+        crosswordCycleTime={crosswordCycleTime}
+        memoryPairsCount={memoryPairsCount}
+        onMemoryPairsCountChange={setMemoryPairsCount}
+        onResetGame={handleResetGame}
+      />
 
       {/* Score Submission & Authentication Modal */}
       <ScoreModal
