@@ -9,6 +9,9 @@
 	"routes": [
 		{ "pattern": "devfest.gdgchennai.in", "custom_domain": true }
 	],
+	// Wrangler defaults workers_dev to false whenever routes is set —
+	// force it on so the *.workers.dev URL stays active alongside the custom domain.
+	"workers_dev": true,
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
