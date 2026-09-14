@@ -22,13 +22,14 @@ export function Footer() {
     // relative z-10: lift the footer above the fixed BracketsField backdrop
     // (z-0), which lives inside <main> and would otherwise paint its opaque
     // layer over the footer's non-positioned card, wordmark and pill.
-    <footer className="relative z-10 mt-auto px-4 py-16 pb-[max(4rem,calc(env(safe-area-inset-bottom,0px)+2rem))] sm:px-8">
+    // Downsized footer spacing for responsive layouts, with twice the reduction applied on mobile
+    <footer className="relative z-10 mt-auto px-4 py-4 pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] sm:px-8 sm:py-10 sm:pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))]">
       <FooterLogo social={socialLinks} />
 
       {/* Utility + legal strip. Kept below the brand lock-up so the Google
           disclaimer, Code of Conduct and lite toggle stay reachable without
           crowding the mark. */}
-      <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-4 text-center text-sm text-paper/70">
+      <div className="mx-auto mt-2 sm:mt-6 flex w-full max-w-2xl flex-col items-center gap-2 sm:gap-4 text-center text-xs sm:text-sm text-paper/70">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <a
             href={siteConfig.codeOfConduct.url}
