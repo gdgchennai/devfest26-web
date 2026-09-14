@@ -14,6 +14,8 @@ import { CopyField } from "@/components/auth/CopyField";
 import { ClaimTicketForm } from "@/components/auth/ClaimTicketForm";
 import { EditTicket } from "@/components/auth/EditTicket";
 import { AddonTickets } from "@/components/auth/AddonTickets";
+import { getUserGameScores, type GameScoreRecord } from "@/lib/leaderboard";
+import { ProfileHistoryAccordion } from "@/components/games/ProfileHistoryAccordion";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -37,6 +39,7 @@ export default async function ProfilePage() {
   }
 
   const ticket = await getTicketForUser(user);
+  const gameScores = await getUserGameScores(user.id);
 
   return (
     <>
@@ -60,7 +63,7 @@ export default async function ProfilePage() {
             {user.email && <p className="text-sm text-paper/60 sm:text-base truncate mt-0.5">{user.email}</p>}
           </div>
         </div>
-        <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} />
+        <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} gameScores={gameScores} />
       </div>
     </>
   );
@@ -87,10 +90,12 @@ function formatCheckIn(ms: number): string {
 function ProfileContent({
   ticket,
   saved,
+  gameScores,
 }: {
   user: NonNullable<Awaited<ReturnType<typeof getUserById>>>;
   ticket: TicketRecord | null;
   saved: number;
+  gameScores: GameScoreRecord[];
 }) {
   return (
     <>
@@ -167,6 +172,8 @@ function ProfileContent({
           <EditTicket />
         </div>
       )}
+
+      <ProfileHistoryAccordion gameScores={gameScores} />
 
       <div className="mt-8 sm:mt-10">
         <SignOutButton />

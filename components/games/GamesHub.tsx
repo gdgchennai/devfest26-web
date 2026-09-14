@@ -8,10 +8,8 @@ import { MemoryGame } from "./MemoryGame";
 import { LeaderboardView } from "./LeaderboardView";
 import { ScoreModal, type GameScoreSubmission } from "./ScoreModal";
 import { GameSettingsModal } from "./GameSettingsModal";
-import { GameHistoryModal } from "./GameHistoryModal";
 import initialPhotos from "@/content/jigsaw-photos.json";
 import type { ArchivePhotoChoice } from "@/lib/games-content";
-import type { GameScoreRecord } from "@/lib/leaderboard";
 
 export type GameTab = "jigsaw" | "crossword" | "memory" | "leaderboard";
 
@@ -20,8 +18,6 @@ export function GamesHub() {
   const [activeTab, setActiveTab] = useState<GameTab>("jigsaw");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
-  const [userHistory, setUserHistory] = useState<GameScoreRecord[]>([]);
   const [resetTrigger, setResetTrigger] = useState<number>(0);
   const [currentScoreData, setCurrentScoreData] = useState<GameScoreSubmission | null>(null);
   const [autoSubmitMessage, setAutoSubmitMessage] = useState<string | null>(null);
@@ -51,27 +47,6 @@ export function GamesHub() {
       })
       .catch((err) => console.warn("Using fallback photos content", err));
   }, []);
-
-  // Fetch user attempts history when authenticated
-  useEffect(() => {
-    if (status === "authenticated" && session?.user?.uid) {
-      fetch("/api/games/scores?gameId=all")
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed fetching history");
-          return res.json() as Promise<{ userScores?: GameScoreRecord[] }>;
-        })
-        .then((data) => {
-          if (data?.userScores) {
-            setUserHistory(data.userScores);
-          }
-        })
-        .catch((err) => console.warn("Using default history", err));
-    } else {
-      setTimeout(() => {
-        setUserHistory([]);
-      }, 0);
-    }
-  }, [status, session, historyOpen, settingsOpen]);
 
   function handleResetGame() {
     setResetTrigger((prev) => prev + 1);
@@ -245,18 +220,6 @@ export function GamesHub() {
 
               <button
                 type="button"
-                onClick={() => setHistoryOpen(true)}
-                aria-label="Play History"
-                title="View my game history"
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-paper/10 bg-surface text-paper/80 hover:border-paper/30 hover:bg-surface-raised hover:text-paper transition-all cursor-pointer shadow-sm active:scale-95 text-[var(--blue-halftone)]"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-
-              <button
-                type="button"
                 onClick={() => setSettingsOpen(true)}
                 aria-label="Game Settings"
                 title="Game settings"
@@ -314,14 +277,6 @@ export function GamesHub() {
         memoryPairsCount={memoryPairsCount}
         onMemoryPairsCountChange={setMemoryPairsCount}
         onResetGame={handleResetGame}
-      />
-
-      {/* Game Attempts History Modal Popup */}
-      <GameHistoryModal
-        isOpen={historyOpen}
-        onClose={() => setHistoryOpen(false)}
-        userHistory={userHistory}
-        isAuthenticated={status === "authenticated"}
       />
 
       {/* Score Submission & Authentication Modal */}
