@@ -194,6 +194,7 @@ html.lite .nav-lite-only {
 
   --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
+  --font-mono: var(--font-google-sans);
 
   --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1071,7 +1072,7 @@ html.gpu .hallway-stack {
   height: var(--ruler-row-h);
   align-items: center;
   justify-content: flex-end;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-google-sans), sans-serif;
   font-size: 0.875rem;
   color: color-mix(in srgb, var(--paper) 35%, transparent);
   transition: color 300ms ease, font-size 300ms ease;
@@ -1143,7 +1144,7 @@ html.gpu .hallway-stack {
 .agenda-board-hour {
   padding-block: 0.5rem;
   text-align: center;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-google-sans), sans-serif;
   /* Deliberately not smaller — tabular numerals in the system monospace
      fallback render with a visible mid-glyph artifact below ~13px in
      Chromium (confirmed by testing 11/12/13/14px directly; canvas-drawn
