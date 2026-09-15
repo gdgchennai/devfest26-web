@@ -255,20 +255,13 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const w = stage!.clientWidth;
       const h = stage!.clientHeight;
       if (!w || !h) return;
-      let containW: number;
-      let containH: number;
-      // Contain-fit sizing: the entire image and its SVG sketch are fully visible with no cropping
-      if (w / h < ART_RATIO) {
-        containW = w;
-        containH = w / ART_RATIO;
-      } else {
-        containH = h;
-        containW = h * ART_RATIO;
-      }
-      visual!.style.width = `${containW}px`;
-      visual!.style.height = `${containH}px`;
-      visual!.style.left = `${((w - containW) / 2).toFixed(1)}px`;
-      visual!.style.top = `${((h - containH) / 2).toFixed(1)}px`;
+      // Sized to fit the full width of the stage container at all times, with proportional height
+      const targetW = w;
+      const targetH = w / ART_RATIO;
+      visual!.style.width = `${targetW}px`;
+      visual!.style.height = `${targetH}px`;
+      visual!.style.left = "0px";
+      visual!.style.top = `${((h - targetH) / 2).toFixed(1)}px`;
     }
     size();
     const ro = new ResizeObserver(size);
