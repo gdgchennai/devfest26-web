@@ -39,24 +39,20 @@ export default async function NotFound() {
   const archivePhotos = await getArchivePhotos();
   const consolation = archivePhotos.find((p) => p.src.includes("group-photo")) ?? archivePhotos[0];
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8">
-      {/*
-        Four brand dots with one burnt out. The site's whole identity is these
-        four colours, so "one of them is missing" says page-not-found in the
-        site's own language before a word is read — and unlike a giant "404"
-        it doesn't shout at someone who already knows.
-      */}
-      <div className="signal-dots" aria-hidden>
-        <span className="signal-dots__dot bg-blue" />
-        <span className="signal-dots__dot bg-red" />
-        <span className="signal-dots__dot signal-dots__dot--out" />
-        <span className="signal-dots__dot bg-green" />
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
+      <div className="flex flex-col items-center gap-2 mb-8">
+        <div className="signal-dots" aria-hidden>
+          <span className="signal-dots__dot bg-blue" />
+          <span className="signal-dots__dot bg-red" />
+          <span className="signal-dots__dot signal-dots__dot--out" />
+          <span className="signal-dots__dot bg-green" />
+        </div>
+        <span className="font-mono text-xs uppercase tracking-wider text-paper/50">
+          {uiCopy.notFoundPage.statusLabel}
+        </span>
       </div>
 
-      <p className="mt-6 font-mono text-xs uppercase tracking-wider text-paper/50">{uiCopy.notFoundPage.statusLabel}</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.notFoundPage.heading}</h1>
-
-      <div className="mt-4">
+      <div className="mt-2">
         <NotFoundRecovery />
       </div>
 

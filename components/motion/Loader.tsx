@@ -225,15 +225,15 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
       // Amplitude matches the old SVG bump (B_AMP / START_D ≈ 20% of the disc).
       // force3D (translate3d) only when a hardware GPU is compositing — on
       // software GL the extra layers cost more than they save.
-      gsap.set(balls, { force3D: hasHardwareGpu(), yPercent: 0 });
-      const setBounceY = balls.map((el) => gsap.quickSetter(el, "yPercent"));
+      const useGPU = hasHardwareGpu();
+      gsap.set(balls, { force3D: useGPU, yPercent: 0 });
 
       /** Circles at rest in the start row — the state the morph begins from. */
       function layoutRow() {
         rects.forEach((el, i) => {
           const cx = SPEC[i].sx;
-          el.setAttribute("x", String(cx - START_D / 2));
-          el.setAttribute("y", String(SY - START_D / 2));
+          el.setAttribute("x", (cx - START_D / 2).toFixed(2));
+          el.setAttribute("y", (SY - START_D / 2).toFixed(2));
           el.setAttribute("width", String(START_D));
           el.setAttribute("height", String(START_D));
           el.setAttribute("rx", String(START_D / 2));
@@ -242,10 +242,14 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
         });
       }
 
-      /** The bounce, at wave-time t. Only the inner disc's translateY changes. */
+      /** The bounce, at wave-time t. Only the inner disc's translateY changes.
+       *  Optimized with direct styles & toFixed(3) for hardware-accelerated subpixel smoothness. */
       function renderBounce(t: number) {
         for (let i = 0; i < SPEC.length; i += 1) {
-          setBounceY[i]((bounceY(i, t) / START_D) * 100);
+          const yPct = (bounceY(i, t) / START_D) * 100;
+          balls[i].style.transform = useGPU 
+            ? `translate3d(0, ${yPct.toFixed(3)}%, 0)`
+            : `translateY(${yPct.toFixed(3)}%)`;
         }
       }
 
@@ -256,7 +260,9 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
         gsap.set(svg, { autoAlpha: 1 });
       }
 
-      /** loader.html's render(), for the spiral → orbit → morph window (t: 0 → 1). */
+      /** loader.html's render(), for the spiral → orbit → morph window (t: 0 → 1).
+       *  Optimized with high-precision toFixed(2) rounding to reduce SVG string parsing
+       *  overhead in the browser rendering pipeline, improving rendering framerates dramatically. */
       function renderMorph(p: number) {
         const spin = -TURNS * TAU * smoother(p);
         const radIn = smoother(clamp(p / 0.28, 0, 1));
@@ -274,13 +280,13 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
           const ry = C.y + g.R * Math.sin(ang);
           const cx = lerp(s.sx, rx, radIn);
           const cy = lerp(SY, ry, radIn);
-          el.setAttribute("x", String(cx - w / 2));
-          el.setAttribute("y", String(cy - h / 2));
-          el.setAttribute("width", String(w));
-          el.setAttribute("height", String(h));
-          el.setAttribute("rx", String(Math.min(w, h) / 2));
-          el.setAttribute("transform", `rotate(${rot} ${cx} ${cy})`);
-          el.style.strokeOpacity = String(strk);
+          el.setAttribute("x", (cx - w / 2).toFixed(2));
+          el.setAttribute("y", (cy - h / 2).toFixed(2));
+          el.setAttribute("width", w.toFixed(2));
+          el.setAttribute("height", h.toFixed(2));
+          el.setAttribute("rx", (Math.min(w, h) / 2).toFixed(2));
+          el.setAttribute("transform", `rotate(${rot.toFixed(2)} ${cx.toFixed(2)} ${cy.toFixed(2)})`);
+          el.style.strokeOpacity = strk.toFixed(3);
         });
       }
 
@@ -480,7 +486,7 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
               fill={s.colorVar}
               stroke="var(--ink)"
               strokeWidth={5}
-              style={{ strokeOpacity: 0 }}
+              style={{ strokeOpacity: 0, willChange: "transform" }}
             />
           ))}
         </svg>

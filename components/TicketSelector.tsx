@@ -735,10 +735,8 @@ export function TicketSelector() {
       : 0; // the placeholder
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-12 px-6 pb-24 pt-28 sm:px-8 sm:pt-32">
-      <h1 className="text-4xl font-bold tracking-tight text-paper sm:text-5xl">{uiCopy.ticketSelector.heading}</h1>
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-6 text-2xl text-paper sm:text-3xl">
+    <div className="mx-auto flex max-w-3xl flex-col gap-12 px-6 pb-24 pt-24 sm:px-8 sm:pt-28">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-6 text-2xl text-paper sm:text-3xl">
         <span>{uiCopy.ticketSelector.imAPrompt}</span>
         <TicketDropdown
           label={uiCopy.ticketSelector.imAPrompt}

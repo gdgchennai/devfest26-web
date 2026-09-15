@@ -194,6 +194,28 @@ html.lite .nav-lite-only {
 
   --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
+  --font-mono: var(--font-google-sans);
+
+  --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 body {
@@ -1050,7 +1072,7 @@ html.gpu .hallway-stack {
   height: var(--ruler-row-h);
   align-items: center;
   justify-content: flex-end;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-google-sans), sans-serif;
   font-size: 0.875rem;
   color: color-mix(in srgb, var(--paper) 35%, transparent);
   transition: color 300ms ease, font-size 300ms ease;
@@ -1122,7 +1144,7 @@ html.gpu .hallway-stack {
 .agenda-board-hour {
   padding-block: 0.5rem;
   text-align: center;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-google-sans), sans-serif;
   /* Deliberately not smaller — tabular numerals in the system monospace
      fallback render with a visible mid-glyph artifact below ~13px in
      Chromium (confirmed by testing 11/12/13/14px directly; canvas-drawn
@@ -1464,4 +1486,40 @@ html.gpu .hallway-stack {
     justify-content: center;
     border-radius: 0 1.5rem 1.5rem 0;
   }
+}
+
+/* Slide header upwards when bottom sheet settings modal is open */
+body.settings-bottomsheet-open header {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+header {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
+}
+
+/* Gradient translucent blur header, clear at bottom and deeply frosted up top */
+.gradient-header {
+  border-bottom: none;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.gradient-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Dark backdrop background fading progressively to 40% opacity at the bottom */
+  background: linear-gradient(to bottom, var(--ink) 65%, rgba(10, 10, 11, 0.4) 100%) !important;
+  /* Deep 20px blur */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  /* Progressive masking: fully frosted on top, fully clear and unblurred at the bottom */
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  /* Border only on the background card, which will also fade out smoothly at the bottom */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }

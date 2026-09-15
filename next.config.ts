@@ -9,6 +9,16 @@ const imagesShared = {
   imageSizes: [...IMAGE_IMAGE_SIZES],
   // 75 = Next's default (dev `/_next/image`). 80 = ImageKit loader quality.
   qualities: [75, 80],
+  remotePatterns: [
+    {
+      protocol: "https" as const,
+      hostname: "*.googleusercontent.com",
+    },
+    {
+      protocol: "https" as const,
+      hostname: "lh3.googleusercontent.com",
+    },
+  ],
 };
 
 /*

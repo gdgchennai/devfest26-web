@@ -434,10 +434,10 @@ export const siteConfig = {
 
   social: {
     x: "https://x.com/gdgchennai",
-    linkedin: "https://www.linkedin.com/company/gdg-chennai",
+    linkedin: "https://www.linkedin.com/company/gdgchennai/",
     instagram: "https://www.instagram.com/gdgchennai",
-    youtube: "https://www.youtube.com/@GDGChennai",
-    github: "https://github.com/gdg-chennai",
+    youtube: "https://www.youtube.com/@GDGCHENNAICOMMUNITY",
+    github: "https://github.com/gdgchennai",
     discord: "https://discord.com/invite/eSyuFW3ywQ",
   },
 

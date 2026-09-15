@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSpeaker, getSpeakers } from "@/lib/content";
 import { Frame } from "@/components/Frame";
+import { HeaderTitle } from "@/components/HeaderTitleContext";
 import { JsonLd } from "@/components/JsonLd";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
@@ -43,8 +44,11 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
     (href): href is string => Boolean(href),
   );
 
+  const role = [speaker.title, speaker.company].filter(Boolean).join(" · ");
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12 sm:px-8">
+    <div className="mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
+      <HeaderTitle title={speaker.name} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -70,19 +74,22 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
           ],
         }}
       />
-      <Frame
-        src={speaker.photo}
-        alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
-        title={speaker.name}
-        aspectRatio="1 / 1"
-        sizes="(max-width: 640px) 100vw, 20rem"
-        className="max-w-xs"
-      />
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight">{speaker.name}</h1>
-      <p className="mt-1 text-paper/70">
-        {speaker.title} · {speaker.company}
-      </p>
-      <p className="mt-6 text-paper/85">{speaker.bio}</p>
+      {role ? (
+        <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
+          {role}
+        </p>
+      ) : null}
+      <div className="flex justify-center">
+        <Frame
+          src={speaker.photo}
+          alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
+          title={speaker.name}
+          aspectRatio="1 / 1"
+          sizes="(max-width: 640px) 100vw, 20rem"
+          className="max-w-xs"
+        />
+      </div>
+      <p className="mt-8 text-paper/85">{speaker.bio}</p>
 
       {speaker.talk && (
         <div className="mt-8 rounded-lg border border-paper/10 p-5">

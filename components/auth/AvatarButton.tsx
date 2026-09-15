@@ -13,7 +13,13 @@ import { currentInternalPath } from "@/lib/safe-redirect";
  * `hidden` fades it out while the hamburger panel is open (it would otherwise
  * poke through the overlay).
  */
-export function AvatarButton({ hidden = false }: { hidden?: boolean }) {
+export function AvatarButton({
+  hidden = false,
+  inline = false,
+}: {
+  hidden?: boolean;
+  inline?: boolean;
+}) {
   const router = useRouter();
   const { data, status } = useSession();
   const authed = status === "authenticated";
@@ -27,12 +33,16 @@ export function AvatarButton({ hidden = false }: { hidden?: boolean }) {
     }
   }
 
+  const baseClasses = `transition-opacity duration-200 ${
+    hidden ? "opacity-0 [&_button]:pointer-events-none" : "opacity-100"
+  }`;
+
+  const wrapperClasses = inline
+    ? `pointer-events-auto flex items-center ${baseClasses}`
+    : `pointer-events-none fixed right-[max(calc(1rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(calc(2rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] ${baseClasses}`;
+
   return (
-    <div
-      className={`pointer-events-none fixed right-[max(calc(1rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 transition-opacity duration-200 sm:right-[max(calc(2rem+3.25rem),calc(env(safe-area-inset-right,0px)+3.25rem))] ${
-        hidden ? "opacity-0 [&_button]:pointer-events-none" : "opacity-100"
-      }`}
-    >
+    <div className={wrapperClasses}>
       {/* Same glow-btn box shell the home / hamburger buttons use. */}
       <span className="glow-btn h-11 w-11 rounded-2xl" data-shape="box">
         <span className="glow-btn__corners" aria-hidden="true" />

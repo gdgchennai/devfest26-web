@@ -18,15 +18,12 @@ export default async function SpeakersPage() {
   const speakers = await getSpeakers();
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.speakersPage.heading}</h1>
-      <p className="mt-3 max-w-xl text-paper/70">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
+      <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
         {speakers.length === 0 ? uiCopy.speakersPage.cfpOpenBody : uiCopy.speakersPage.moreToComeBody}
       </p>
 
-      <div className="mt-8">
-        <SpeakerWall speakers={speakers} limit={Math.max(6, speakers.length + 1)} />
-      </div>
+      <SpeakerWall speakers={speakers} limit={Math.max(6, speakers.length + 1)} />
     </div>
   );
 }

@@ -21,13 +21,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col justify-center px-4 py-20 sm:px-8">
+    <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-4 pb-16 pt-24 text-center sm:px-8 sm:pt-28">
       <Eyebrow dotColor="red" className="mb-3">
         {uiCopy.errorPage.eyebrow}
       </Eyebrow>
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{uiCopy.errorPage.heading}</h1>
       <p className="mt-3 max-w-xl text-paper/70">{uiCopy.errorPage.body}</p>
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button onClick={() => unstable_retry()}>{uiCopy.errorPage.retryLabel}</Button>
         <Button href="/" variant="secondary">
           {uiCopy.errorPage.homeLabel}

@@ -22,6 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   pages: {
     signIn: "/signin",
+    error: "/signin", // Redirect to custom error handler on sign-in errors
   },
   callbacks: {
     // Post-sign-in / post-sign-out landing. Only ever same-origin: a relative

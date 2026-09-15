@@ -12,6 +12,7 @@ import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
+import { HeaderTitleProvider } from "@/components/HeaderTitleContext";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { OG_IMAGE, siteDescription } from "@/lib/seo";
 import { CtaTracker } from "@/components/CtaTracker";
@@ -187,7 +188,8 @@ export default function RootLayout({
         <AuthProvider>
           <PostHogIdentify />
           <FavoritesProvider>
-            <MotionProvider>
+            <HeaderTitleProvider>
+              <MotionProvider>
           {/* Capture-phase click listener for conversion hrefs. Must be a
               child of MotionProvider so its effect registers before the
               route-transition interceptor — see CtaTracker. */}
@@ -207,7 +209,8 @@ export default function RootLayout({
           <Footer />
           <ScrollCueController />
           <ScrollProgress />
-            </MotionProvider>
+              </MotionProvider>
+            </HeaderTitleProvider>
           </FavoritesProvider>
         </AuthProvider>
       </body>

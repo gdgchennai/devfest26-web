@@ -7,12 +7,15 @@ import { countFavorites } from "@/lib/favorites";
 import { AGENDA_READY } from "@/lib/routes";
 import { EVENT_TIME_ZONE } from "@/lib/format";
 import { BracketsField } from "@/components/motion/BracketsField";
+import { HeaderTitle } from "@/components/HeaderTitleContext";
 import { GlowButton } from "@/components/GlowButton";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { CopyField } from "@/components/auth/CopyField";
 import { ClaimTicketForm } from "@/components/auth/ClaimTicketForm";
 import { EditTicket } from "@/components/auth/EditTicket";
 import { AddonTickets } from "@/components/auth/AddonTickets";
+import { getUserGameScores, type GameScoreRecord } from "@/lib/leaderboard";
+import { ProfileHistoryAccordion } from "@/components/games/ProfileHistoryAccordion";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -36,12 +39,31 @@ export default async function ProfilePage() {
   }
 
   const ticket = await getTicketForUser(user);
+  const gameScores = await getUserGameScores(user.id);
 
   return (
     <>
+      <HeaderTitle title="My profile" />
       <BracketsField mode="settled" />
       <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} />
+        <div className="flex items-center gap-4 mb-8">
+          {user.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.image}
+              alt={user.name ?? "Profile Avatar"}
+              width={64}
+              height={64}
+              referrerPolicy="no-referrer"
+              className="h-16 w-16 rounded-full border border-paper/10 shrink-0"
+            />
+          )}
+          <div className="min-w-0">
+            {user.name && <h2 className="text-xl sm:text-2xl font-bold text-paper truncate">{user.name}</h2>}
+            {user.email && <p className="text-sm text-paper/60 sm:text-base truncate mt-0.5">{user.email}</p>}
+          </div>
+        </div>
+        <ProfileContent user={user} ticket={ticket} saved={await countFavorites(user.id)} gameScores={gameScores} />
       </div>
     </>
   );
@@ -66,36 +88,17 @@ function formatCheckIn(ms: number): string {
 }
 
 function ProfileContent({
-  user,
   ticket,
   saved,
+  gameScores,
 }: {
   user: NonNullable<Awaited<ReturnType<typeof getUserById>>>;
   ticket: TicketRecord | null;
   saved: number;
+  gameScores: GameScoreRecord[];
 }) {
   return (
     <>
-      <div className="flex items-center gap-3 sm:gap-4">
-        {user.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={user.image}
-            alt=""
-            width={64}
-            height={64}
-            referrerPolicy="no-referrer"
-            className="h-14 w-14 shrink-0 rounded-full border border-paper/10 sm:h-16 sm:w-16"
-          />
-        )}
-        <div className="min-w-0">
-          <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
-            {user.name ?? "My profile"}
-          </h1>
-          {user.email && <p className="truncate text-sm text-paper/60 sm:text-base">{user.email}</p>}
-        </div>
-      </div>
-
       {ticket?.checked_in === 1 && (
         <div className="mt-8 sm:mt-10">
           <p className="text-lg font-semibold">
@@ -169,6 +172,8 @@ function ProfileContent({
           <EditTicket />
         </div>
       )}
+
+      <ProfileHistoryAccordion gameScores={gameScores} />
 
       <div className="mt-8 sm:mt-10">
         <SignOutButton />

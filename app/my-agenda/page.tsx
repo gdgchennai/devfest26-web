@@ -33,11 +33,15 @@ export default async function MyAgendaPage() {
   return (
     <>
       <BracketsField mode="settled" />
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-12 sm:px-8">
-        <h1 className="text-center text-4xl font-semibold tracking-tight sm:text-5xl">My agenda</h1>
+      <div className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
+        {sessions.length > 0 && (
+          <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
+            Sessions you&apos;ve saved for DevFest Chennai.
+          </p>
+        )}
 
         {sessions.length === 0 ? (
-          <div className="mt-10 rounded-lg border border-paper/10 p-8 text-center">
+          <div className="rounded-lg border border-paper/10 p-8 text-center">
             <p className="text-paper/70">You haven&apos;t saved any sessions yet.</p>
             <Link
               href="/agenda"
@@ -47,9 +51,7 @@ export default async function MyAgendaPage() {
             </Link>
           </div>
         ) : (
-          <div className="mt-8">
-            <AgendaList sessions={sessions} showFavorite />
-          </div>
+          <AgendaList sessions={sessions} showFavorite />
         )}
       </div>
     </>
