@@ -49,7 +49,7 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
           </span>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-paper">
-              My Tech Games History
+              Games History
             </h3>
             <p className="text-[10px] font-mono text-paper/40 mt-0.5">
               {gameScores.length} attempts completed across all mini-games
