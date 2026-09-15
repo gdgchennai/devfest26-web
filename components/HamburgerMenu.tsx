@@ -292,7 +292,7 @@ export function HamburgerMenu() {
         <header className={`fixed inset-x-0 top-0 transition-all duration-300 ${
           open 
             ? "z-[60] bg-transparent border-b-transparent backdrop-blur-none" 
-            : "z-50 border-b border-paper/10 bg-ink/75 backdrop-blur-md"
+            : "z-50 gradient-header"
         }`}>
           <div className="mx-auto flex w-full items-center justify-between px-4 py-3 sm:px-8 sm:py-3.5 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))]">
             {/* Left section: Home button */}

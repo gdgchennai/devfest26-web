@@ -1498,3 +1498,28 @@ body.settings-bottomsheet-open header {
 header {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
 }
+
+/* Gradient translucent blur header, clear at bottom and deeply frosted up top */
+.gradient-header {
+  border-bottom: none;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.gradient-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Dark backdrop background fading progressively to 40% opacity at the bottom */
+  background: linear-gradient(to bottom, var(--ink) 65%, rgba(10, 10, 11, 0.4) 100%) !important;
+  /* Deep 20px blur */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  /* Progressive masking: fully frosted on top, fully clear and unblurred at the bottom */
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
+  /* Border only on the background card, which will also fade out smoothly at the bottom */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
