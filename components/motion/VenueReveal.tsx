@@ -261,7 +261,9 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       visual!.style.width = `${targetW}px`;
       visual!.style.height = `${targetH}px`;
       visual!.style.left = "0px";
-      visual!.style.top = `${((h - targetH) / 2).toFixed(1)}px`;
+      // Anchor top to 0px if the image overflows the stage height to protect the roofline from being cut off
+      const topOffset = targetH > h ? 0 : (h - targetH) / 2;
+      visual!.style.top = `${topOffset.toFixed(1)}px`;
     }
     size();
     const ro = new ResizeObserver(size);
