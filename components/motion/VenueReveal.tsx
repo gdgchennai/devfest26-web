@@ -902,8 +902,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 70vw, 100vw"
-                  decoding="async"
-                  fetchPriority="low"
+                  priority={true}
                   className="object-fill"
                 />
               </div>
@@ -932,6 +931,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 src="/venue.webp"
                 alt={uiCopy.common.venueAlt}
                 fill
+                priority={true}
                 className="object-cover"
               />
             </div>
