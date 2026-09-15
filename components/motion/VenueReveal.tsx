@@ -23,11 +23,6 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
  *  is cropped to the same ratio so the two stay pixel-aligned, and the stage
  *  itself is sized close to it (see the JSX) rather than a full viewport. */
 const ART_RATIO = 1773 / 1167;
-/** Vertical crop bias when the stage is wider/shorter than ART_RATIO: only
- *  this fraction of the overflow comes off the top, protecting the roofline
- *  (the rest comes off the bottom — plain roadway). */
-const TOP_CROP_BIAS = 0.15;
-
 /** The pin's three held phases, in %-of-viewport scroll distance each
  *  consumes — HOLD (dead zone), SWAP ("Location" ⇄ "Save the Date"), then
  *  OVERLAY (the black panel's rise). Module-level (not effect-local)
@@ -260,19 +255,20 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const w = stage!.clientWidth;
       const h = stage!.clientHeight;
       if (!w || !h) return;
-      let coverW: number;
-      let coverH: number;
-      if (w / h > ART_RATIO) {
-        coverW = w;
-        coverH = w / ART_RATIO;
+      let containW: number;
+      let containH: number;
+      // Contain-fit sizing: the entire image and its SVG sketch are fully visible with no cropping
+      if (w / h < ART_RATIO) {
+        containW = w;
+        containH = w / ART_RATIO;
       } else {
-        coverH = h;
-        coverW = h * ART_RATIO;
+        containH = h;
+        containW = h * ART_RATIO;
       }
-      visual!.style.width = `${coverW}px`;
-      visual!.style.height = `${coverH}px`;
-      visual!.style.left = `${-((coverW - w) / 2)}px`;
-      visual!.style.top = `${-((coverH - h) * TOP_CROP_BIAS)}px`;
+      visual!.style.width = `${containW}px`;
+      visual!.style.height = `${containH}px`;
+      visual!.style.left = `${((w - containW) / 2).toFixed(1)}px`;
+      visual!.style.top = `${((h - containH) / 2).toFixed(1)}px`;
     }
     size();
     const ro = new ResizeObserver(size);
