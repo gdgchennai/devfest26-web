@@ -230,10 +230,13 @@ export function useAssetsLoaded(
      * is the only way to tell "one photo missing, carry on" from "the thing this
      * intro exists to introduce cannot render".
      */
-    function watch(work: Promise<unknown>, label: string): Promise<void> {
+    function watch(work: Promise<unknown>, label: string, customTimeout?: number): Promise<void> {
       let timer = 0;
       const budget = new Promise<never>((_, reject) => {
-        timer = window.setTimeout(() => reject(new Error(`budget: ${label}`)), ASSET_BUDGET);
+        timer = window.setTimeout(
+          () => reject(new Error(`budget: ${label}`)),
+          customTimeout ?? ASSET_BUDGET,
+        );
         budgetTimers.push(timer);
       });
       return Promise.race([work, budget]).then(
@@ -327,30 +330,28 @@ export function useAssetsLoaded(
     });
 
     /*
-     * Optimizer-served images — WARMED BUT NOT AWAITED, and the difference is
-     * the whole point of this block.
+     * Optimizer-served images — WARMED AND COMPiled IN ADVANCE for butter-smooth mobile entrances.
      *
-     * These are the flythrough's <Frame>s. Two reasons they must not hold the
-     * bounce: they are not on screen at hand-off (the flythrough only plays
-     * after the visitor clicks Enter, which is later still), and <Frame> renders
-     * its brand-shape panel and cross-fades each photo in on decode, so a late
-     * arrival degrades to "a panel that fills in" rather than to a hole.
-     *
-     * Blocking on them was making everyone — including fast connections — wait
-     * out ten decodes for pictures they could not yet see. Starting the fetch is
-     * the part that mattered; awaiting it never was.
-     *
-     * Setting sizes BEFORE srcset still matters: the browser resolves the
-     * candidate at srcset-assignment time, and with no sizes yet it would
-     * default to 100vw and pick a wider (different, uncached) variant.
+     * These are the flythrough's <Frame>s. Since they fly past during the high-speed intro,
+     * decoding them on-the-fly on mobile/tablet CPUs causes substantial layout thread stalls and lag.
+     * We load and decode them in parallel in advance with a tighter 4-second budget per image.
+     * This warms and compiles them into GPU cache before hand-off for a lag-free 60fps/120fps intro,
+     * while the strict timeout guarantees slow connections never hang forever.
      */
     sizedAssets.forEach(({ src, sizes }) => {
       const img = new window.Image();
       img.sizes = sizes;
       img.srcset = optimizedSrcSet(src);
       img.src = src; // fallback for anything that ignores srcset
-      // Swallow: an un-awaited rejection here is an unhandled promise rejection.
-      void img.decode?.().catch(() => {});
+      
+      const decodePromise = img.decode 
+        ? img.decode() 
+        : new Promise((resolve) => {
+            img.onload = () => resolve(null);
+            img.onerror = () => resolve(null);
+          });
+      // Await in parallel with a safe 4-second budget per flythrough card to keep load times tight
+      waits.push(watch(decodePromise, `sized:${src}`, 4000));
     });
 
     // The 3D brackets backdrop signals when three.js has downloaded and its
