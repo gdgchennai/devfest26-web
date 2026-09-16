@@ -19,10 +19,6 @@ import { GlowButton } from "@/components/GlowButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
-/** The line-art's own viewBox ratio (see public/venue-lines.svg) — the photo
- *  is cropped to the same ratio so the two stay pixel-aligned, and the stage
- *  itself is sized close to it (see the JSX) rather than a full viewport. */
-const ART_RATIO = 1773 / 1167;
 /** The pin's three held phases, in %-of-viewport scroll distance each
  *  consumes — HOLD (dead zone), SWAP ("Location" ⇄ "Save the Date"), then
  *  OVERLAY (the black panel's rise). Module-level (not effect-local)
@@ -255,15 +251,11 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const w = stage!.clientWidth;
       const h = stage!.clientHeight;
       if (!w || !h) return;
-      // Sized to fit the full width of the stage container at all times, with proportional height
-      const targetW = w;
-      const targetH = w / ART_RATIO;
-      visual!.style.width = `${targetW}px`;
-      visual!.style.height = `${targetH}px`;
+      // Sized to match the exact dimensions of the stage container for a perfect fit with no cropping or cutoffs
+      visual!.style.width = `${w}px`;
+      visual!.style.height = `${h}px`;
       visual!.style.left = "0px";
-      // Anchor top to 0px if the image overflows the stage height to protect the roofline from being cut off
-      const topOffset = targetH > h ? 0 : (h - targetH) / 2;
-      visual!.style.top = `${topOffset.toFixed(1)}px`;
+      visual!.style.top = "0px";
     }
     size();
     const ro = new ResizeObserver(size);
