@@ -59,11 +59,20 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["gsap", "@gsap/react", "three", "lenis"],
   },
   ...(process.env.NODE_ENV === "production"
-    ? {
-        images: IMAGEKIT
-          ? { ...imagesShared, loader: "custom" as const, loaderFile: "./lib/imagekit-loader.ts" }
-          : { ...imagesShared, formats: ["image/avif" as const, "image/webp" as const] },
-      }
+    ? process.env.FORCE_IMAGEKIT === "true" && IMAGEKIT
+      ? {
+          images: {
+            ...imagesShared,
+            loader: "custom" as const,
+            loaderFile: "./lib/imagekit-loader.ts",
+          },
+        }
+      : {
+          images: {
+            ...imagesShared,
+            formats: ["image/avif" as const, "image/webp" as const],
+          },
+        }
     : {
         allowedDevOrigins: ["192.168.1.*"],
         images: {

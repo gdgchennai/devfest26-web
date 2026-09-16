@@ -14,7 +14,11 @@ const IMAGEKIT_URL_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
 export const IMAGEKIT_QUALITY = 80;
 
 export function usesImageKit(): boolean {
-  return process.env.NODE_ENV === "production" && Boolean(IMAGEKIT_URL_ENDPOINT);
+  return (
+    process.env.NODE_ENV === "production" &&
+    Boolean(IMAGEKIT_URL_ENDPOINT) &&
+    process.env.FORCE_IMAGEKIT === "true"
+  );
 }
 
 export default function imagekitLoader({
@@ -26,7 +30,7 @@ export default function imagekitLoader({
   width: number;
   quality?: number;
 }) {
-  if (!IMAGEKIT_URL_ENDPOINT) return src;
+  if (!IMAGEKIT_URL_ENDPOINT || process.env.FORCE_IMAGEKIT !== "true") return src;
 
   // f-auto: AVIF/WebP by Accept. c-at_max: never upscale a smaller original.
   // pr-true: progressive scan so a coarse preview paints before the full file.
