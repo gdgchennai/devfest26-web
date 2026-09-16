@@ -898,7 +898,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                     difference, imperceptible on a building facade) instead
                     of cropping it. */}
                 <Image
-                  src="/venue.webp"
+                  src="/venue-v2.webp"
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 70vw, 100vw"
@@ -928,7 +928,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           {staticBaseline && (
             <div className="absolute inset-0">
               <Image
-                src="/venue.webp"
+                src="/venue-v2.webp"
                 alt={uiCopy.common.venueAlt}
                 fill
                 priority={true}

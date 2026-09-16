@@ -30,7 +30,7 @@ const FLAGSHIP_TICKET_HREF = "/tickets/select";
 
 // Fallback for events with no real photography yet (see SubEvent's `image`
 // doc comment) — the same venue shot VenueReveal.tsx uses.
-const VENUE_IMAGE = { src: "/venue.webp", alt: uiCopy.common.venueAlt };
+const VENUE_IMAGE = { src: "/venue-v2.webp", alt: uiCopy.common.venueAlt };
 
 type EventCard = {
   key: string;
