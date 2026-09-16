@@ -400,8 +400,9 @@ export function Loader({ loadingComplete, playIntro, slowLoad, onEnter, onReveal
     const svg = svgRef.current;
     if (!root || !svg) return;
 
-    // 1. The button disappears.
+    // 1. The button and the escape hatch link disappear immediately.
     if (ctaRef.current) gsap.to(ctaRef.current, { autoAlpha: 0, duration: 0.3, ease: "power1.out" });
+    if (liteLinkRef.current) gsap.to(liteLinkRef.current, { autoAlpha: 0, duration: 0.3, ease: "power1.out" });
 
     // 2. The mark becomes a transparent mask: punch its shape out of the white
     // field so the flythrough (mounted behind on enter) shows through it, and
