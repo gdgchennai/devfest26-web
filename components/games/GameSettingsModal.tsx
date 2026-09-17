@@ -50,6 +50,7 @@ export function GameSettingsModal({
     jigsaw: "Archive Jigsaw Settings",
     crossword: "Tech Crossword Settings",
     memory: "Memory Matrix Settings",
+    typing: "Speed Typer Settings",
     leaderboard: "Settings",
   };
 
@@ -250,6 +251,20 @@ export function GameSettingsModal({
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* 4. Speed Typer Settings */}
+          {activeTab === "typing" && (
+            <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-xs space-y-2 text-paper/80">
+              <div className="font-bold text-paper font-mono uppercase tracking-wider text-[11px]">
+                Typing Practice Tips:
+              </div>
+              <ul className="space-y-1.5 list-disc list-inside text-paper/70 font-sans leading-relaxed">
+                <li>Typing parameters (Attack Time & Word Count) can be toggled instantly directly in the Speed Typer header.</li>
+                <li>Press any character on your physical keyboard to start typing immediately.</li>
+                <li>On mobile/touchscreen, tap inside the typing area to focus and trigger the virtual on-screen keyboard.</li>
+              </ul>
             </div>
           )}
         </div>

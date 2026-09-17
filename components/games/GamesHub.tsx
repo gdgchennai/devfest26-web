@@ -5,13 +5,14 @@ import { useSession } from "next-auth/react";
 import { JigsawGame } from "./JigsawGame";
 import { CrosswordGame } from "./CrosswordGame";
 import { MemoryGame } from "./MemoryGame";
+import { TypingGame } from "./TypingGame";
 import { LeaderboardView } from "./LeaderboardView";
 import { ScoreModal, type GameScoreSubmission } from "./ScoreModal";
 import { GameSettingsModal } from "./GameSettingsModal";
 import initialPhotos from "@/content/jigsaw-photos.json";
 import type { ArchivePhotoChoice } from "@/lib/games-content";
 
-export type GameTab = "jigsaw" | "crossword" | "memory" | "leaderboard";
+export type GameTab = "jigsaw" | "crossword" | "memory" | "typing" | "leaderboard";
 
 export function GamesHub() {
   const { data: session, status } = useSession();
@@ -159,6 +160,17 @@ export function GamesHub() {
               ),
             },
             {
+              id: "typing" as const,
+              label: "Speed Typer",
+              desc: "Typing speed test",
+              accent: "var(--blue)",
+              icon: (
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2zM7 14h2M11 14h2M15 14h2" />
+                </svg>
+              ),
+            },
+            {
               id: "leaderboard" as const,
               label: "Leaderboard",
               desc: "Global rankings",
@@ -259,6 +271,12 @@ export function GamesHub() {
             key={`memory-${memoryPairsCount}-${resetTrigger}`}
             onFinishGame={handleGameFinish}
             pairsCount={memoryPairsCount}
+          />
+        )}
+        {activeTab === "typing" && (
+          <TypingGame
+            key={`typing-${resetTrigger}`}
+            onFinishGame={handleGameFinish}
           />
         )}
         {activeTab === "leaderboard" && <LeaderboardView />}

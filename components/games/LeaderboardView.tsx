@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import type { LeaderboardEntry, OverallLeaderboardEntry } from "@/lib/leaderboard";
 
-type LeaderboardTab = "all" | "jigsaw" | "crossword" | "memory";
+type LeaderboardTab = "all" | "jigsaw" | "crossword" | "memory" | "typing";
 
 export function LeaderboardView() {
   const { data: session } = useSession();
@@ -96,6 +96,7 @@ export function LeaderboardView() {
             { id: "jigsaw" as const, label: "Archive Jigsaw" },
             { id: "crossword" as const, label: "Tech Crossword" },
             { id: "memory" as const, label: "Memory Matrix" },
+            { id: "typing" as const, label: "Speed Typer" },
           ].map((tab) => (
             <button
               key={tab.id}

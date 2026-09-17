@@ -8,7 +8,7 @@ import {
 
 export const runtime = "nodejs";
 
-const VALID_GAME_IDS = new Set(["jigsaw", "crossword", "memory", "all"]);
+const VALID_GAME_IDS = new Set(["jigsaw", "crossword", "memory", "typing", "all"]);
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       levelData?: unknown;
     };
 
-    if (typeof gameId !== "string" || !["jigsaw", "crossword", "memory"].includes(gameId)) {
+    if (typeof gameId !== "string" || !["jigsaw", "crossword", "memory", "typing"].includes(gameId)) {
       return Response.json({ error: "invalid_game_id" }, { status: 400 });
     }
 
