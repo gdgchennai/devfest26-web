@@ -9,24 +9,36 @@ type TypingGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
 };
 
-// Beautiful fallback developer/tech quotes in case the public APIs are slow or offline
-const FALLBACK_QUOTES = [
-  "Talk is cheap. Show me the code. Software is like sex: it's better when it's free. The progress of science is a constant, fascinating, and never-ending journey.",
-  "The best way to predict the future is to invent it. If you think you can, or you think you can't, you are right. Simplicity is the ultimate sophistication.",
-  "Programs must be written for people to read, and only accidentally for machines to execute. Any fool can write code that a computer can understand.",
-  "The most disastrous thing that you can ever learn is your first programming language. The only way to learn a new programming language is by writing programs in it.",
-  "Most good programmers do programming not because they expect to get paid or get adulation by the public, but because it is fun to program.",
-  "Security is not a product, but a process. It is about building resilient and robust layers that can stand against the test of scale and adversarial forces.",
-  "First, solve the problem. Then, write the code. Standardizing conventions across developers makes teams secure, stable, and highly collaborative.",
-  "Artificial Intelligence is changing the way we build software. Adapting to these workflows empowers developers to scale solutions globally with high assurance.",
+// Pure, clean, punctuation-free lowercase tech vocabulary for Monkeytype-style typing tests
+const TECH_VOCABULARY = [
+  "code", "software", "developer", "engineer", "javascript", "typescript", "react", "angular", "node", "express",
+  "database", "sqlite", "cloudflare", "worker", "pages", "deployment", "compiler", "runtime", "performance",
+  "optimization", "security", "encryption", "scaling", "architecture", "component", "interface", "function", "variable", "constant",
+  "framework", "library", "git", "commit", "branch", "merge", "conflict", "leaderboard", "scores", "application",
+  "frontend", "backend", "fullstack", "server", "client", "browser", "hydration", "rendering", "static", "dynamic",
+  "google", "gemini", "artificial", "intelligence", "models", "algorithm", "network", "cloud", "platform", "systems",
+  "responsive", "mobile", "desktop", "keyboard", "typing", "accuracy", "speed", "words", "minute", "lounge",
+  "community", "builders", "creators", "design", "creative", "ideation", "scripting", "editing", "publishing", "collaboration",
+  "array", "object", "string", "number", "boolean", "promise", "callback", "async", "await", "fetch", "routing",
+  "styling", "cascade", "animation", "timeline", "trigger", "opacity", "scale", "parallax", "matrix", "vector", "render",
+  "handler", "event", "state", "effect", "ref", "hook", "context", "provider", "auth", "session", "credential", "cache"
 ];
+
+function generatePureParagraph(wordCount: number): string {
+  const words: string[] = [];
+  for (let i = 0; i < wordCount; i++) {
+    const word = TECH_VOCABULARY[Math.floor(Math.random() * TECH_VOCABULARY.length)];
+    words.push(word);
+  }
+  return words.join(" ");
+}
 
 export function TypingGame({ onFinishGame }: TypingGameProps) {
   const [mode, setMode] = useState<TypingMode>("time");
   
-  // Settings
-  const [timeLimit, setTimeLimit] = useState<number>(30); // 15, 30, 60
-  const [wordLimit, setWordLimit] = useState<number>(25); // 25, 50, 100
+  // Adjusted Settings to match exactly: 200, 400, and 500 words for Words mode
+  const [timeLimit, setTimeLimit] = useState<number>(30); // 15, 30, 60s
+  const [wordLimit, setWordLimit] = useState<number>(200); // 200, 400, 500 words
   
   // Core game states
   const [targetText, setTargetText] = useState<string>("");
@@ -46,7 +58,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  // Fetch a random quote from public APIs with a robust local fallback
+  // Fetch a paragraph from the secure backend Gemini API with a robust local vocabulary generator fallback
   const loadNewParagraph = useCallback(async () => {
     setIsLoading(true);
     setInputText("");
@@ -54,78 +66,106 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     setIsCompleted(false);
     startTimeRef.current = null;
     
-    // Choose a fallback quote first in case API fails
-    const fallback = FALLBACK_QUOTES[Math.floor(Math.random() * FALLBACK_QUOTES.length)];
-    let text = fallback;
+    let text = "";
 
     try {
-      // Free public random quote API with a tight 2.5-second timeout
+      // Fetch from our new secure backend Gemini API route with a tight 3.5s timeout
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 2500);
+      const id = setTimeout(() => controller.abort(), 3500);
 
-      const res = await fetch("https://dummyjson.com/quotes/random", { signal: controller.signal });
+      const res = await fetch("/api/games/typing", { signal: controller.signal });
       clearTimeout(id);
       
       if (res.ok) {
-        const data = await res.json() as { quote: string; author: string };
-        if (data && data.quote) {
-          text = `${data.quote} — ${data.author}`;
+        const data = await res.json() as { paragraph?: string };
+        if (data && data.paragraph) {
+          text = data.paragraph;
         }
       }
     } catch (e) {
-      console.warn("Public quote API failed/timed out, using offline developer fallback quote.", e);
+      console.warn("Secure Gemini API route failed or timed out. Falling back to local high-performance tech vocabulary generator.", e);
     }
 
-    // Process text based on mode (if words limit is selected, slice to that word count)
-    if (mode === "words") {
+    // Fallback or fill-up logic
+    if (!text) {
+      const targetCount = mode === "time" ? 100 : wordLimit;
+      text = generatePureParagraph(targetCount);
+    } else if (mode === "words") {
+      // In words mode, generate/slice exactly 200, 400, or 500 words
       const words = text.split(/\s+/);
-      if (words.length > wordLimit) {
-        text = words.slice(0, wordLimit).join(" ");
-      } else {
-        // If the quote is shorter, append words from fallback to make up the target word count
-        while (words.length < wordLimit) {
-          const extraWords = fallback.split(/\s+/);
-          words.push(...extraWords);
-        }
-        text = words.slice(0, wordLimit).join(" ");
+      if (words.length < wordLimit) {
+        const extraNeeded = wordLimit - words.length;
+        words.push(...generatePureParagraph(extraNeeded).split(" "));
       }
+      text = words.slice(0, wordLimit).join(" ");
+    } else {
+      // In time attack mode, start with a solid 100-word paragraph
+      const words = text.split(/\s+/);
+      text = words.slice(0, 100).join(" ");
     }
-
-    // Sanitize any fancy curly double quotes or single quotes to standard keyboard layout
-    text = text
-      .replace(/[\u201c\u201d]/g, '"')
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/\u2014/g, "-")
-      .trim();
 
     setTargetText(text);
     setTimeLeft(mode === "time" ? timeLimit : 0);
     setIsLoading(false);
   }, [mode, timeLimit, wordLimit]);
 
-  // Load paragraph on init and settings change
+  // Load paragraph on init and mode/config changes
   useEffect(() => {
     void loadNewParagraph();
   }, [loadNewParagraph]);
 
-  // Timer logic
+  // Complete game and submit scores (Muted, single setState invocation)
+  const handleGameOver = useCallback((timeExpired: boolean, finalInputText: string) => {
+    setIsActive(false);
+    setIsCompleted(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    const finalTimeMs = startTimeRef.current 
+      ? Date.now() - startTimeRef.current 
+      : (mode === "time" ? timeLimit * 1000 : 1000);
+
+    // Calculate accuracy % & raw correct characters
+    let correct = 0;
+    const totalTyped = finalInputText.length;
+    for (let i = 0; i < finalInputText.length; i++) {
+      if (finalInputText[i] === targetText[i]) correct++;
+    }
+
+    const finalAccuracy = totalTyped > 0 ? Math.round((correct / totalTyped) * 100) : 100;
+    const finalMinutes = finalTimeMs / 60000;
+    const finalWpm = finalMinutes > 0 ? Math.round((correct / 5) / finalMinutes) : 0;
+
+    // Scoring formula: WPM * Accuracy % (capped at WPM x 100)
+    const finalScore = Math.round(finalWpm * (finalAccuracy / 100) * 100);
+
+    // Submit score data
+    onFinishGame({
+      gameId: "typing",
+      gameTitle: "Speed Typer",
+      score: finalScore,
+      timeMs: finalTimeMs,
+      moves: totalTyped,
+      levelData: `${finalWpm} WPM | ${finalAccuracy}% ACC`,
+    });
+  }, [mode, timeLimit, targetText, onFinishGame]);
+
+  // Timer logic - FIXED: Call handleGameOver in useEffect body (outside state setters) to resolve React bad setState warnings!
   useEffect(() => {
-    if (isActive && mode === "time" && timeLeft > 0) {
+    if (isActive && mode === "time") {
+      if (timeLeft <= 0) {
+        handleGameOver(true, inputText);
+        return;
+      }
+
       timerRef.current = setTimeout(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            handleGameOver(true);
-            return 0;
-          }
-          return prev - 1;
-        });
+        setTimeLeft((prev) => prev - 1);
       }, 1000);
     }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isActive, timeLeft, mode]);
+  }, [isActive, timeLeft, mode, handleGameOver, inputText]);
 
   // Calculate live stats
   const calculateStats = useCallback((typed: string) => {
@@ -136,7 +176,6 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
       return;
     }
 
-    // 1. Calculate accuracy & errors
     let correct = 0;
     let errors = 0;
     for (let i = 0; i < typed.length; i++) {
@@ -151,12 +190,10 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     setErrorCount(errors);
     setAccuracy(rawAccuracy);
 
-    // 2. Calculate WPM
     const timeElapsedMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
     const timeElapsedMins = timeElapsedMs / 60000;
 
     if (timeElapsedMins > 0) {
-      // Monkeytype/Standard calculation: 1 word = 5 characters
       const calculatedWpm = Math.round((correct / 5) / timeElapsedMins);
       setRawWpm(calculatedWpm);
     }
@@ -166,10 +203,13 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (isCompleted) return;
 
-    const val = e.target.value;
-    
+    let val = e.target.value;
+
+    // Standardize input to lowercase and spaces only
+    val = val.toLowerCase().replace(/[^a-z\s]/g, "");
+
     // Prevent typing further if the paragraph has been completed in words mode
-    if (val.length > targetText.length) return;
+    if (mode === "words" && val.length > targetText.length) return;
 
     // Start timer on the first keypress
     if (!isActive && startTimeRef.current === null) {
@@ -177,50 +217,19 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
       startTimeRef.current = Date.now();
     }
 
+    // 1. Time Attack: Infinite growth. If the user is near the end, append more random words instantly!
+    if (mode === "time" && targetText.length - val.length < 50) {
+      const extension = generatePureParagraph(30);
+      setTargetText((prev) => prev + " " + extension);
+    }
+
     setInputText(val);
     calculateStats(val);
 
-    // End game if the user has typed the entire text correctly
-    if (val === targetText) {
-      handleGameOver(false);
+    // 2. Words Mode: Game over when they type the last character of the specific set of words
+    if (mode === "words" && val.length === targetText.length) {
+      handleGameOver(false, val);
     }
-  };
-
-  // Complete game and submit scores
-  const handleGameOver = (timeExpired: boolean) => {
-    setIsActive(false);
-    setIsCompleted(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-
-    // Calculate final time elapsed
-    const finalTimeMs = startTimeRef.current 
-      ? Date.now() - startTimeRef.current 
-      : (mode === "time" ? timeLimit * 1000 : 1000);
-
-    // Calculate accuracy % & raw correct characters
-    let correct = 0;
-    let totalTyped = inputText.length;
-    for (let i = 0; i < inputText.length; i++) {
-      if (inputText[i] === targetText[i]) correct++;
-    }
-
-    const finalAccuracy = totalTyped > 0 ? Math.round((correct / totalTyped) * 100) : 100;
-    const finalMinutes = finalTimeMs / 60000;
-    const finalWpm = finalMinutes > 0 ? Math.round((correct / 5) / finalMinutes) : 0;
-
-    // Scoring formula: WPM * Accuracy % (capped at WPM x 100)
-    // Minimizes high WPM inputs that have terrible accuracy, reward accuracy!
-    const finalScore = Math.round(finalWpm * (finalAccuracy / 100) * 100);
-
-    // Submit score data
-    onFinishGame({
-      gameId: "typing",
-      gameTitle: "Speed Typer",
-      score: finalScore,
-      timeMs: finalTimeMs,
-      moves: totalTyped, // save typed characters as moves metric
-      levelData: `${finalWpm} WPM | ${finalAccuracy}% ACC`, // beautifully displayed in profile
-    });
   };
 
   const focusInput = () => {
@@ -284,7 +293,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
           </button>
         </div>
 
-        {/* Attack Length Config */}
+        {/* Attack Length Config (Time Attack: 15/30/60s, Words Count: 200/400/500 words) */}
         <div className="flex items-center gap-1.5 bg-ink/30 border border-paper/5 rounded-xl p-1 text-xs">
           {mode === "time" ? (
             [15, 30, 60].map((t) => (
@@ -304,7 +313,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
               </button>
             ))
           ) : (
-            [25, 50, 100].map((w) => (
+            [200, 400, 500].map((w) => (
               <button
                 key={`w-${w}`}
                 type="button"
@@ -334,7 +343,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            Fetching random quote...
+            Generating typing test...
           </div>
         ) : (
           <div className="relative text-lg sm:text-2xl font-mono leading-relaxed select-none max-w-full overflow-hidden text-left break-words">
@@ -392,7 +401,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
           <span className="text-xl sm:text-3xl font-extrabold font-mono text-white mt-1">
             {mode === "time" 
               ? `${timeLeft}s` 
-              : `${inputText.length}/${targetText.length}`}
+              : `${inputText.split(/\s+/).filter(Boolean).length}/${wordLimit}`}
           </span>
         </div>
 
