@@ -127,6 +127,18 @@ export function LeaderboardView() {
         </button>
       </div>
 
+      {activeTab === "all" && (
+        <div className="rounded-2xl border border-[var(--blue)]/20 bg-[var(--blue)]/5 p-4 text-xs sm:text-sm text-paper/85 flex items-start gap-3 shadow-md animate-fade-in">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--blue)]/10 text-[var(--blue)] shrink-0 font-bold font-mono">i</span>
+          <div className="space-y-1">
+            <p className="font-bold text-white uppercase tracking-wider text-[11px] font-mono">Cumulative Global Standings</p>
+            <p className="leading-relaxed text-paper/70 font-sans">
+              Your overall score is the <strong className="text-white">sum of your best scores achieved across all mini-games</strong>. The more unique games you play (Jigsaw, Crossword, Memory, and Speed Typer), the more points you stack up in this global standings! Play all four to dominate!
+            </p>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-2xl border border-[var(--red)]/30 bg-[var(--red)]/10 p-4 text-center text-xs text-[var(--red)]">
           {error}
@@ -199,10 +211,12 @@ export function LeaderboardView() {
                     </div>
                   )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
-                    {"fastestTimeMs" in topThree[1]
-                      ? `Fastest: ${formatTime(topThree[1].fastestTimeMs)}`
+                    {"gamesPlayed" in topThree[1]
+                      ? `Mastered: ${topThree[1].gamesPlayed} / 4 Games`
+                      : "fastestTimeMs" in topThree[1]
+                      ? `Fastest: ${formatTime(topThree[1].fastestTimeMs as number)}`
                       : "timeMs" in topThree[1]
-                      ? `Time: ${formatTime(topThree[1].timeMs)}${"attemptNumber" in topThree[1] && topThree[1].attemptNumber ? ` (Attempt #${topThree[1].attemptNumber})` : ""}`
+                      ? `Time: ${formatTime(topThree[1].timeMs as number)}${"attemptNumber" in topThree[1] && topThree[1].attemptNumber ? ` (Attempt #${topThree[1].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -255,7 +269,7 @@ export function LeaderboardView() {
                   )}
                   <div className="mt-2 text-xs font-mono text-paper/70">
                     {"gamesPlayed" in topThree[0]
-                      ? `${topThree[0].gamesPlayed} Games Completed`
+                      ? `Mastered: ${topThree[0].gamesPlayed} / 4 Games`
                       : "timeMs" in topThree[0]
                       ? `Time: ${formatTime(topThree[0].timeMs)}${"attemptNumber" in topThree[0] && topThree[0].attemptNumber ? ` (Attempt #${topThree[0].attemptNumber})` : ""}`
                       : ""}
@@ -307,10 +321,12 @@ export function LeaderboardView() {
                     </div>
                   )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
-                    {"fastestTimeMs" in topThree[2]
-                      ? `Fastest: ${formatTime(topThree[2].fastestTimeMs)}`
+                    {"gamesPlayed" in topThree[2]
+                      ? `Mastered: ${topThree[2].gamesPlayed} / 4 Games`
+                      : "fastestTimeMs" in topThree[2]
+                      ? `Fastest: ${formatTime(topThree[2].fastestTimeMs as number)}`
                       : "timeMs" in topThree[2]
-                      ? `Time: ${formatTime(topThree[2].timeMs)}${"attemptNumber" in topThree[2] && topThree[2].attemptNumber ? ` (Attempt #${topThree[2].attemptNumber})` : ""}`
+                      ? `Time: ${formatTime(topThree[2].timeMs as number)}${"attemptNumber" in topThree[2] && topThree[2].attemptNumber ? ` (Attempt #${topThree[2].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -372,7 +388,15 @@ export function LeaderboardView() {
                             )}
                           </div>
                           <div className="text-[10px] sm:text-[11px] font-mono text-paper/50 truncate">
-                            {"levelData" in entry && entry.levelData ? entry.levelData : "DevFest Player"}
+                            {isOverall && "gamesPlayed" in entry ? (
+                              <span className="text-[var(--blue-halftone)] font-bold">
+                                {entry.gamesPlayed} / 4 Games Solved
+                              </span>
+                            ) : "levelData" in entry && entry.levelData ? (
+                              entry.levelData
+                            ) : (
+                              "DevFest Player"
+                            )}
                           </div>
                         </div>
                       </div>
