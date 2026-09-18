@@ -390,9 +390,32 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
         spellCheck="false"
       />
 
-      {/* Focus Mode Clean Settings Header */}
-      <div className="flex items-center justify-between border-b border-paper/10 pb-4 text-xs font-mono tracking-wider text-paper/60 uppercase">
-        <span>Mode: {mode === "time" ? "Time Attack" : "Words Count"}</span>
+      {/* Focus Mode Clean Settings Header with Inline Metrics for Time Attack */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-paper/10 pb-4 text-xs font-mono tracking-wider text-paper/60 uppercase">
+        <div className="flex items-center gap-5">
+          <span className="font-sans font-bold text-paper/40">Mode: {mode === "time" ? "Time Attack" : "Words Count"}</span>
+          
+          {mode === "time" && (
+            <div className="flex items-center gap-5 border-l border-paper/10 pl-5">
+              {/* Timer */}
+              <div className="flex items-baseline gap-1">
+                <span className="text-[10px] text-paper/40 font-normal lowercase">time</span>
+                <span className="text-base font-extrabold text-white font-mono">{timeLeft}s</span>
+              </div>
+              {/* WPM */}
+              <div className="flex items-baseline gap-1">
+                <span className="text-[10px] text-paper/40 font-normal lowercase">wpm</span>
+                <span className="text-base font-extrabold text-[var(--green)] font-mono">{rawWpm}</span>
+              </div>
+              {/* Accuracy */}
+              <div className="flex items-baseline gap-1">
+                <span className="text-[10px] text-paper/40 font-normal lowercase">acc</span>
+                <span className="text-base font-extrabold text-[var(--yellow)] font-mono">{accuracy}%</span>
+              </div>
+            </div>
+          )}
+        </div>
+
         <span>Target: {mode === "time" ? `${timeLimit}s` : `${wordLimit} words`}</span>
       </div>
 
@@ -434,37 +457,37 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
         )}
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-4 border-t border-paper/10 pt-6 text-center">
-        
-        {/* Left Col: Timer/Word Count */}
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">
-            {mode === "time" ? "Time Left" : "Progress"}
-          </span>
-          <span className="text-xl sm:text-3xl font-extrabold font-mono text-white mt-1">
-            {mode === "time" 
-              ? `${timeLeft}s` 
-              : `${inputText.split(/\s+/).filter(Boolean).length}/${wordLimit}`}
-          </span>
-        </div>
+      {/* Stats Row (Only rendered for Words Mode, as Time Attack metrics are left-aligned in the top header!) */}
+      {mode !== "time" && (
+        <div className="grid grid-cols-3 gap-4 border-t border-paper/10 pt-6 text-center">
+          
+          {/* Left Col: Timer/Word Count */}
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">
+              Progress
+            </span>
+            <span className="text-xl sm:text-3xl font-extrabold font-mono text-white mt-1">
+              {`${inputText.split(/\s+/).filter(Boolean).length}/${wordLimit}`}
+            </span>
+          </div>
 
-        {/* Center Col: Live WPM */}
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">Speed</span>
-          <span className="text-xl sm:text-3xl font-extrabold font-mono text-[var(--green)] mt-1">
-            {rawWpm} <span className="text-xs font-bold text-paper/40 font-sans">WPM</span>
-          </span>
-        </div>
+          {/* Center Col: Live WPM */}
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">Speed</span>
+            <span className="text-xl sm:text-3xl font-extrabold font-mono text-[var(--green)] mt-1">
+              {rawWpm} <span className="text-xs font-bold text-paper/40 font-sans">WPM</span>
+            </span>
+          </div>
 
-        {/* Right Col: Accuracy */}
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">Accuracy</span>
-          <span className="text-xl sm:text-3xl font-extrabold font-mono text-[var(--yellow)] mt-1">
-            {accuracy}<span className="text-xs font-bold text-paper/40 font-sans">%</span>
-          </span>
+          {/* Right Col: Accuracy */}
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-paper/40">Accuracy</span>
+            <span className="text-xl sm:text-3xl font-extrabold font-mono text-[var(--yellow)] mt-1">
+              {accuracy}<span className="text-xs font-bold text-paper/40 font-sans">%</span>
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Inline styles for caret cursor blinking */}
       <style jsx global>{`
