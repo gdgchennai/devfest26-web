@@ -7,6 +7,9 @@ type TypingMode = "time" | "words";
 
 type TypingGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
+  mode: TypingMode;
+  timeLimit: number;
+  wordLimit: number;
 };
 
 // Pure, clean, punctuation-free lowercase general English vocabulary matching Monkeytype's standard layout
@@ -29,17 +32,11 @@ function generatePureParagraph(wordCount: number): string {
   return words.join(" ");
 }
 
-export function TypingGame({ onFinishGame }: TypingGameProps) {
-  const [mode, setMode] = useState<TypingMode>("time");
-  
-  // Settings - starting at exactly 200, 400, and 500 words for Words mode
-  const [timeLimit, setTimeLimit] = useState<number>(30); // 15, 30, 60s
-  const [wordLimit, setWordLimit] = useState<number>(200); // 200, 400, 500 words
-  
+export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingGameProps) {
   // Core game states
   const [targetText, setTargetText] = useState<string>("");
   const [inputText, setInputText] = useState<string>("");
-  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const [timeLeft, setTimeLeft] = useState<number>(timeLimit);
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -54,14 +51,30 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Ref tracking to decouple timer/inactivity listeners from fast typing state updates
+  const inputTextRef = useRef<string>("");
+  const lastTypedRef = useRef<number>(0);
+  const isActiveRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    inputTextRef.current = inputText;
+  }, [inputText]);
+
+  useEffect(() => {
+    isActiveRef.current = isActive;
+  }, [isActive]);
 
   // Fetch a paragraph from the secure backend Gemini API with local fallback
   const loadNewParagraph = useCallback(async () => {
     setIsLoading(true);
     setInputText("");
+    inputTextRef.current = "";
     setIsActive(false);
+    isActiveRef.current = false;
     setIsCompleted(false);
     startTimeRef.current = null;
+    lastTypedRef.current = 0;
     
     let text = "";
 
@@ -116,6 +129,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
   // Complete game and submit scores (Trigger scoring dialogue immediately)
   const handleGameOver = useCallback((timeExpired: boolean, finalInputText: string) => {
     setIsActive(false);
+    isActiveRef.current = false;
     setIsCompleted(true);
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -148,11 +162,11 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     });
   }, [mode, timeLimit, targetText, onFinishGame]);
 
-  // Timer logic - FIXED: Call handleGameOver in useEffect body (outside state setters) to resolve React bad setState warnings!
+  // Timer logic - DECOUPLED from inputText state changes so the timer ticks perfectly promptly!
   useEffect(() => {
     if (isActive && mode === "time") {
       if (timeLeft <= 0) {
-        handleGameOver(true, inputText);
+        handleGameOver(true, inputTextRef.current);
         return;
       }
 
@@ -164,7 +178,38 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isActive, timeLeft, mode, handleGameOver, inputText]);
+  }, [isActive, timeLeft, mode, handleGameOver]);
+
+  // Focus Loss Auto-Reset & Inactivity Reset timers
+  useEffect(() => {
+    // 1. Focus Loss triggers immediate reset of active game
+    const handleBlur = () => {
+      if (isActiveRef.current) {
+        console.warn("User took focus off the screen/tab. Automatically resetting active test.");
+        void loadNewParagraph();
+      }
+    };
+
+    window.addEventListener("blur", handleBlur);
+    document.addEventListener("visibilitychange", handleBlur);
+
+    // 2. Inactivity Monitor: resets test after 10s of complete typing silence
+    const inactivityInterval = setInterval(() => {
+      if (isActiveRef.current && lastTypedRef.current > 0) {
+        const inactiveTime = Date.now() - lastTypedRef.current;
+        if (inactiveTime > 10000) { // 10 seconds of inactivity
+          console.warn("User inactive for over 10s. Automatically resetting active test.");
+          void loadNewParagraph();
+        }
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("blur", handleBlur);
+      document.removeEventListener("visibilitychange", handleBlur);
+      clearInterval(inactivityInterval);
+    };
+  }, [loadNewParagraph]);
 
   // Automatic Viewport Scrolling & Line Centering: Keeps the active typing line centered at all times
   useEffect(() => {
@@ -235,8 +280,12 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     // Start timer on the first keypress
     if (!isActive && startTimeRef.current === null) {
       setIsActive(true);
+      isActiveRef.current = true;
       startTimeRef.current = Date.now();
     }
+
+    // Update inactivity timestamp
+    lastTypedRef.current = Date.now();
 
     // 1. Time Attack: Infinite growth. If the user is near the end, append more random words instantly!
     if (mode === "time" && targetText.length - val.length < 50) {
@@ -341,80 +390,10 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
         spellCheck="false"
       />
 
-      {/* Settings Row */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-paper/10 pb-4">
-        
-        {/* Toggle Attack Modes */}
-        <div className="flex items-center gap-1.5 bg-ink/30 border border-paper/5 rounded-xl p-1">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("time");
-              loadNewParagraph();
-            }}
-            disabled={isActive}
-            className={`px-3 py-1.5 text-xs font-bold uppercase rounded-lg transition-all cursor-pointer ${
-              mode === "time" 
-                ? "bg-[var(--blue)] text-paper shadow-md" 
-                : "text-paper/60 hover:text-paper"
-            }`}
-          >
-            Time Attack
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode("words");
-              loadNewParagraph();
-            }}
-            disabled={isActive}
-            className={`px-3 py-1.5 text-xs font-bold uppercase rounded-lg transition-all cursor-pointer ${
-              mode === "words" 
-                ? "bg-[var(--blue)] text-paper shadow-md" 
-                : "text-paper/60 hover:text-paper"
-            }`}
-          >
-            Words Count
-          </button>
-        </div>
-
-        {/* Attack Length Config (Time Attack: 15/30/60s, Words Count: 200/400/500 words) */}
-        <div className="flex items-center gap-1.5 bg-ink/30 border border-paper/5 rounded-xl p-1 text-xs">
-          {mode === "time" ? (
-            [15, 30, 60].map((t) => (
-              <button
-                key={`t-${t}`}
-                type="button"
-                onClick={() => {
-                  setTimeLimit(t);
-                  setTimeLeft(t);
-                }}
-                disabled={isActive}
-                className={`px-2.5 py-1 font-bold rounded-lg cursor-pointer ${
-                  timeLimit === t ? "text-[var(--blue)] font-extrabold" : "text-paper/50 hover:text-paper/80"
-                }`}
-              >
-                {t}s
-              </button>
-            ))
-          ) : (
-            [200, 400, 500].map((w) => (
-              <button
-                key={`w-${w}`}
-                type="button"
-                onClick={() => {
-                  setWordLimit(w);
-                }}
-                disabled={isActive}
-                className={`px-2.5 py-1 font-bold rounded-lg cursor-pointer ${
-                  wordLimit === w ? "text-[var(--blue)] font-extrabold" : "text-paper/50 hover:text-paper/80"
-                }`}
-              >
-                {w} words
-              </button>
-            ))
-          )}
-        </div>
+      {/* Focus Mode Clean Settings Header */}
+      <div className="flex items-center justify-between border-b border-paper/10 pb-4 text-xs font-mono tracking-wider text-paper/60 uppercase">
+        <span>Mode: {mode === "time" ? "Time Attack" : "Words Count"}</span>
+        <span>Target: {mode === "time" ? `${timeLimit}s` : `${wordLimit} words`}</span>
       </div>
 
       {/* Main Gameplay Screen (FIXED HEIGHT with automatic center scrolling) */}
@@ -438,7 +417,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
             {/* Smooth carats and overlays inside focused container */}
             {!isFocused && !isCompleted && (
               <div className="absolute inset-0 z-30 bg-ink/75 backdrop-blur-[1.5px] flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-300">
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--blue)] bg-[var(--blue)]/10 px-3 py-1.5 rounded-full border border-[var(--blue)]/20 shadow-md">
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--blue)] bg-[var(--blue)]/10 px-3 py-1.5 rounded-full border border-[var(--blue)]/20 shadow-md animate-pulse">
                   Click or Tap here to start typing
                 </span>
                 <span className="text-[10px] text-paper/40 hidden sm:block">

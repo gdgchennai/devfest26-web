@@ -38,6 +38,11 @@ export function GamesHub() {
 
   const [memoryPairsCount, setMemoryPairsCount] = useState<number>(8);
 
+  // Typing game states
+  const [typingMode, setTypingMode] = useState<"time" | "words">("time");
+  const [typingTimeLimit, setTypingTimeLimit] = useState<number>(30);
+  const [typingWordLimit, setTypingWordLimit] = useState<number>(200);
+
   // API-first fetch for latest archive photos with random photo choice on load
   useEffect(() => {
     fetch("/api/games/content?kind=photos")
@@ -288,8 +293,11 @@ export function GamesHub() {
         )}
         {activeTab === "typing" && (
           <TypingGame
-            key={`typing-${resetTrigger}`}
+            key={`typing-${typingMode}-${typingTimeLimit}-${typingWordLimit}-${resetTrigger}`}
             onFinishGame={handleGameFinish}
+            mode={typingMode}
+            timeLimit={typingTimeLimit}
+            wordLimit={typingWordLimit}
           />
         )}
         {activeTab === "leaderboard" && <LeaderboardView />}
@@ -307,6 +315,12 @@ export function GamesHub() {
         crosswordCycleTime={crosswordCycleTime}
         memoryPairsCount={memoryPairsCount}
         onMemoryPairsCountChange={setMemoryPairsCount}
+        typingMode={typingMode}
+        onTypingModeChange={setTypingMode}
+        typingTimeLimit={typingTimeLimit}
+        onTypingTimeLimitChange={setTypingTimeLimit}
+        typingWordLimit={typingWordLimit}
+        onTypingWordLimitChange={setTypingWordLimit}
         onResetGame={handleResetGame}
       />
 

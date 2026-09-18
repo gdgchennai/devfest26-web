@@ -17,6 +17,13 @@ type GameSettingsModalProps = {
   // Memory settings
   memoryPairsCount: number;
   onMemoryPairsCountChange: (count: number) => void;
+  // Typing settings
+  typingMode: "time" | "words";
+  onTypingModeChange: (mode: "time" | "words") => void;
+  typingTimeLimit: number;
+  onTypingTimeLimitChange: (limit: number) => void;
+  typingWordLimit: number;
+  onTypingWordLimitChange: (limit: number) => void;
   // Reset
   onResetGame: () => void;
 };
@@ -32,6 +39,12 @@ export function GameSettingsModal({
   crosswordCycleTime,
   memoryPairsCount,
   onMemoryPairsCountChange,
+  typingMode,
+  onTypingModeChange,
+  typingTimeLimit,
+  onTypingTimeLimitChange,
+  typingWordLimit,
+  onTypingWordLimitChange,
   onResetGame,
 }: GameSettingsModalProps) {
   const [dragOffsetY, setDragOffsetY] = useState(0);
@@ -256,15 +269,91 @@ export function GameSettingsModal({
 
           {/* 4. Speed Typer Settings */}
           {activeTab === "typing" && (
-            <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-xs space-y-2 text-paper/80">
-              <div className="font-bold text-paper font-mono uppercase tracking-wider text-[11px]">
-                Typing Practice Tips:
+            <div className="space-y-5">
+              {/* Toggle typing test mode */}
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                  Typing Mode
+                </label>
+                <div className="grid grid-cols-2 gap-2 bg-paper/[0.04] border border-paper/10 rounded-2xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => onTypingModeChange("time")}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl cursor-pointer transition-all ${
+                      typingMode === "time"
+                        ? "bg-[var(--blue)] text-white shadow-sm font-extrabold"
+                        : "text-paper/60 hover:text-paper"
+                    }`}
+                  >
+                    Time Attack
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onTypingModeChange("words")}
+                    className={`py-2 px-3 text-xs font-bold rounded-xl cursor-pointer transition-all ${
+                      typingMode === "words"
+                        ? "bg-[var(--blue)] text-white shadow-sm font-extrabold"
+                        : "text-paper/60 hover:text-paper"
+                    }`}
+                  >
+                    Words Count
+                  </button>
+                </div>
               </div>
-              <ul className="space-y-1.5 list-disc list-inside text-paper/70 font-sans leading-relaxed">
-                <li>Typing parameters (Attack Time & Word Count) can be toggled instantly directly in the Speed Typer header.</li>
-                <li>Press any character on your physical keyboard to start typing immediately.</li>
-                <li>On mobile/touchscreen, tap inside the typing area to focus and trigger the virtual on-screen keyboard.</li>
-              </ul>
+
+              {/* Configure mode parameters */}
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                  {typingMode === "time" ? "Timer Duration" : "Target Words"}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {typingMode === "time" ? (
+                    [15, 30, 60].map((t) => (
+                      <button
+                        key={`t-cfg-${t}`}
+                        type="button"
+                        onClick={() => onTypingTimeLimitChange(t)}
+                        className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
+                          typingTimeLimit === t
+                            ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                            : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
+                        }`}
+                      >
+                        <span className="text-sm font-bold">{t} Seconds</span>
+                        <span className="text-[10px] font-mono text-paper/50">time limit</span>
+                      </button>
+                    ))
+                  ) : (
+                    [200, 400, 500].map((w) => (
+                      <button
+                        key={`w-cfg-${w}`}
+                        type="button"
+                        onClick={() => onTypingWordLimitChange(w)}
+                        className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
+                          typingWordLimit === w
+                            ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                            : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
+                        }`}
+                      >
+                        <span className="text-sm font-bold">{w} Words</span>
+                        <span className="text-[10px] font-mono text-paper/50">limit</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Standard practice tip card */}
+              <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-xs space-y-2 text-paper/80">
+                <div className="font-bold text-paper font-mono uppercase tracking-wider text-[11px]">
+                  Typing Practice Tips:
+                </div>
+                <ul className="space-y-1.5 list-disc list-inside text-paper/70 font-sans leading-relaxed">
+                  <li>Start typing immediately on your physical keyboard to kick off the timer.</li>
+                  <li>On mobile, tap the typing canvas to summon your virtual software keyboard.</li>
+                  <li>Pausing or switching browser windows will automatically pause and reset the active test!</li>
+                </ul>
+              </div>
             </div>
           )}
         </div>

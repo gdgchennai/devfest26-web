@@ -180,13 +180,24 @@ export function LeaderboardView() {
                     {topThree[1].userName}
                   </h4>
                   <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-paper/90">
-                    {"totalScore" in topThree[1]
-                      ? topThree[1].totalScore.toLocaleString()
-                      : "score" in topThree[1]
-                      ? topThree[1].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[1] && topThree[1].levelData ? (
+                      topThree[1].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[1]
+                          ? topThree[1].totalScore.toLocaleString()
+                          : "score" in topThree[1]
+                          ? topThree[1].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/50">
+                      {"score" in topThree[1] ? `${topThree[1].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
                     {"fastestTimeMs" in topThree[1]
                       ? `Fastest: ${formatTime(topThree[1].fastestTimeMs)}`
@@ -224,13 +235,24 @@ export function LeaderboardView() {
                     {topThree[0].userName}
                   </h4>
                   <div className="mt-1 text-2xl sm:text-3xl font-extrabold font-mono text-[var(--yellow)]">
-                    {"totalScore" in topThree[0]
-                      ? topThree[0].totalScore.toLocaleString()
-                      : "score" in topThree[0]
-                      ? topThree[0].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/60 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[0] && topThree[0].levelData ? (
+                      topThree[0].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[0]
+                          ? topThree[0].totalScore.toLocaleString()
+                          : "score" in topThree[0]
+                          ? topThree[0].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/60 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/60">
+                      {"score" in topThree[0] ? `${topThree[0].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-xs font-mono text-paper/70">
                     {"gamesPlayed" in topThree[0]
                       ? `${topThree[0].gamesPlayed} Games Completed`
@@ -266,13 +288,24 @@ export function LeaderboardView() {
                     {topThree[2].userName}
                   </h4>
                   <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-[#cd7f32]">
-                    {"totalScore" in topThree[2]
-                      ? topThree[2].totalScore.toLocaleString()
-                      : "score" in topThree[2]
-                      ? topThree[2].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[2] && topThree[2].levelData ? (
+                      topThree[2].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[2]
+                          ? topThree[2].totalScore.toLocaleString()
+                          : "score" in topThree[2]
+                          ? topThree[2].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/50">
+                      {"score" in topThree[2] ? `${topThree[2].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
                     {"fastestTimeMs" in topThree[2]
                       ? `Fastest: ${formatTime(topThree[2].fastestTimeMs)}`
@@ -345,21 +378,34 @@ export function LeaderboardView() {
                       </div>
 
                       <div className="text-right shrink-0 ml-3">
-                        <div className="text-sm sm:text-base font-bold font-mono text-[var(--blue-halftone)]">
-                          {"totalScore" in entry
-                            ? entry.totalScore.toLocaleString()
-                            : "score" in entry
-                            ? entry.score.toLocaleString()
-                            : 0}{" "}
-                          <span className="text-[10px] sm:text-xs font-mono text-paper/50 font-normal">pts</span>
-                        </div>
-                        <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
-                          {"fastestTimeMs" in entry
-                            ? formatTime(entry.fastestTimeMs)
-                            : "timeMs" in entry
-                            ? `Time: ${formatTime(entry.timeMs)}${"attemptNumber" in entry && entry.attemptNumber ? ` (Attempt #${entry.attemptNumber})` : ""}`
-                            : ""}
-                        </div>
+                        {activeTab === "typing" && "levelData" in entry && entry.levelData ? (
+                          <>
+                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--green)]">
+                              {entry.levelData}
+                            </div>
+                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                              {"score" in entry ? `${entry.score.toLocaleString()} pts` : ""}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--blue-halftone)]">
+                              {"totalScore" in entry
+                                ? entry.totalScore.toLocaleString()
+                                : "score" in entry
+                                ? entry.score.toLocaleString()
+                                : 0}{" "}
+                              <span className="text-[10px] sm:text-xs font-mono text-paper/50 font-normal">pts</span>
+                            </div>
+                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                              {"fastestTimeMs" in entry
+                                ? formatTime(entry.fastestTimeMs)
+                                : "timeMs" in entry
+                                ? `Time: ${formatTime(entry.timeMs)}${"attemptNumber" in entry && entry.attemptNumber ? ` (Attempt #${entry.attemptNumber})` : ""}`
+                                : ""}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   );
