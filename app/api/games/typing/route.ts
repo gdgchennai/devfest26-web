@@ -2,13 +2,22 @@ import { NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET() {
+export async function GET(req: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "no_api_key", message: "GEMINI_API_KEY is not configured on the server." });
   }
+
+  const { searchParams } = new URL(req.url);
+  const wordLimit = Number(searchParams.get("words") || "100");
+
   try {
-    const prompt = "Generate a continuous, general typing speed test paragraph about everyday topics like nature, hobbies, history, travel, food, or general life. Requirements:\n1. Must contain exactly between 100 to 120 words.\n2. Must contain only lowercase letters and spaces.\n3. Absolutely NO technology, computer, coding, software, or web development terms.\n4. Absolutely NO punctuation, commas, periods, hyphens, numbers, or capital letters.\n5. Return ONLY the raw plain text paragraph itself. No markdown, no quotes, and no formatting.";
+    const prompt = `Generate a continuous, general typing speed test paragraph about everyday topics like nature, hobbies, history, travel, food, or general life. Requirements:
+1. Must contain exactly between ${wordLimit} and ${Math.round(wordLimit * 1.1)} words.
+2. Must contain only lowercase letters and spaces.
+3. Absolutely NO technology, computer, coding, software, or web development terms.
+4. Absolutely NO punctuation, commas, periods, hyphens, numbers, or capital letters.
+5. Return ONLY the raw plain text paragraph itself. No markdown, no quotes, and no formatting.`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,

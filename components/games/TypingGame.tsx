@@ -12,24 +12,30 @@ type TypingGameProps = {
   wordLimit: number;
 };
 
-// Pure, clean, punctuation-free lowercase general English vocabulary matching Monkeytype's standard layout
-const GENERAL_VOCABULARY = [
-  "the", "be", "to", "of", "and", "a", "in", "that", "have", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
-  "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so",
-  "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people",
-  "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think",
-  "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give",
-  "day", "most", "us", "nature", "forest", "river", "mountain", "simple", "story", "life", "hobby", "hike", "travel", "food", "summer", "winter",
-  "morning", "night", "happy", "gentle", "quiet", "breeze", "world", "friend", "family", "house", "garden", "flower", "ocean", "beach", "journey"
+// Rich, natural, punctuation-free lowercase fallback paragraphs (nature, everyday life, travel, hobbies)
+// Prevents any word repetition and ensures high-end gameplay even when offline/unconfigured
+const FALLBACK_PARAGRAPHS = [
+  "the gentle sound of a quiet forest brings a deep sense of peace to the human mind as the soft wind blows through the green leaves of ancient trees and birds sing their morning songs while a small clear stream flows slowly over smooth gray stones and a warm golden sun filters down between the branches creating soft shadows on the damp earth below where tiny flowers grow silently in the mossy ground",
+  "everyday life is filled with simple moments that often go unnoticed but hold a quiet beauty like the rich aroma of fresh coffee in the early morning as the world is still waking up and the sky changes from deep dark blue to soft shades of orange and pink while people begin their daily journeys walking along clean city streets or driving past quiet neighborhoods with a feeling of hope for what the new day will bring",
+  "traveling to new places allows us to see the world from a completely different angle as we walk through old historic cities with narrow stone streets and look at beautiful buildings built many centuries ago while listening to the unfamiliar sounds of a foreign language and tasting traditional foods made with fresh local ingredients that tell the story of a culture and its people across the passage of time",
+  "finding a creative hobby like painting gardening or reading books provides a wonderful escape from the busy rush of modern routines as we lose ourselves in the quiet focus of creating something with our own hands or traveling to imaginary worlds through the printed pages of a great story where characters face challenges and embark on amazing journeys that inspire our own hearts and minds"
 ];
 
 function generatePureParagraph(wordCount: number): string {
-  const words: string[] = [];
-  for (let i = 0; i < wordCount; i++) {
-    const word = GENERAL_VOCABULARY[Math.floor(Math.random() * GENERAL_VOCABULARY.length)];
-    words.push(word);
+  // Use a beautiful pre-written paragraph as the base to maintain rich sentence flow
+  const base = FALLBACK_PARAGRAPHS[Math.floor(Math.random() * FALLBACK_PARAGRAPHS.length)];
+  const words = base.split(" ");
+  if (words.length >= wordCount) {
+    return words.slice(0, wordCount).join(" ");
   }
-  return words.join(" ");
+
+  // If we need more words (e.g. for a 500-word test), repeat fallback blocks to fill the requested length
+  const extendedWords = [...words];
+  while (extendedWords.length < wordCount) {
+    const anotherBase = FALLBACK_PARAGRAPHS[Math.floor(Math.random() * FALLBACK_PARAGRAPHS.length)];
+    extendedWords.push(...anotherBase.split(" "));
+  }
+  return extendedWords.slice(0, wordCount).join(" ");
 }
 
 export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingGameProps) {
@@ -52,7 +58,7 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
   const startTimeRef = useRef<number | null>(null);
   const wordsContainerRef = useRef<HTMLDivElement>(null);
   
-  // Ref tracking to decouple timer/inactivity listeners from fast typing state updates
+  // Ref tracking to decouple timer/inactivity/extension listeners from fast typing state updates
   const inputTextRef = useRef<string>("");
   const lastTypedRef = useRef<number>(0);
   const isActiveRef = useRef<boolean>(false);
@@ -77,12 +83,14 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
     lastTypedRef.current = 0;
     
     let text = "";
+    const requestedWords = mode === "time" ? 150 : wordLimit;
 
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 3500);
 
-      const res = await fetch("/api/games/typing", { signal: controller.signal });
+      // Pass the specific words query parameter to compile length-matched paragraphs in Gemini
+      const res = await fetch(`/api/games/typing?words=${requestedWords}`, { signal: controller.signal });
       clearTimeout(id);
       
       if (res.ok) {
@@ -97,8 +105,7 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
 
     // Process paragraph based on mode
     if (!text) {
-      const targetCount = mode === "time" ? 100 : wordLimit;
-      text = generatePureParagraph(targetCount);
+      text = generatePureParagraph(requestedWords);
     } else if (mode === "words") {
       const words = text.split(/\s+/);
       if (words.length < wordLimit) {
@@ -106,9 +113,6 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
         words.push(...generatePureParagraph(extraNeeded).split(" "));
       }
       text = words.slice(0, wordLimit).join(" ");
-    } else {
-      const words = text.split(/\s+/);
-      text = words.slice(0, 100).join(" ");
     }
 
     setTargetText(text);
