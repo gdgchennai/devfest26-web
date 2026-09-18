@@ -5,7 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 
 export type GameScoreSubmission = {
-  gameId: "jigsaw" | "crossword" | "memory";
+  gameId: "jigsaw" | "crossword" | "memory" | "typing";
   gameTitle: string;
   score: number;
   timeMs: number;

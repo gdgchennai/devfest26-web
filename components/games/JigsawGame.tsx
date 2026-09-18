@@ -175,11 +175,11 @@ export function JigsawGame({
 
         onFinishGame({
           gameId: "jigsaw",
-          gameTitle: "DevFest Archive Jigsaw",
+          gameTitle: "Jigsaw Puzzle",
           score: finalScore,
           timeMs: finalTime,
           moves: finalMoves,
-          levelData: `${gridSize}x${gridSize} Grid • DevFest ${currentPhoto.year}`,
+          levelData: `${gridSize}x${gridSize} Grid`,
         });
       }
     },
@@ -233,7 +233,7 @@ export function JigsawGame({
   return (
     <div className="flex flex-col gap-5">
       {/* Live Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
           <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Time</div>
           <div className="text-lg sm:text-xl font-bold font-mono text-paper mt-0.5">
@@ -249,10 +249,6 @@ export function JigsawGame({
           <div className="text-lg sm:text-xl font-bold font-mono text-[var(--green)] mt-0.5">
             {correctCount}/{totalTiles} ({progressPercent}%)
           </div>
-        </div>
-        <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Archive Year</div>
-          <div className="text-xs font-medium font-mono text-paper truncate mt-1">{currentPhoto.year}</div>
         </div>
       </div>
 
@@ -333,9 +329,9 @@ export function JigsawGame({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" />
                   </svg>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Archive Jigsaw</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Jigsaw Puzzle</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
-                  Reconstruct DevFest {currentPhoto.year} in {gridSize}×{gridSize} tiles.
+                  Reconstruct the image in {gridSize}×{gridSize} tiles.
                 </p>
                 <button
                   type="button"
@@ -386,7 +382,6 @@ export function JigsawGame({
           <div className="rounded-2xl border border-paper/10 bg-surface p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-mono uppercase tracking-wider text-paper/60">Reference Photo</span>
-              <span className="text-xs font-mono text-[var(--blue-halftone)]">{currentPhoto.year}</span>
             </div>
             <div className="relative aspect-[4/3] w-full rounded-2xl border border-paper/20 overflow-hidden bg-black/60 shadow-lg">
               <Image
@@ -448,39 +443,7 @@ export function JigsawGame({
             </div>
           </div>
 
-          {/* Under Reference Photo Box: Photos Pool for selecting jigsaw photo */}
-          {/* Automatically hides once the game starts so players cannot guess from thumbnails */}
-          {!hasStarted && photosPool.length > 1 && (
-            <div className="rounded-2xl border border-paper/10 bg-surface p-4 animate-fade-in shadow-md">
-              <label className="text-[11px] font-mono uppercase tracking-wider text-paper/60 block mb-2.5">
-                Select Photo to Solve
-              </label>
-              {/* Added p-1.5 padding to prevent borders, rings, and scale-105 from being clipped at the scrollbox boundaries */}
-              <div className="grid grid-cols-4 gap-2.5 max-h-[185px] overflow-y-auto p-1.5 scrollbar-none">
-                {photosPool.map((photo) => {
-                  const isCurrent = currentPhoto.src === photo.src;
-                  return (
-                    <button
-                      key={photo.src}
-                      type="button"
-                      onClick={() => onSelectPhoto?.(photo)}
-                      className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all cursor-pointer ${
-                        isCurrent
-                          ? "border-[var(--blue)] ring-2 ring-[var(--blue)]/40 scale-105 z-10 opacity-100"
-                          : "border-paper/10 opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.src} alt={photo.title || ""} className="w-full h-full object-cover animate-fade-in" />
-                      <span className="absolute bottom-0 inset-x-0 bg-ink/80 text-[8px] font-mono py-0.5 text-center text-paper">
-                        {photo.year}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {/* Photos pool panel removed to enforce automatic randomizing on game load/reset */}
         </div>
       </div>
     </div>

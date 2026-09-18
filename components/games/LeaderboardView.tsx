@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import type { LeaderboardEntry, OverallLeaderboardEntry } from "@/lib/leaderboard";
 
-type LeaderboardTab = "all" | "jigsaw" | "crossword" | "memory";
+type LeaderboardTab = "all" | "jigsaw" | "crossword" | "memory" | "typing";
 
 export function LeaderboardView() {
   const { data: session } = useSession();
@@ -93,9 +93,10 @@ export function LeaderboardView() {
         <div className="inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] p-1 overflow-x-auto max-w-full">
           {[
             { id: "all" as const, label: "Overall Rankings" },
-            { id: "jigsaw" as const, label: "Archive Jigsaw" },
+            { id: "jigsaw" as const, label: "Jigsaw Puzzle" },
             { id: "crossword" as const, label: "Tech Crossword" },
             { id: "memory" as const, label: "Memory Matrix" },
+            { id: "typing" as const, label: "Speed Typer" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -125,6 +126,18 @@ export function LeaderboardView() {
           <span>{loading ? "Refreshing..." : "Refresh"}</span>
         </button>
       </div>
+
+      {activeTab === "all" && (
+        <div className="rounded-2xl border border-[var(--blue)]/20 bg-[var(--blue)]/5 p-4 text-xs sm:text-sm text-paper/85 flex items-start gap-3 shadow-md animate-fade-in">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--blue)]/10 text-[var(--blue)] shrink-0 font-bold font-mono">i</span>
+          <div className="space-y-1">
+            <p className="font-bold text-white uppercase tracking-wider text-[11px] font-mono">Cumulative Global Standings</p>
+            <p className="leading-relaxed text-paper/70 font-sans">
+              Your overall score is the <strong className="text-white">sum of your best scores achieved across all mini-games</strong>. The more unique games you play (Jigsaw, Crossword, Memory, and Speed Typer), the more points you stack up in this global standings! Play all four to dominate!
+            </p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-2xl border border-[var(--red)]/30 bg-[var(--red)]/10 p-4 text-center text-xs text-[var(--red)]">
@@ -179,18 +192,31 @@ export function LeaderboardView() {
                     {topThree[1].userName}
                   </h4>
                   <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-paper/90">
-                    {"totalScore" in topThree[1]
-                      ? topThree[1].totalScore.toLocaleString()
-                      : "score" in topThree[1]
-                      ? topThree[1].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[1] && topThree[1].levelData ? (
+                      topThree[1].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[1]
+                          ? topThree[1].totalScore.toLocaleString()
+                          : "score" in topThree[1]
+                          ? topThree[1].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/50">
+                      {"score" in topThree[1] ? `${topThree[1].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
-                    {"fastestTimeMs" in topThree[1]
-                      ? `Fastest: ${formatTime(topThree[1].fastestTimeMs)}`
+                    {"gamesPlayed" in topThree[1]
+                      ? `Mastered: ${topThree[1].gamesPlayed} / 4 Games`
+                      : "fastestTimeMs" in topThree[1]
+                      ? `Fastest: ${formatTime(topThree[1].fastestTimeMs as number)}`
                       : "timeMs" in topThree[1]
-                      ? `Time: ${formatTime(topThree[1].timeMs)}${"attemptNumber" in topThree[1] && topThree[1].attemptNumber ? ` (Attempt #${topThree[1].attemptNumber})` : ""}`
+                      ? `Time: ${formatTime(topThree[1].timeMs as number)}${"attemptNumber" in topThree[1] && topThree[1].attemptNumber ? ` (Attempt #${topThree[1].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -223,16 +249,27 @@ export function LeaderboardView() {
                     {topThree[0].userName}
                   </h4>
                   <div className="mt-1 text-2xl sm:text-3xl font-extrabold font-mono text-[var(--yellow)]">
-                    {"totalScore" in topThree[0]
-                      ? topThree[0].totalScore.toLocaleString()
-                      : "score" in topThree[0]
-                      ? topThree[0].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/60 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[0] && topThree[0].levelData ? (
+                      topThree[0].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[0]
+                          ? topThree[0].totalScore.toLocaleString()
+                          : "score" in topThree[0]
+                          ? topThree[0].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/60 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/60">
+                      {"score" in topThree[0] ? `${topThree[0].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-xs font-mono text-paper/70">
                     {"gamesPlayed" in topThree[0]
-                      ? `${topThree[0].gamesPlayed} Games Completed`
+                      ? `Mastered: ${topThree[0].gamesPlayed} / 4 Games`
                       : "timeMs" in topThree[0]
                       ? `Time: ${formatTime(topThree[0].timeMs)}${"attemptNumber" in topThree[0] && topThree[0].attemptNumber ? ` (Attempt #${topThree[0].attemptNumber})` : ""}`
                       : ""}
@@ -265,18 +302,31 @@ export function LeaderboardView() {
                     {topThree[2].userName}
                   </h4>
                   <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-[#cd7f32]">
-                    {"totalScore" in topThree[2]
-                      ? topThree[2].totalScore.toLocaleString()
-                      : "score" in topThree[2]
-                      ? topThree[2].score.toLocaleString()
-                      : 0}
-                    <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                    {activeTab === "typing" && "levelData" in topThree[2] && topThree[2].levelData ? (
+                      topThree[2].levelData
+                    ) : (
+                      <>
+                        {"totalScore" in topThree[2]
+                          ? topThree[2].totalScore.toLocaleString()
+                          : "score" in topThree[2]
+                          ? topThree[2].score.toLocaleString()
+                          : 0}
+                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                      </>
+                    )}
                   </div>
+                  {activeTab === "typing" && (
+                    <div className="text-xs font-mono text-paper/50">
+                      {"score" in topThree[2] ? `${topThree[2].score.toLocaleString()} pts` : ""}
+                    </div>
+                  )}
                   <div className="mt-2 text-[11px] font-mono text-paper/60">
-                    {"fastestTimeMs" in topThree[2]
-                      ? `Fastest: ${formatTime(topThree[2].fastestTimeMs)}`
+                    {"gamesPlayed" in topThree[2]
+                      ? `Mastered: ${topThree[2].gamesPlayed} / 4 Games`
+                      : "fastestTimeMs" in topThree[2]
+                      ? `Fastest: ${formatTime(topThree[2].fastestTimeMs as number)}`
                       : "timeMs" in topThree[2]
-                      ? `Time: ${formatTime(topThree[2].timeMs)}${"attemptNumber" in topThree[2] && topThree[2].attemptNumber ? ` (Attempt #${topThree[2].attemptNumber})` : ""}`
+                      ? `Time: ${formatTime(topThree[2].timeMs as number)}${"attemptNumber" in topThree[2] && topThree[2].attemptNumber ? ` (Attempt #${topThree[2].attemptNumber})` : ""}`
                       : ""}
                   </div>
                 </div>
@@ -338,27 +388,48 @@ export function LeaderboardView() {
                             )}
                           </div>
                           <div className="text-[10px] sm:text-[11px] font-mono text-paper/50 truncate">
-                            {"levelData" in entry && entry.levelData ? entry.levelData : "DevFest Player"}
+                            {isOverall && "gamesPlayed" in entry ? (
+                              <span className="text-[var(--blue-halftone)] font-bold">
+                                {entry.gamesPlayed} / 4 Games Solved
+                              </span>
+                            ) : "levelData" in entry && entry.levelData ? (
+                              entry.levelData
+                            ) : (
+                              "DevFest Player"
+                            )}
                           </div>
                         </div>
                       </div>
 
                       <div className="text-right shrink-0 ml-3">
-                        <div className="text-sm sm:text-base font-bold font-mono text-[var(--blue-halftone)]">
-                          {"totalScore" in entry
-                            ? entry.totalScore.toLocaleString()
-                            : "score" in entry
-                            ? entry.score.toLocaleString()
-                            : 0}{" "}
-                          <span className="text-[10px] sm:text-xs font-mono text-paper/50 font-normal">pts</span>
-                        </div>
-                        <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
-                          {"fastestTimeMs" in entry
-                            ? formatTime(entry.fastestTimeMs)
-                            : "timeMs" in entry
-                            ? `Time: ${formatTime(entry.timeMs)}${"attemptNumber" in entry && entry.attemptNumber ? ` (Attempt #${entry.attemptNumber})` : ""}`
-                            : ""}
-                        </div>
+                        {activeTab === "typing" && "levelData" in entry && entry.levelData ? (
+                          <>
+                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--green)]">
+                              {entry.levelData}
+                            </div>
+                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                              {"score" in entry ? `${entry.score.toLocaleString()} pts` : ""}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--blue-halftone)]">
+                              {"totalScore" in entry
+                                ? entry.totalScore.toLocaleString()
+                                : "score" in entry
+                                ? entry.score.toLocaleString()
+                                : 0}{" "}
+                              <span className="text-[10px] sm:text-xs font-mono text-paper/50 font-normal">pts</span>
+                            </div>
+                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                              {"fastestTimeMs" in entry
+                                ? formatTime(entry.fastestTimeMs)
+                                : "timeMs" in entry
+                                ? `Time: ${formatTime(entry.timeMs)}${"attemptNumber" in entry && entry.attemptNumber ? ` (Attempt #${entry.attemptNumber})` : ""}`
+                                : ""}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   );

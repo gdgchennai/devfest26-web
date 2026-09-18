@@ -5,13 +5,14 @@ import { useSession } from "next-auth/react";
 import { JigsawGame } from "./JigsawGame";
 import { CrosswordGame } from "./CrosswordGame";
 import { MemoryGame } from "./MemoryGame";
+import { TypingGame } from "./TypingGame";
 import { LeaderboardView } from "./LeaderboardView";
 import { ScoreModal, type GameScoreSubmission } from "./ScoreModal";
 import { GameSettingsModal } from "./GameSettingsModal";
 import initialPhotos from "@/content/jigsaw-photos.json";
 import type { ArchivePhotoChoice } from "@/lib/games-content";
 
-export type GameTab = "jigsaw" | "crossword" | "memory" | "leaderboard";
+export type GameTab = "jigsaw" | "crossword" | "memory" | "typing" | "leaderboard";
 
 export function GamesHub() {
   const { data: session, status } = useSession();
@@ -23,6 +24,7 @@ export function GamesHub() {
   const [autoSubmitMessage, setAutoSubmitMessage] = useState<string | null>(null);
 
   // Shared settings states across games
+  const [photosPool, setPhotosPool] = useState<ArchivePhotoChoice[]>(initialPhotos as ArchivePhotoChoice[]);
   const [jigsawGridSize, setJigsawGridSize] = useState<number>(3);
   const [jigsawSlideMode, setJigsawSlideMode] = useState<boolean>(false);
   const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(
@@ -36,20 +38,37 @@ export function GamesHub() {
 
   const [memoryPairsCount, setMemoryPairsCount] = useState<number>(8);
 
-  // API-first fetch for latest archive photos
+  // Typing game states
+  const [typingMode, setTypingMode] = useState<"time" | "words">("time");
+  const [typingTimeLimit, setTypingTimeLimit] = useState<number>(30);
+  const [typingWordLimit, setTypingWordLimit] = useState<number>(200);
+
+  // API-first fetch for latest archive photos with random photo choice on load
   useEffect(() => {
     fetch("/api/games/content?kind=photos")
       .then((res) => res.json() as Promise<{ data?: ArchivePhotoChoice[] }>)
       .then((payload) => {
         if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
-          setSelectedPhoto(payload.data[0]);
+          setPhotosPool(payload.data);
+          const randPhoto = payload.data[Math.floor(Math.random() * payload.data.length)];
+          setSelectedPhoto(randPhoto);
         }
       })
-      .catch((err) => console.warn("Using fallback photos content", err));
+      .catch((err) => {
+        console.warn("Using fallback photos content", err);
+        const randPhoto = initialPhotos[Math.floor(Math.random() * initialPhotos.length)] as ArchivePhotoChoice;
+        setSelectedPhoto(randPhoto);
+      });
   }, []);
 
   function handleResetGame() {
     setResetTrigger((prev) => prev + 1);
+
+    // Select a completely random photo from the pool on reset
+    if (photosPool && photosPool.length > 0) {
+      const randPhoto = photosPool[Math.floor(Math.random() * photosPool.length)];
+      setSelectedPhoto(randPhoto);
+    }
   }
 
   // Check if there is a pending score in localStorage waiting for post-OAuth sign in
@@ -126,7 +145,7 @@ export function GamesHub() {
           {[
             {
               id: "jigsaw" as const,
-              label: "Archive Jigsaw",
+              label: "Jigsaw Puzzle",
               desc: "Photo puzzle",
               accent: "var(--blue)",
               icon: (
@@ -155,6 +174,17 @@ export function GamesHub() {
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="2" y="3" width="20" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v10M16 7v10" />
+                </svg>
+              ),
+            },
+            {
+              id: "typing" as const,
+              label: "Speed Typer",
+              desc: "Typing speed test",
+              accent: "var(--blue)",
+              icon: (
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2zM7 14h2M11 14h2M15 14h2" />
                 </svg>
               ),
             },
@@ -261,6 +291,15 @@ export function GamesHub() {
             pairsCount={memoryPairsCount}
           />
         )}
+        {activeTab === "typing" && (
+          <TypingGame
+            key={`typing-${typingMode}-${typingTimeLimit}-${typingWordLimit}-${resetTrigger}`}
+            onFinishGame={handleGameFinish}
+            mode={typingMode}
+            timeLimit={typingTimeLimit}
+            wordLimit={typingWordLimit}
+          />
+        )}
         {activeTab === "leaderboard" && <LeaderboardView />}
       </div>
 
@@ -276,6 +315,12 @@ export function GamesHub() {
         crosswordCycleTime={crosswordCycleTime}
         memoryPairsCount={memoryPairsCount}
         onMemoryPairsCountChange={setMemoryPairsCount}
+        typingMode={typingMode}
+        onTypingModeChange={setTypingMode}
+        typingTimeLimit={typingTimeLimit}
+        onTypingTimeLimitChange={setTypingTimeLimit}
+        typingWordLimit={typingWordLimit}
+        onTypingWordLimitChange={setTypingWordLimit}
         onResetGame={handleResetGame}
       />
 
