@@ -93,7 +93,7 @@ export function LeaderboardView() {
         <div className="inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] p-1 overflow-x-auto max-w-full">
           {[
             { id: "all" as const, label: "Overall Rankings" },
-            { id: "jigsaw" as const, label: "Archive Jigsaw" },
+            { id: "jigsaw" as const, label: "Jigsaw Puzzle" },
             { id: "crossword" as const, label: "Tech Crossword" },
             { id: "memory" as const, label: "Memory Matrix" },
             { id: "typing" as const, label: "Speed Typer" },

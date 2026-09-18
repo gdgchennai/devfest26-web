@@ -24,6 +24,7 @@ export function GamesHub() {
   const [autoSubmitMessage, setAutoSubmitMessage] = useState<string | null>(null);
 
   // Shared settings states across games
+  const [photosPool, setPhotosPool] = useState<ArchivePhotoChoice[]>(initialPhotos as ArchivePhotoChoice[]);
   const [jigsawGridSize, setJigsawGridSize] = useState<number>(3);
   const [jigsawSlideMode, setJigsawSlideMode] = useState<boolean>(false);
   const [selectedPhoto, setSelectedPhoto] = useState<ArchivePhotoChoice>(
@@ -37,20 +38,32 @@ export function GamesHub() {
 
   const [memoryPairsCount, setMemoryPairsCount] = useState<number>(8);
 
-  // API-first fetch for latest archive photos
+  // API-first fetch for latest archive photos with random photo choice on load
   useEffect(() => {
     fetch("/api/games/content?kind=photos")
       .then((res) => res.json() as Promise<{ data?: ArchivePhotoChoice[] }>)
       .then((payload) => {
         if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
-          setSelectedPhoto(payload.data[0]);
+          setPhotosPool(payload.data);
+          const randPhoto = payload.data[Math.floor(Math.random() * payload.data.length)];
+          setSelectedPhoto(randPhoto);
         }
       })
-      .catch((err) => console.warn("Using fallback photos content", err));
+      .catch((err) => {
+        console.warn("Using fallback photos content", err);
+        const randPhoto = initialPhotos[Math.floor(Math.random() * initialPhotos.length)] as ArchivePhotoChoice;
+        setSelectedPhoto(randPhoto);
+      });
   }, []);
 
   function handleResetGame() {
     setResetTrigger((prev) => prev + 1);
+
+    // Select a completely random photo from the pool on reset
+    if (photosPool && photosPool.length > 0) {
+      const randPhoto = photosPool[Math.floor(Math.random() * photosPool.length)];
+      setSelectedPhoto(randPhoto);
+    }
   }
 
   // Check if there is a pending score in localStorage waiting for post-OAuth sign in
@@ -127,7 +140,7 @@ export function GamesHub() {
           {[
             {
               id: "jigsaw" as const,
-              label: "Archive Jigsaw",
+              label: "Jigsaw Puzzle",
               desc: "Photo puzzle",
               accent: "var(--blue)",
               icon: (

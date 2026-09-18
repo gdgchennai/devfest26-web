@@ -32,7 +32,7 @@ function generatePureParagraph(wordCount: number): string {
 export function TypingGame({ onFinishGame }: TypingGameProps) {
   const [mode, setMode] = useState<TypingMode>("time");
   
-  // Adjusted Settings to match exactly: 200, 400, and 500 words for Words mode
+  // Settings - starting at exactly 200, 400, and 500 words for Words mode
   const [timeLimit, setTimeLimit] = useState<number>(30); // 15, 30, 60s
   const [wordLimit, setWordLimit] = useState<number>(200); // 200, 400, 500 words
   
@@ -53,8 +53,9 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
   const hiddenInputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const wordsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch a paragraph from the secure backend Gemini API with a robust local vocabulary generator fallback
+  // Fetch a paragraph from the secure backend Gemini API with local fallback
   const loadNewParagraph = useCallback(async () => {
     setIsLoading(true);
     setInputText("");
@@ -65,7 +66,6 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     let text = "";
 
     try {
-      // Fetch from our new secure backend Gemini API route with a tight 3.5s timeout
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 3500);
 
@@ -82,12 +82,11 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
       console.warn("Secure Gemini API route failed or timed out. Falling back to local high-performance tech vocabulary generator.", e);
     }
 
-    // Fallback or fill-up logic
+    // Process paragraph based on mode
     if (!text) {
       const targetCount = mode === "time" ? 100 : wordLimit;
       text = generatePureParagraph(targetCount);
     } else if (mode === "words") {
-      // In words mode, generate/slice exactly 200, 400, or 500 words
       const words = text.split(/\s+/);
       if (words.length < wordLimit) {
         const extraNeeded = wordLimit - words.length;
@@ -95,7 +94,6 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
       }
       text = words.slice(0, wordLimit).join(" ");
     } else {
-      // In time attack mode, start with a solid 100-word paragraph
       const words = text.split(/\s+/);
       text = words.slice(0, 100).join(" ");
     }
@@ -103,6 +101,11 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     setTargetText(text);
     setTimeLeft(mode === "time" ? timeLimit : 0);
     setIsLoading(false);
+    
+    // Reset container scroll to top on reload
+    if (wordsContainerRef.current) {
+      wordsContainerRef.current.scrollTop = 0;
+    }
   }, [mode, timeLimit, wordLimit]);
 
   // Load paragraph on init and mode/config changes
@@ -110,7 +113,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     void loadNewParagraph();
   }, [loadNewParagraph]);
 
-  // Complete game and submit scores (Muted, single setState invocation)
+  // Complete game and submit scores (Trigger scoring dialogue immediately)
   const handleGameOver = useCallback((timeExpired: boolean, finalInputText: string) => {
     setIsActive(false);
     setIsCompleted(true);
@@ -134,7 +137,7 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     // Scoring formula: WPM * Accuracy % (capped at WPM x 100)
     const finalScore = Math.round(finalWpm * (finalAccuracy / 100) * 100);
 
-    // Submit score data
+    // Submit score data immediately to trigger parent ScoreModal dialogue popup!
     onFinishGame({
       gameId: "typing",
       gameTitle: "Speed Typer",
@@ -162,6 +165,28 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [isActive, timeLeft, mode, handleGameOver, inputText]);
+
+  // Automatic Viewport Scrolling & Line Centering: Keeps the active typing line centered at all times
+  useEffect(() => {
+    const container = wordsContainerRef.current;
+    if (!container || isCompleted) return;
+
+    // Locate the active cursor caret span inside container
+    const activeCaret = container.querySelector(".caret-cursor");
+    if (activeCaret) {
+      // Find its wrapping parent word block (inline-block span)
+      const parentWord = activeCaret.closest(".word-block") as HTMLElement;
+      if (parentWord) {
+        const containerHeight = container.clientHeight;
+        // Center the active word vertically inside the viewport
+        const targetScrollTop = parentWord.offsetTop - containerHeight / 2 + parentWord.clientHeight / 2;
+        container.scrollTo({
+          top: Math.max(0, targetScrollTop),
+          behavior: "smooth"
+        });
+      }
+    }
+  }, [inputText.length, isCompleted]);
 
   // Calculate live stats
   const calculateStats = useCallback((typed: string) => {
@@ -232,6 +257,70 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
     if (hiddenInputRef.current) {
       hiddenInputRef.current.focus();
     }
+  };
+
+  // Surgeon-precise whole-word line wrapping component renderer
+  const renderParagraphElements = () => {
+    if (!targetText) return null;
+
+    const words = targetText.split(" ");
+    let charCounter = 0;
+
+    return words.map((word, wordIdx) => {
+      const wordChars = word.split("");
+      return (
+        <span 
+          key={`word-${wordIdx}`} 
+          className="word-block inline-block whitespace-nowrap mr-[0.3em] mb-1 transition-all duration-200"
+        >
+          {/* 1. Word characters */}
+          {wordChars.map((char) => {
+            const index = charCounter++;
+            const isTyped = index < inputText.length;
+            const isCurrent = index === inputText.length;
+            const hasError = isTyped && inputText[index] !== char;
+
+            let charClass = "text-paper/30 transition-colors duration-150";
+            if (isTyped) {
+              charClass = hasError 
+                ? "text-[var(--red)] underline decoration-[var(--red)]/50 decoration-2 underline-offset-4" 
+                : "text-[var(--green)]";
+            }
+
+            return (
+              <span key={`char-${index}`} className={`relative inline-block ${charClass}`}>
+                {isCurrent && isFocused && (
+                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-[var(--blue)] animate-[caret-blink_1s_infinite]" />
+                )}
+                {char}
+              </span>
+            );
+          })}
+
+          {/* 2. Trailing Space character (tied inside word block so it wraps naturally) */}
+          {wordIdx < words.length - 1 && (() => {
+            const index = charCounter++;
+            const isTyped = index < inputText.length;
+            const isCurrent = index === inputText.length;
+            const hasError = isTyped && inputText[index] !== " ";
+
+            let charClass = "text-paper/30 transition-colors duration-150";
+            if (isTyped) {
+              charClass = hasError ? "text-[var(--red)] bg-[var(--red)]/20 rounded" : "text-[var(--green)]";
+            }
+
+            return (
+              <span key={`space-${wordIdx}`} className={`relative inline-block ${charClass}`}>
+                {isCurrent && isFocused && (
+                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-[var(--blue)] animate-[caret-blink_1s_infinite]" />
+                )}
+                &nbsp;
+              </span>
+            );
+          })()}
+        </span>
+      );
+    });
   };
 
   return (
@@ -328,10 +417,10 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
         </div>
       </div>
 
-      {/* Main Gameplay Screen */}
+      {/* Main Gameplay Screen (FIXED HEIGHT with automatic center scrolling) */}
       <div 
         onClick={focusInput}
-        className="relative min-h-[160px] flex items-center justify-center p-4 bg-ink/20 border border-paper/5 rounded-2xl cursor-text transition-all duration-300 hover:border-paper/10"
+        className="relative h-[130px] flex items-center justify-center p-4 bg-ink/20 border border-paper/5 rounded-2xl cursor-text transition-all duration-300 hover:border-paper/10 overflow-hidden"
       >
         {isLoading ? (
           <div className="flex items-center gap-2 text-paper/60 font-mono text-sm">
@@ -342,11 +431,13 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
             Generating typing test...
           </div>
         ) : (
-          <div className="relative text-lg sm:text-2xl font-mono leading-relaxed select-none max-w-full overflow-hidden text-left break-words">
-            
+          <div 
+            ref={wordsContainerRef}
+            className="absolute inset-y-0 inset-x-4 py-4 overflow-y-auto scrollbar-none scroll-smooth text-lg sm:text-2xl font-mono leading-relaxed select-none max-w-full text-left break-words"
+          >
             {/* Smooth carats and overlays inside focused container */}
             {!isFocused && !isCompleted && (
-              <div className="absolute inset-0 bg-ink/40 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-300">
+              <div className="absolute inset-0 z-30 bg-ink/75 backdrop-blur-[1.5px] flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-300">
                 <span className="text-xs font-bold uppercase tracking-widest text-[var(--blue)] bg-[var(--blue)]/10 px-3 py-1.5 rounded-full border border-[var(--blue)]/20 shadow-md">
                   Click or Tap here to start typing
                 </span>
@@ -356,32 +447,10 @@ export function TypingGame({ onFinishGame }: TypingGameProps) {
               </div>
             )}
 
-            {/* Character streamer rendering */}
-            <span className="relative">
-              {targetText.split("").map((char, index) => {
-                const isTyped = index < inputText.length;
-                const isCurrent = index === inputText.length;
-                const hasError = isTyped && inputText[index] !== char;
-
-                let charClass = "text-paper/30 transition-colors duration-150";
-                if (isTyped) {
-                  charClass = hasError 
-                    ? "text-[var(--red)] underline decoration-[var(--red)]/50 decoration-2 underline-offset-4" 
-                    : "text-[var(--green)]";
-                }
-
-                return (
-                  <span key={`char-${index}`} className={`relative inline-block ${charClass}`}>
-                    
-                    {/* Blinking Carat cursor exactly like Monkeytype */}
-                    {isCurrent && isFocused && (
-                      <span className="absolute left-[-2px] top-[10%] bottom-[10%] w-[2.5px] bg-[var(--blue)] animate-[caret-blink_1s_infinite]" />
-                    )}
-                    {char === " " ? "\u00A0" : char}
-                  </span>
-                );
-              })}
-            </span>
+            {/* Render Word Span blocks for whole-word line wrapping */}
+            <div className="relative flex flex-wrap max-w-full pr-2">
+              {renderParagraphElements()}
+            </div>
           </div>
         )}
       </div>
