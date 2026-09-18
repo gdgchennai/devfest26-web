@@ -22,6 +22,11 @@ export async function GET() {
     );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        console.error(
+          "Gemini API returned status 404. This usually means the 'Generative Language API' has not been enabled yet inside the Google Cloud Console for your API Key, or the model is unavailable."
+        );
+      }
       throw new Error(`Gemini API returned status ${response.status}`);
     }
 
