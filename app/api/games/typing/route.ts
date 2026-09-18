@@ -7,9 +7,8 @@ export async function GET() {
   if (!apiKey) {
     return NextResponse.json({ error: "no_api_key", message: "GEMINI_API_KEY is not configured on the server." });
   }
-
   try {
-    const prompt = "Generate a continuous typing speed test paragraph about programming, modern web frameworks, Cloudflare Workers, Next.js, or artificial intelligence. Requirements:\n1. Must contain exactly between 100 to 120 words.\n2. Must contain only lowercase letters and spaces.\n3. Absolutely NO punctuation, commas, periods, hyphens, numbers, or capital letters.\n4. Return ONLY the raw plain text paragraph itself. No markdown, no quotes, and no formatting.";
+    const prompt = "Generate a continuous, general typing speed test paragraph about everyday topics like nature, hobbies, history, travel, food, or general life. Requirements:\n1. Must contain exactly between 100 to 120 words.\n2. Must contain only lowercase letters and spaces.\n3. Absolutely NO technology, computer, coding, software, or web development terms.\n4. Absolutely NO punctuation, commas, periods, hyphens, numbers, or capital letters.\n5. Return ONLY the raw plain text paragraph itself. No markdown, no quotes, and no formatting.";
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,

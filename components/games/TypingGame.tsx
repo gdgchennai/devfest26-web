@@ -9,25 +9,21 @@ type TypingGameProps = {
   onFinishGame: (submission: GameScoreSubmission) => void;
 };
 
-// Pure, clean, punctuation-free lowercase tech vocabulary for Monkeytype-style typing tests
-const TECH_VOCABULARY = [
-  "code", "software", "developer", "engineer", "javascript", "typescript", "react", "angular", "node", "express",
-  "database", "sqlite", "cloudflare", "worker", "pages", "deployment", "compiler", "runtime", "performance",
-  "optimization", "security", "encryption", "scaling", "architecture", "component", "interface", "function", "variable", "constant",
-  "framework", "library", "git", "commit", "branch", "merge", "conflict", "leaderboard", "scores", "application",
-  "frontend", "backend", "fullstack", "server", "client", "browser", "hydration", "rendering", "static", "dynamic",
-  "google", "gemini", "artificial", "intelligence", "models", "algorithm", "network", "cloud", "platform", "systems",
-  "responsive", "mobile", "desktop", "keyboard", "typing", "accuracy", "speed", "words", "minute", "lounge",
-  "community", "builders", "creators", "design", "creative", "ideation", "scripting", "editing", "publishing", "collaboration",
-  "array", "object", "string", "number", "boolean", "promise", "callback", "async", "await", "fetch", "routing",
-  "styling", "cascade", "animation", "timeline", "trigger", "opacity", "scale", "parallax", "matrix", "vector", "render",
-  "handler", "event", "state", "effect", "ref", "hook", "context", "provider", "auth", "session", "credential", "cache"
+// Pure, clean, punctuation-free lowercase general English vocabulary matching Monkeytype's standard layout
+const GENERAL_VOCABULARY = [
+  "the", "be", "to", "of", "and", "a", "in", "that", "have", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this",
+  "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so",
+  "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people",
+  "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think",
+  "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give",
+  "day", "most", "us", "nature", "forest", "river", "mountain", "simple", "story", "life", "hobby", "hike", "travel", "food", "summer", "winter",
+  "morning", "night", "happy", "gentle", "quiet", "breeze", "world", "friend", "family", "house", "garden", "flower", "ocean", "beach", "journey"
 ];
 
 function generatePureParagraph(wordCount: number): string {
   const words: string[] = [];
   for (let i = 0; i < wordCount; i++) {
-    const word = TECH_VOCABULARY[Math.floor(Math.random() * TECH_VOCABULARY.length)];
+    const word = GENERAL_VOCABULARY[Math.floor(Math.random() * GENERAL_VOCABULARY.length)];
     words.push(word);
   }
   return words.join(" ");
