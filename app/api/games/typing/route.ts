@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
 export async function GET(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const { env } = await getCloudflareContext({ async: true });
+  const apiKey = env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "no_api_key", message: "GEMINI_API_KEY is not configured on the server." });
   }

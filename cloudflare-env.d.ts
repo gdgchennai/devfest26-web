@@ -12,6 +12,8 @@ declare global {
     /** Google OAuth 2.0 client credentials. */
     AUTH_GOOGLE_ID: string;
     AUTH_GOOGLE_SECRET: string;
+    /** Gemini API key for the typing game's word-generation prompt. */
+    GEMINI_API_KEY?: string;
   }
 }
 
