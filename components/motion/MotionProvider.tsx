@@ -139,12 +139,12 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
      * destroy a Lenis instance for every lite visitor. It cannot change without
      * a reload, so reading it once here is safe.
      */
-    // Reverted globally to native, natural browser scrolling as requested.
-    // By returning early, we bypass Lenis momentum smooth scrolling completely.
-    return () => {
-      window.clearTimeout(handBack);
-      if ("scrollRestoration" in history) history.scrollRestoration = "auto";
-    };
+    if (shouldUseStaticBaseline()) {
+      return () => {
+        window.clearTimeout(handBack);
+        if ("scrollRestoration" in history) history.scrollRestoration = "auto";
+      };
+    }
 
     let cancelled = false;
     let instance: Lenis | null = null;

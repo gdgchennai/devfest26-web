@@ -19,6 +19,15 @@ import { GlowButton } from "@/components/GlowButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
+/** The line-art's own viewBox ratio (see public/venue-lines.svg) — the photo
+ *  is cropped to the same ratio so the two stay pixel-aligned, and the stage
+ *  itself is sized close to it (see the JSX) rather than a full viewport. */
+const ART_RATIO = 1773 / 1167;
+/** Vertical crop bias when the stage is wider/shorter than ART_RATIO: only
+ *  this fraction of the overflow comes off the top, protecting the roofline
+ *  (the rest comes off the bottom — plain roadway). */
+const TOP_CROP_BIAS = 0.15;
+
 /** The pin's three held phases, in %-of-viewport scroll distance each
  *  consumes — HOLD (dead zone), SWAP ("Location" ⇄ "Save the Date"), then
  *  OVERLAY (the black panel's rise). Module-level (not effect-local)
@@ -251,11 +260,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const w = stage!.clientWidth;
       const h = stage!.clientHeight;
       if (!w || !h) return;
-      // Sized to match the exact dimensions of the stage container for a perfect fit with no cropping or cutoffs
-      visual!.style.width = `${w}px`;
-      visual!.style.height = `${h}px`;
-      visual!.style.left = "0px";
-      visual!.style.top = "0px";
+      let coverW: number;
+      let coverH: number;
+      if (w / h > ART_RATIO) {
+        coverW = w;
+        coverH = w / ART_RATIO;
+      } else {
+        coverH = h;
+        coverW = h * ART_RATIO;
+      }
+      visual!.style.width = `${coverW}px`;
+      visual!.style.height = `${coverH}px`;
+      visual!.style.left = `${-((coverW - w) / 2)}px`;
+      visual!.style.top = `${-((coverH - h) * TOP_CROP_BIAS)}px`;
     }
     size();
     const ro = new ResizeObserver(size);
@@ -890,7 +907,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                     difference, imperceptible on a building facade) instead
                     of cropping it. */}
                 <Image
-                  src="/venue-v2.webp"
+                  src="/venue.webp"
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 70vw, 100vw"
@@ -920,7 +937,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           {staticBaseline && (
             <div className="absolute inset-0">
               <Image
-                src="/venue-v2.webp"
+                src="/venue.webp"
                 alt={uiCopy.common.venueAlt}
                 fill
                 priority={true}

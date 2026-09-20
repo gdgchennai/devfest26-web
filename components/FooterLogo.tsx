@@ -75,15 +75,13 @@ export function FooterLogo({
   const field3D = BRACKETS_FIELD_ROUTES.includes(pathname) && !staticBaseline;
 
   return (
-    // Downsized gap for cleaner responsive layout, with twice the reduction applied on mobile
-    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 sm:gap-6">
+    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-10">
       {/* The logo box. `relative` so the static fallback brackets can anchor to
           it; the 3D field reads this same box via id="footer-logo". The capped
           width leaves the transparent gutters the brackets settle into, and the
           aspect-ratio keeps the box measured before the image loads so the 3D
-          settle target is stable.
-          Logo is downsized by 50px on desktop and twice that amount (100px) on mobile for a tighter footer. */}
-      <div className="relative mx-auto aspect-[1370/531] w-[min(32vw,160px)] sm:w-[min(40vw,210px)]">
+          settle target is stable. */}
+      <div className="relative mx-auto aspect-[1370/531] w-[min(60vw,420px)]">
         <FooterBrackets />
         {/* eslint-disable-next-line @next/next/no-img-element -- a static brand
             SVG measured by the motion layer; next/image adds nothing here. */}
