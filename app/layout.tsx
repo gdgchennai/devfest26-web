@@ -134,12 +134,14 @@ export default function RootLayout({
           }}
         />
         {/* Mirrors isLiteMode() in lib/motion-prefs.ts, including the `?lite=0`
-            opt-out — without that branch a stale stored preference would hide
-            the boot preloader on a ?lite=0 load that then plays the full intro.
+            opt-out and the stored "0" — without those branches a stale stored
+            preference would hide the boot preloader on a ?lite=0 load that then
+            plays the full intro. Reduced-motion is the default when nothing is
+            stored, so those visitors get `html.lite` (and the pill nav) pre-paint.
             Also skips the overlay on inner routes, bots, and reduced-motion.
             Inlined: it must run before any module. */}
         <Script id="intro-bridge" strategy="beforeInteractive">
-          {`(function(){try{var ua=navigator.userAgent;var bot=/Googlebot|Google-InspectionTool|AdsBot-Google|Storebot-Google|GoogleOther|bingbot|BingPreview|DuckDuckBot|Slurp|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|Applebot|Chrome-Lighthouse|GPTBot|ClaudeBot|Bytespider|CCBot/i.test(ua);var p=new URLSearchParams(location.search).get('lite');var lite=p==='1'||(p!=='0'&&localStorage.getItem('devfest-lite')==='1');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var home=location.pathname==='/'||location.pathname==='';if(bot||reduce||lite||!home){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
+          {`(function(){try{var ua=navigator.userAgent;var bot=/Googlebot|Google-InspectionTool|AdsBot-Google|Storebot-Google|GoogleOther|bingbot|BingPreview|DuckDuckBot|Slurp|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|Applebot|Chrome-Lighthouse|GPTBot|ClaudeBot|Bytespider|CCBot/i.test(ua);var p=new URLSearchParams(location.search).get('lite');var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var s=localStorage.getItem('devfest-lite');var lite=p==='1'||(p!=='0'&&(s==='1'||(s!=='0'&&reduce)));var home=location.pathname==='/'||location.pathname==='';if(bot||reduce||lite||!home){document.documentElement.classList.add('no-boot');}if(lite){document.documentElement.classList.add('lite');}}catch(e){}})();`}
         </Script>
         <div id="boot-preloader">
           <div className="boot-dots" aria-hidden="true">
