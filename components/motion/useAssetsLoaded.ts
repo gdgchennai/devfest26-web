@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { whenReady, didFail, BRACKETS_READY } from "@/lib/assetReady";
-import imagekitLoader, { IMAGEKIT_QUALITY, usesImageKit } from "@/lib/imagekit-loader";
 import { IMAGE_DEVICE_SIZES } from "@/lib/image-sizes";
 
 /**
@@ -89,32 +88,25 @@ function optimizedSrcSet(src: string): string {
  * optimizer rejects a quality outside its configured set, same constraint as
  * IMAGE_DEVICE_SIZES above.
  */
-const DEV_QUALITY = 75;
+const IMAGE_QUALITY = 75;
 
 /**
  * One optimizer URL at one width — for consumers that cannot use a srcset
  * because they are not an <img>: chiefly three.js `TextureLoader`, which takes
  * a single URL string.
  *
- * Branches the same way next.config.ts does: dev keeps Next's built-in
- * `/_next/image` optimizer, prod goes through the custom ImageKit loader.
- * This has to mirror that branch exactly, not just call the ImageKit loader
- * unconditionally — this function is a plain JS call, not something routed
- * through next/image's own loader resolution, so nothing else keeps it in
- * sync automatically. Get this wrong (as it briefly was, calling
- * imagekitLoader() in both environments) and the preloader warms ImageKit
- * URLs in dev while every real <Image>/<Frame> requests /_next/image —
- * exactly the "warmed URL ≠ consumer URL" bug this file's other comments
- * already warn about.
+ * Builds the same `/_next/image` URL next/image's default loader does (sharp
+ * in dev, Cloudflare Images on the Worker in prod). This is a plain JS call,
+ * not something routed through next/image's own loader resolution, so nothing
+ * else keeps it in sync automatically — if the loader or `qualities` in
+ * next.config.ts change, change this too, or the preloader warms URLs no real
+ * <Image>/<Frame> ever requests.
  *
  * `w` must be one of IMAGE_DEVICE_SIZES — the optimizer rejects widths outside the
  * configured set.
  */
 export function optimizedSrc(src: string, width: number): string {
-  if (usesImageKit()) {
-    return imagekitLoader({ src, width, quality: IMAGEKIT_QUALITY });
-  }
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${DEV_QUALITY}`;
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${IMAGE_QUALITY}`;
 }
 
 /** The 3D title's typefaces, fetched here so the extruded wordmark is ready too. */

@@ -53,7 +53,7 @@ export function AvatarButton({
           className="glow-btn__surface pointer-events-auto flex h-11 w-11 items-center justify-center rounded-2xl"
         >
           {image ? (
-            // eslint-disable-next-line @next/next/no-img-element -- Google-hosted avatar, outside the ImageKit loader
+            // eslint-disable-next-line @next/next/no-img-element -- Google-hosted avatar, outside the next/image loader
             <img
               src={image}
               alt=""

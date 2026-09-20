@@ -75,8 +75,6 @@ ticketing Worker writes to.
   ```
 
 - A Google Cloud project for the OAuth client (see [Google auth](#google-auth-setup)).
-- An ImageKit account/endpoint for production image resizing (optional but
-  recommended — without it images fall back to raw `/public` paths).
 
 ---
 
@@ -111,7 +109,8 @@ read D1 through `lib/content.ts` with a 5-minute ISR window (`revalidate = 300`)
 clients can also hit `GET /api/content` and `GET /api/content/{agenda|speakers|archive}`.
 `next build` falls back to the JSON files when D1 is empty or unbound.
 
-Images stay in `public/` (and ImageKit in production). The Worker cache headers
+Images stay in `public/`; in production `/_next/image` resizes them through the
+Worker `IMAGES` binding (Cloudflare Images). The Worker cache headers
 in `public/_headers` mark `/archive`, `/banner`, `/fonts`, and `/brand-shapes`
 immutable so the edge keeps them.
 
@@ -161,7 +160,6 @@ into the bundle — **changing one requires a rebuild + redeploy**.
 
 | Var | Purpose | Required |
 |---|---|---|
-| `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | Production `next/image` loader endpoint | prod only |
 | `AGENDA_READY` | `"true"` brings `/agenda` + `/speakers` + `/md` twins online | no (default off) |
 | `HERO_BUTTONS` | comma-separated allow-list `tickets,cfp,volunteer,agenda` for the hero CTA row | no (default: all) |
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` / `NEXT_PUBLIC_POSTHOG_KEY` | Override the committed PostHog project token | no (defaults to `siteConfig.analytics.posthogKey`) |
@@ -322,7 +320,7 @@ the URI list.
 - `curl -X POST https://devfest-ticketing.<subdomain>.workers.dev/<WEBHOOK_PATH>`
   with `--data @workers/ticketing/samples/registration.json` → `200`; the row
   appears on `/profile` for the matching email. A wrong path → `404`.
-- Image URLs point at the ImageKit endpoint (prod) not `/public`.
+- Images load from `/_next/image?url=…&w=…` (resized by the `IMAGES` binding), not as raw `/public` files.
 
 ---
 

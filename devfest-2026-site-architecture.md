@@ -488,7 +488,7 @@ A shared helper is not enough — two call sites can still pass different widths
 the list:** `CurvedMarqueeHero` exports `MARQUEE_TEXTURES`, the exact URL array it hands to
 `TextureLoader`, and `HeroSection` passes *that same array* to `useAssetsLoaded`. One array, no
 second source of truth, drift impossible by construction rather than by convention. The single-width
-URL builder (`optimizedSrc`) lives beside `DEVICE_SIZES` and `DEFAULT_QUALITY` in
+URL builder (`optimizedSrc`) lives beside `IMAGE_DEVICE_SIZES` and `IMAGE_QUALITY` in
 `useAssetsLoaded.ts`, so the coupling to Next's image defaults stays in one file.
 
 Optional dev-only check: after hand-off, compare each warmed URL against

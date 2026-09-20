@@ -2,13 +2,10 @@ import type { NextConfig } from "next";
 import { withPostHogConfig } from "@posthog/nextjs-config";
 import { IMAGE_DEVICE_SIZES, IMAGE_IMAGE_SIZES } from "./lib/image-sizes";
 
-const IMAGEKIT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
-
 const imagesShared = {
   deviceSizes: [...IMAGE_DEVICE_SIZES],
   imageSizes: [...IMAGE_IMAGE_SIZES],
-  // 75 = Next's default (dev `/_next/image`). 80 = ImageKit loader quality.
-  qualities: [75, 80],
+  qualities: [75],
   remotePatterns: [
     {
       protocol: "https" as const,
@@ -22,10 +19,9 @@ const imagesShared = {
 };
 
 /*
- * Production prefers ImageKit when NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT is set.
- * Without it, Next's default loader lets OpenNext use the Worker `IMAGES`
- * binding instead of shipping raw 1920px files. Dev always uses sharp via
- * `/_next/image`. useAssetsLoaded.optimizedSrc() must stay on the same branch.
+ * Images always go through Next's default loader (`/_next/image`): sharp in
+ * `next dev`, the Worker `IMAGES` binding (Cloudflare Images) in production via
+ * OpenNext. useAssetsLoaded.optimizedSrc() builds the same URLs.
  */
 const nextConfig: NextConfig = {
   // Exposed (unprefixed) to both server and client bundles here, rather than
@@ -58,32 +54,15 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["gsap", "@gsap/react", "three", "lenis"],
   },
-  ...(process.env.NODE_ENV === "production"
-    ? process.env.FORCE_IMAGEKIT === "true" && IMAGEKIT
-      ? {
-          images: {
-            ...imagesShared,
-            loader: "custom" as const,
-            loaderFile: "./lib/imagekit-loader.ts",
-          },
-        }
-      : {
-          images: {
-            ...imagesShared,
-            formats: ["image/avif" as const, "image/webp" as const],
-          },
-        }
-    : {
-        allowedDevOrigins: ["192.168.1.*"],
-        images: {
-          ...imagesShared,
-          // AVIF first, WebP as fallback. Measured on the archive photos at
-          // w=1200: 30→25 KB, 56→46 KB, 87→82 KB — roughly 14% off for
-          // browsers that support it, and no browser is worse off. Next's
-          // default is WebP only.
-          formats: ["image/avif", "image/webp"],
-        },
-      }),
+  ...(process.env.NODE_ENV === "production" ? {} : { allowedDevOrigins: ["192.168.1.*"] }),
+  images: {
+    ...imagesShared,
+    // AVIF first, WebP as fallback. Measured on the archive photos at
+    // w=1200: 30→25 KB, 56→46 KB, 87→82 KB — roughly 14% off for
+    // browsers that support it, and no browser is worse off. Next's
+    // default is WebP only.
+    formats: ["image/avif", "image/webp"],
+  },
 };
 
 /**

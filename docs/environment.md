@@ -12,19 +12,11 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 | `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
 | Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 | Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
-| Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`, `AGENDA_READY`, `HERO_BUTTONS`, optional PostHog overrides |
+| Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `AGENDA_READY`, `HERO_BUTTONS`, optional PostHog overrides |
 
 Full deploy walkthrough: [`deployment.md`](./deployment.md).
 
 ## The variables
-
-### `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`
-- **Type:** build-time, public (inlined into the client bundle)
-- **Used by:** [`lib/imagekit-loader.ts`](../lib/imagekit-loader.ts) — the custom
-  `next/image` loader used in production, and the preloader warm-up in
-  `components/motion/useAssetsLoaded.ts`
-- **Required:** production only for ImageKit. Dev uses Next/sharp (`/_next/image`). If unset in production, OpenNext uses the Worker `IMAGES` binding instead of raw `/public` files.
-- **Example:** `https://ik.imagekit.io/gdgchennai`
 
 ### `AGENDA_READY`
 - **Type:** build-time (re-exposed unprefixed via `next.config.ts` `env` so
@@ -67,8 +59,7 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 
 ### `NODE_ENV`
 - Set automatically by `next dev` / `next build` / Wrangler. Never set it by
-  hand. `lib/imagekit-loader.ts`, `next.config.ts`, and
-  `components/motion/useAssetsLoaded.ts` branch on it.
+  hand. `next.config.ts` branches on it (dev-only `allowedDevOrigins`).
 
 ### `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` / `NEXT_PUBLIC_POSTHOG_KEY`
 - **Type:** build-time, public (inlined into the client bundle)

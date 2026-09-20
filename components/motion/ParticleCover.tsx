@@ -92,7 +92,7 @@ export function ParticleCover({
         // half-covered and every sprite that crosses it stays painted there
         // as a dashed line along the bottom edge.
         ctx!.setTransform(1, 0, 0, 1, 0, 0);
-        ctx!.clearRect(0, 0, canvas.width, canvas.height);
+        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         const target = radius * TARGET_RATIO;
         particles.forEach((p) => {

@@ -61,10 +61,8 @@ export type SubEvent = {
   href?: string;
   /** A `public/`-relative path (e.g. "/events/kug-irl.webp"), same
    *  convention as the shared venue shot it substitutes for — goes through
-   *  next/image exactly like every other image on the site (ImageKit
-   *  resizing it in production, see next.config.ts), so it works equally
-   *  whether the file lives in `public/` or is already served off
-   *  ImageKit's CDN. Omitted while the event has no real photography yet —
+   *  next/image exactly like every other image on the site (resized
+   *  by Cloudflare Images in production, see next.config.ts). Omitted while the event has no real photography yet —
    *  TicketsList falls back to the shared venue shot in that case. */
   image?: string;
   /** The card's background — one of the four brand pastels, or the neutral
