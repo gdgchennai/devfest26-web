@@ -29,6 +29,8 @@ export type GameResult = {
   timeMs: number;
   moves: number;
   levelData: string;
+  /** Which board this run competes on (see GAME_VARIANTS). Empty for games with one board. */
+  variant: string;
 };
 
 export type Verdict<T> = ({ ok: true } & T) | { ok: false; reason: string };
@@ -304,3 +306,44 @@ export function typingStats(target: string, typed: string, timeMs: number) {
 
 /** Local paragraph for the offline/unconfigured path (re-exported for the game). */
 export { generateLocalParagraph };
+
+/* ------------------------------------------------------------- Variants */
+
+/** `group` puts boards under a heading the leaderboard shows as a first row of toggles
+ *  (Speed Typer: Time Attack / Words Count; Jigsaw: Tile Swap / Classic Slide); without it
+ *  they're one flat row. */
+export type GameVariant = { id: string; label: string; group?: string };
+
+export const jigsawVariant = (size: number, slide: boolean) => `${size}${slide ? "s" : ""}`;
+export const memoryVariant = (pairs: number) => `${pairs}`;
+export const typingVariant = (mode: "time" | "words", timeLimit: number, wordLimit: number) =>
+  mode === "words" ? `words-${wordLimit}` : `time-${timeLimit}`;
+
+/**
+ * Leaderboards are kept per board, because "3x3 in 20s" and "5x5 in 20s" are not
+ * the same achievement and 15 s of typing is not 60 s. The server stamps a variant
+ * on every result from the config it dealt (so it can't be picked at publish time),
+ * and `/api/games/scores` only accepts one of these ids. The first entry is the
+ * default board. Crossword has one board a day, so it has no variants.
+ */
+export const GAME_VARIANTS: Record<GameId, readonly GameVariant[]> = {
+  jigsaw: [
+    ...JIGSAW_SIZES.map((n) => ({ id: jigsawVariant(n, false), label: `${n}×${n}`, group: "Tile Swap" })),
+    ...JIGSAW_SIZES.map((n) => ({ id: jigsawVariant(n, true), label: `${n}×${n}`, group: "Classic Slide" })),
+  ],
+  crossword: [],
+  memory: MEMORY_PAIRS.map((p) => ({ id: `${p}`, label: `${p * 2} cards` })),
+  typing: [
+    ...TYPING_TIME_LIMITS.map((t) => ({ id: `time-${t}`, label: `${t} s`, group: "Time Attack" })),
+    ...TYPING_WORD_LIMITS.map((w) => ({ id: `words-${w}`, label: `${w} words`, group: "Words Count" })),
+  ],
+};
+
+/** The board to show when none is asked for: the first variant, or "" for one-board games. */
+export const defaultVariant = (gameId: GameId): string => GAME_VARIANTS[gameId][0]?.id ?? "";
+
+/** True if `variant` is a real board for `gameId` ("" is the only board of a variant-less game). */
+export function isVariant(gameId: GameId, variant: string): boolean {
+  const list = GAME_VARIANTS[gameId];
+  return list.length === 0 ? variant === "" : list.some((v) => v.id === variant);
+}

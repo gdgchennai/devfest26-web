@@ -5,11 +5,14 @@ import {
   crosswordComplete,
   crosswordScore,
   jigsawScore,
+  jigsawVariant,
   memoryScore,
+  memoryVariant,
   replayJigsaw,
   replayMemory,
   solutionLetters,
   typingStats,
+  typingVariant,
   type GameResult,
 } from "@/lib/game-rules";
 import { finishSession, getSession, markBegun, spend, type GameSession } from "@/lib/game-sessions";
@@ -148,6 +151,7 @@ async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Sc
           timeMs,
           moves: replay.moves,
           levelData: `${size}x${size} Grid`,
+          variant: jigsawVariant(size, slide),
         },
       };
     }
@@ -167,6 +171,7 @@ async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Sc
           timeMs,
           moves: replay.moves,
           levelData: `${pairs * 2} Cards • Max Streak ${replay.maxStreak}x`,
+          variant: memoryVariant(pairs),
         },
       };
     }
@@ -192,6 +197,7 @@ async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Sc
           timeMs,
           moves: s.hints,
           levelData: `${puzzle.title} • ${puzzle.clues.length} Clues`,
+          variant: "",
         },
       };
     }
@@ -223,6 +229,7 @@ async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Sc
           timeMs,
           moves: typed.length,
           levelData: `${stats.wpm} WPM | ${stats.accuracy}% ACC`,
+          variant: typingVariant(mode, s.config.timeLimit as number, s.config.wordLimit as number),
         },
       };
     }

@@ -6,10 +6,9 @@ import {
   getUserGameScores,
 } from "@/lib/leaderboard";
 import { claimForUser, releaseClaim } from "@/lib/game-sessions";
+import { GAME_IDS, defaultVariant, isVariant, type GameId } from "@/lib/game-rules";
 
 export const runtime = "nodejs";
-
-const VALID_GAME_IDS = new Set(["jigsaw", "crossword", "memory", "typing", "all"]);
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -26,8 +25,11 @@ export async function GET(req: Request) {
 
     if (gameId === "all") {
       overallLeaderboard = await getOverallLeaderboard(limit);
-    } else if (VALID_GAME_IDS.has(gameId)) {
-      leaderboard = await getGameLeaderboard(gameId, limit);
+    } else if (GAME_IDS.includes(gameId as GameId)) {
+      // Leaderboards are per board (grid size, card count, typing mode…); default to the first.
+      const variant = searchParams.get("variant") ?? defaultVariant(gameId as GameId);
+      if (!isVariant(gameId as GameId, variant)) return Response.json({ error: "Invalid variant" }, { status: 400 });
+      leaderboard = await getGameLeaderboard(gameId, variant, limit);
     } else {
       return Response.json({ error: "Invalid gameId" }, { status: 400 });
     }
@@ -94,9 +96,10 @@ export async function POST(req: Request) {
       timeMs: result.timeMs,
       moves: result.moves,
       levelData: result.levelData.slice(0, 500),
+      variant: result.variant ?? "",
     });
 
-    const updatedLeaderboard = await getGameLeaderboard(result.gameId, 50);
+    const updatedLeaderboard = await getGameLeaderboard(result.gameId, result.variant ?? "", 50);
     const userScores = await getUserGameScores(userId);
 
     return Response.json({ ok: true, record, leaderboard: updatedLeaderboard, userScores });
