@@ -262,7 +262,7 @@ export const siteConfig = {
   tracks: [
     { slug: "tech", name: "Tech", description: "General tech talks." },
     { slug: "deep tech", name: "Deep Tech", description: "Tech in Science, Math, Hardware." },
-    { slug: "experience", name: "Experience", description: "Open lounges for anyone to experince building and creating with AI" },
+    { slug: "experience", name: "Experience", description: "Open lounges for anyone to experience building and creating with AI" },
     { slug: "competition", name: "Competition", description: "Competition zones for humans and AI agents." },
   ] satisfies Track[],
 
@@ -418,6 +418,14 @@ export const siteConfig = {
     formUrl: "https://devfest.gdgchennai.in/cfv",
   },
 
+  sponsorship: {
+    // The sponsorship brochure (a PDF). Like /cfp and /cfv above, /sponsors is not an
+    // app route: Cloudflare serves the file (a 200 application/pdf), so it is linked as a
+    // full URL and the rule that serves it lives in the dashboard, not this repo — see
+    // docs/deployment.md. Read by /llms.txt and the contact page's markdown twin.
+    brochureUrl: "https://devfest.gdgchennai.in/sponsors",
+  },
+
   codeOfConduct: {
     // No local /code-of-conduct page — every "Code of Conduct" link site-wide
     // (the footer) goes straight to Google's own GDG Code of Conduct instead of
@@ -425,7 +433,7 @@ export const siteConfig = {
     url: "https://developers.google.com/events/gdd-india/code-of-conduct",
   },
 
-  // Served by a Cloudflare URL rewrite, not an app route — the Next app has no
+  // A Cloudflare redirect (301), not an app route — the Next app has no
   // /privacy path. So it's linked as a full absolute URL (see the footer) and
   // stays out of lib/routes.ts / the sitemap.
   privacyPolicyUrl: "https://devfest.gdgchennai.in/privacy",
@@ -451,8 +459,9 @@ export const siteConfig = {
     "DevFest Chennai is an independent, community-run event organised by GDG Chennai under Google's Community Guidelines. It is not produced or endorsed by Google.",
 } as const;
 
-// Sponsor tiers lived here until 2026 dropped sponsorship. See the
-// architecture doc if they come back — nothing else referenced them.
+// Sponsor tiers lived here until they were removed from the site ahead of a
+// rebuild. See the architecture doc for the 2025 structure — nothing else
+// referenced them.
 
 /**
  * Every other piece of button/label/heading/body copy that isn't part of
