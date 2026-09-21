@@ -1531,3 +1531,57 @@ body.settings-bottomsheet-open .site-nav {
   /* Border only on the background card, which fades out with the mask */
   border-bottom: 1px solid color-mix(in srgb, var(--paper) 8%, transparent);
 }
+
+/* ---------------------------------------------------------------------------
+ * Leaderboard rows (components/games/LeaderboardView.tsx)
+ *
+ * The leaderboard has no card and no dividers; the only ornaments are crisp 1.5px rings
+ * (the same padding + mask-exclude ring as .glow-btn, without its glow or halo). The top
+ * three get a gold / silver / bronze ring; the signed-in player's own row gets the site's
+ * four-colour rainbow one, which wins over a medal. `--lb-ring-bg` is the ring's paint,
+ * `--lb-text` the medal colour for the rank numeral.
+ * ------------------------------------------------------------------------ */
+.lb-ring {
+  position: relative;
+  --lb-ring-bg: linear-gradient(135deg, var(--paper), color-mix(in srgb, var(--paper) 45%, transparent));
+}
+
+.lb-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--lb-ring-bg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.lb-medal--gold {
+  --lb-ring-bg: linear-gradient(135deg, #fff3bf, var(--yellow) 45%, #9a6a00);
+  --lb-text: var(--yellow);
+}
+
+.lb-medal--silver {
+  --lb-ring-bg: linear-gradient(135deg, #ffffff, #b4bcc6 45%, #626a74);
+  --lb-text: #c4cbd3;
+}
+
+.lb-medal--bronze {
+  --lb-ring-bg: linear-gradient(135deg, #f6c79a, var(--bronze) 45%, #6d4013);
+  --lb-text: var(--bronze);
+}
+
+.lb-ring.lb-ring--you {
+  --lb-ring-bg: conic-gradient(from var(--glow-angle), var(--red), var(--yellow), var(--green), var(--blue), var(--red));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.lite) .lb-ring--you {
+    animation: glow-rotate 6s linear infinite;
+  }
+}
