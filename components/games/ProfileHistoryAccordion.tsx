@@ -27,9 +27,9 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
 
   // Get display details per game
   const GAME_METADATA: Record<string, { label: string; accentColor: string; bgDot: string }> = {
-    jigsaw: { label: "Archive Jigsaw", accentColor: "text-[var(--blue-halftone)]", bgDot: "bg-[var(--blue)]" },
-    crossword: { label: "Tech Crossword", accentColor: "text-[var(--yellow-pastel)]", bgDot: "bg-[var(--yellow)]" },
-    memory: { label: "Memory Matrix", accentColor: "text-[var(--green-pastel)]", bgDot: "bg-[var(--green)]" },
+    jigsaw: { label: "Archive Jigsaw", accentColor: "text-blue-halftone", bgDot: "bg-blue" },
+    crossword: { label: "Tech Crossword", accentColor: "text-yellow-pastel", bgDot: "bg-yellow" },
+    memory: { label: "Memory Matrix", accentColor: "text-green-pastel", bgDot: "bg-green" },
   };
 
   return (
@@ -42,7 +42,7 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
         aria-expanded={expanded}
       >
         <div className="flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--blue)]/10 text-[var(--blue-halftone)]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue/10 text-blue-halftone">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -51,7 +51,7 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
             <h3 className="text-sm sm:text-base font-bold text-paper">
               Games History
             </h3>
-            <p className="text-[10px] font-mono text-paper/40 mt-0.5">
+            <p className="text-[10px] text-paper/40 mt-0.5">
               {gameScores.length} attempts completed across all mini-games
             </p>
           </div>
@@ -93,26 +93,26 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
                   className="rounded-xl border border-paper/10 bg-paper/[0.02] p-3 flex flex-col gap-1 hover:bg-paper/[0.04] transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-paper/40 flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-paper/40 flex items-center gap-1.5">
                       <span className={`h-1.5 w-1.5 rounded-full ${meta.bgDot}`} />
                       <span>{meta.label} — Attempt #{s.attempt_number || 1}</span>
                     </span>
-                    <span className="text-[9px] font-mono text-paper/40">
+                    <span className="text-[9px] text-paper/40">
                       {formatDate(s.created_at)}
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between mt-0.5">
-                    <div className={`text-base font-extrabold font-mono ${meta.accentColor}`}>
+                    <div className={`text-base font-extrabold ${meta.accentColor}`}>
                       {s.score.toLocaleString()}
-                      <span className="text-[10px] font-mono text-paper/50 ml-0.5 font-normal">pts</span>
+                      <span className="text-[10px] text-paper/50 ml-0.5 font-normal">pts</span>
                     </div>
-                    <div className="text-[11px] font-mono text-paper/60">
+                    <div className="text-[11px] text-paper/60">
                       Time: {formatTime(s.time_ms)}
                       {s.moves > 0 && <span className="text-paper/40 ml-1.5">({s.moves} moves)</span>}
                     </div>
                   </div>
                   {s.level_data && (
-                    <div className="text-[9px] font-mono text-paper/40 border-t border-paper/5 pt-1.5 mt-1">
+                    <div className="text-[9px] text-paper/40 border-t border-paper/5 pt-1.5 mt-1">
                       Setup: {s.level_data}
                     </div>
                   )}

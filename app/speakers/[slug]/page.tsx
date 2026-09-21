@@ -93,7 +93,7 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
 
       {speaker.talk && (
         <div className="mt-8 rounded-lg border border-paper/10 p-5">
-          <p className="font-mono text-xs uppercase tracking-wide text-blue">{speaker.talk.track}</p>
+          <p className="text-xs uppercase tracking-wide text-blue">{speaker.talk.track}</p>
           <h2 className="mt-1 text-xl font-semibold">{speaker.talk.title}</h2>
           <p className="mt-2 text-sm text-paper/70">{speaker.talk.abstract}</p>
         </div>

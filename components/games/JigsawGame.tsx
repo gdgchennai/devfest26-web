@@ -235,18 +235,18 @@ export function JigsawGame({
       {/* Live Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Time</div>
-          <div className="text-lg sm:text-xl font-bold font-mono text-paper mt-0.5">
+          <div className="text-[11px] uppercase tracking-wider text-paper/60">Time</div>
+          <div className="text-lg sm:text-xl font-bold text-paper mt-0.5">
             {hasStarted ? timeFormatted : "0:00"}
           </div>
         </div>
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Moves</div>
-          <div className="text-lg sm:text-xl font-bold font-mono text-[var(--yellow)] mt-0.5">{moves}</div>
+          <div className="text-[11px] uppercase tracking-wider text-paper/60">Moves</div>
+          <div className="text-lg sm:text-xl font-bold text-yellow mt-0.5">{moves}</div>
         </div>
         <div className="rounded-2xl border border-paper/10 bg-surface p-3 text-center">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-paper/60">Solved</div>
-          <div className="text-lg sm:text-xl font-bold font-mono text-[var(--green)] mt-0.5">
+          <div className="text-[11px] uppercase tracking-wider text-paper/60">Solved</div>
+          <div className="text-lg sm:text-xl font-bold text-green mt-0.5">
             {correctCount}/{totalTiles} ({progressPercent}%)
           </div>
         </div>
@@ -257,7 +257,7 @@ export function JigsawGame({
         {/* Jigsaw Board */}
         <div className="lg:col-span-8 flex flex-col items-center">
           <div
-            className="relative w-full max-w-[560px] aspect-[4/3] rounded-2xl border-2 border-paper/20 bg-black/60 p-2 shadow-2xl overflow-hidden"
+            className="relative w-full max-w-[560px] aspect-[4/3] rounded-2xl border-2 border-paper/20 bg-ink/60 p-2 shadow-2xl overflow-hidden"
             style={{ touchAction: "manipulation" }}
           >
             {/* The Grid of Tiles */}
@@ -287,7 +287,7 @@ export function JigsawGame({
                       onClick={() => handleTileClick(slotIndex)}
                       className="rounded-lg bg-ink/90 border border-dashed border-paper/20 flex items-center justify-center cursor-pointer"
                     >
-                      <span className="text-[10px] font-mono text-paper/30">empty</span>
+                      <span className="text-[10px] text-paper/30">empty</span>
                     </div>
                   );
                 }
@@ -299,9 +299,9 @@ export function JigsawGame({
                     onClick={() => handleTileClick(slotIndex)}
                     className={`relative rounded-lg overflow-hidden transition-all duration-150 transform active:scale-95 focus:outline-none cursor-pointer ${
                       isSelected
-                        ? "ring-4 ring-[var(--blue)] scale-[0.98] z-20 shadow-lg"
+                        ? "ring-4 ring-blue scale-[0.98] z-20 shadow-lg"
                         : isCorrect && hasStarted
-                        ? "ring-1 ring-[var(--green)]/40 hover:ring-[var(--green)]"
+                        ? "ring-1 ring-green/40 hover:ring-green"
                         : "ring-1 ring-paper/15 hover:ring-paper/50"
                     }`}
                     style={{
@@ -312,7 +312,7 @@ export function JigsawGame({
                     }}
                   >
                     {isCorrect && hasStarted && (
-                      <span className="absolute bottom-1 right-1 text-[10px] text-[var(--green)] bg-black/60 px-1 rounded font-bold">
+                      <span className="absolute bottom-1 right-1 text-[10px] text-green bg-ink/60 px-1 rounded font-bold">
                         ✓
                       </span>
                     )}
@@ -323,20 +323,20 @@ export function JigsawGame({
 
             {/* Start Game Overlay if not started */}
             {!hasStarted && !gameCompleted && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center animate-fade-in">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--blue)]/20 text-[var(--blue)] mb-3">
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm p-6 text-center animate-fade-in">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue/20 text-blue mb-3">
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" />
                   </svg>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Jigsaw Puzzle</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-paper tracking-tight">Jigsaw Puzzle</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
                   Reconstruct the image in {gridSize}×{gridSize} tiles.
                 </p>
                 <button
                   type="button"
                   onClick={handleStartGame}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--blue)] px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-[var(--blue)]/30 hover:bg-[var(--blue)]/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 >
                   <span>Start Game</span>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
@@ -348,11 +348,11 @@ export function JigsawGame({
 
             {/* Victory Overlay on Complete */}
             {gameCompleted && (
-              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-6 text-center animate-fade-in">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--green)]/20 text-[var(--green)] mb-2 font-bold text-xl">
+              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-ink/80 backdrop-blur-sm p-6 text-center animate-fade-in">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green/20 text-green mb-2 font-bold text-xl">
                   ✓
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">Puzzle Solved</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-paper">Puzzle Solved</h3>
                 <p className="text-xs sm:text-sm text-paper/70 mt-1">
                   Completed in {timeFormatted} with {moves} moves.
                 </p>
@@ -360,7 +360,7 @@ export function JigsawGame({
                   <button
                     type="button"
                     onClick={() => restartPuzzle(gridSize)}
-                    className="rounded-full bg-[var(--green)] px-5 py-2 text-xs font-semibold text-black hover:bg-[var(--green)]/90 cursor-pointer"
+                    className="rounded-full bg-green px-5 py-2 text-xs font-semibold text-black hover:bg-green/90 cursor-pointer"
                   >
                     Play Again
                   </button>
@@ -381,9 +381,9 @@ export function JigsawGame({
           {/* Reference Image Box with 3 Reveal Chances of 5 Seconds */}
           <div className="rounded-2xl border border-paper/10 bg-surface p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-paper/60">Reference Photo</span>
+              <span className="text-xs uppercase tracking-wider text-paper/60">Reference Photo</span>
             </div>
-            <div className="relative aspect-[4/3] w-full rounded-2xl border border-paper/20 overflow-hidden bg-black/60 shadow-lg">
+            <div className="relative aspect-[4/3] w-full rounded-2xl border border-paper/20 overflow-hidden bg-ink/60 shadow-lg">
               <Image
                 src={currentPhoto.src}
                 alt={currentPhoto.title}
@@ -396,13 +396,13 @@ export function JigsawGame({
 
               {/* Overlay prompt when blurred */}
               {!isPhotoRevealed && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 p-4 text-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-ink/40 p-4 text-center">
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" className="text-paper/60 mb-1">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
                   <span className="text-xs font-medium text-paper">Photo Blurred</span>
-                  <span className="text-[10px] font-mono text-paper/60 mt-0.5">
+                  <span className="text-[10px] text-paper/60 mt-0.5">
                     {revealChancesLeft > 0
                       ? `${revealChancesLeft} peek${revealChancesLeft === 1 ? "" : "s"} remaining (5s each)`
                       : "No peeks remaining"}
@@ -412,7 +412,7 @@ export function JigsawGame({
 
               {/* Countdown badge when revealed */}
               {isPhotoRevealed && (
-                <div className="absolute top-2 right-2 rounded-full bg-black/80 px-2.5 py-1 text-xs font-mono font-bold text-[var(--yellow)] border border-[var(--yellow)]/40 animate-pulse">
+                <div className="absolute top-2 right-2 rounded-full bg-ink/80 px-2.5 py-1 text-xs font-bold text-yellow border border-yellow/40 animate-pulse">
                   Hiding in {revealSecondsLeft}s
                 </div>
               )}
@@ -424,11 +424,11 @@ export function JigsawGame({
                 type="button"
                 onClick={handleRevealPhoto}
                 disabled={revealChancesLeft <= 0 || revealSecondsLeft > 0}
-                className={`w-full rounded-xl py-2.5 text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 ${
+                className={`w-full rounded-xl py-2.5 text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
                   revealSecondsLeft > 0
-                    ? "bg-[var(--yellow)]/20 border border-[var(--yellow)] text-[var(--yellow)]"
+                    ? "bg-yellow/20 border border-yellow text-yellow"
                     : revealChancesLeft > 0
-                    ? "bg-[var(--blue)] text-white hover:bg-[var(--blue)]/90 shadow-sm cursor-pointer"
+                    ? "bg-blue text-white hover:bg-blue/90 shadow-sm cursor-pointer"
                     : "bg-paper/5 border border-paper/10 text-paper/40 cursor-not-allowed"
                 }`}
               >

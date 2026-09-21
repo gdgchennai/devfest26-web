@@ -53,7 +53,7 @@ export function NotFoundRecovery() {
           the same value and lost the hierarchy, so the pair is now /50 label
           (4.76:1) on a /70 path (8.83:1) — same relationship, both passing. */}
       {attempted && (
-        <p className="font-mono text-sm break-all text-paper/70">
+        <p className="text-sm break-all text-paper/70">
           <span className="text-paper/50">{uiCopy.notFoundPage.recovery.triedLabel}</span> {attempted}
         </p>
       )}

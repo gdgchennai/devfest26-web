@@ -29,7 +29,7 @@ export function Eyebrow({
   return (
     <div
       ref={ref}
-      className={`flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-paper/70 ${className}`.trim()}
+      className={`flex items-center gap-2 text-xs uppercase tracking-wider text-paper/70 ${className}`.trim()}
     >
       <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[dotColor]}`} />
       {children}

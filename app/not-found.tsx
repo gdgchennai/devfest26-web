@@ -47,7 +47,7 @@ export default async function NotFound() {
           <span className="signal-dots__dot signal-dots__dot--out" />
           <span className="signal-dots__dot bg-green" />
         </div>
-        <span className="font-mono text-xs uppercase tracking-wider text-paper/50">
+        <span className="text-xs uppercase tracking-wider text-paper/50">
           {uiCopy.notFoundPage.statusLabel}
         </span>
       </div>
@@ -72,7 +72,7 @@ export default async function NotFound() {
         it's the fallback for someone whose destination isn't one of the three,
         not the main event.
       */}
-      <h2 className="mt-12 font-mono text-xs uppercase tracking-wider text-paper/50">
+      <h2 className="mt-12 text-xs uppercase tracking-wider text-paper/50">
         {uiCopy.notFoundPage.everywhereElseHeading}
       </h2>
       <ul className="mt-3 flex flex-wrap gap-2">
@@ -83,7 +83,7 @@ export default async function NotFound() {
               className="flex items-baseline gap-2 rounded-full border border-paper/10 bg-paper/[0.03] px-4 py-2 text-sm transition-colors hover:border-paper/25 hover:bg-paper/[0.06]"
             >
               {route.label}
-              <span className="font-mono text-xs text-paper/55">{route.href}</span>
+              <span className="text-xs text-paper/55">{route.href}</span>
             </Link>
           </li>
         ))}
@@ -120,7 +120,7 @@ export default async function NotFound() {
         never contradict the date on the hero or the ticket stub.
       */}
       <p className="mt-16 text-xl font-semibold tracking-tight">{uiCopy.notFoundPage.closing}</p>
-      <p className="mt-1 font-mono text-sm tabular-nums text-paper/60">
+      <p className="mt-1 text-sm tabular-nums text-paper/60">
         {formatEventDate(siteConfig.date)} &middot; {siteConfig.venue.name}
       </p>
     </div>

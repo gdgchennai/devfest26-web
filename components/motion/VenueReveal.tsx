@@ -1074,7 +1074,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       {alignDebug && (
         <div
           ref={alignReadoutRef}
-          className="fixed left-2 top-2 z-50 whitespace-pre rounded bg-black/80 px-3 py-2 font-mono text-xs text-white"
+          className="fixed left-2 top-2 z-50 whitespace-pre rounded bg-black/80 px-3 py-2 text-xs text-white"
         />
       )}
     </section>

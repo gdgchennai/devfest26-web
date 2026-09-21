@@ -278,7 +278,7 @@ export function HamburgerMenu() {
        * When the menu is open, make the header transparent, borderless, and raised to z-[60]
        * so only the hamburger cross button stays visible and clickable on top of the menu panel.
        */}
-      <header className={`fixed inset-x-0 top-0 transition-all duration-300 ${
+      <header className={`site-nav fixed inset-x-0 top-0 transition-all duration-300 ${
           open 
             ? "z-[60] bg-transparent border-b-transparent backdrop-blur-none" 
             : isHome

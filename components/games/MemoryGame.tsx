@@ -246,20 +246,20 @@ export function MemoryGame({
   return (
     <div className="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto w-full">
       {/* Live Stats Bar */}
-      <div className="flex items-center justify-around sm:justify-between gap-2.5 rounded-2xl border border-paper/10 bg-surface px-4 py-2.5 text-xs font-mono">
+      <div className="flex items-center justify-around sm:justify-between gap-2.5 rounded-2xl border border-paper/10 bg-surface px-4 py-2.5 text-xs">
         <div className="flex items-center gap-1.5">
           <span className="text-paper/50">Score:</span>
-          <span className="font-bold text-[var(--blue-halftone)] text-sm">{score}</span>
+          <span className="font-bold text-blue-halftone text-sm">{score}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
           <span className="text-paper/50">Streak:</span>
-          <span className="font-bold text-[var(--yellow)] text-sm">{combo > 1 ? `${combo}x` : "1x"}</span>
+          <span className="font-bold text-yellow text-sm">{combo > 1 ? `${combo}x` : "1x"}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
           <span className="text-paper/50">Pairs:</span>
-          <span className="font-bold text-[var(--green)] text-sm">
+          <span className="font-bold text-green text-sm">
             {matchedPairs}/{pairsCount}
           </span>
         </div>
@@ -322,15 +322,15 @@ export function MemoryGame({
                     }}
                   >
                     <div className="flex gap-0.5 sm:gap-1 mb-1 sm:mb-1.5">
-                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--blue)]" />
-                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--red)]" />
-                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--yellow)]" />
-                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-[var(--green)]" />
+                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-blue" />
+                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-red" />
+                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-yellow" />
+                      <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-green" />
                     </div>
-                    <span className="text-sm sm:text-lg font-mono font-bold text-paper/70 tracking-tight">
+                    <span className="text-sm sm:text-lg font-bold text-paper/70 tracking-tight">
                       &lt;/&gt;
                     </span>
-                    <span className="mt-0.5 sm:mt-1 text-[7px] sm:text-[9px] font-mono text-paper/40 uppercase tracking-wider font-semibold">
+                    <span className="mt-0.5 sm:mt-1 text-[7px] sm:text-[9px] text-paper/40 uppercase tracking-wider font-semibold">
                       DevFest
                     </span>
                   </div>
@@ -344,7 +344,7 @@ export function MemoryGame({
                       transform: "rotateY(180deg)",
                       borderColor: card.isMatched ? "var(--green)" : card.accent,
                       boxShadow: card.isMatched
-                        ? "0 0 15px rgba(52, 168, 83, 0.25)"
+                        ? "0 0 15px color-mix(in srgb, var(--green) 25%, transparent)"
                         : `0 0 10px ${card.accent}33`,
                     }}
                   >
@@ -352,11 +352,11 @@ export function MemoryGame({
                     <span className="text-[9px] sm:text-xs font-bold text-paper line-clamp-1">
                       {card.name}
                     </span>
-                    <span className="text-[7px] sm:text-[9px] font-mono text-paper/60 leading-none mt-0.5 line-clamp-1 hidden sm:block">
+                    <span className="text-[7px] sm:text-[9px] text-paper/60 leading-none mt-0.5 line-clamp-1 hidden sm:block">
                       {card.subtitle}
                     </span>
                     {card.isMatched && (
-                      <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-[var(--green)]/20 px-1 py-0.1 text-[7px] sm:text-[8px] font-mono font-bold text-[var(--green)]">
+                      <span className="mt-0.5 inline-flex items-center gap-0.5 rounded-full bg-green/20 px-1 py-0.1 text-[7px] sm:text-[8px] font-bold text-green">
                         Matched
                       </span>
                     )}
@@ -369,21 +369,21 @@ export function MemoryGame({
 
         {/* Start Game Overlay if not started */}
         {!hasStarted && !gameCompleted && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center rounded-3xl animate-fade-in">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--yellow)]/20 text-[var(--yellow)] mb-3">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm p-6 text-center rounded-3xl animate-fade-in">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow/20 text-yellow mb-3">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="3" width="20" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v10M16 7v10" />
               </svg>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Memory Matrix</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-paper tracking-tight">Memory Matrix</h3>
             <p className="text-xs text-paper/70 mt-1 max-w-xs">
               Flip and match {pairsCount} pairs of Android and Google tech stacks.
             </p>
             <button
               type="button"
               onClick={handleStartGame}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--blue)] px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-[var(--blue)]/30 hover:bg-[var(--blue)]/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <span>Start Game</span>
               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">

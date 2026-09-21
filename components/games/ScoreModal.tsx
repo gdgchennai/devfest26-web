@@ -92,40 +92,40 @@ export function ScoreModal({
     <div className="fixed inset-0 z-999 flex items-center justify-center p-4 bg-ink/80 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-paper/15 bg-surface-raised p-6 text-paper shadow-2xl sm:p-8">
         {/* Glow corner highlights */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[var(--blue)]/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-[var(--green)]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-green/20 blur-3xl" />
 
         <div className="relative text-center">
           {/* Header Badge */}
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--yellow)]/30 bg-[var(--yellow)]/10 px-3.5 py-1 text-xs font-mono uppercase tracking-wider text-[var(--yellow)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--yellow)]" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-yellow/30 bg-yellow/10 px-3.5 py-1 text-xs uppercase tracking-wider text-yellow">
+            <span className="h-1.5 w-1.5 rounded-full bg-yellow" />
             <span>Challenge Completed</span>
           </div>
 
           <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl text-paper">
             {scoreData.gameTitle}
           </h2>
-          <p className="mt-1 text-xs text-paper/60 font-mono">
+          <p className="mt-1 text-xs text-paper/60">
             {scoreData.levelData || "DevFest Mini Game"}
           </p>
 
           {/* Score Stats Grid */}
           <div className="mt-6 grid grid-cols-3 gap-3 rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-center">
             <div>
-              <div className="text-xs font-mono uppercase tracking-wider text-paper/60">Score</div>
-              <div className="mt-1 text-2xl font-bold text-[var(--blue-halftone)] sm:text-3xl">
+              <div className="text-xs uppercase tracking-wider text-paper/60">Score</div>
+              <div className="mt-1 text-2xl font-bold text-blue-halftone sm:text-3xl">
                 {scoreData.score.toLocaleString()}
               </div>
             </div>
             <div className="border-x border-paper/10">
-              <div className="text-xs font-mono uppercase tracking-wider text-paper/60">Time</div>
-              <div className="mt-1 text-lg font-semibold text-paper sm:text-xl font-mono pt-1">
+              <div className="text-xs uppercase tracking-wider text-paper/60">Time</div>
+              <div className="mt-1 text-lg font-semibold text-paper sm:text-xl pt-1">
                 {timeFormatted}
               </div>
             </div>
             <div>
-              <div className="text-xs font-mono uppercase tracking-wider text-paper/60">Moves</div>
-              <div className="mt-1 text-lg font-semibold text-paper sm:text-xl font-mono pt-1">
+              <div className="text-xs uppercase tracking-wider text-paper/60">Moves</div>
+              <div className="mt-1 text-lg font-semibold text-paper sm:text-xl pt-1">
                 {scoreData.moves ?? "—"}
               </div>
             </div>
@@ -135,7 +135,7 @@ export function ScoreModal({
           <div className="mt-6 rounded-2xl border border-paper/10 bg-paper/[0.02] p-5">
             {submitted ? (
               <div className="text-center py-2 animate-scale-in">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--green)]/20 text-[var(--green)] text-xl font-bold mb-2">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-green/20 text-green text-xl font-bold mb-2">
                   ✓
                 </div>
                 <h3 className="text-base font-semibold text-paper">Score Published</h3>
@@ -146,7 +146,7 @@ export function ScoreModal({
                   <button
                     type="button"
                     onClick={onViewLeaderboard}
-                    className="rounded-full bg-[var(--blue)] px-5 py-2 text-xs font-semibold text-white hover:bg-[var(--blue)]/90 transition-colors cursor-pointer"
+                    className="rounded-full bg-blue px-5 py-2 text-xs font-semibold text-white hover:bg-blue/90 transition-colors cursor-pointer"
                   >
                     View Leaderboard
                   </button>
@@ -170,21 +170,21 @@ export function ScoreModal({
                       width={36}
                       height={36}
                       referrerPolicy="no-referrer"
-                      className="h-9 w-9 rounded-full border border-[var(--blue)]/40 object-cover"
+                      className="h-9 w-9 rounded-full border border-blue/40 object-cover"
                     />
                   ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--blue)]/20 font-bold text-xs text-[var(--blue)]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue/20 font-bold text-xs text-blue">
                       {userName.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div className="text-left">
                     <div className="text-xs font-medium text-paper">{userName}</div>
-                    <div className="text-[11px] font-mono text-paper/50">{userEmail}</div>
+                    <div className="text-[11px] text-paper/50">{userEmail}</div>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="mb-3 rounded-lg border border-[var(--red)]/30 bg-[var(--red)]/10 px-3 py-1.5 text-xs text-[var(--red)]">
+                  <div className="mb-3 rounded-lg border border-red/30 bg-red/10 px-3 py-1.5 text-xs text-red">
                     {error}
                   </div>
                 )}
@@ -198,7 +198,7 @@ export function ScoreModal({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handlePublishScore}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--green)] px-6 py-2.5 text-xs font-semibold text-black hover:bg-[var(--green)]/90 transition-all disabled:opacity-50 cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-green px-6 py-2.5 text-xs font-semibold text-black hover:bg-green/90 transition-all disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>
@@ -220,8 +220,8 @@ export function ScoreModal({
               </div>
             ) : (
               <div className="text-center">
-                <div className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--yellow)] mb-2">
-                  <span className="h-2 w-2 rounded-full bg-[var(--yellow)] animate-pulse" />
+                <div className="inline-flex items-center gap-1.5 text-xs text-yellow mb-2">
+                  <span className="h-2 w-2 rounded-full bg-yellow animate-pulse" />
                   Sign In Required
                 </div>
                 <h3 className="text-sm font-semibold text-paper">
@@ -235,7 +235,7 @@ export function ScoreModal({
                   <button
                     type="button"
                     onClick={handleSignInToPublish}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-paper px-6 py-2.5 text-xs font-medium text-black hover:bg-paper/90 transition-all shadow-md cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-paper px-6 py-2.5 text-xs font-medium text-ink hover:bg-paper/90 transition-all shadow-md cursor-pointer"
                   >
                     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                       <path

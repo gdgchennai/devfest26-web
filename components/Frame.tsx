@@ -100,7 +100,7 @@ export function Frame({
             WebkitMaskSize: "42%",
           }}
         />
-        <span className="relative font-mono text-[0.75rem] text-ink tabular-nums">{title}</span>
+        <span className="relative text-[0.75rem] text-ink tabular-nums">{title}</span>
       </div>
 
       {src && !saveData && (

@@ -367,13 +367,13 @@ export function CrosswordGame({
       />
 
       {/* Active Clue Bar banner */}
-      <div className="rounded-2xl border border-[var(--blue)]/30 bg-[var(--blue)]/10 p-3.5 sm:p-4 flex items-center justify-between gap-4">
+      <div className="rounded-2xl border border-blue/30 bg-blue/10 p-3.5 sm:p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--blue)] text-xs font-bold text-white font-mono shrink-0">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue text-xs font-bold text-white shrink-0">
             {activeClue ? `${activeClue.number}${activeClue.direction[0].toUpperCase()}` : "—"}
           </span>
           <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--blue-halftone)]">
+            <div className="text-[10px] uppercase tracking-wider text-blue-halftone">
               {direction.toUpperCase()} CLUE
             </div>
             <div className="text-xs sm:text-sm font-medium text-paper truncate sm:whitespace-normal mt-0.5">
@@ -386,7 +386,7 @@ export function CrosswordGame({
             type="button"
             onClick={handleRevealLetter}
             disabled={!hasStarted}
-            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs font-mono text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Reveal Letter
           </button>
@@ -394,13 +394,13 @@ export function CrosswordGame({
             type="button"
             onClick={handleCheckAll}
             disabled={!hasStarted}
-            className="hidden sm:inline-flex rounded-xl border border-[var(--blue)]/40 bg-[var(--blue)]/10 px-2.5 py-1 text-xs font-mono text-[var(--blue-halftone)] hover:bg-[var(--blue)]/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex rounded-xl border border-blue/40 bg-blue/10 px-2.5 py-1 text-xs text-blue-halftone hover:bg-blue/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Check
           </button>
           <div className="text-right">
-            <div className="text-[10px] font-mono uppercase text-paper/60">Time</div>
-            <div className="text-base sm:text-lg font-bold font-mono text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
+            <div className="text-[10px] uppercase text-paper/60">Time</div>
+            <div className="text-base sm:text-lg font-bold text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
           </div>
         </div>
       </div>
@@ -412,7 +412,7 @@ export function CrosswordGame({
           <div
             tabIndex={0}
             onClick={focusInput}
-            className="relative w-full max-w-[480px] aspect-square rounded-2xl border-2 border-paper/20 bg-black/80 p-2.5 sm:p-3 shadow-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--blue)]"
+            className="relative w-full max-w-[480px] aspect-square rounded-2xl border-2 border-paper/20 bg-ink/80 p-2.5 sm:p-3 shadow-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue"
           >
             <div
               className={`grid w-full h-full gap-1 transition-all duration-300 ${
@@ -457,25 +457,25 @@ export function CrosswordGame({
                       onClick={() => handleCellClick(r, c)}
                       className={`relative flex items-center justify-center rounded-md cursor-pointer select-none transition-all duration-100 ${
                         isSelected
-                          ? "bg-[var(--blue)] text-white ring-2 ring-white z-20"
+                          ? "bg-blue text-white ring-2 ring-paper z-20"
                           : isHighlightedInWord
-                          ? "bg-[var(--blue)]/30 text-paper border border-[var(--blue)]/60"
+                          ? "bg-blue/30 text-paper border border-blue/60"
                           : "bg-surface-raised text-paper border border-paper/20 hover:border-paper/60"
                       } ${
                         checkStatus === false
-                          ? "ring-2 ring-[var(--red)]"
+                          ? "ring-2 ring-red"
                           : checkStatus === true
-                          ? "ring-2 ring-[var(--green)]"
+                          ? "ring-2 ring-green"
                           : ""
                       }`}
                     >
                       {cell.number && (
-                        <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono leading-none text-paper/70 font-semibold">
+                        <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] leading-none text-paper/70 font-semibold">
                           {cell.number}
                         </span>
                       )}
 
-                      <span className="text-sm sm:text-base md:text-lg font-bold font-mono uppercase">
+                      <span className="text-sm sm:text-base md:text-lg font-bold uppercase">
                         {userGrid[r]?.[c] || ""}
                       </span>
                     </div>
@@ -486,20 +486,20 @@ export function CrosswordGame({
 
             {/* Start Puzzle Overlay if not started */}
             {!hasStarted && !gameCompleted && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center animate-fade-in">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--green)]/20 text-[var(--green)] mb-3">
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm p-6 text-center animate-fade-in">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green/20 text-green mb-3">
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M3 12h18M3 19h18M7 3v18M17 3v18" />
                   </svg>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{puzzle.title}</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-paper tracking-tight">{puzzle.title}</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
                   Solve {puzzle.clues.length} mixed Google, Android & Cloud clues in a {actualSize}×{actualSize} grid.
                 </p>
                 <button
                   type="button"
                   onClick={handleStartPuzzle}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--blue)] px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-[var(--blue)]/30 hover:bg-[var(--blue)]/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 >
                   <span>Start Puzzle</span>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
@@ -510,7 +510,7 @@ export function CrosswordGame({
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] text-paper/60 font-mono">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] text-paper/60">
             <span>Click cell</span>
             <span>•</span>
             <span>Space/Tab to switch direction</span>
@@ -523,7 +523,7 @@ export function CrosswordGame({
         <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
           {/* ACROSS CLUES */}
           <div className="rounded-2xl border border-paper/10 bg-surface p-4 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--blue-halftone)] mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
+            <h3 className="text-xs uppercase tracking-wider text-blue-halftone mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -542,15 +542,15 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-[var(--blue)]/20 border border-[var(--blue)] text-paper shadow-sm"
+                          ? "bg-blue/20 border border-blue text-paper shadow-sm"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-mono font-bold text-[var(--blue)] mr-2">
+                      <span className="font-bold text-blue mr-2">
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
-                      <span className="block text-[10px] font-mono text-paper/40 mt-0.5">
+                      <span className="block text-[10px] text-paper/40 mt-0.5">
                         ({clue.answer.length} letters)
                       </span>
                     </button>
@@ -561,7 +561,7 @@ export function CrosswordGame({
 
           {/* DOWN CLUES */}
           <div className="rounded-2xl border border-paper/10 bg-surface p-4 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--green-halftone)] mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
+            <h3 className="text-xs uppercase tracking-wider text-green-halftone mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
@@ -580,15 +580,15 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-[var(--green)]/20 border border-[var(--green)] text-paper shadow-sm"
+                          ? "bg-green/20 border border-green text-paper shadow-sm"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-mono font-bold text-[var(--green)] mr-2">
+                      <span className="font-bold text-green mr-2">
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
-                      <span className="block text-[10px] font-mono text-paper/40 mt-0.5">
+                      <span className="block text-[10px] text-paper/40 mt-0.5">
                         ({clue.answer.length} letters)
                       </span>
                     </button>

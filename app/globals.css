@@ -113,6 +113,8 @@
   --green: #34a853;
   --yellow: #f9ab00;
   --red: #ea4335;
+  /* Third-place medal on the games leaderboard — no other use. */
+  --bronze: #cd7f32;
   --purple: #a136f7;
   --black: #000;
   --orig-black: #131313;
@@ -179,6 +181,7 @@ html.lite .nav-lite-only {
   --color-yellow: var(--yellow);
   --color-green: var(--green);
   --color-purple: var(--purple);
+  --color-bronze: var(--bronze);
 
   --color-blue-halftone: var(--blue-halftone);
   --color-green-halftone: var(--green-halftone);
@@ -194,7 +197,6 @@ html.lite .nav-lite-only {
 
   --font-google-sans: "Google Sans";
   --font-sans: var(--font-google-sans);
-  --font-mono: var(--font-google-sans);
 
   --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1145,11 +1147,12 @@ html.gpu .hallway-stack {
   padding-block: 0.5rem;
   text-align: center;
   font-family: var(--font-google-sans), sans-serif;
-  /* Deliberately not smaller — tabular numerals in the system monospace
-     fallback render with a visible mid-glyph artifact below ~13px in
-     Chromium (confirmed by testing 11/12/13/14px directly; canvas-drawn
-     text at the same size was clean, so it's specific to the DOM text
-     rendering path, not a general "too small" readability call). text-sm
+  /* Deliberately not smaller. This was found back when these numerals were set
+     in the system monospace fallback (now Google Sans, like everything else):
+     tabular numerals rendered with a visible mid-glyph artifact below ~13px in
+     Chromium (confirmed by testing 11/12/13/14px directly; canvas-drawn text at
+     the same size was clean, so it was specific to the DOM text rendering path,
+     not a general "too small" readability call). Kept as a floor — text-sm
      elsewhere in the agenda components sits above that threshold. */
   font-size: 0.875rem;
   letter-spacing: 0.08em;
@@ -1488,23 +1491,25 @@ html.gpu .hallway-stack {
   }
 }
 
-/* Slide header upwards when bottom sheet settings modal is open */
-body.settings-bottomsheet-open header {
+/*
+ * The two site navs — the hamburger's header bar and lite mode's pill bar — both
+ * carry `.site-nav`. Scoped to that class, not the bare `header` element: the
+ * creators page has its own <header> that must not slide away with them.
+ */
+.site-nav {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
+}
+
+/* Slide the nav upwards when the bottom-sheet settings modal is open */
+body.settings-bottomsheet-open .site-nav {
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
 }
 
-header {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, background-color 0.3s;
-}
-
 /* Gradient translucent blur header, clear at bottom and deeply frosted up top */
 .gradient-header {
   border-bottom: none;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 .gradient-header::before {
@@ -1512,14 +1517,17 @@ header {
   position: absolute;
   inset: 0;
   z-index: -1;
-  /* Dark backdrop background fading progressively to 40% opacity at the bottom */
-  background: linear-gradient(to bottom, var(--ink) 65%, rgba(10, 10, 11, 0.4) 100%) !important;
-  /* Deep 20px blur */
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  /* Progressive masking: fully frosted on top, fully clear and unblurred at the bottom */
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%) !important;
-  /* Border only on the background card, which will also fade out smoothly at the bottom */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* --ink fading to 40% at the bottom. Theme tokens, not literals, so the bar
+     follows --theme like everything else instead of staying near-black. */
+  background: linear-gradient(to bottom, var(--ink) 65%, color-mix(in srgb, var(--ink) 40%, transparent) 100%);
+  /* Deep 20px blur. Standard property only — the build adds the -webkit- prefix
+     itself, and writing both by hand made it keep ONLY the prefixed one, which
+     Chrome and Firefox ignore (so the blur silently never applied there). */
+  backdrop-filter: blur(20px);
+  /* Progressive masking: fully frosted on top, fully clear and unblurred at the bottom
+     (alpha only — these stops are a mask, not a colour) */
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0) 100%);
+  /* Border only on the background card, which fades out with the mask */
+  border-bottom: 1px solid color-mix(in srgb, var(--paper) 8%, transparent);
 }

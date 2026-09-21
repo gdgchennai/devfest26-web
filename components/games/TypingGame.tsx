@@ -336,14 +336,14 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
             let charClass = "text-paper/30 transition-colors duration-150";
             if (isTyped) {
               charClass = hasError 
-                ? "text-[var(--red)] underline decoration-[var(--red)]/50 decoration-2 underline-offset-4" 
-                : "text-[var(--green)]";
+                ? "text-red underline decoration-red/50 decoration-2 underline-offset-4" 
+                : "text-green";
             }
 
             return (
               <span key={`char-${index}`} className={`relative inline-block ${charClass}`}>
                 {isCurrent && isFocused && (
-                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-[var(--blue)] animate-[caret-blink_1s_infinite]" />
+                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-blue animate-[caret-blink_1s_infinite]" />
                 )}
                 {char}
               </span>
@@ -359,13 +359,13 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
 
             let charClass = "text-paper/30 transition-colors duration-150";
             if (isTyped) {
-              charClass = hasError ? "text-[var(--red)] bg-[var(--red)]/20 rounded" : "text-[var(--green)]";
+              charClass = hasError ? "text-red bg-red/20 rounded" : "text-green";
             }
 
             return (
               <span key={`space-${wordIdx}`} className={`relative inline-block ${charClass}`}>
                 {isCurrent && isFocused && (
-                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-[var(--blue)] animate-[caret-blink_1s_infinite]" />
+                  <span className="caret-cursor absolute left-[-1.5px] top-[10%] bottom-[10%] w-[2px] bg-blue animate-[caret-blink_1s_infinite]" />
                 )}
                 &nbsp;
               </span>
@@ -395,7 +395,7 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
       />
 
       {/* Focus Mode Clean Settings Header with Inline Metrics */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-paper/10 pb-4 text-xs font-mono tracking-wider text-paper/60 uppercase">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-paper/10 pb-4 text-xs tracking-wider text-paper/60 uppercase">
         <div className="flex items-center gap-5">
           <span className="font-sans font-bold text-paper/40">Mode: {mode === "time" ? "Time Attack" : "Words Count"}</span>
           
@@ -405,7 +405,7 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
               <span className="text-[10px] text-paper/40 font-normal lowercase">
                 {mode === "time" ? "time" : "progress"}
               </span>
-              <span className="text-base font-extrabold text-white font-mono">
+              <span className="text-base font-extrabold text-paper">
                 {mode === "time" 
                   ? `${timeLeft}s` 
                   : `${inputText.split(/\s+/).filter(Boolean).length}/${wordLimit}`}
@@ -415,13 +415,13 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
             {/* Metric 2: Live WPM */}
             <div className="flex items-baseline gap-1">
               <span className="text-[10px] text-paper/40 font-normal lowercase">wpm</span>
-              <span className="text-base font-extrabold text-[var(--green)] font-mono">{rawWpm}</span>
+              <span className="text-base font-extrabold text-green">{rawWpm}</span>
             </div>
             
             {/* Metric 3: Live Accuracy */}
             <div className="flex items-baseline gap-1">
               <span className="text-[10px] text-paper/40 font-normal lowercase">acc</span>
-              <span className="text-base font-extrabold text-[var(--yellow)] font-mono">{accuracy}%</span>
+              <span className="text-base font-extrabold text-yellow">{accuracy}%</span>
             </div>
           </div>
         </div>
@@ -435,8 +435,8 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
         className="relative h-[130px] flex items-center justify-center p-4 bg-ink/20 border border-paper/5 rounded-2xl cursor-text transition-all duration-300 hover:border-paper/10 overflow-hidden"
       >
         {isLoading ? (
-          <div className="flex items-center gap-2 text-paper/60 font-mono text-sm">
-            <svg className="animate-spin h-5 w-5 text-[var(--blue)]" fill="none" viewBox="0 0 24 24">
+          <div className="flex items-center gap-2 text-paper/60 text-sm">
+            <svg className="animate-spin h-5 w-5 text-blue" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
@@ -445,12 +445,12 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
         ) : (
           <div 
             ref={wordsContainerRef}
-            className="absolute inset-y-0 inset-x-4 py-4 overflow-y-auto scrollbar-none scroll-smooth text-lg sm:text-2xl font-mono leading-relaxed select-none max-w-full text-left break-words"
+            className="absolute inset-y-0 inset-x-4 py-4 overflow-y-auto scrollbar-none scroll-smooth text-lg sm:text-2xl leading-relaxed select-none max-w-full text-left break-words"
           >
             {/* Smooth carats and overlays inside focused container */}
             {!isFocused && !isCompleted && (
               <div className="absolute inset-0 z-30 bg-ink/75 backdrop-blur-[1.5px] flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-300">
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--blue)] bg-[var(--blue)]/10 px-3 py-1.5 rounded-full border border-[var(--blue)]/20 shadow-md animate-pulse">
+                <span className="text-xs font-bold uppercase tracking-widest text-blue bg-blue/10 px-3 py-1.5 rounded-full border border-blue/20 shadow-md animate-pulse">
                   Click or Tap here to start typing
                 </span>
                 <span className="text-[10px] text-paper/40 hidden sm:block">

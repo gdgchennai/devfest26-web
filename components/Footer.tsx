@@ -54,7 +54,7 @@ export function Footer() {
         </div>
         {/* /50 is as muted as this may go: on the dark page it measures
             4.76:1, and 12px legal text needs 4.5:1. Anything fainter fails. */}
-        <p className="max-w-2xl font-mono text-xs text-paper/50">{siteConfig.brandDisclaimer}</p>
+        <p className="max-w-2xl text-xs text-paper/50">{siteConfig.brandDisclaimer}</p>
       </div>
     </footer>
   );

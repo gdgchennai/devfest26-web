@@ -30,7 +30,7 @@ export default function PartnerPage() {
       <BracketsField mode="settled" />
 
       <div className="relative z-10 mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <p className="font-mono text-xs uppercase tracking-wider text-paper/50">Community</p>
+        <p className="text-xs uppercase tracking-wider text-paper/50">Community</p>
         <p className="mt-4 text-lg text-paper/80">{lede}</p>
 
         {/* What */}
@@ -58,7 +58,7 @@ export default function PartnerPage() {
           <ol className="space-y-6">
             {asks.items.map((item, i) => (
               <li key={item.title} className="flex gap-4">
-                <span className="mt-0.5 shrink-0 font-mono text-sm text-paper/40 tabular-nums">
+                <span className="mt-0.5 shrink-0 text-sm text-paper/40 tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="space-y-2">

@@ -104,7 +104,7 @@ function Invite({ invite, slotClassName }: { invite: InviteSlot; slotClassName: 
   const inner = (
     <>
       {invite.ornament}
-      <span className="font-mono text-xs uppercase tracking-wide text-blue">
+      <span className="text-xs uppercase tracking-wide text-blue">
         {invite.label} <span aria-hidden>→</span>
         {invite.srLabel && <span className="sr-only"> — {invite.srLabel}</span>}
       </span>

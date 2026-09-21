@@ -22,7 +22,7 @@ export function CopyField({ value }: { value: string }) {
           () => {},
         );
       }}
-      className="inline-flex items-center gap-2 rounded-md bg-paper/5 px-2.5 py-1.5 font-mono text-sm text-paper/70 transition-colors hover:bg-paper/10 hover:text-paper"
+      className="inline-flex items-center gap-2 rounded-md bg-paper/5 px-2.5 py-1.5 text-sm text-paper/70 transition-colors hover:bg-paper/10 hover:text-paper"
       title={`Copy ${value}`}
       aria-label={`Copy user ID ${value}`}
     >

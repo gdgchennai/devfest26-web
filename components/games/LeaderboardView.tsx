@@ -104,7 +104,7 @@ export function LeaderboardView() {
               onClick={() => setActiveTab(tab.id)}
               className={`rounded-lg px-2.5 sm:px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer shrink-0 ${
                 activeTab === tab.id
-                  ? "bg-[var(--blue)] text-white shadow-sm"
+                  ? "bg-blue text-white shadow-sm"
                   : "text-paper/70 hover:text-paper hover:bg-paper/5"
               }`}
             >
@@ -118,7 +118,7 @@ export function LeaderboardView() {
           type="button"
           onClick={refreshLeaderboard}
           disabled={loading}
-          className="rounded-xl border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs font-mono text-paper hover:bg-paper/20 transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+          className="rounded-xl border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs text-paper hover:bg-paper/20 transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
         >
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -128,31 +128,31 @@ export function LeaderboardView() {
       </div>
 
       {activeTab === "all" && (
-        <div className="rounded-2xl border border-[var(--blue)]/20 bg-[var(--blue)]/5 p-4 text-xs sm:text-sm text-paper/85 flex items-start gap-3 shadow-md animate-fade-in">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--blue)]/10 text-[var(--blue)] shrink-0 font-bold font-mono">i</span>
+        <div className="rounded-2xl border border-blue/20 bg-blue/5 p-4 text-xs sm:text-sm text-paper/85 flex items-start gap-3 shadow-md animate-fade-in">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue/10 text-blue shrink-0 font-bold">i</span>
           <div className="space-y-1">
-            <p className="font-bold text-white uppercase tracking-wider text-[11px] font-mono">Cumulative Global Standings</p>
+            <p className="font-bold text-paper uppercase tracking-wider text-[11px]">Cumulative Global Standings</p>
             <p className="leading-relaxed text-paper/70 font-sans">
-              Your overall score is the <strong className="text-white">sum of your best scores achieved across all mini-games</strong>. The more unique games you play (Jigsaw, Crossword, Memory, and Speed Typer), the more points you stack up in this global standings! Play all four to dominate!
+              Your overall score is the <strong className="text-paper">sum of your best scores achieved across all mini-games</strong>. The more unique games you play (Jigsaw, Crossword, Memory, and Speed Typer), the more points you stack up in this global standings! Play all four to dominate!
             </p>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="rounded-2xl border border-[var(--red)]/30 bg-[var(--red)]/10 p-4 text-center text-xs text-[var(--red)]">
+        <div className="rounded-2xl border border-red/30 bg-red/10 p-4 text-center text-xs text-red">
           {error}
         </div>
       )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--blue)] border-t-transparent" />
-          <span className="text-xs font-mono text-paper/60">Loading authenticated rankings...</span>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue border-t-transparent" />
+          <span className="text-xs text-paper/60">Loading authenticated rankings...</span>
         </div>
       ) : list.length === 0 ? (
         <div className="rounded-3xl border border-paper/10 bg-surface p-10 sm:p-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--blue)]/20 text-[var(--blue)] mx-auto mb-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue/20 text-blue mx-auto mb-3">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -170,7 +170,7 @@ export function LeaderboardView() {
               {/* 2nd Place (Silver) */}
               {topThree[1] ? (
                 <div className="order-2 md:order-1 rounded-3xl border border-paper/20 bg-surface p-5 sm:p-6 text-center shadow-lg relative">
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-paper/30 bg-ink px-3 py-0.5 text-xs font-bold font-mono text-paper/80">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-paper/30 bg-ink px-3 py-0.5 text-xs font-bold text-paper/80">
                     2nd Place
                   </span>
                   <div className="mx-auto mt-2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-paper/30 bg-paper/10 overflow-hidden relative">
@@ -191,7 +191,7 @@ export function LeaderboardView() {
                   <h4 className="mt-3 text-sm sm:text-base font-bold text-paper truncate">
                     {topThree[1].userName}
                   </h4>
-                  <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-paper/90">
+                  <div className="mt-1 text-xl sm:text-2xl font-extrabold text-paper/90">
                     {activeTab === "typing" && "levelData" in topThree[1] && topThree[1].levelData ? (
                       topThree[1].levelData
                     ) : (
@@ -201,16 +201,16 @@ export function LeaderboardView() {
                           : "score" in topThree[1]
                           ? topThree[1].score.toLocaleString()
                           : 0}
-                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                        <span className="text-xs text-paper/50 ml-1">pts</span>
                       </>
                     )}
                   </div>
                   {activeTab === "typing" && (
-                    <div className="text-xs font-mono text-paper/50">
+                    <div className="text-xs text-paper/50">
                       {"score" in topThree[1] ? `${topThree[1].score.toLocaleString()} pts` : ""}
                     </div>
                   )}
-                  <div className="mt-2 text-[11px] font-mono text-paper/60">
+                  <div className="mt-2 text-[11px] text-paper/60">
                     {"gamesPlayed" in topThree[1]
                       ? `Mastered: ${topThree[1].gamesPlayed} / 4 Games`
                       : "fastestTimeMs" in topThree[1]
@@ -226,11 +226,11 @@ export function LeaderboardView() {
 
               {/* 1st Place (Gold Champion) */}
               {topThree[0] && (
-                <div className="order-1 md:order-2 rounded-3xl border-2 border-[var(--yellow)] bg-surface-raised p-6 sm:p-7 text-center shadow-2xl relative scale-[1.02] sm:scale-[1.03]">
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full border border-[var(--yellow)] bg-[var(--yellow)] px-4 py-0.5 text-xs font-bold font-mono text-black shadow-md">
+                <div className="order-1 md:order-2 rounded-3xl border-2 border-yellow bg-surface-raised p-6 sm:p-7 text-center shadow-2xl relative scale-[1.02] sm:scale-[1.03]">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full border border-yellow bg-yellow px-4 py-0.5 text-xs font-bold text-black shadow-md">
                     1st Place
                   </div>
-                  <div className="mx-auto mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-3 border-[var(--yellow)] bg-[var(--yellow)]/10 overflow-hidden relative shadow-[0_0_20px_rgba(249,171,0,0.3)]">
+                  <div className="mx-auto mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full border-3 border-yellow bg-yellow/10 overflow-hidden relative shadow-[0_0_20px_rgba(249,171,0,0.3)]">
                     {"userImage" in topThree[0] && topThree[0].userImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -240,7 +240,7 @@ export function LeaderboardView() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="text-xl sm:text-2xl font-bold text-[var(--yellow)]">
+                      <span className="text-xl sm:text-2xl font-bold text-yellow">
                         {topThree[0].userName.charAt(0)}
                       </span>
                     )}
@@ -248,7 +248,7 @@ export function LeaderboardView() {
                   <h4 className="mt-3 text-base sm:text-lg font-bold text-paper truncate">
                     {topThree[0].userName}
                   </h4>
-                  <div className="mt-1 text-2xl sm:text-3xl font-extrabold font-mono text-[var(--yellow)]">
+                  <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-yellow">
                     {activeTab === "typing" && "levelData" in topThree[0] && topThree[0].levelData ? (
                       topThree[0].levelData
                     ) : (
@@ -258,16 +258,16 @@ export function LeaderboardView() {
                           : "score" in topThree[0]
                           ? topThree[0].score.toLocaleString()
                           : 0}
-                        <span className="text-xs font-mono text-paper/60 ml-1">pts</span>
+                        <span className="text-xs text-paper/60 ml-1">pts</span>
                       </>
                     )}
                   </div>
                   {activeTab === "typing" && (
-                    <div className="text-xs font-mono text-paper/60">
+                    <div className="text-xs text-paper/60">
                       {"score" in topThree[0] ? `${topThree[0].score.toLocaleString()} pts` : ""}
                     </div>
                   )}
-                  <div className="mt-2 text-xs font-mono text-paper/70">
+                  <div className="mt-2 text-xs text-paper/70">
                     {"gamesPlayed" in topThree[0]
                       ? `Mastered: ${topThree[0].gamesPlayed} / 4 Games`
                       : "timeMs" in topThree[0]
@@ -280,10 +280,10 @@ export function LeaderboardView() {
               {/* 3rd Place (Bronze) */}
               {topThree[2] ? (
                 <div className="order-3 rounded-3xl border border-paper/20 bg-surface p-5 sm:p-6 text-center shadow-lg relative">
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-[#cd7f32]/40 bg-ink px-3 py-0.5 text-xs font-bold font-mono text-[#cd7f32]">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-bronze/40 bg-ink px-3 py-0.5 text-xs font-bold text-bronze">
                     3rd Place
                   </span>
-                  <div className="mx-auto mt-2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-[#cd7f32]/40 bg-paper/10 overflow-hidden relative">
+                  <div className="mx-auto mt-2 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-bronze/40 bg-paper/10 overflow-hidden relative">
                     {"userImage" in topThree[2] && topThree[2].userImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -301,7 +301,7 @@ export function LeaderboardView() {
                   <h4 className="mt-3 text-sm sm:text-base font-bold text-paper truncate">
                     {topThree[2].userName}
                   </h4>
-                  <div className="mt-1 text-xl sm:text-2xl font-extrabold font-mono text-[#cd7f32]">
+                  <div className="mt-1 text-xl sm:text-2xl font-extrabold text-bronze">
                     {activeTab === "typing" && "levelData" in topThree[2] && topThree[2].levelData ? (
                       topThree[2].levelData
                     ) : (
@@ -311,16 +311,16 @@ export function LeaderboardView() {
                           : "score" in topThree[2]
                           ? topThree[2].score.toLocaleString()
                           : 0}
-                        <span className="text-xs font-mono text-paper/50 ml-1">pts</span>
+                        <span className="text-xs text-paper/50 ml-1">pts</span>
                       </>
                     )}
                   </div>
                   {activeTab === "typing" && (
-                    <div className="text-xs font-mono text-paper/50">
+                    <div className="text-xs text-paper/50">
                       {"score" in topThree[2] ? `${topThree[2].score.toLocaleString()} pts` : ""}
                     </div>
                   )}
-                  <div className="mt-2 text-[11px] font-mono text-paper/60">
+                  <div className="mt-2 text-[11px] text-paper/60">
                     {"gamesPlayed" in topThree[2]
                       ? `Mastered: ${topThree[2].gamesPlayed} / 4 Games`
                       : "fastestTimeMs" in topThree[2]
@@ -340,7 +340,7 @@ export function LeaderboardView() {
           {restList.length > 0 && (
             <div className="rounded-3xl border border-paper/10 bg-surface overflow-hidden">
               <div className="px-5 sm:px-6 py-3.5 border-b border-paper/10">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-paper/60">
+                <h4 className="text-xs uppercase tracking-wider text-paper/60">
                   Rankings
                 </h4>
               </div>
@@ -355,12 +355,12 @@ export function LeaderboardView() {
                       key={"id" in entry ? entry.id : entry.userId}
                       className={`flex items-center justify-between px-4 sm:px-6 py-3 transition-colors ${
                         isCurrentUser
-                          ? "bg-[var(--blue)]/10 border-l-4 border-[var(--blue)]"
+                          ? "bg-blue/10 border-l-4 border-blue"
                           : "hover:bg-paper/[0.02]"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-6 text-center text-xs font-mono font-bold text-paper/60 shrink-0">
+                        <span className="w-6 text-center text-xs font-bold text-paper/60 shrink-0">
                           #{rank}
                         </span>
                         <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-paper/10 overflow-hidden relative shrink-0">
@@ -382,14 +382,14 @@ export function LeaderboardView() {
                           <div className="text-xs sm:text-sm font-semibold text-paper flex items-center gap-1.5 truncate">
                             <span className="truncate">{entry.userName}</span>
                             {isCurrentUser && (
-                              <span className="rounded bg-[var(--blue)]/30 px-1.5 py-0.2 text-[9px] font-mono text-[var(--blue-halftone)] shrink-0">
+                              <span className="rounded bg-blue/30 px-1.5 py-0.2 text-[9px] text-blue-halftone shrink-0">
                                 You
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] sm:text-[11px] font-mono text-paper/50 truncate">
+                          <div className="text-[10px] sm:text-[11px] text-paper/50 truncate">
                             {isOverall && "gamesPlayed" in entry ? (
-                              <span className="text-[var(--blue-halftone)] font-bold">
+                              <span className="text-blue-halftone font-bold">
                                 {entry.gamesPlayed} / 4 Games Solved
                               </span>
                             ) : "levelData" in entry && entry.levelData ? (
@@ -404,24 +404,24 @@ export function LeaderboardView() {
                       <div className="text-right shrink-0 ml-3">
                         {activeTab === "typing" && "levelData" in entry && entry.levelData ? (
                           <>
-                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--green)]">
+                            <div className="text-sm sm:text-base font-bold text-green">
                               {entry.levelData}
                             </div>
-                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                            <div className="text-[10px] sm:text-[11px] text-paper/50">
                               {"score" in entry ? `${entry.score.toLocaleString()} pts` : ""}
                             </div>
                           </>
                         ) : (
                           <>
-                            <div className="text-sm sm:text-base font-bold font-mono text-[var(--blue-halftone)]">
+                            <div className="text-sm sm:text-base font-bold text-blue-halftone">
                               {"totalScore" in entry
                                 ? entry.totalScore.toLocaleString()
                                 : "score" in entry
                                 ? entry.score.toLocaleString()
                                 : 0}{" "}
-                              <span className="text-[10px] sm:text-xs font-mono text-paper/50 font-normal">pts</span>
+                              <span className="text-[10px] sm:text-xs text-paper/50 font-normal">pts</span>
                             </div>
-                            <div className="text-[10px] sm:text-[11px] font-mono text-paper/50">
+                            <div className="text-[10px] sm:text-[11px] text-paper/50">
                               {"fastestTimeMs" in entry
                                 ? formatTime(entry.fastestTimeMs)
                                 : "timeMs" in entry

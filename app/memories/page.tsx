@@ -48,7 +48,7 @@ export default async function MemoriesPage() {
 
         {[2025, 2024].map((year) => (
           <div key={year} className="mt-10">
-            <h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-paper/60">{year}</h2>
+            <h2 className="mb-4 text-sm uppercase tracking-wide text-paper/60">{year}</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {photosWithColor
                 .filter(({ photo }) => photo.year === year)

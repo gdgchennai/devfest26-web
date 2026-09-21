@@ -109,7 +109,7 @@ function ProfileContent({
             at all today!
           </p>
           {ticket.check_in_time && (
-            <p className="mt-3 font-mono text-xs uppercase tracking-wide text-paper/50">
+            <p className="mt-3 text-xs uppercase tracking-wide text-paper/50">
               Checked in at {formatCheckIn(ticket.check_in_time)}
             </p>
           )}
@@ -155,7 +155,7 @@ function ProfileContent({
           </p>
           {ticket.booking_id && (
             <div className="mt-3">
-              <p className="font-mono text-xs uppercase tracking-wide text-paper/50">Booking ID</p>
+              <p className="text-xs uppercase tracking-wide text-paper/50">Booking ID</p>
               <div className="mt-2">
                 <CopyField value={ticket.booking_id} />
               </div>

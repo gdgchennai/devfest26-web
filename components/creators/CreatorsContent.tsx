@@ -91,13 +91,13 @@ export function CreatorsContent() {
           <span className="text-xs font-bold uppercase tracking-[0.25em] text-blue mb-3 block">
             GDG Chennai Presents
           </span>
-          <h1 className="text-3xl font-extrabold tracking-wider text-white mb-2 uppercase sm:text-5xl">
+          <h1 className="text-3xl font-extrabold tracking-wider text-paper mb-2 uppercase sm:text-5xl">
             DEVFEST CHENNAI 2026
           </h1>
           <p className="text-lg font-semibold tracking-[0.15em] text-red uppercase mb-6 sm:text-2xl">
             Build. Secure. Scale.
           </p>
-          <div className="h-[1px] w-12 bg-white/20 mx-auto mb-6" />
+          <div className="h-[1px] w-12 bg-paper/20 mx-auto mb-6" />
           <p className="text-base text-paper/80 font-medium sm:text-lg">
             17 October 2026 &middot; IIT Madras Research Park &middot; Chennai
           </p>
@@ -105,7 +105,7 @@ export function CreatorsContent() {
 
         {/* Section 1: An Invitation to Creators */}
         <header ref={titleRef} className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl font-bold tracking-tight text-white uppercase sm:text-4xl">
+          <h2 className="text-2xl font-bold tracking-tight text-paper uppercase sm:text-4xl">
             An Invitation to Creators
           </h2>
         </header>
@@ -114,9 +114,9 @@ export function CreatorsContent() {
           <div className="space-y-6 text-base text-paper/80 leading-relaxed sm:text-lg">
             <p>
               DevFest Chennai is a community-led technology conference by{" "}
-              <strong className="text-white font-semibold">Google Developer Group Chennai (GDG Chennai)</strong>,
+              <strong className="text-paper font-semibold">Google Developer Group Chennai (GDG Chennai)</strong>,
               a non-profit developer community supported by Google for the past{" "}
-              <strong className="text-white font-semibold">15 years</strong>. This year, we&apos;re bringing together
+              <strong className="text-paper font-semibold">15 years</strong>. This year, we&apos;re bringing together
               developers, builders, creators and curious minds to explore how technology and AI are changing the
               way we build, create and work.
             </p>
@@ -136,7 +136,7 @@ export function CreatorsContent() {
 
         {/* Section 2: Why Join us? */}
         <section className="creator-card bg-paper/[0.03] border border-paper/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl transition-all duration-300 hover:border-paper/20">
-          <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-wide sm:text-2xl border-b border-paper/10 pb-3">
+          <h3 className="text-xl font-bold text-paper mb-6 uppercase tracking-wide sm:text-2xl border-b border-paper/10 pb-3">
             Why Join us?
           </h3>
           <p className="text-base text-paper/85 leading-relaxed mb-6 sm:text-lg">
@@ -171,7 +171,7 @@ export function CreatorsContent() {
 
         {/* Section 3: What You Can Do at DevFest? */}
         <section className="creator-card bg-paper/[0.03] border border-paper/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl transition-all duration-300 hover:border-paper/20">
-          <h3 className="text-xl font-bold text-white mb-8 uppercase tracking-wide sm:text-2xl border-b border-paper/10 pb-3">
+          <h3 className="text-xl font-bold text-paper mb-8 uppercase tracking-wide sm:text-2xl border-b border-paper/10 pb-3">
             What You Can Do at DevFest?
           </h3>
           
@@ -185,7 +185,7 @@ export function CreatorsContent() {
             <div>
               <h4 className="text-lg font-bold text-blue uppercase mb-3">Creator Lounge</h4>
               <p className="text-base text-paper/80 leading-relaxed mb-4">
-                We&apos;re creating a dedicated <strong className="text-white font-semibold">Creator Lounge</strong>, a space for creators and the community to hang out, connect and have some fun.
+                We&apos;re creating a dedicated <strong className="text-paper font-semibold">Creator Lounge</strong>, a space for creators and the community to hang out, connect and have some fun.
               </p>
               <p className="text-sm font-semibold text-paper/60 uppercase tracking-wider mb-2">The lounge could include:</p>
               <ul className="space-y-2">
@@ -216,7 +216,7 @@ export function CreatorsContent() {
 
         {/* Section 4: Create Something Together */}
         <section className="creator-card bg-paper/[0.03] border border-paper/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl transition-all duration-300 hover:border-paper/20">
-          <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wide sm:text-2xl">
+          <h3 className="text-xl font-bold text-paper mb-4 uppercase tracking-wide sm:text-2xl">
             Create Something Together
           </h3>
           <p className="text-base font-semibold text-yellow mb-6 sm:text-lg">
@@ -229,7 +229,7 @@ export function CreatorsContent() {
 
         {/* Section 5: The Bigger Idea */}
         <section className="creator-card bg-paper/[0.03] border border-paper/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl transition-all duration-300 hover:border-paper/20">
-          <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wide sm:text-2xl">
+          <h3 className="text-xl font-bold text-paper mb-4 uppercase tracking-wide sm:text-2xl">
             The Bigger Idea
           </h3>
           <p className="text-base font-semibold text-red mb-6 sm:text-lg">
@@ -239,7 +239,7 @@ export function CreatorsContent() {
             <p>
               It&apos;s about how all of us are adapting to a world where technology and AI are becoming part of how we work and create.
             </p>
-            <p className="font-extrabold text-white text-center pt-2 sm:text-xl tracking-wide uppercase">
+            <p className="font-extrabold text-paper text-center pt-2 sm:text-xl tracking-wide uppercase">
               Creators are builders too.
             </p>
           </div>
@@ -251,7 +251,7 @@ export function CreatorsContent() {
             We&apos;d love to bring your perspective into the room and give the community a chance to learn from how you build, create and use AI every day.
           </p>
           
-          <h3 className="text-2xl font-extrabold text-white mb-8 sm:text-3xl uppercase tracking-wide">
+          <h3 className="text-2xl font-extrabold text-paper mb-8 sm:text-3xl uppercase tracking-wide">
             We&apos;d love to have you at DevFest 2026 Chennai. 🚀
           </h3>
 
@@ -265,7 +265,7 @@ export function CreatorsContent() {
               href="https://devfest.gdgchennai.in"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-paper/60 hover:text-white transition-colors underline underline-offset-4"
+              className="text-paper/60 hover:text-paper transition-colors underline underline-offset-4"
             >
               DevFest Chennai: devfest.gdgchennai.in
             </a>
@@ -273,7 +273,7 @@ export function CreatorsContent() {
               href="https://gdg.community.dev/gdg-chennai/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-paper/60 hover:text-white transition-colors underline underline-offset-4"
+              className="text-paper/60 hover:text-paper transition-colors underline underline-offset-4"
             >
               GDG Chennai: gdg.community.dev/gdg-chennai/
             </a>

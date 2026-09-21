@@ -103,7 +103,7 @@ export function MemoriesHallway({ photos }: { photos: ArchivePhoto[] }) {
 
       {/* Retires once the row has landed — there is nothing left to scroll for. */}
       {!settled && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 text-center font-mono text-xs uppercase tracking-wide text-paper/50">
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 text-center text-xs uppercase tracking-wide text-paper/50">
           {uiCopy.memoriesHallway.scrollHint}
         </div>
       )}

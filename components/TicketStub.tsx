@@ -27,7 +27,7 @@ export function TicketStub() {
   return (
     <TiltCard className="ticket-stub">
       <div className="ticket-stub__body">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/60">
+        <p className="text-xs uppercase tracking-[0.2em] text-paper/60">
           {uiCopy.common.chapterPresents}
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -51,7 +51,7 @@ export function TicketStub() {
       <div className="ticket-stub__perf" aria-hidden />
 
       <div className="ticket-stub__end">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/65">{uiCopy.ticketStub.admitOneLabel}</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-paper/65">{uiCopy.ticketStub.admitOneLabel}</p>
 
         <Button href={cta.href} size="lg" className="mt-4">
           {cta.label}
@@ -64,7 +64,7 @@ export function TicketStub() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/60">{label}</dt>
+      <dt className="text-[0.6875rem] uppercase tracking-wider text-paper/60">{label}</dt>
       <dd className="mt-0.5 text-sm text-paper/90">{children}</dd>
     </div>
   );
