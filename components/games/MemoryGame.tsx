@@ -80,7 +80,6 @@ export function MemoryGame({
   const pairsCount = externalPairsCount;
   const [cards, setCards] = useState<CardInstance[]>(() => getInitialDeck(initialTechCards as TechCardDefinition[], externalPairsCount));
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
-  const [moves, setMoves] = useState<number>(0);
   const [matchedPairs, setMatchedPairs] = useState<number>(0);
   const [combo, setCombo] = useState<number>(1);
   const [maxCombo, setMaxCombo] = useState<number>(1);
@@ -116,7 +115,6 @@ export function MemoryGame({
     (count = pairsCount) => {
       setCards(getInitialDeck(cardsPool, count));
       setFlippedIndices([]);
-      setMoves(0);
       setMatchedPairs(0);
       setCombo(1);
       setMaxCombo(1);
@@ -187,7 +185,6 @@ export function MemoryGame({
     setFlippedIndices(nextFlipped);
 
     if (nextFlipped.length === 2) {
-      setMoves((m) => m + 1);
       lockBoardRef.current = true;
 
       const [firstIdx, secondIdx] = nextFlipped;

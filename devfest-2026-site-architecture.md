@@ -76,6 +76,23 @@ recommending a page that no longer exists.
 Build priority, which is deliberately not the order above:
 `/agenda` → shared infrastructure → `/` → `/speakers` → the rest.
 
+**As built, September 2026.** The table above is the original plan; this is what the app
+serves. `lib/routes.ts` remains the source for nav / 404 / sitemap, so a page missing from
+it is deliberate (unlinked or account-gated), not forgotten.
+
+| Route | What it is | Notes |
+|---|---|---|
+| `/` | The pitch: hero flythrough, "expect" cards, Location, mood, RSVP | Full motion, or `StaticHero` in lite |
+| `/tickets`, `/tickets/select` | Pick an event, then a ticket | Ticket sales come from KonfHub; `/md/tickets*` twins exist |
+| `/memories` | 2024 + 2025 photo archive (the hallway lives here too) | |
+| `/games` | Mini-games: jigsaw, crossword, memory, speed typer, leaderboard | Scores are server-authoritative — [`docs/games.md`](docs/games.md) |
+| `/agenda`, `/speakers`, `/speakers/[slug]`, `/my-agenda` | Schedule and lineup | Off (404) until `AGENDA_READY=true` |
+| `/contact` | Chapter contact | Not in the header nav |
+| `/partner`, `/creators` | Community-partner and content-creator invitation pages | Unlinked from the nav; reachable by URL |
+| `/signin`, `/profile` | Google sign-in and the account page | Account-gated, `noindex` |
+| `/md/*` | Markdown twins of pages, for `Accept: text/markdown` | Rewritten by a Cloudflare rule — [`docs/markdown-negotiation.md`](docs/markdown-negotiation.md) |
+| `/api/auth`, `/api/favorites`, `/api/content`, `/api/games/*` | Route handlers | `runtime = "nodejs"` — never edge |
+
 **As built — routes that aren't Next routes.** Several paths in the table above are not served
 by the app:
 
@@ -340,10 +357,16 @@ Built once in the root layout, consumed everywhere. **This lands before anything
   events; the `lenis.on("scroll", ScrollTrigger.update)` wiring exists only because Lenis takes
   the scroll over.
 - **`site.config.ts`** — single source of truth for every fact.
-- **Lite mode** — `?lite=1` on, `?lite=0` off, either way persisted. The toggle drives the
-  preference through the URL so the choice is linkable, testable and reversible. Shares its
-  rendering path with reduced-motion and no-JS; see Part 4 of the motion spec. Site-wide, not a
-  homepage feature.
+- **Lite mode** — `?lite=1` on, `?lite=0` off, either way persisted (`"1"` / `"0"` in
+  `localStorage`). The toggle drives the preference through the URL so the choice is linkable,
+  testable and reversible. Shares its rendering path with reduced-motion and no-JS; see Part 4
+  of the motion spec. Site-wide, not a homepage feature.
+  - **Reduced motion is lite by default.** With nothing stored, `isLiteMode()` follows
+    `prefers-reduced-motion`, so those visitors get the static hero, the pill nav and no
+    three.js. An explicit `?lite=0` (or the footer toggle) is stored as `"0"` and beats that
+    default. The pre-paint script in `app/layout.tsx` mirrors the same rule — change one, change
+    the other. (It used to keep a still-rendered WebGL hero for reduced motion; that meant the
+    static hero swapped to WebGL a moment later, which was a visible jump.)
   - **Reachable under the loader's "Enter" CTA** (where the choice is actually made), as the
     footer toggle (`aria-pressed`, visible on/off state) on every route, and — going the other way
     — a "Switch to the full experience" link in `<StaticHero>`. (`<IntroEscape>` used to offer a

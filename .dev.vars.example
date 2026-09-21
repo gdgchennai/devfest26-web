@@ -1,10 +1,12 @@
-# Copy to `.dev.vars` (git-ignored). These are the runtime secrets the
-# Cloudflare Workers dev runtime reads for `npm run preview`. Mirror the same
-# values into `.env.local` for `npm run dev` (the Next dev server), and set
-# them in production with `wrangler secret put <NAME>`.
+# Copy to `.dev.vars` (git-ignored) — Wrangler's local-secrets file. It is what the
+# Cloudflare `env` object is filled from, in BOTH `npm run preview` and `npm run dev`.
+# Set the same values in production with `wrangler secret put <NAME>`.
 #
-# Build-time vars (NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT, AGENDA_READY) do NOT go
-# here — they belong in the build environment / `.env`. See docs/environment.md.
+# AUTH_* also go in `.env.local` for `npm run dev`: Auth.js reads them from
+# process.env, which `next dev` fills from `.env.local`, not from here.
+#
+# Build-time vars (AGENDA_READY, HERO_BUTTONS) do NOT go here — they belong in the
+# build environment / `.env`. See docs/environment.md.
 
 # openssl rand -base64 32
 AUTH_SECRET=
@@ -15,3 +17,9 @@ AUTH_SECRET=
 #   https://devfest.gdgchennai.in/api/auth/callback/google
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+
+# Optional — the Speed Typer's paragraphs. Without a key the game uses its built-in
+# word list. GEMINI_MODEL overrides the default model id (see docs/environment.md).
+# These are read through Cloudflare's env, so they belong HERE, not in `.env.local`.
+# GEMINI_API_KEY=
+# GEMINI_MODEL=

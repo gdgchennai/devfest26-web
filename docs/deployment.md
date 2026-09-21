@@ -201,9 +201,12 @@ npx wrangler secret put AUTH_GOOGLE_ID
 npx wrangler secret put AUTH_GOOGLE_SECRET
 ```
 
-Local dev: the Next dev server (`npm run dev`) reads these from `.env.local`;
-the Workers preview runtime (`npm run preview`) reads them from `.dev.vars`.
-Keep the two files in sync. Templates: `.env.example`, `.dev.vars.example`.
+Local dev: the Next dev server (`npm run dev`) reads the `AUTH_*` values from
+`.env.local`; the Workers preview runtime (`npm run preview`) reads them from
+`.dev.vars`. Keep those in sync. Anything the code reads through Cloudflare's `env`
+(such as `GEMINI_API_KEY`) goes in `.dev.vars` for *both* commands — `next dev` fills
+that object from `.dev.vars` and ignores `.env.local`. Templates: `.env.example`,
+`.dev.vars.example`; the rule is spelled out in [`environment.md`](./environment.md).
 
 ### Runtime secret — ticketing Worker
 

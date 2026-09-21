@@ -4,11 +4,28 @@ Every configurable value the app reads from the environment. Nothing here is
 committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 `.dev.vars.example` are the committed templates).
 
+## Which file: `.env.local` or `.dev.vars`?
+
+Both are standard, for different systems, and this project needs both because the
+code reads variables in two different ways:
+
+| File (template) | Standard for | Read by | Put here |
+| --- | --- | --- | --- |
+| `.env.local` (`.env.example`) | Next.js / dotenv | `process.env` | Build-time vars (`AGENDA_READY`, `HERO_BUTTONS`, `NEXT_PUBLIC_*`, PostHog) and the `AUTH_*` values (Auth.js reads `process.env`) |
+| `.dev.vars` (`.dev.vars.example`) | Cloudflare Wrangler | Cloudflare's `env` object (`getCloudflareContext().env`) | Anything the code reads that way: `GEMINI_API_KEY`, `GEMINI_MODEL` — and `AUTH_*` again for `npm run preview` |
+
+The catch: in `npm run dev` the Cloudflare `env` is filled by Wrangler from
+`.dev.vars` and deliberately **ignores `.env*` files**. So a variable that the code
+reads through `getCloudflareContext()` must be in `.dev.vars` even for `npm run dev`;
+putting it only in `.env.local` silently does nothing. (`AUTH_*` are the exception that
+needs both files, one per runtime.) In production neither file exists: build-time vars
+go in the build environment and secrets are set with `wrangler secret put`.
+
 ## Where each one goes
 
 | Context | File | Vars it needs |
 | --- | --- | --- |
-| `npm run dev` (Next dev server) | `.env.local` | all of them |
+| `npm run dev` (Next dev server) | `.env.local` **and** `.dev.vars` | `.env.local`: build-time vars + `AUTH_*`. `.dev.vars`: `GEMINI_*` |
 | `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
 | Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` / `GEMINI_MODEL` |
 | Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` |
@@ -61,6 +78,9 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 - **Type:** runtime secret (`GEMINI_API_KEY`) / runtime variable (`GEMINI_MODEL`)
 - **Used by:** [`lib/typing-generator.ts`](../lib/typing-generator.ts), called when a
   typing run starts — asks Gemini for the Speed Typer's paragraph
+- **Where locally:** `.dev.vars`, for both `npm run dev` and `npm run preview`. The
+  code reads it from Cloudflare's `env`, which `next dev` fills from `.dev.vars`, not
+  from `.env.local`.
 - **Required:** no. Without a key, or when Gemini errors or times out (3s), the
   game silently uses its built-in word list.
 - **`GEMINI_MODEL`:** the model id, defaults to the constant in that file.

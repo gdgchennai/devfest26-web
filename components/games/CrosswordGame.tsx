@@ -14,6 +14,11 @@ function getRemainingCycleTime(): string {
   return `${hours}h ${minutes}m`;
 }
 
+/** Index of today's puzzle. A helper (not inline in render) because it reads the clock. */
+function todaysPuzzleIndex(poolLength: number): number {
+  return dailyPuzzleIndex(poolLength, Date.now());
+}
+
 /** Shown until the puzzle list arrives. The answers never ship with the page — the
  *  browser only ever gets the grid and clues (see toPublicPuzzle). */
 const LOADING_PUZZLE: CrosswordPuzzle = { id: "loading", title: "Loading today's puzzle…", category: "", size: 10, clues: [] };
@@ -38,7 +43,7 @@ export function CrosswordGame({
   const [puzzles, setPuzzles] = useState<CrosswordPuzzle[]>([]);
   // The puzzle the server dealt for this run; it wins over our guess at "today's".
   const [dealtPuzzle, setDealtPuzzle] = useState<CrosswordPuzzle | null>(null);
-  const dailyIdx = useMemo(() => dailyPuzzleIndex(puzzles.length, Date.now()), [puzzles.length]);
+  const dailyIdx = useMemo(() => todaysPuzzleIndex(puzzles.length), [puzzles.length]);
   const puzzle = dealtPuzzle || puzzles[dailyIdx] || puzzles[0] || LOADING_PUZZLE;
 
   // API-first fetch for latest crosswords
@@ -116,7 +121,6 @@ export function CrosswordGame({
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [elapsedMs, setElapsedMs] = useState<number>(0);
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
-  const [hintsUsed, setHintsUsed] = useState<number>(0);
   const [checkedCells, setCheckedCells] = useState<Record<string, boolean>>({});
   const [checksLeft, setChecksLeft] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -142,7 +146,6 @@ export function CrosswordGame({
     setCheckedCells({});
     setChecksLeft(null);
     setNotice(null);
-    setHintsUsed(0);
     setHasStarted(false);
     setGameCompleted(false);
     setElapsedMs(0);
@@ -167,7 +170,6 @@ export function CrosswordGame({
     sessionIdRef.current = started.data.sessionId;
     finishingRef.current = false;
     setDealtPuzzle(started.data.puzzle);
-    setHintsUsed(0);
     setChecksLeft(null);
     setHasStarted(true);
     setGameCompleted(false);
@@ -332,7 +334,6 @@ export function CrosswordGame({
     }
     nextGrid[row][col] = res.data.letter;
     setUserGrid(nextGrid);
-    setHintsUsed(res.data.hints);
     advanceToNextCell(row, col);
     checkVictory(nextGrid);
   }

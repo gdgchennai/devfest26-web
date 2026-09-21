@@ -17,11 +17,16 @@ This project is built with Next.js, React, TypeScript, Tailwind CSS, and GSAP.
 
 1. Fork the repo and create a branch from `main` for your change.
 2. Keep changes focused — one feature or fix per pull request.
-3. Run the linter before committing:
+3. Typecheck and lint before committing:
 
    ```bash
+   npx tsc --noEmit
    npm run lint
    ```
+
+   `tsc` should be clean. `lint` has a known set of older errors in `components/motion/*`,
+   `TicketsList`, `HamburgerMenu` and a couple of others: don't add to it, and leave
+   unrelated files alone.
 
 4. Make sure the site builds successfully:
 
@@ -34,6 +39,14 @@ This project is built with Next.js, React, TypeScript, Tailwind CSS, and GSAP.
 ## Commit messages
 
 Write clear, descriptive commit messages that explain the intent of the change, not just what was changed.
+Commit under your own git identity; don't add AI co-author trailers or tool names to commit messages or PR text.
+
+## Using an AI coding tool
+
+Claude Code, Cursor and Antigravity all work here and read the same instructions from
+[`AGENTS.md`](AGENTS.md). Setup for each is in [`docs/ai-tools.md`](docs/ai-tools.md). Whoever
+wrote the code, the bar is the same: you've run it, looked at it (desktop and phone width, and
+`?lite=1` for anything visual), and you can explain the diff.
 
 ## Submitting a pull request
 
