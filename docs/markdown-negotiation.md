@@ -40,16 +40,44 @@ and http.request.uri.path eq "/"
 http.host eq "devfest.gdgchennai.in"
 and any(http.request.headers["accept"][*] contains "text/markdown")
 and (
-  http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select"}
+  http.request.uri.path in {"/agenda" "/speakers" "/tickets" "/tickets/select" "/partner" "/contact" "/creators" "/memories"}
   or (starts_with(http.request.uri.path, "/speakers/") and http.request.uri.path ne "/speakers/")
 )
 ```
 
 *Then* — Path → Rewrite to → **Dynamic**: `concat("/md", http.request.uri.path)`
 
-Leave **Query** unchanged on both. Keep the route list in sync with the
-`app/md/**` handlers (it's the same list the old `proxy.ts` had as
-`MARKDOWN_ROUTES`).
+Leave **Query** unchanged on both.
+
+## Keeping the rule in step
+
+Three things have to agree, and one of them lives in the dashboard where the repo can't see it:
+
+| | Where |
+|---|---|
+| The twins | `app/md/**` route handlers |
+| The pages that advertise one (`<link rel="alternate" type="text/markdown">`) | `lib/seo.ts` |
+| The rewrite rule above | Cloudflare dashboard |
+
+The first two share **one list**, [`lib/markdown-routes.json`](../lib/markdown-routes.json)
+(`pages` for exact paths, `prefixes` for dynamic ones like `/speakers/<slug>`). To add a
+markdown twin:
+
+1. Add the handler under `app/md/`.
+2. Add its path to `lib/markdown-routes.json`.
+3. Run `npm run md:rule` and paste the rule it prints into the dashboard (or just add the
+   path to Rule 2's set).
+4. Run `npm run md:check -- --live` to confirm the live site really negotiates it.
+
+`npm run md:check` also runs automatically before `preview`, `deploy` and `upload`: it fails
+if a handler has no entry in the list, or the list names a page with no handler. That covers
+the repo half. Only `--live` can see the dashboard half, so run it after any rule change.
+
+This exists because `/partner` got a twin a day after the rule was written and was left out
+of it: pages advertised a markdown version that `Accept: text/markdown` couldn't reach.
+
+(The list is the one the old `proxy.ts` had as `MARKDOWN_ROUTES`, before the rewrite moved to
+Cloudflare to keep the Worker under its size limit.)
 
 ## Verify (after deploy)
 
