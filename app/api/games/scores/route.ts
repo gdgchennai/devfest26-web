@@ -1,51 +1,41 @@
 import { auth } from "@/auth";
-import {
-  saveGameScore,
-  getGameLeaderboard,
-  getOverallLeaderboard,
-  getUserGameScores,
-} from "@/lib/leaderboard";
+import { saveGameScore, getGameLeaderboard, getUserGameScores } from "@/lib/leaderboard";
+import { clearBoards, getBoard, parseBoard } from "@/lib/leaderboard-cache";
 import { claimForUser, releaseClaim } from "@/lib/game-sessions";
-import { GAME_IDS, defaultVariant, isVariant, type GameId } from "@/lib/game-rules";
 
 export const runtime = "nodejs";
 
+/**
+ * GET is the same for everyone (no sign-in, nothing personal), so besides the per-isolate
+ * cache in lib/leaderboard-cache.ts, `Cache-Control` lets browsers and any cache rule on the
+ * zone hold it for a few seconds too. A player's own rank is `/api/games/scores/me`.
+ */
+const CACHE_HEADERS = {
+  "Content-Type": "application/json",
+  "Cache-Control": "public, max-age=10, s-maxage=30, stale-while-revalidate=60",
+};
+
+/**
+ * GET ?gameId=all|jigsaw|crossword|memory|typing[&variant=…][&limit=…]
+ *
+ * Leaderboards are per board (`variant`, e.g. jigsaw "4" or "3s", memory "8", typing
+ * "time-30"); see GAME_VARIANTS in lib/game-rules.ts. Leave it out for the first one.
+ * `all` is the cross-game total and takes no variant.
+ */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const gameId = searchParams.get("gameId") || "all";
+  const board = parseBoard(searchParams);
+  if (!board.ok) return Response.json({ error: board.error }, { status: 400 });
+
   const limitParam = searchParams.get("limit");
   const limit = limitParam ? Math.min(100, Math.max(1, parseInt(limitParam, 10) || 50)) : 50;
 
-  const session = await auth().catch(() => null);
-  const currentUserId = session?.user?.uid;
-
   try {
-    let leaderboard: unknown[] = [];
-    let overallLeaderboard: unknown[] = [];
-
-    if (gameId === "all") {
-      overallLeaderboard = await getOverallLeaderboard(limit);
-    } else if (GAME_IDS.includes(gameId as GameId)) {
-      // Leaderboards are per board (grid size, card count, typing mode…); default to the first.
-      const variant = searchParams.get("variant") ?? defaultVariant(gameId as GameId);
-      if (!isVariant(gameId as GameId, variant)) return Response.json({ error: "Invalid variant" }, { status: 400 });
-      leaderboard = await getGameLeaderboard(gameId, variant, limit);
-    } else {
-      return Response.json({ error: "Invalid gameId" }, { status: 400 });
-    }
-
-    let userScores: unknown[] = [];
-    if (currentUserId) {
-      userScores = await getUserGameScores(currentUserId);
-    }
-
-    return Response.json({
-      gameId,
-      leaderboard: gameId === "all" ? overallLeaderboard : leaderboard,
-      userScores,
-      authenticated: !!currentUserId,
-      currentUserId: currentUserId ?? null,
-    });
+    const rows = await getBoard(board.gameId, board.variant);
+    return new Response(
+      JSON.stringify({ gameId: board.gameId, variant: board.variant, leaderboard: rows.slice(0, limit) }),
+      { headers: CACHE_HEADERS },
+    );
   } catch (error) {
     console.error("Failed to fetch leaderboard:", error);
     return Response.json({ error: "Failed to load leaderboard" }, { status: 500 });
@@ -98,6 +88,7 @@ export async function POST(req: Request) {
       levelData: result.levelData.slice(0, 500),
       variant: result.variant ?? "",
     });
+    clearBoards();
 
     const updatedLeaderboard = await getGameLeaderboard(result.gameId, result.variant ?? "", 50);
     const userScores = await getUserGameScores(userId);
