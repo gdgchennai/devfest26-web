@@ -113,6 +113,8 @@ async function ensureTable(db: D1Database): Promise<void> {
  * Save a new game score for an authenticated user.
  */
 export async function saveGameScore(params: {
+  /** The game session id. Used as the row id, so one run can only ever be recorded once. */
+  id?: string;
   userId: string;
   gameId: string;
   score: number;
@@ -136,7 +138,7 @@ export async function saveGameScore(params: {
   }
 
   const record: GameScoreRecord = {
-    id: newScoreId(),
+    id: params.id ?? newScoreId(),
     user_id: params.userId,
     game_id: params.gameId,
     score: Math.max(0, Math.floor(params.score)),

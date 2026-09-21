@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import initialTechCards from "@/content/tech-cards.json";
 import type { GameScoreSubmission } from "./ScoreModal";
 import type { TechCardDefinition } from "@/lib/games-content";
+import { generateMemoryLayout, memoryScore } from "@/lib/game-rules";
+import { gameApi } from "@/lib/games-client";
 
 type CardInstance = {
   instanceId: string;
@@ -45,35 +47,24 @@ function getInitialDeck(pool: TechCardDefinition[], count: number): CardInstance
   return deck;
 }
 
-function generateShuffledDeck(pool: TechCardDefinition[], count: number): CardInstance[] {
-  const shuffledPool = [...(pool.length >= count ? pool : (initialTechCards as TechCardDefinition[]))].sort(() => Math.random() - 0.5);
-  const selectedDefinitions = shuffledPool.slice(0, count);
-
-  const deck: CardInstance[] = [];
-  selectedDefinitions.forEach((def) => {
-    deck.push({
-      instanceId: `${def.id}-a`,
-      cardId: def.id,
-      name: def.name,
-      subtitle: def.subtitle,
-      icon: def.icon,
-      accent: def.accent,
+/** The board for a dealt layout (card ids by position). Each card id appears twice. */
+function deckFromLayout(pool: TechCardDefinition[], layout: string[]): CardInstance[] {
+  const seen = new Map<string, number>();
+  return layout.map((cardId) => {
+    const def = pool.find((c) => c.id === cardId) ?? (initialTechCards as TechCardDefinition[]).find((c) => c.id === cardId);
+    const copy = seen.get(cardId) ?? 0;
+    seen.set(cardId, copy + 1);
+    return {
+      instanceId: `${cardId}-${copy === 0 ? "a" : "b"}`,
+      cardId,
+      name: def?.name ?? cardId,
+      subtitle: def?.subtitle ?? "",
+      icon: def?.icon ?? "",
+      accent: def?.accent ?? "",
       isFlipped: false,
       isMatched: false,
-    });
-    deck.push({
-      instanceId: `${def.id}-b`,
-      cardId: def.id,
-      name: def.name,
-      subtitle: def.subtitle,
-      icon: def.icon,
-      accent: def.accent,
-      isFlipped: false,
-      isMatched: false,
-    });
+    };
   });
-
-  return deck.sort(() => Math.random() - 0.5);
 }
 
 type MemoryGameProps = {
@@ -102,6 +93,12 @@ export function MemoryGame({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const lockBoardRef = useRef<boolean>(false);
+  // The server-side run this board belongs to (null → offline practice) and every
+  // pair the player tried, in order — the evidence the server scores.
+  const sessionIdRef = useRef<string | null>(null);
+  const flipLogRef = useRef<number[][]>([]);
+  const comboRunRef = useRef<{ combo: number; points: number; maxStreak: number }>({ combo: 1, points: 0, maxStreak: 1 });
+  const [isStarting, setIsStarting] = useState<boolean>(false);
 
   // API-first fetch for card definitions
   useEffect(() => {
@@ -129,12 +126,30 @@ export function MemoryGame({
       setElapsedMs(0);
       lockBoardRef.current = false;
       startTimeRef.current = 0;
+      sessionIdRef.current = null;
+      flipLogRef.current = [];
     },
     [cardsPool, pairsCount],
   );
 
-  const handleStartGame = () => {
-    setCards(generateShuffledDeck(cardsPool, pairsCount));
+  const handleStartGame = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    // The server deals the layout and starts the clock; if it can't be reached we deal
+    // locally and play an unranked practice run.
+    const started = await gameApi.startMemory(pairsCount);
+    sessionIdRef.current = started.ok ? started.data.sessionId : null;
+    flipLogRef.current = [];
+    comboRunRef.current = { combo: 1, points: 0, maxStreak: 1 };
+    const layout = started.ok
+      ? started.data.layout
+      : generateMemoryLayout(
+          (cardsPool.length >= pairsCount ? cardsPool : (initialTechCards as TechCardDefinition[])).map((c) => c.id),
+          pairsCount,
+          Math.random,
+        );
+    setCards(deckFromLayout(cardsPool, layout));
+    setIsStarting(false);
     setHasStarted(true);
     setGameCompleted(false);
     setElapsedMs(0);
@@ -176,6 +191,7 @@ export function MemoryGame({
       lockBoardRef.current = true;
 
       const [firstIdx, secondIdx] = nextFlipped;
+      flipLogRef.current.push([firstIdx, secondIdx]);
       const firstCard = nextCards[firstIdx];
       const secondCard = nextCards[secondIdx];
 
@@ -199,29 +215,41 @@ export function MemoryGame({
             if (nextC > maxCombo) setMaxCombo(nextC);
             return nextC;
           });
+          // Same streak arithmetic as the server's replay, kept for the offline fallback.
+          const run = comboRunRef.current;
+          run.points += pointsEarned;
+          run.maxStreak = Math.max(run.maxStreak, run.combo);
+          run.combo += 1;
 
           setFlippedIndices([]);
           lockBoardRef.current = false;
 
           if (nextMatched === pairsCount) {
             setGameCompleted(true);
-            const finalTime = Math.max(1000, Date.now() - startTimeRef.current);
-            const finalScore = Math.max(
-              250,
-              score + pointsEarned + pairsCount * 400 - Math.floor((finalTime / 1000) * 10),
-            );
-
-            onFinishGame({
-              gameId: "memory",
-              gameTitle: "Tech Memory Matrix",
-              score: finalScore,
-              timeMs: finalTime,
-              moves: moves + 1,
-              levelData: `${pairsCount * 2} Cards • Max Streak ${Math.max(
-                combo,
-                maxCombo,
-              )}x`,
-            });
+            const log = flipLogRef.current;
+            const sessionId = sessionIdRef.current;
+            void (async () => {
+              let unranked: "offline" | "rejected" = "offline";
+              if (sessionId) {
+                const done = await gameApi.finish(sessionId, { flips: log });
+                if (done.ok) {
+                  onFinishGame({ ...done.data.result, sessionId });
+                  return;
+                }
+                unranked = done.status === 0 ? "offline" : "rejected";
+              }
+              // Offline (or the server refused): show a local, unranked result.
+              const timeMs = Math.max(1000, Date.now() - startTimeRef.current);
+              onFinishGame({
+                gameId: "memory",
+                gameTitle: "Tech Memory Matrix",
+                score: memoryScore(run.points, pairsCount, timeMs),
+                timeMs,
+                moves: log.length,
+                levelData: `${pairsCount * 2} Cards • Max Streak ${run.maxStreak}x`,
+                unranked,
+              });
+            })();
           }
         }, 350);
       } else {
@@ -233,6 +261,7 @@ export function MemoryGame({
             return reset;
           });
           setCombo(1);
+          comboRunRef.current.combo = 1;
           setFlippedIndices([]);
           lockBoardRef.current = false;
         }, 750);
@@ -383,9 +412,10 @@ export function MemoryGame({
             <button
               type="button"
               onClick={handleStartGame}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              disabled={isStarting}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:hover:scale-100"
             >
-              <span>Start Game</span>
+              <span>{isStarting ? "Dealing…" : "Start Game"}</span>
               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>

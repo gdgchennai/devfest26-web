@@ -30,6 +30,7 @@ export function ProfileHistoryAccordion({ gameScores }: ProfileHistoryAccordionP
     jigsaw: { label: "Archive Jigsaw", accentColor: "text-blue-halftone", bgDot: "bg-blue" },
     crossword: { label: "Tech Crossword", accentColor: "text-yellow-pastel", bgDot: "bg-yellow" },
     memory: { label: "Memory Matrix", accentColor: "text-green-pastel", bgDot: "bg-green" },
+    typing: { label: "Speed Typer", accentColor: "text-red-pastel", bgDot: "bg-red" },
   };
 
   return (

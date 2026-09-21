@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { GameScoreSubmission } from "./ScoreModal";
+import { generateLocalParagraph, typingStats, typingWordCount } from "@/lib/game-rules";
+import { gameApi } from "@/lib/games-client";
 
 type TypingMode = "time" | "words";
 
@@ -11,32 +13,6 @@ type TypingGameProps = {
   timeLimit: number;
   wordLimit: number;
 };
-
-// Rich, natural, punctuation-free lowercase fallback paragraphs (nature, everyday life, travel, hobbies)
-// Prevents any word repetition and ensures high-end gameplay even when offline/unconfigured
-const FALLBACK_PARAGRAPHS = [
-  "the gentle sound of a quiet forest brings a deep sense of peace to the human mind as the soft wind blows through the green leaves of ancient trees and birds sing their morning songs while a small clear stream flows slowly over smooth gray stones and a warm golden sun filters down between the branches creating soft shadows on the damp earth below where tiny flowers grow silently in the mossy ground",
-  "everyday life is filled with simple moments that often go unnoticed but hold a quiet beauty like the rich aroma of fresh coffee in the early morning as the world is still waking up and the sky changes from deep dark blue to soft shades of orange and pink while people begin their daily journeys walking along clean city streets or driving past quiet neighborhoods with a feeling of hope for what the new day will bring",
-  "traveling to new places allows us to see the world from a completely different angle as we walk through old historic cities with narrow stone streets and look at beautiful buildings built many centuries ago while listening to the unfamiliar sounds of a foreign language and tasting traditional foods made with fresh local ingredients that tell the story of a culture and its people across the passage of time",
-  "finding a creative hobby like painting gardening or reading books provides a wonderful escape from the busy rush of modern routines as we lose ourselves in the quiet focus of creating something with our own hands or traveling to imaginary worlds through the printed pages of a great story where characters face challenges and embark on amazing journeys that inspire our own hearts and minds"
-];
-
-function generatePureParagraph(wordCount: number): string {
-  // Use a beautiful pre-written paragraph as the base to maintain rich sentence flow
-  const base = FALLBACK_PARAGRAPHS[Math.floor(Math.random() * FALLBACK_PARAGRAPHS.length)];
-  const words = base.split(" ");
-  if (words.length >= wordCount) {
-    return words.slice(0, wordCount).join(" ");
-  }
-
-  // If we need more words (e.g. for a 500-word test), repeat fallback blocks to fill the requested length
-  const extendedWords = [...words];
-  while (extendedWords.length < wordCount) {
-    const anotherBase = FALLBACK_PARAGRAPHS[Math.floor(Math.random() * FALLBACK_PARAGRAPHS.length)];
-    extendedWords.push(...anotherBase.split(" "));
-  }
-  return extendedWords.slice(0, wordCount).join(" ");
-}
 
 export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingGameProps) {
   // Core game states
@@ -59,6 +35,9 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
   const wordsContainerRef = useRef<HTMLDivElement>(null);
   
   // Ref tracking to decouple timer/inactivity/extension listeners from fast typing state updates
+  // The server-side run: it dealt `targetText`, starts its clock on our first keystroke,
+  // and scores what we finally send. Null → offline practice, unranked.
+  const sessionIdRef = useRef<string | null>(null);
   const inputTextRef = useRef<string>("");
   const lastTypedRef = useRef<number>(0);
   const isActiveRef = useRef<boolean>(false);
@@ -71,7 +50,8 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
     isActiveRef.current = isActive;
   }, [isActive]);
 
-  // Fetch a paragraph from the secure backend Gemini API with local fallback
+  // Ask the server to deal a run (it generates the text and remembers it); if it can't
+  // be reached, fall back to a local paragraph and an unranked practice run.
   const loadNewParagraph = useCallback(async () => {
     setIsLoading(true);
     setInputText("");
@@ -81,44 +61,21 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
     setIsCompleted(false);
     startTimeRef.current = null;
     lastTypedRef.current = 0;
-    
-    let text = "";
-    const requestedWords = mode === "time" ? 150 : wordLimit;
+    sessionIdRef.current = null;
 
-    try {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 3500);
-
-      // Pass the specific words query parameter to compile length-matched paragraphs in Gemini
-      const res = await fetch(`/api/games/typing?words=${requestedWords}`, { signal: controller.signal });
-      clearTimeout(id);
-      
-      if (res.ok) {
-        const data = await res.json() as { paragraph?: string };
-        if (data && data.paragraph) {
-          text = data.paragraph;
-        }
-      }
-    } catch (e) {
-      console.warn("Secure Gemini API route failed or timed out. Falling back to local high-performance tech vocabulary generator.", e);
-    }
-
-    // Process paragraph based on mode
-    if (!text) {
-      text = generatePureParagraph(requestedWords);
-    } else if (mode === "words") {
-      const words = text.split(/\s+/);
-      if (words.length < wordLimit) {
-        const extraNeeded = wordLimit - words.length;
-        words.push(...generatePureParagraph(extraNeeded).split(" "));
-      }
-      text = words.slice(0, wordLimit).join(" ");
+    const started = await gameApi.startTyping(mode, timeLimit, wordLimit);
+    let text: string;
+    if (started.ok) {
+      sessionIdRef.current = started.data.sessionId;
+      text = started.data.text;
+    } else {
+      text = generateLocalParagraph(typingWordCount(mode, timeLimit, wordLimit));
     }
 
     setTargetText(text);
     setTimeLeft(mode === "time" ? timeLimit : 0);
     setIsLoading(false);
-    
+
     // Reset container scroll to top on reload
     if (wordsContainerRef.current) {
       wordsContainerRef.current.scrollTop = 0;
@@ -130,59 +87,65 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
     void loadNewParagraph();
   }, [loadNewParagraph]);
 
-  // Complete game and submit scores (Trigger scoring dialogue immediately)
+  // Complete the game. What was typed is the evidence; the server scores it against the
+  // text it dealt and the time it measured, and the result it returns is what we show.
   const handleGameOver = useCallback((timeExpired: boolean, finalInputText: string) => {
     setIsActive(false);
     isActiveRef.current = false;
     setIsCompleted(true);
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    const finalTimeMs = startTimeRef.current 
-      ? Date.now() - startTimeRef.current 
+    const sessionId = sessionIdRef.current;
+    const localTimeMs = startTimeRef.current
+      ? Date.now() - startTimeRef.current
       : (mode === "time" ? timeLimit * 1000 : 1000);
 
-    // Calculate accuracy % & raw correct characters
-    let correct = 0;
-    const totalTyped = finalInputText.length;
-    for (let i = 0; i < finalInputText.length; i++) {
-      if (finalInputText[i] === targetText[i]) correct++;
-    }
-
-    const finalAccuracy = totalTyped > 0 ? Math.round((correct / totalTyped) * 100) : 100;
-    const finalMinutes = finalTimeMs / 60000;
-    const finalWpm = finalMinutes > 0 ? Math.round((correct / 5) / finalMinutes) : 0;
-
-    // Scoring formula: WPM * Accuracy % (capped at WPM x 100)
-    const finalScore = Math.round(finalWpm * (finalAccuracy / 100) * 100);
-
-    // Submit score data immediately to trigger parent ScoreModal dialogue popup!
-    onFinishGame({
-      gameId: "typing",
-      gameTitle: "Speed Typer",
-      score: finalScore,
-      timeMs: finalTimeMs,
-      moves: totalTyped,
-      levelData: `${finalWpm} WPM | ${finalAccuracy}% ACC`,
-    });
+    void (async () => {
+      let unranked: "offline" | "rejected" = "offline";
+      if (sessionId) {
+        const done = await gameApi.finish(sessionId, { typed: finalInputText });
+        if (done.ok) {
+          onFinishGame({ ...done.data.result, sessionId });
+          return;
+        }
+        unranked = done.status === 0 ? "offline" : "rejected";
+      }
+      // Offline (or the server refused): show a local, unranked result.
+      const stats = typingStats(targetText, finalInputText, localTimeMs);
+      onFinishGame({
+        gameId: "typing",
+        gameTitle: "Speed Typer",
+        score: stats.score,
+        timeMs: localTimeMs,
+        moves: finalInputText.length,
+        levelData: `${stats.wpm} WPM | ${stats.accuracy}% ACC`,
+        unranked,
+      });
+    })();
   }, [mode, timeLimit, targetText, onFinishGame]);
 
-  // Timer logic - DECOUPLED from inputText state changes so the timer ticks perfectly promptly!
+  // Timer logic - DECOUPLED from inputText state changes. Driven by the wall clock, not by
+  // counting one-second ticks: browsers throttle timers (background tabs, busy devices), a
+  // tick chain drifts — 30 ticks became 36 real seconds — and the server, which times the
+  // run itself, would then refuse the finish as too late.
   useEffect(() => {
-    if (isActive && mode === "time") {
-      if (timeLeft <= 0) {
+    if (!isActive || mode !== "time") return;
+
+    const tick = () => {
+      const start = startTimeRef.current;
+      if (!start) return;
+      const remainingMs = timeLimit * 1000 - (Date.now() - start);
+      if (remainingMs <= 0) {
+        setTimeLeft(0);
         handleGameOver(true, inputTextRef.current);
         return;
       }
-
-      timerRef.current = setTimeout(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      setTimeLeft(Math.ceil(remainingMs / 1000));
     };
-  }, [isActive, timeLeft, mode, handleGameOver]);
+
+    const id = setInterval(tick, 200);
+    return () => clearInterval(id);
+  }, [isActive, mode, timeLimit, handleGameOver]);
 
   // Focus Loss Auto-Reset & Inactivity Reset timers
   useEffect(() => {
@@ -279,29 +242,26 @@ export function TypingGame({ onFinishGame, mode, timeLimit, wordLimit }: TypingG
     val = val.toLowerCase().replace(/[^a-z\s]/g, "");
 
     // Prevent typing further if the paragraph has been completed in words mode
-    if (mode === "words" && val.length > targetText.length) return;
+    if (val.length > targetText.length) return;
 
     // Start timer on the first keypress
     if (!isActive && startTimeRef.current === null) {
       setIsActive(true);
       isActiveRef.current = true;
       startTimeRef.current = Date.now();
+      // The server times the run from when this reaches it, not from a number we send.
+      if (sessionIdRef.current) void gameApi.begin(sessionIdRef.current);
     }
 
     // Update inactivity timestamp
     lastTypedRef.current = Date.now();
 
-    // 1. Time Attack: Infinite growth. If the user is near the end, append more random words instantly!
-    if (mode === "time" && targetText.length - val.length < 50) {
-      const extension = generatePureParagraph(30);
-      setTargetText((prev) => prev + " " + extension);
-    }
-
     setInputText(val);
     calculateStats(val);
 
-    // 2. Words Mode: Game over when they type the last character of the specific set of words
-    if (mode === "words" && val.length === targetText.length) {
+    // Game over when the whole dealt text has been typed (Words mode; in Time Attack the
+    // text is longer than anyone can type in the window, so this is only a safety net).
+    if (val.length === targetText.length) {
       handleGameOver(false, val);
     }
   };

@@ -11,6 +11,14 @@ export type GameScoreSubmission = {
   timeMs: number;
   moves?: number;
   levelData?: string;
+  /**
+   * The server-side run this result came from. Its presence is what makes a result
+   * publishable: the numbers above are the server's, and publishing sends only this id.
+   * Absent for an offline practice run, which can't be ranked.
+   */
+  sessionId?: string;
+  /** Why there is no `sessionId`: the server couldn't be reached, or it refused the run. */
+  unranked?: "offline" | "rejected";
 };
 
 type ScoreModalProps = {
@@ -47,7 +55,7 @@ export function ScoreModal({
   )}s`;
 
   async function handlePublishScore() {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !scoreData?.sessionId) return;
     setIsSubmitting(true);
     setError(null);
 
@@ -55,13 +63,8 @@ export function ScoreModal({
       const res = await fetch("/api/games/scores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gameId: scoreData?.gameId,
-          score: scoreData?.score,
-          timeMs: scoreData?.timeMs,
-          moves: scoreData?.moves ?? 0,
-          levelData: scoreData?.levelData,
-        }),
+        // Only the run's id: the score, time and moves are the server's, already stored.
+        body: JSON.stringify({ sessionId: scoreData.sessionId }),
       });
 
       const data = (await res.json()) as { message?: string; error?: string };
@@ -133,7 +136,26 @@ export function ScoreModal({
 
           {/* Authentication & Leaderboard Action Section */}
           <div className="mt-6 rounded-2xl border border-paper/10 bg-paper/[0.02] p-5">
-            {submitted ? (
+            {!scoreData.sessionId ? (
+              <div className="text-center py-2">
+                <div className="inline-flex items-center gap-1.5 text-xs text-yellow mb-2">
+                  <span className="h-2 w-2 rounded-full bg-yellow" />
+                  Practice Run
+                </div>
+                <p className="text-xs text-paper/70 max-w-sm mx-auto">
+                  {scoreData.unranked === "rejected"
+                    ? "The game server couldn't verify this run, so it was scored on your device and can't be published to the leaderboard. Play again for a ranked result."
+                    : "The game server could not be reached, so this run was scored on your device and can't be published to the leaderboard. Try again once you're back online."}
+                </p>
+                <button
+                  type="button"
+                  onClick={onPlayAgain}
+                  className="mt-4 rounded-full border border-paper/20 px-4 py-2 text-xs text-paper hover:bg-paper/10 transition-colors cursor-pointer"
+                >
+                  Play Again
+                </button>
+              </div>
+            ) : submitted ? (
               <div className="text-center py-2 animate-scale-in">
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-green/20 text-green text-xl font-bold mb-2">
                   ✓

@@ -80,10 +80,12 @@ export function GamesHub() {
           const parsed: GameScoreSubmission = JSON.parse(stored);
           localStorage.removeItem("devfest_pending_score");
 
+          // Nothing to tamper with: the run's score lives on the server, we send its id.
+          if (!parsed.sessionId) return;
           fetch("/api/games/scores", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(parsed),
+            body: JSON.stringify({ sessionId: parsed.sessionId }),
           })
             .then((res) => res.json() as Promise<{ ok?: boolean }>)
             .then((data) => {

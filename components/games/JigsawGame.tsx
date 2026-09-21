@@ -5,41 +5,13 @@ import Image from "next/image";
 import initialPhotos from "@/content/jigsaw-photos.json";
 import type { GameScoreSubmission } from "./ScoreModal";
 import type { ArchivePhotoChoice } from "@/lib/games-content";
+import { generateJigsawTiles, jigsawScore } from "@/lib/game-rules";
+import { gameApi } from "@/lib/games-client";
 
 // Deterministic initial permutation for SSR to avoid hydration mismatch
 function getInitialTiles(size: number): number[] {
   const count = size * size;
   return Array.from({ length: count }, (_, i) => (i + 1) % count);
-}
-
-function generateShuffledTiles(size: number, slide: boolean): number[] {
-  const count = size * size;
-  const initial = Array.from({ length: count }, (_, i) => i);
-  const shuffled = [...initial];
-  let isSolved = true;
-
-  while (isSolved) {
-    for (let i = shuffled.length - (slide ? 2 : 1); i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    if (slide) {
-      let inversions = 0;
-      for (let i = 0; i < count - 1; i++) {
-        for (let j = i + 1; j < count - 1; j++) {
-          if (shuffled[i] > shuffled[j] && shuffled[i] !== count - 1 && shuffled[j] !== count - 1) {
-            inversions++;
-          }
-        }
-      }
-      if (size % 2 === 1 && inversions % 2 !== 0) {
-        [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
-      }
-    }
-    isSolved = shuffled.every((val, idx) => val === idx);
-  }
-
-  return shuffled;
 }
 
 type JigsawGameProps = {
@@ -78,6 +50,11 @@ export function JigsawGame({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // The server-side run this board belongs to (null → offline practice), and
+  // everything the player did to it — the evidence the server scores.
+  const sessionIdRef = useRef<string | null>(null);
+  const moveLogRef = useRef<number[][]>([]);
+  const [isStarting, setIsStarting] = useState<boolean>(false);
 
   const totalTiles = gridSize * gridSize;
 
@@ -104,13 +81,23 @@ export function JigsawGame({
       setRevealChancesLeft(3);
       setRevealSecondsLeft(0);
       startTimeRef.current = 0;
+      sessionIdRef.current = null;
+      moveLogRef.current = [];
       if (revealTimerRef.current) clearInterval(revealTimerRef.current);
     },
     [gridSize],
   );
 
-  const handleStartGame = () => {
-    setTiles(generateShuffledTiles(gridSize, isSlideMode));
+  const handleStartGame = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    // The server deals the board and starts the clock; if it can't be reached we
+    // deal locally and play an unranked practice run.
+    const started = await gameApi.startJigsaw(gridSize, isSlideMode);
+    sessionIdRef.current = started.ok ? started.data.sessionId : null;
+    moveLogRef.current = [];
+    setTiles(started.ok ? started.data.tiles : generateJigsawTiles(gridSize, isSlideMode, Math.random));
+    setIsStarting(false);
     setHasStarted(true);
     setGameCompleted(false);
     setElapsedMs(0);
@@ -159,31 +146,40 @@ export function JigsawGame({
     };
   }, []);
 
-  // Check victory condition
+  // Check victory condition. The board being solved only tells us WHEN to finish; what
+  // it scored is decided by the server from the move log.
   const checkWin = useCallback(
     (currentTiles: number[]) => {
       const isWon = currentTiles.every((val, idx) => val === idx);
-      if (isWon && !gameCompleted && hasStarted) {
-        setGameCompleted(true);
-        const finalTime = Math.max(1000, Date.now() - startTimeRef.current);
-        const finalMoves = moves + 1;
+      if (!isWon || gameCompleted || !hasStarted) return;
+      setGameCompleted(true);
 
-        const baseScore = gridSize === 3 ? 3500 : gridSize === 4 ? 6500 : 10000;
-        const timePenalty = Math.floor((finalTime / 1000) * 12);
-        const movePenalty = finalMoves * 15;
-        const finalScore = Math.max(250, baseScore - timePenalty - movePenalty);
-
+      const log = moveLogRef.current;
+      const sessionId = sessionIdRef.current;
+      void (async () => {
+        let unranked: "offline" | "rejected" = "offline";
+        if (sessionId) {
+          const done = await gameApi.finish(sessionId, { moves: log });
+          if (done.ok) {
+            onFinishGame({ ...done.data.result, sessionId });
+            return;
+          }
+          unranked = done.status === 0 ? "offline" : "rejected";
+        }
+        // Offline (or the server refused): show a local, unranked result.
+        const timeMs = Math.max(1000, Date.now() - startTimeRef.current);
         onFinishGame({
           gameId: "jigsaw",
           gameTitle: "Jigsaw Puzzle",
-          score: finalScore,
-          timeMs: finalTime,
-          moves: finalMoves,
+          score: jigsawScore(gridSize, timeMs, log.length),
+          timeMs,
+          moves: log.length,
           levelData: `${gridSize}x${gridSize} Grid`,
+          unranked,
         });
-      }
+      })();
     },
-    [gameCompleted, hasStarted, moves, gridSize, currentPhoto, onFinishGame],
+    [gameCompleted, hasStarted, gridSize, onFinishGame],
   );
 
   function handleTileClick(index: number) {
@@ -203,6 +199,7 @@ export function JigsawGame({
       if (isAdjacent) {
         const newTiles = [...tiles];
         [newTiles[index], newTiles[emptySlotIndex]] = [newTiles[emptySlotIndex], newTiles[index]];
+        moveLogRef.current.push([index]);
         setTiles(newTiles);
         setMoves((m) => m + 1);
         checkWin(newTiles);
@@ -215,6 +212,7 @@ export function JigsawGame({
       } else {
         const newTiles = [...tiles];
         [newTiles[selectedTileIndex], newTiles[index]] = [newTiles[index], newTiles[selectedTileIndex]];
+        moveLogRef.current.push([selectedTileIndex, index]);
         setTiles(newTiles);
         setSelectedTileIndex(null);
         setMoves((m) => m + 1);
@@ -336,9 +334,10 @@ export function JigsawGame({
                 <button
                   type="button"
                   onClick={handleStartGame}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  disabled={isStarting}
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:hover:scale-100"
                 >
-                  <span>Start Game</span>
+                  <span>{isStarting ? "Dealing…" : "Start Game"}</span>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
