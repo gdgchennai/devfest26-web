@@ -172,6 +172,22 @@ export function MemoryGame({
   }, [hasStarted, gameCompleted]);
 
   // Handle card click
+  /** Enter / Space flip the card; arrows move between cards, so the board isn't 24 Tab stops. */
+  function handleCardKeyDown(e: React.KeyboardEvent<HTMLDivElement>, index: number) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardClick(index);
+      return;
+    }
+    const columns = pairsCount === 12 ? 6 : 4;
+    const step: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -columns, ArrowDown: columns };
+    if (!(e.key in step)) return;
+    const next = index + step[e.key];
+    if (next < 0 || next >= cards.length) return;
+    e.preventDefault();
+    e.currentTarget.parentElement?.querySelector<HTMLElement>(`[data-card-index="${next}"]`)?.focus();
+  }
+
   function handleCardClick(index: number) {
     if (!hasStarted || lockBoardRef.current || gameCompleted) return;
     const card = cards[index];
@@ -266,6 +282,11 @@ export function MemoryGame({
     }
   }
 
+  // Read out for screen readers: cards flip visually, so say what is face up and the progress.
+  const faceUp = cards.filter((c) => c.isFlipped && !c.isMatched);
+  const pairsFound = cards.filter((c) => c.isMatched).length / 2;
+  const boardStatus = `${faceUp.length ? `${faceUp.map((c) => c.name).join(" and ")} face up. ` : ""}${pairsFound} of ${cards.length / 2} pairs matched.`;
+
   const seconds = Math.floor(elapsedMs / 1000);
   const timeFormatted = `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;
 
@@ -296,6 +317,10 @@ export function MemoryGame({
         </div>
       </div>
 
+      <p className="sr-only" role="status" aria-live="polite">
+        {hasStarted ? boardStatus : ""}
+      </p>
+
       {/* Uniform Gap Cards Playground */}
       <div className="relative w-full h-[min(65vh,520px)] sm:h-[min(62vh,540px)] flex items-center justify-center">
         {/* Cards Grid with Equal Row & Column Spacing */}
@@ -321,8 +346,20 @@ export function MemoryGame({
             return (
               <div
                 key={card.instanceId}
+                data-card-index={idx}
+                role="button"
+                tabIndex={hasStarted && !card.isMatched ? 0 : -1}
+                aria-label={
+                  card.isMatched
+                    ? `${card.name}, matched`
+                    : card.isFlipped
+                      ? `${card.name}, face up`
+                      : `Card ${idx + 1} of ${cards.length}, face down`
+                }
+                aria-disabled={!hasStarted || card.isFlipped || card.isMatched}
                 onClick={() => handleCardClick(idx)}
-                className={`relative aspect-[3/4] cursor-pointer select-none group ${
+                onKeyDown={(e) => handleCardKeyDown(e, idx)}
+                className={`relative aspect-[3/4] cursor-pointer select-none group rounded-xl sm:rounded-2xl ${
                   pairsCount === 12
                     ? "w-[min(13vw,84px)] h-[min(12vh,112px)] sm:w-[min(14vw,95px)] sm:h-[min(13vh,126px)]"
                     : pairsCount === 8

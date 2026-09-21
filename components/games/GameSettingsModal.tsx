@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import type { GameTab } from "./GamesHub";
+import { useDialog } from "./useDialog";
 
 type GameSettingsModalProps = {
   isOpen: boolean;
@@ -50,14 +51,17 @@ export function GameSettingsModal({
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
-
-  if (!isOpen) return null;
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const handleClose = () => {
     setDragOffsetY(0);
     setIsDragging(false);
     onClose();
   };
+
+  useDialog(dialogRef, isOpen, handleClose);
+
+  if (!isOpen) return null;
 
   const tabTitles: Record<GameTab, string> = {
     jigsaw: "Archive Jigsaw Settings",
@@ -87,6 +91,8 @@ export function GameSettingsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="game-settings-title"
+        tabIndex={-1}
+        ref={dialogRef}
       >
         {/* Interactable Drag Handle Bar */}
         <div

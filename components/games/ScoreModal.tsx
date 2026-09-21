@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useDialog } from "./useDialog";
 
 export type GameScoreSubmission = {
   gameId: "jigsaw" | "crossword" | "memory" | "typing";
@@ -42,6 +43,9 @@ export function ScoreModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useDialog(dialogRef, isOpen && !!scoreData, onClose);
 
   if (!isOpen || !scoreData) return null;
 
@@ -93,7 +97,14 @@ export function ScoreModal({
 
   return (
     <div className="fixed inset-0 z-999 flex items-center justify-center p-4 bg-ink/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-paper/15 bg-surface-raised p-6 text-paper shadow-2xl sm:p-8">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="score-modal-title"
+        tabIndex={-1}
+        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-paper/15 bg-surface-raised p-6 text-paper shadow-2xl sm:p-8"
+      >
         {/* Glow corner highlights */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-green/20 blur-3xl" />
@@ -105,7 +116,7 @@ export function ScoreModal({
             <span>Challenge Completed</span>
           </div>
 
-          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl text-paper">
+          <h2 id="score-modal-title" className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl text-paper">
             {scoreData.gameTitle}
           </h2>
           <p className="mt-1 text-xs text-paper/60">
