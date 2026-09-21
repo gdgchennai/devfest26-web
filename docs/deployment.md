@@ -65,7 +65,7 @@ ticketing Worker writes to.
 - A Cloudflare account with Workers, D1 and R2 enabled (the Workers Paid plan is
   the safe choice for production traffic and cache writes).
 - The `gdgchennai.in` zone on that account (for the custom domain route and the
-  `/about` + `/privacy` rewrite rules).
+  redirect rules for the short links below).
 - Node 20+, and the repo installed: `npm install`.
 - Wrangler logged in:
 
@@ -138,10 +138,23 @@ detaching the domain (it was first attached via the dashboard). The
 `ASSETS`, and `WORKER_SELF_REFERENCE` are OpenNext defaults and need no manual
 setup beyond being present in `wrangler.jsonc`.
 
-> **`/about` and `/privacy`** are served by a **Cloudflare rewrite rule**, not
-> by this Worker or the Next app — configure those in the dashboard
-> (Rules → Transform/Redirect) against the `gdgchennai.in` zone. The app links
-> them as absolute URLs and keeps them out of `lib/routes.ts`.
+> **Short links.** `/about`, `/privacy`, `/cfp` and `/cfv` are **Cloudflare redirect
+> rules** (301), not routes in this Worker or the Next app — configure them in the
+> dashboard (Rules → Redirect Rules) against the `gdgchennai.in` zone. They currently go to:
+>
+> | Path | Goes to |
+> |---|---|
+> | `/about` | the GDG Chennai chapter page (gdg.community.dev) |
+> | `/privacy` | `gdgchennai.in/privacy` |
+> | `/cfp` | the Sessionize call for proposals |
+> | `/cfv` | the volunteer sign-up (a KonfHub checkout) |
+>
+> `/sponsors` is different again: Cloudflare serves the sponsorship brochure PDF there (a
+> 200 `application/pdf`, not a redirect), also outside this repo.
+>
+> The app links them as absolute URLs and keeps them out of `lib/routes.ts`. The
+> `/llms.txt` file lists them too (`SHORT_LINKS` in `app/llms.txt/route.ts`), so update both
+> if a rule changes.
 
 ### 4. Google OAuth client
 
