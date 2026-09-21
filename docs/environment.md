@@ -10,8 +10,8 @@ committed — `.env*` and `.dev.vars*` are git-ignored (`.env.example` and
 | --- | --- | --- |
 | `npm run dev` (Next dev server) | `.env.local` | all of them |
 | `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
-| Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
-| Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
+| Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` / `GEMINI_MODEL` |
+| Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` |
 | Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `AGENDA_READY`, `HERO_BUTTONS`, optional PostHog overrides |
 
 Full deploy walkthrough: [`deployment.md`](./deployment.md).
@@ -56,6 +56,23 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
   - `http://localhost:3000/api/auth/callback/google`
   - `https://devfest.gdgchennai.in/api/auth/callback/google` (prod — match
     `siteConfig.url`)
+
+### `GEMINI_API_KEY` / `GEMINI_MODEL`
+- **Type:** runtime secret (`GEMINI_API_KEY`) / runtime variable (`GEMINI_MODEL`)
+- **Used by:** [`lib/typing-generator.ts`](../lib/typing-generator.ts), called when a
+  typing run starts — asks Gemini for the Speed Typer's paragraph
+- **Required:** no. Without a key, or when Gemini errors or times out (3s), the
+  game silently uses its built-in word list.
+- **`GEMINI_MODEL`:** the model id, defaults to the constant in that file.
+  Models get retired and a stale id is just a 404 — the game falls back and
+  nobody notices — so check the Worker logs for
+  `Gemini paragraph unavailable` if generated text seems to have stopped.
+- **Abuse:** starting a run is unauthenticated and the typing text may call
+  Gemini. `POST /api/games/session` has a loose flood guard (1500/min per client — the
+  venue's wifi puts many attendees behind one IP) and a tighter Gemini budget
+  (10 typing texts/min per client; beyond that the local word list is used, not an
+  error). Both are best-effort and per Worker isolate. For a hard limit, add a
+  Cloudflare rate-limiting rule on `/api/games/session`.
 
 ### `NODE_ENV`
 - Set automatically by `next dev` / `next build` / Wrangler. Never set it by

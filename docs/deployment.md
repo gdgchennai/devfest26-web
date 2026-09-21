@@ -193,6 +193,7 @@ Read at request time by Auth.js (`auth.ts`). **Not** in `wrangler.jsonc` or any
 | `AUTH_SECRET` | `openssl rand -base64 32` (rotating logs everyone out) |
 | `AUTH_GOOGLE_ID` | Google Cloud Console OAuth 2.0 Client ID |
 | `AUTH_GOOGLE_SECRET` | …its client secret |
+| `GEMINI_API_KEY` | optional — Google AI Studio key for the typing game (see [environment.md](./environment.md#gemini_api_key--gemini_model)) |
 
 ```bash
 npx wrangler secret put AUTH_SECRET
