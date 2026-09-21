@@ -79,4 +79,4 @@ There is **no test suite**. Verify by typechecking, linting, and exercising the 
 | Rolling-text hover effect on CTAs | [`.claude/skills/rolling-text/SKILL.md`](.claude/skills/rolling-text/SKILL.md) |
 | GSAP / three.js API reference | `.claude/skills/gsap-*/SKILL.md`, `.claude/skills/threejs-*/SKILL.md` |
 
-The skill files are ordinary Markdown: if your tool doesn't load `.claude/skills` automatically, just open them by path. The `memory/` folder holds longer project notes (auth/tickets wiring, the Worker size incident) worth reading before changing those areas.
+The skills live in `.claude/skills/` (Claude Code, Cursor) and are mirrored to `.agents/skills/` (Antigravity). **Edit only `.claude/skills/`, then run `npm run skills:sync`**; `npm run skills:check` fails if the copy has drifted. They're ordinary Markdown, so any other tool can open them by path. The `memory/` folder holds longer project notes (auth/tickets wiring, the Worker size incident) worth reading before changing those areas.

@@ -11,6 +11,8 @@
     "content:sync": "node scripts/sync-content.mjs",
     "md:rule": "node scripts/markdown-rule.mjs",
     "md:check": "node scripts/markdown-rule.mjs --check",
+    "skills:sync": "node scripts/skills-sync.mjs",
+    "skills:check": "node scripts/skills-sync.mjs --check",
     "preview": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare upload",

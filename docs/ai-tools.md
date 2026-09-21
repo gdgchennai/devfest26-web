@@ -13,7 +13,7 @@ nobody has to maintain a per-tool copy that drifts.
 | | Claude Code | Cursor | Antigravity |
 |---|---|---|---|
 | **Reads project instructions from** | `CLAUDE.md`, which imports `AGENTS.md` (`@AGENTS.md`) | `AGENTS.md` (root and nested) | `AGENTS.md` (IDE 1.20.5+) and/or `GEMINI.md` |
-| **Auto-loads `.claude/skills/`** | Yes | Yes (compatibility path) | **No** — read the two project skills by path (below) |
+| **Loads project skills from** | `.claude/skills/` | `.claude/skills/` (compatibility path) | `.agents/skills/` — a committed mirror of `.claude/skills/` (below) |
 | **Project rule files** | — | `.cursor/rules/*.mdc` (not used here, see below) | `.agents/rules/*.md` (not used here, see below) |
 
 Everything below is sourced from each tool's own docs (links at the end). These
@@ -63,33 +63,32 @@ with typecheck, lint baseline, browser check at desktop **and** phone width, and
 - Reads `AGENTS.md` from the workspace root from **IDE 1.20.5**. On an older build,
   update it. It also reads `GEMINI.md`; we don't ship one because Google hasn't
   documented which wins when both exist, and one file is easier to keep true.
-- **Skills:** Antigravity looks for project skills in `.agents/skills/` (and the older
-  `.agent/skills/`), not `.claude/skills/`. So it won't auto-load our skills. That's
-  fine — they're ordinary Markdown, and `AGENTS.md` links the two that are specific
-  to this project:
-  - [`.claude/skills/hallway/SKILL.md`](../.claude/skills/hallway/SKILL.md) — the
-    pinned scroll hallway on the homepage and `/memories`
-  - [`.claude/skills/rolling-text/SKILL.md`](../.claude/skills/rolling-text/SKILL.md)
-    — the rolling-text hover effect on the CTAs
-
-  Tell the agent to read them before it touches those areas. (The `gsap-*` and
-  `threejs-*` skills are general API references for those libraries; the agent can
-  read them the same way, or use its own knowledge.)
-- **Want them auto-loaded anyway?** Make `.agents/skills` point at the same folder
-  locally, and keep that out of git via `.git/info/exclude` (your machine only, not
-  a repo change):
-
-  ```bash
-  # macOS / Linux
-  mkdir -p .agents && ln -s ../.claude/skills .agents/skills
-  # Windows (PowerShell, no admin needed)
-  New-Item -ItemType Directory -Force .agents | Out-Null
-  New-Item -ItemType Junction -Path .agents\skills -Target .claude\skills
-  # then
-  echo ".agents/" >> .git/info/exclude
-  ```
+- **Skills:** Antigravity looks for project skills in `.agents/skills/`, not
+  `.claude/skills/`. So the repo commits a plain **copy** of the skills there, and
+  nothing needs setting up. (Not a symlink: git on Windows only checks symlinks out as
+  real links with Developer Mode on, and otherwise leaves a text file that no tool can
+  follow.) The project-specific ones are
+  [`hallway`](../.agents/skills/hallway/SKILL.md) (the pinned scroll hallway on the
+  homepage and `/memories`) and
+  [`rolling-text`](../.agents/skills/rolling-text/SKILL.md) (the hover effect on the
+  CTAs); the `gsap-*` and `threejs-*` ones are general API references.
+- **`.claude/skills/` is the source.** Never edit `.agents/skills/` by hand — see
+  "Keeping the skills in sync" below.
 - Antigravity rule files (`.agents/rules/`) are capped at **12,000 characters each**.
   `AGENTS.md` is about 7,000, which is one reason it stays short and links out.
+
+## Keeping the skills in sync
+
+`.agents/skills/` exists only for Antigravity and is generated from `.claude/skills/`:
+
+```bash
+npm run skills:sync    # after editing anything in .claude/skills/
+npm run skills:check   # fails if the two differ (and lists what)
+```
+
+Commit both folders together. `skills:sync` also deletes files from the copy that no
+longer exist in the source, so renames and removals carry over. Line endings are ignored
+by the check, so a CRLF checkout on Windows doesn't show as drift.
 
 ## If your tool isn't picking it up
 
@@ -133,9 +132,10 @@ Same bar as any PR ([`CONTRIBUTING.md`](../CONTRIBUTING.md)), plus:
 - Adding a rule or gotcha? Edit **`AGENTS.md`** (keep it under ~10,000 characters;
   put long explanations in `docs/` and link).
 - Adding a skill? Put it in `.claude/skills/<name>/SKILL.md` (folder name = the
-  `name:` in its frontmatter, plus a `description:` saying when to use it). Cursor and
-  Claude Code load it automatically; add a row to `AGENTS.md`'s "Where to read more"
-  table so Antigravity users find it too.
+  `name:` in its frontmatter, plus a `description:` saying when to use it), then run
+  `npm run skills:sync`. Claude Code and Cursor load it from `.claude/skills/`,
+  Antigravity from the `.agents/skills/` copy. Add a row to `AGENTS.md`'s "Where to
+  read more" table if it's specific to this project.
 - Don't create `GEMINI.md`, `.cursorrules` or per-tool copies of `AGENTS.md`.
 
 ## Sources
