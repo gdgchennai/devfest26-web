@@ -10,7 +10,8 @@
 import { siteConfig, uiCopy, formatEventDate, shortEventDate } from "@/site.config";
 import { getAgenda, getArchivePhotos, getSpeaker, getSpeakers } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
-import { AGENDA_READY, siteRoutes } from "@/lib/routes";
+import { AGENDA_READY, siteRoutes, unlistedPublicRoutes } from "@/lib/routes";
+import { absoluteUrl } from "@/lib/seo";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import { creators } from "@/lib/creators";
 import type { Speaker } from "@/lib/schemas";
@@ -48,9 +49,11 @@ export function homeMarkdown(): string {
     "",
     "## Pages",
     "",
-    ...siteRoutes
-      .filter((r) => !r.noIndex)
-      .map((r) => `- [${r.label}](${siteConfig.url}${r.href}): ${r.description}`),
+    // Every public page: the routed ones plus those kept off the nav (same list as the sitemap
+    // and /llms.txt), so the twin doesn't stop at Contact.
+    ...[...siteRoutes.filter((r) => !r.noIndex), ...unlistedPublicRoutes].map(
+      (r) => `- [${r.label}](${absoluteUrl(r.href)}): ${r.description}`,
+    ),
   ];
   return lines.join("\n") + "\n";
 }
@@ -81,7 +84,9 @@ export async function agendaMarkdown(): Promise<string> {
     lines.push("");
   }
 
-  return lines.join("\n");
+  // Exactly one final newline, like every other twin (the trailing blank line above already
+  // produced one; this keeps it that way if the loop above changes).
+  return lines.join("\n").trimEnd() + "\n";
 }
 
 function speakerSummary(speaker: Speaker): string {
