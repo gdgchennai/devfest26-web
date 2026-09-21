@@ -49,6 +49,16 @@ const nextConfig: NextConfig = {
         source: "/md/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
       },
+      // Keep this LAST: when two rules set the same header the later one wins, and this
+      // must beat the `/md` rule above. `wrangler.jsonc` keeps the *.workers.dev URL
+      // live next to the custom domain, so a second public host serves the whole site;
+      // robots.txt can't vary by host, so it is marked noindex here instead. The
+      // pattern is anchored (`^…$`) by the OpenNext router, hence the leading `.+`.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: ".+\\.workers\\.dev" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
   experimental: {
