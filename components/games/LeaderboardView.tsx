@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import type { LeaderboardEntry, OverallLeaderboardEntry } from "@/lib/leaderboard";
 import { GAME_VARIANTS, defaultVariant, type GameId } from "@/lib/game-rules";
+import { GlowButton } from "@/components/GlowButton";
 
 type LeaderboardTab = "all" | GameId;
 type Row = LeaderboardEntry | OverallLeaderboardEntry;
@@ -98,7 +99,7 @@ export function LeaderboardView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
         {[
           { id: "all" as const, label: "Overall" },
           { id: "jigsaw" as const, label: "Jigsaw" },
@@ -222,6 +223,9 @@ function RankRow({
   const top = rank <= 3;
   const score = "totalScore" in entry ? entry.totalScore : "score" in entry ? entry.score : 0;
   const detail = "levelData" in entry ? entry.levelData : null;
+  // Speed Typer's detail is "112 WPM | 99% ACC": too wide to lead the row on a phone (it squeezed
+  // the name to an initial), so the speed leads on the right, accuracy under it, and points go left.
+  const [speed, accuracy] = isTyping && detail ? detail.split(" | ") : [null, null];
 
   // A gold / silver / bronze ring marks the top three, the rainbow one the player's own row (it
   // wins over a medal ring, but the rank numeral keeps its medal colour); everyone else lies flat.
@@ -268,19 +272,23 @@ function RankRow({
           )}
         </div>
         <div className="truncate text-[11px] text-paper/50 sm:text-xs">
-          {isOverall && "gamesPlayed" in entry ? `${entry.gamesPlayed} of 4 games played` : detail || "DevFest player"}
+          {isOverall && "gamesPlayed" in entry
+            ? `${entry.gamesPlayed} of 4 games played`
+            : speed
+              ? `${score.toLocaleString()} pts`
+              : detail || "DevFest player"}
         </div>
       </div>
 
       <div className="shrink-0 text-right">
-        {isTyping && detail ? (
+        {speed ? (
           <>
-            <div className={`font-semibold text-paper ${top ? "text-xl sm:text-2xl" : "text-base sm:text-lg"}`}>{detail}</div>
-            <div className="text-[11px] text-paper/50 sm:text-xs">{score.toLocaleString()} pts</div>
+            <div className={`font-semibold tabular-nums text-paper ${top ? "text-xl sm:text-3xl" : "text-lg sm:text-xl"}`}>{speed}</div>
+            <div className="text-[11px] text-paper/50 sm:text-xs">{accuracy}</div>
           </>
         ) : (
           <>
-            <div className={`font-semibold tabular-nums text-paper ${top ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"}`}>
+            <div className={`font-semibold tabular-nums text-paper ${top ? "text-xl sm:text-3xl" : "text-lg sm:text-xl"}`}>
               {score.toLocaleString()} <span className="text-[11px] font-normal text-paper/50 sm:text-xs">pts</span>
             </div>
             <div className="text-[11px] text-paper/50 sm:text-xs">
@@ -293,19 +301,19 @@ function RankRow({
   );
 }
 
-/** A text pill; the selected one is filled. */
+/** A glow-button pill, as on the agenda's track filters; the selected one is lit and bolder. */
 function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      aria-pressed={on}
+    <GlowButton
+      shape="pill"
+      size="sm"
+      pressed={on}
       onClick={onClick}
-      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
-        on ? "bg-paper text-ink" : "text-paper/60 hover:text-paper"
-      }`}
+      textClassName={on ? "text-paper font-semibold" : "text-paper/60 font-medium"}
+      className={on ? "agenda-board-pill--active" : ""}
     >
       {children}
-    </button>
+    </GlowButton>
   );
 }
 
@@ -322,7 +330,7 @@ function ToggleRow({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex flex-wrap items-center gap-1.5">
+    <div role="group" aria-label={label} className="flex flex-wrap items-center gap-2">
       <span className="w-16 shrink-0 text-[11px] uppercase tracking-wider text-paper/50">{label}</span>
       {options.map((option) => (
         <Pill key={option.id} on={option.id === selected} onClick={() => onSelect(option.id)}>

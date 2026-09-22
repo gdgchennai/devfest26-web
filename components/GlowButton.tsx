@@ -96,6 +96,9 @@ type GlowButtonProps = {
    *  "disabled" in the same sense. Dims the glass surface and turns off
    *  pointer events via .glow-btn__surface:disabled. */
   disabled?: boolean;
+  /** For toggle-style buttons (filters, tabs): sets `aria-pressed` on the button. Leave it
+   *  undefined for a plain action, which then carries no `aria-pressed` at all. */
+  pressed?: boolean;
 } & ({ href: string; onClick?: never } | { href?: never; onClick?: () => void });
 
 export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function GlowButton(
@@ -112,6 +115,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     surfaceClassName = "",
     scroll,
     disabled,
+    pressed,
   },
   forwardedRef,
 ) {
@@ -159,7 +163,7 @@ export const GlowButton = forwardRef<HTMLSpanElement, GlowButtonProps>(function 
     return (
       <span ref={setWrapperRefs} className={wrapperClass} data-shape={shape} onPointerDown={burst}>
         {corners}
-        <button type="button" onClick={onClick} disabled={disabled} className={surfaceClass}>
+        <button type="button" onClick={onClick} disabled={disabled} aria-pressed={pressed} className={surfaceClass}>
           {label}
         </button>
       </span>
