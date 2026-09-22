@@ -19,6 +19,22 @@ import { GlowButton } from "@/components/GlowButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, DrawSVGPlugin, SplitText);
 
+/** The line-art's own viewBox ratio (see public/venue-lines.svg) — the photo
+ *  is cropped to the same ratio so the two stay pixel-aligned, and the stage
+ *  itself is sized close to it (see the JSX) rather than a full viewport. */
+const ART_RATIO = 1773 / 1167;
+/** Vertical crop bias when the stage is wider/shorter than ART_RATIO: only
+ *  this fraction of the overflow comes off the top, protecting the roofline
+ *  (the rest comes off the bottom — plain roadway). */
+const TOP_CROP_BIAS = 0.15;
+/** Hard cap on how much of the visual's own height may come off the top,
+ *  whatever TOP_CROP_BIAS works out to. On a short, wide stage the overflow is
+ *  large (~50% of the height at 1407×454), so even the biased 15% slices off
+ *  the top ~8% — but the left building's solar roof starts only ~4% down the
+ *  photo, so it got clipped. The cutout has ~3.6% of empty sky above the roof;
+ *  stay inside that and the rest of the crop comes off the bottom (roadway). */
+const MAX_TOP_CROP = 0.03;
+
 /** The pin's three held phases, in %-of-viewport scroll distance each
  *  consumes — HOLD (dead zone), SWAP ("Location" ⇄ "Save the Date"), then
  *  OVERLAY (the black panel's rise). Module-level (not effect-local)
@@ -251,11 +267,19 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       const w = stage!.clientWidth;
       const h = stage!.clientHeight;
       if (!w || !h) return;
-      // Sized to match the exact dimensions of the stage container for a perfect fit with no cropping or cutoffs
-      visual!.style.width = `${w}px`;
-      visual!.style.height = `${h}px`;
-      visual!.style.left = "0px";
-      visual!.style.top = "0px";
+      let coverW: number;
+      let coverH: number;
+      if (w / h > ART_RATIO) {
+        coverW = w;
+        coverH = w / ART_RATIO;
+      } else {
+        coverH = h;
+        coverW = h * ART_RATIO;
+      }
+      visual!.style.width = `${coverW}px`;
+      visual!.style.height = `${coverH}px`;
+      visual!.style.left = `${-((coverW - w) / 2)}px`;
+      visual!.style.top = `${-Math.min((coverH - h) * TOP_CROP_BIAS, coverH * MAX_TOP_CROP)}px`;
     }
     size();
     const ro = new ResizeObserver(size);
@@ -420,8 +444,13 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       if (alignDebug) {
         gsap.set(stage, { opacity: 1 });
         gsap.set(svgHostRef.current, { opacity: 1, transformOrigin: "50% 50%" });
-        gsap.set(paths, { drawSVG: "100%", attr: { stroke: "#ff2d55" } });
-        gsap.set(photoRef.current, { clipPath: "inset(0%)", filter: "brightness(100%)", opacity: 0.5 });
+        // Pure red lines at 2px over a fully opaque photo — the old 50%-opacity
+        // photo and 1.5px pink strokes washed out against the pastel page bg.
+        gsap.set(paths, { drawSVG: "100%", attr: { stroke: "#ff0000" }, strokeWidth: 2 });
+        gsap.set(photoRef.current, { clipPath: "inset(0%)", filter: "brightness(100%)", opacity: 1 });
+        // The reveal's own setup (which zeroes this) is skipped in align mode;
+        // left at its default, the screen-blended bloom whitens the whole photo.
+        gsap.set(glowRef.current, { opacity: 0 });
 
         const svgHost = svgHostRef.current;
         const readout = alignReadoutRef.current;
@@ -480,8 +509,8 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // Static correction that lines the hand-drawn sketch up with
       // venue.webp — dialled in by eye via the ?align=1 debug view's manual
       // nudge controls (see the alignDebug branch above), then converted
-      // from the px/unitless readout there (translate(8px, 11px) scaleX
-      // 1.018 scaleY 0.962 at an 867×570.66 rendered box) into percentages
+      // from the px/unitless readout there (translate(9px, 12px) scaleX
+      // 1.024 scaleY 0.960 rotate 0.1deg at a 1002×660 rendered box) into percentages
       // of the sketch's own box so it holds up as the cover-fit box's size
       // changes with viewport, not just at the one size it was tuned at.
       // No wipe/clip-path anymore (see the reveal sequence below), so this
@@ -490,10 +519,11 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       // where its transformed bounds land relative to the photo's.
       gsap.set(svgHostRef.current, {
         opacity: 1,
-        xPercent: 0.92,
-        yPercent: 1.93,
-        scaleX: 1.018,
-        scaleY: 0.962,
+        xPercent: 0.9,
+        yPercent: 1.82,
+        scaleX: 1.024,
+        scaleY: 0.96,
+        rotation: 0.1,
         transformOrigin: "50% 50%",
       });
       gsap.set(scrimRef.current, { opacity: 0 });
@@ -890,7 +920,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                     difference, imperceptible on a building facade) instead
                     of cropping it. */}
                 <Image
-                  src="/venue-v2.webp"
+                  src="/venue.webp"
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 70vw, 100vw"
@@ -920,7 +950,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           {staticBaseline && (
             <div className="absolute inset-0">
               <Image
-                src="/venue-v2.webp"
+                src="/venue.webp"
                 alt={uiCopy.common.venueAlt}
                 fill
                 priority={true}
@@ -1044,7 +1074,7 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
       {alignDebug && (
         <div
           ref={alignReadoutRef}
-          className="fixed left-2 top-2 z-50 whitespace-pre rounded bg-black/80 px-3 py-2 font-mono text-xs text-white"
+          className="fixed left-2 top-2 z-50 whitespace-pre rounded bg-black/80 px-3 py-2 text-xs text-white"
         />
       )}
     </section>

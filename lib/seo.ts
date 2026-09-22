@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { formatEventDate, siteConfig } from "@/site.config";
+import markdownRoutes from "@/lib/markdown-routes.json";
 
 export const OG_IMAGE = {
   url: "/banner/main.webp",
@@ -10,18 +11,23 @@ export const OG_IMAGE = {
 
 export const siteDescription = `${siteConfig.tagline} — ${formatEventDate(siteConfig.date)} at ${siteConfig.venue.name}, Chennai. The flagship annual conference from ${siteConfig.chapter}.`;
 
-const MARKDOWN_EXACT = new Set(["/", "/agenda", "/speakers", "/tickets", "/tickets/select", "/partner"]);
+/** Pages with a markdown twin. `lib/markdown-routes.json` is the one list (see scripts/markdown-rule.mjs). */
+const MARKDOWN_EXACT = new Set<string>(markdownRoutes.pages);
 
 export function absoluteUrl(path: string): string {
   if (path === "/") return siteConfig.url;
   return `${siteConfig.url}${path}`;
 }
 
-function markdownAlternate(path: string): string | undefined {
-  if (MARKDOWN_EXACT.has(path) || path.startsWith("/speakers/")) {
-    return path === "/" ? `${siteConfig.url}/md` : `${siteConfig.url}/md${path}`;
-  }
-  return undefined;
+/** Whether `/md<path>` exists — the pages that have a markdown twin (see `app/md/**`). */
+export function hasMarkdownTwin(path: string): boolean {
+  return MARKDOWN_EXACT.has(path) || markdownRoutes.prefixes.some((prefix) => path.startsWith(prefix));
+}
+
+/** Absolute URL of a page's markdown twin, or `undefined` if it has none. */
+export function markdownUrl(path: string): string | undefined {
+  if (!hasMarkdownTwin(path)) return undefined;
+  return path === "/" ? `${siteConfig.url}/md` : `${siteConfig.url}/md${path}`;
 }
 
 /**
@@ -42,7 +48,7 @@ export function pageMetadata({
 }): Metadata {
   const url = absoluteUrl(path);
   const ogTitle = path === "/" ? siteConfig.name : `${title} — ${siteConfig.name}`;
-  const md = markdownAlternate(path);
+  const md = markdownUrl(path);
 
   return {
     title: path === "/" ? { absolute: siteConfig.name } : title,

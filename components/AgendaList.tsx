@@ -32,23 +32,23 @@ export function AgendaList({
               isNow ? "bg-blue/15" : ""
             }`}
           >
-            <span className="font-mono text-base tabular-nums text-paper/70 sm:w-32">
+            <span className="text-base tabular-nums text-paper/70 sm:w-32">
               {formatSessionTime(session.start)}–{formatSessionTime(session.end)}
             </span>
 
             <div className="flex-1">
               <p className="text-lg font-medium">{session.title}</p>
-              <p className={`font-mono text-xs uppercase tracking-wide ${trackColor(session.track).text}`}>
+              <p className={`text-xs uppercase tracking-wide ${trackColor(session.track).text}`}>
                 {session.track}
               </p>
             </div>
 
-            <span className="font-mono text-lg font-medium text-paper sm:text-right">
+            <span className="text-lg font-medium text-paper sm:text-right">
               {session.hall}
             </span>
 
             {isNow && (
-              <span className="rounded-full bg-blue px-2 py-0.5 font-mono text-xs uppercase text-paper">
+              <span className="rounded-full bg-blue px-2 py-0.5 text-xs uppercase text-paper">
                 {uiCopy.agenda.onNowLabel}
               </span>
             )}

@@ -1,37 +1,41 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/site.config";
-import { AGENDA_READY, siteRoutes } from "@/lib/routes";
+import { AGENDA_READY, siteRoutes, unlistedPublicRoutes } from "@/lib/routes";
 import { getSpeakers } from "@/lib/content";
+import { absoluteUrl } from "@/lib/seo";
 
+// Speaker pages come from content that can change without a deploy.
 export const revalidate = 300;
 
+/**
+ * No `lastModified`, `changeFrequency` or `priority`, on purpose. This used to stamp
+ * every URL with `new Date()` — i.e. "changed just now" for every page on every
+ * rebuild — which is untrue, and crawlers that catch a sitemap out on `lastmod`
+ * stop trusting it. `lastmod` is optional; an honest omission beats an invented date.
+ * Google ignores `changefreq` and `priority` outright.
+ *
+ * What's listed: every indexable page in `lib/routes.ts` (`siteRoutes` minus
+ * `noIndex`), the public pages kept out of the nav (`unlistedPublicRoutes`), and the
+ * speaker pages once the agenda is live.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date();
-  const speakers = await getSpeakers();
+  const paths = new Set<string>([
+    ...siteRoutes.filter((route) => !route.noIndex).map((route) => route.href),
+    ...unlistedPublicRoutes.map((route) => route.href),
+  ]);
 
-  const staticEntries: MetadataRoute.Sitemap = siteRoutes
-    .filter((route) => !route.noIndex)
-    .map((route) => ({
-      url: `${siteConfig.url}${route.href === "/" ? "" : route.href}`,
-      lastModified,
-      changeFrequency: route.href === "/" ? "weekly" : "monthly",
-      priority: route.href === "/" ? 1 : route.href === "/tickets" ? 0.9 : 0.7,
-    }));
+  if (AGENDA_READY) {
+    for (const path of await speakerPaths()) paths.add(path);
+  }
 
-  const extras: MetadataRoute.Sitemap = [
-    { url: `${siteConfig.url}/tickets/select`, lastModified, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteConfig.url}/partner`, lastModified, changeFrequency: "monthly", priority: 0.5 },
-  ];
+  return [...paths].map((path) => ({ url: absoluteUrl(path) }));
+}
 
-  const speakerEntries: MetadataRoute.Sitemap =
-    AGENDA_READY && speakers.length > 0
-      ? speakers.map((speaker) => ({
-          url: `${siteConfig.url}/speakers/${speaker.slug}`,
-          lastModified,
-          changeFrequency: "weekly",
-          priority: 0.6,
-        }))
-      : [];
-
-  return [...staticEntries, ...extras, ...speakerEntries];
+/** Speaker pages. A content hiccup must not turn the whole sitemap into a 500. */
+async function speakerPaths(): Promise<string[]> {
+  try {
+    return (await getSpeakers()).map((speaker) => `/speakers/${speaker.slug}`);
+  } catch (error) {
+    console.warn("sitemap: could not load speakers, listing the static pages only", error);
+    return [];
+  }
 }

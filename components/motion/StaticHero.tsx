@@ -52,7 +52,7 @@ export function StaticHero({
         {/* Mono facts, as on the ticket stub — including its "· unconfirmed"
             hedge, because the venue genuinely is not confirmed and the hero is
             the worst place on the site to imply otherwise. */}
-        <p className="mt-6 font-mono text-sm text-paper/75">
+        <p className="mt-6 text-sm text-paper/75">
           {heroCopy.dateLabel}
           <span className="px-2 text-paper/50" aria-hidden>
             ·
@@ -79,7 +79,7 @@ export function StaticHero({
         {offerFullExperience && (
           <a
             href="?lite=0"
-            className="mt-8 font-mono text-xs uppercase tracking-wider text-paper/60 underline-offset-4 hover:text-paper hover:underline"
+            className="mt-8 text-xs uppercase tracking-wider text-paper/60 underline-offset-4 hover:text-paper hover:underline"
           >
             {uiCopy.staticHero.switchToFullExperienceLabel}
           </a>

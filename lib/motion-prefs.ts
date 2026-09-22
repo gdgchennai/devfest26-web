@@ -8,10 +8,16 @@ export function prefersReducedMotion(): boolean {
 
 /**
  * `?lite=1` turns it on, `?lite=0` turns it off, and either way the answer is
- * remembered. Both directions matter: the toggle drives the preference through
- * the URL so the choice is linkable, bookmarkable and testable — "open the site
- * the way I see it" has to be something a visitor can send to someone else, and
- * `?lite=0` is the only way back out of a stored preference on a shared machine.
+ * remembered ("1" / "0"). Both directions matter: the toggle drives the
+ * preference through the URL so the choice is linkable, bookmarkable and
+ * testable — "open the site the way I see it" has to be something a visitor can
+ * send to someone else, and `?lite=0` is the only way back out of a stored
+ * preference on a shared machine.
+ *
+ * With nothing stored, lite follows `prefers-reduced-motion`: those visitors
+ * land in lite automatically (static hero, pill nav, no 3D). A stored "0" is an
+ * explicit opt-out and beats that default, which is why opting out writes "0"
+ * instead of just forgetting the preference.
  *
  * NOTE: this persists as a side effect of being read. Harmless (it writes the
  * same value every time) but it is why the pre-paint script in app/layout.tsx
@@ -27,16 +33,20 @@ export function isLiteMode(): boolean {
     return true;
   }
   if (param === "0") {
-    clearLiteMode();
+    optOutOfLiteMode();
     return false;
   }
-  return window.localStorage.getItem(LITE_STORAGE_KEY) === "1";
+  const stored = window.localStorage.getItem(LITE_STORAGE_KEY);
+  if (stored === "1") return true;
+  if (stored === "0") return false;
+  return prefersReducedMotion();
 }
 
-/** The one place that knows how to forget the preference. */
-export function clearLiteMode(): void {
+/** The one place that records an explicit "no lite" choice — "0", not a
+ *  removed key, so it still wins over the reduced-motion default. */
+export function optOutOfLiteMode(): void {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(LITE_STORAGE_KEY);
+  window.localStorage.setItem(LITE_STORAGE_KEY, "0");
 }
 
 type Listener = () => void;
@@ -159,9 +169,9 @@ export function shouldUseStaticBaseline(): boolean {
 
 /**
  * True when a heavy optional download (three.js, chiefly) must not be fetched
- * at all. Lite mode skips it; reduced-motion still gets still WebGL imagery
- * (a vestibular preference, not a bandwidth one — rendered once instead of
- * animated).
+ * at all. Lite mode skips it — and reduced-motion counts as lite by default
+ * (see isLiteMode), so those visitors get the static hero rather than a
+ * still-rendered WebGL one.
  */
 export function shouldSkipHeavyAssets(): boolean {
   return isLiteMode();

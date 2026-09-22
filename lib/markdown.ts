@@ -7,11 +7,13 @@
  * than by converting rendered HTML, since there's no reliable way to turn
  * arbitrary JSX back into clean markdown.
  */
-import { siteConfig, formatEventDate, shortEventDate } from "@/site.config";
-import { getAgenda, getSpeaker, getSpeakers } from "@/lib/content";
+import { siteConfig, uiCopy, formatEventDate, shortEventDate } from "@/site.config";
+import { getAgenda, getArchivePhotos, getSpeaker, getSpeakers } from "@/lib/content";
 import { formatSessionTime } from "@/lib/format";
-import { AGENDA_READY, siteRoutes } from "@/lib/routes";
+import { AGENDA_READY, siteRoutes, unlistedPublicRoutes } from "@/lib/routes";
+import { absoluteUrl } from "@/lib/seo";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
+import { creators } from "@/lib/creators";
 import type { Speaker } from "@/lib/schemas";
 
 /** Direct `/md/*` URLs must not compete with the HTML canonical in Google. */
@@ -47,9 +49,11 @@ export function homeMarkdown(): string {
     "",
     "## Pages",
     "",
-    ...siteRoutes
-      .filter((r) => !r.noIndex)
-      .map((r) => `- [${r.label}](${siteConfig.url}${r.href}): ${r.description}`),
+    // Every public page: the routed ones plus those kept off the nav (same list as the sitemap
+    // and /llms.txt), so the twin doesn't stop at Contact.
+    ...[...siteRoutes.filter((r) => !r.noIndex), ...unlistedPublicRoutes].map(
+      (r) => `- [${r.label}](${absoluteUrl(r.href)}): ${r.description}`,
+    ),
   ];
   return lines.join("\n") + "\n";
 }
@@ -80,7 +84,9 @@ export async function agendaMarkdown(): Promise<string> {
     lines.push("");
   }
 
-  return lines.join("\n");
+  // Exactly one final newline, like every other twin (the trailing blank line above already
+  // produced one; this keeps it that way if the loop above changes).
+  return lines.join("\n").trimEnd() + "\n";
 }
 
 function speakerSummary(speaker: Speaker): string {
@@ -145,6 +151,101 @@ export function ticketsMarkdown(): string {
     "## Community events",
     "",
     ...siteConfig.subEvents.map((e) => `- **${e.title}** (${shortEventDate(e.date)}): ${e.description}`),
+  ];
+  return lines.join("\n") + "\n";
+}
+
+/** `/creators`. Built from lib/creators.ts, the same copy the page renders. `**bold**` in that
+ *  copy is already Markdown. */
+export function creatorsMarkdown(): string {
+  const c = creators;
+  const lines = [
+    frontMatter(`${c.heading} — ${siteConfig.name}`),
+    `${c.eyebrow}: ${c.title} — ${c.tagline}`,
+    c.dateLine,
+    "",
+    ...c.intro.paragraphs.flatMap((paragraph) => [paragraph, ""]),
+    `**${c.intro.highlight}**`,
+    "",
+    `## ${c.why.heading}`,
+    "",
+    c.why.lede,
+    "",
+    ...c.why.questions.map((question) => `- ${question}`),
+    "",
+    c.why.closing,
+    "",
+    `## ${c.join.heading}`,
+    "",
+    `### ${c.join.joinUs.title}`,
+    "",
+    c.join.joinUs.body,
+    "",
+    `### ${c.join.lounge.title}`,
+    "",
+    c.join.lounge.body,
+    "",
+    c.join.lounge.listLabel,
+    "",
+    ...c.join.lounge.items.map((item) => `- ${item}`),
+    "",
+    `## ${c.together.heading}`,
+    "",
+    `**${c.together.highlight}**`,
+    "",
+    c.together.body,
+    "",
+    `## ${c.bigger.heading}`,
+    "",
+    `**${c.bigger.highlight}**`,
+    "",
+    c.bigger.body,
+    "",
+    `**${c.bigger.closer}**`,
+    "",
+    c.closing.body,
+    "",
+    `**${c.closing.heading}**`,
+    "",
+    `${c.closing.date} · ${c.closing.venue}`,
+    "",
+    ...c.closing.links.map((link) => `- [${link.label}](${link.href})`),
+  ];
+  return lines.join("\n") + "\n";
+}
+
+/** `/memories`. The archive by year, newest first — the same grouping the page's year grids use —
+ *  each photo with its title and description (which the page uses as alt text) and its file. */
+export async function memoriesMarkdown(): Promise<string> {
+  const photos = await getArchivePhotos();
+  const lines = [frontMatter(`${uiCopy.memoriesPage.heading} — ${siteConfig.name}`), uiCopy.memoriesPage.body, ""];
+  for (const year of [2025, 2024]) {
+    const inYear = photos.filter((photo) => photo.year === year);
+    if (inYear.length === 0) continue;
+    lines.push(`## ${year}`, "", ...inYear.map((photo) => `- [${photo.title}](${siteConfig.url}${photo.src}): ${photo.description}`), "");
+  }
+  lines.push(`The same data as JSON: ${siteConfig.url}/api/content/archive`);
+  return lines.join("\n") + "\n";
+}
+
+/** `/contact`. The page's own sentence and email, plus where each topic it names
+ *  (sponsorship, speaking, volunteering) and its description names (partnership, tickets)
+ *  actually goes. */
+export function contactMarkdown(): string {
+  const c = uiCopy.contactPage;
+  const lines = [
+    frontMatter(`${c.heading} — ${siteConfig.name}`),
+    `${c.bodyPrefix}${siteConfig.chapter}${c.bodySuffix}`,
+    "",
+    `- Email: ${siteConfig.contact.email}`,
+    "",
+    "## For something specific",
+    "",
+    `- Speaking: [Call for proposals](${siteConfig.cfp.formUrl})`,
+    `- Volunteering: [Volunteer sign-up](${siteConfig.volunteer.formUrl})`,
+    `- Sponsorship: [Sponsorship brochure (PDF)](${siteConfig.sponsorship.brochureUrl})`,
+    `- Partnership: [Community partnership](${siteConfig.url}/partner)`,
+    `- Tickets: [Tickets](${siteConfig.url}${siteConfig.ticketing.href})`,
   ];
   return lines.join("\n") + "\n";
 }

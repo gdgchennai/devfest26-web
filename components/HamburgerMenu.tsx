@@ -267,38 +267,29 @@ export function HamburgerMenu() {
   return (
     <div className="nav-hamburger-only">
       {/*
-       * On the experience / home page ("/"), do not render the header bar.
-       * Keep only the floating Avatar and Hamburger menu buttons on top right.
-       */}
-      {isHome && (
-        <>
-          <AvatarButton hidden={open} />
-          <div className={`pointer-events-none fixed right-[max(1rem,env(safe-area-inset-right,0px))] top-[max(1.75rem,calc(env(safe-area-inset-top,0px)+0.75rem))] z-50 sm:right-[max(2rem,env(safe-area-inset-right,0px))] ${
-            open ? "z-[60]" : "z-50"
-          }`}>
-            {hamburgerButton}
-          </div>
-        </>
-      )}
-
-      {/*
-       * Only show when routed into other pages (!isHome):
-       * Dedicated Fixed Glassmorphic Header Bar with centered Page Title matching
-       * the in-page font size, Home button on left, and Avatar + Hamburger on right.
+       * The header bar, on every route including "/": Home button on the
+       * left (kept as an invisible spacer on "/" so the right-hand controls
+       * sit in the same place), centered page title, Avatar + Hamburger on the
+       * right. Every route but "/" gets the frosted gradient background. The
+       * home page has no bar background at all — its pinned, full-bleed
+       * sections run to the top edge and would sit under it — and no title
+       * (its own hero carries the h1); there the bar is click-through except
+       * for the buttons themselves.
        * When the menu is open, make the header transparent, borderless, and raised to z-[60]
        * so only the hamburger cross button stays visible and clickable on top of the menu panel.
        */}
-      {!isHome && (
-        <header className={`fixed inset-x-0 top-0 transition-all duration-300 ${
+      <header className={`site-nav fixed inset-x-0 top-0 transition-all duration-300 ${
           open 
             ? "z-[60] bg-transparent border-b-transparent backdrop-blur-none" 
-            : "z-50 gradient-header"
-        }`}>
+            : isHome
+              ? "z-50 bg-transparent"
+              : "z-50 gradient-header"
+        } ${isHome ? "pointer-events-none" : ""}`}>
           <div className="mx-auto flex w-full items-center justify-between px-4 py-3 sm:px-8 sm:py-3.5 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))]">
             {/* Left section: Home button */}
             <div className={`flex items-center min-w-11 transition-opacity duration-200 ${
-              open ? "opacity-0 pointer-events-none" : "opacity-100"
-            }`}>
+              open || isHome ? "opacity-0 pointer-events-none" : "opacity-100"
+            }`} aria-hidden={isHome || undefined} inert={isHome || undefined}>
               <Link
                 href="/"
                 aria-label={uiCopy.hamburgerMenu.homeAriaLabel}
@@ -328,9 +319,11 @@ export function HamburgerMenu() {
                 open ? "opacity-0" : "opacity-100"
               }`}
             >
-              <h1 className="truncate text-2xl font-semibold tracking-tight text-paper sm:text-3xl md:text-4xl max-w-[50vw] sm:max-w-[60vw]">
-                {headerTitle}
-              </h1>
+              {headerTitle && (
+                <h1 className="truncate text-2xl font-semibold tracking-tight text-paper sm:text-3xl md:text-4xl max-w-[50vw] sm:max-w-[60vw]">
+                  {headerTitle}
+                </h1>
+              )}
             </div>
 
             {/* Right section: Avatar button + Hamburger menu button */}
@@ -340,7 +333,6 @@ export function HamburgerMenu() {
             </div>
           </div>
         </header>
-      )}
 
       {/*
        * Full-screen: a clip-path circle grown from the button's centre (see

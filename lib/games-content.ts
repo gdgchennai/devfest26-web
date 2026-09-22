@@ -2,22 +2,9 @@ import crosswordsData from "@/content/crosswords.json";
 import techCardsData from "@/content/tech-cards.json";
 import jigsawPhotosData from "@/content/jigsaw-photos.json";
 
-export type CrosswordClue = {
-  number: number;
-  direction: "across" | "down";
-  clue: string;
-  answer: string;
-  row: number;
-  col: number;
-};
+import { toPublicPuzzle, type CrosswordPuzzle, type PublicCrosswordPuzzle } from "@/lib/game-rules";
 
-export type CrosswordPuzzle = {
-  id: string;
-  title: string;
-  category: string;
-  size: number;
-  clues: CrosswordClue[];
-};
+export type { CrosswordClue, CrosswordPuzzle, PublicCrosswordClue, PublicCrosswordPuzzle } from "@/lib/game-rules";
 
 export type TechCardDefinition = {
   id: string;
@@ -36,6 +23,11 @@ export type ArchivePhotoChoice = {
 
 export async function getCrosswordPuzzles(): Promise<CrosswordPuzzle[]> {
   return crosswordsData as CrosswordPuzzle[];
+}
+
+/** The list the browser gets: grid and clues only — the answers stay on the server. */
+export async function getPublicCrosswordPuzzles(): Promise<PublicCrosswordPuzzle[]> {
+  return (crosswordsData as CrosswordPuzzle[]).map(toPublicPuzzle);
 }
 
 export async function getTechCards(): Promise<TechCardDefinition[]> {

@@ -462,7 +462,7 @@ function SessionCard({
       <div className="agenda-board-card agenda-board-card--far" data-key={dataKey}>
         {/* text-sm, not smaller — see the comment on .agenda-board-hour in
             globals.css for why tabular-nums numerals need to stay above ~13px. */}
-        <span className="font-mono text-sm tabular-nums text-paper/40">{formatSessionTime(session.start)}</span>
+        <span className="text-sm tabular-nums text-paper/40">{formatSessionTime(session.start)}</span>
         <p className="mt-1 truncate text-sm text-paper/50">{session.title}</p>
       </div>
     );
@@ -473,8 +473,8 @@ function SessionCard({
     return (
       <div className="agenda-board-card agenda-board-card--adjacent" data-key={dataKey}>
         <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-[0.6875rem] uppercase tracking-wide text-paper/50">{eyebrow}</span>
-          <span className="font-mono text-sm tabular-nums text-paper/50">{formatSessionTime(session.start)}</span>
+          <span className="text-[0.6875rem] uppercase tracking-wide text-paper/50">{eyebrow}</span>
+          <span className="text-sm tabular-nums text-paper/50">{formatSessionTime(session.start)}</span>
         </div>
         <p className="mt-1 truncate text-sm text-paper/80">{session.title}</p>
       </div>
@@ -488,17 +488,17 @@ function SessionCard({
     <div className="agenda-board-card agenda-board-card--focused" data-key={dataKey}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-3 py-1 font-mono text-[0.6875rem] uppercase tracking-wide text-ink ${color.bg}`}>
+          <span className={`rounded-full px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-ink ${color.bg}`}>
             {session.type}
           </span>
           {isNow && (
-            <span className="flex items-center gap-1.5 font-mono text-[0.6875rem] uppercase tracking-wide text-paper/70">
+            <span className="flex items-center gap-1.5 text-[0.6875rem] uppercase tracking-wide text-paper/70">
               <span className="agenda-board-live-dot" aria-hidden />
               {uiCopy.agendaBoard.liveNowLabel}
             </span>
           )}
         </div>
-        <span className="font-mono text-sm tabular-nums text-paper/70">
+        <span className="text-sm tabular-nums text-paper/70">
           {/* A plain hyphen, not an en dash: en dash + tabular-nums renders with a
               spurious horizontal line through the whole string specifically when
               inside this stage's transformed/scrolling/blurred ancestor chain —
@@ -533,7 +533,7 @@ function SessionCard({
           <span />
         )}
         <div className="flex items-center gap-3">
-          <span className="font-mono text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
+          <span className="text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
           {session.type !== "break" && <FavoriteButton session={session} />}
         </div>
       </div>

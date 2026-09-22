@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import type { GameTab } from "./GamesHub";
+import { useDialog } from "./useDialog";
 
 type GameSettingsModalProps = {
   isOpen: boolean;
@@ -50,14 +51,17 @@ export function GameSettingsModal({
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
-
-  if (!isOpen) return null;
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const handleClose = () => {
     setDragOffsetY(0);
     setIsDragging(false);
     onClose();
   };
+
+  useDialog(dialogRef, isOpen, handleClose);
+
+  if (!isOpen) return null;
 
   const tabTitles: Record<GameTab, string> = {
     jigsaw: "Archive Jigsaw Settings",
@@ -87,6 +91,8 @@ export function GameSettingsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="game-settings-title"
+        tabIndex={-1}
+        ref={dialogRef}
       >
         {/* Interactable Drag Handle Bar */}
         <div
@@ -150,7 +156,7 @@ export function GameSettingsModal({
           {activeTab === "jigsaw" && (
             <>
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                <label className="text-xs uppercase tracking-wider text-paper/60 block mb-2">
                   Grid Difficulty
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -165,19 +171,19 @@ export function GameSettingsModal({
                       onClick={() => onJigsawGridSizeChange(opt.size)}
                       className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                         jigsawGridSize === opt.size
-                          ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                          ? "border-blue bg-blue/15 text-paper ring-1 ring-blue"
                           : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                       }`}
                     >
                       <span className="text-sm font-bold">{opt.label}</span>
-                      <span className="text-[10px] font-mono text-paper/50">{opt.hint}</span>
+                      <span className="text-[10px] text-paper/50">{opt.hint}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                <label className="text-xs uppercase tracking-wider text-paper/60 block mb-2">
                   Game Mode
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -186,7 +192,7 @@ export function GameSettingsModal({
                     onClick={() => onJigsawSlideModeChange(false)}
                     className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       !jigsawSlideMode
-                        ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                        ? "border-blue bg-blue/15 text-paper ring-1 ring-blue"
                         : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                     }`}
                   >
@@ -199,7 +205,7 @@ export function GameSettingsModal({
                     onClick={() => onJigsawSlideModeChange(true)}
                     className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       jigsawSlideMode
-                        ? "border-[var(--yellow)] bg-[var(--yellow)]/15 text-paper ring-1 ring-[var(--yellow)]"
+                        ? "border-yellow bg-yellow/15 text-paper ring-1 ring-yellow"
                         : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                     }`}
                   >
@@ -215,22 +221,22 @@ export function GameSettingsModal({
           {activeTab === "crossword" && (
             <div className="space-y-4">
               <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4">
-                <div className="flex items-center gap-2 text-xs font-mono text-paper/70">
-                  <span className="flex h-2 w-2 rounded-full bg-[var(--green)] animate-pulse" />
+                <div className="flex items-center gap-2 text-xs text-paper/70">
+                  <span className="flex h-2 w-2 rounded-full bg-green animate-pulse" />
                   <span>Next daily puzzle cycle:</span>
                 </div>
-                <div className="text-lg font-bold font-mono text-[var(--yellow)] mt-1">
+                <div className="text-lg font-bold text-yellow mt-1">
                   {crosswordCycleTime || "Every 24 hours"}
                 </div>
               </div>
 
               <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-xs space-y-2 text-paper/80">
-                <div className="font-bold text-paper font-mono uppercase tracking-wider text-[11px]">
+                <div className="font-bold text-paper uppercase tracking-wider text-[11px]">
                   Tips & Keyboard Shortcuts:
                 </div>
                 <ul className="space-y-1.5 list-disc list-inside text-paper/70">
                   <li>Click any cell or clue to select word</li>
-                  <li>Press <kbd className="px-1.5 py-0.5 rounded bg-paper/10 font-mono text-paper">Space</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-paper/10 font-mono text-paper">Tab</kbd> to toggle Across/Down</li>
+                  <li>Press <kbd className="px-1.5 py-0.5 rounded bg-paper/10 text-paper">Space</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-paper/10 text-paper">Tab</kbd> to toggle Across/Down</li>
                   <li>Use in-game <strong className="text-paper">Reveal Letter</strong> or <strong className="text-paper">Check</strong> buttons directly from clue bar</li>
                 </ul>
               </div>
@@ -240,7 +246,7 @@ export function GameSettingsModal({
           {/* 3. Memory Matrix Settings */}
           {activeTab === "memory" && (
             <div>
-              <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+              <label className="text-xs uppercase tracking-wider text-paper/60 block mb-2">
                 Card Board Size
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -255,12 +261,12 @@ export function GameSettingsModal({
                     onClick={() => onMemoryPairsCountChange(opt.count)}
                     className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                       memoryPairsCount === opt.count
-                        ? "border-[var(--yellow)] bg-[var(--yellow)]/15 text-paper ring-1 ring-[var(--yellow)]"
+                        ? "border-yellow bg-yellow/15 text-paper ring-1 ring-yellow"
                         : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                     }`}
                   >
                     <span className="text-sm font-bold">{opt.label}</span>
-                    <span className="text-[10px] font-mono text-paper/50">{opt.hint}</span>
+                    <span className="text-[10px] text-paper/50">{opt.hint}</span>
                   </button>
                 ))}
               </div>
@@ -272,7 +278,7 @@ export function GameSettingsModal({
             <div className="space-y-5">
               {/* Toggle typing test mode */}
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                <label className="text-xs uppercase tracking-wider text-paper/60 block mb-2">
                   Typing Mode
                 </label>
                 <div className="grid grid-cols-2 gap-2 bg-paper/[0.04] border border-paper/10 rounded-2xl p-1">
@@ -281,7 +287,7 @@ export function GameSettingsModal({
                     onClick={() => onTypingModeChange("time")}
                     className={`py-2 px-3 text-xs font-bold rounded-xl cursor-pointer transition-all ${
                       typingMode === "time"
-                        ? "bg-[var(--blue)] text-white shadow-sm font-extrabold"
+                        ? "bg-blue text-white shadow-sm font-extrabold"
                         : "text-paper/60 hover:text-paper"
                     }`}
                   >
@@ -292,7 +298,7 @@ export function GameSettingsModal({
                     onClick={() => onTypingModeChange("words")}
                     className={`py-2 px-3 text-xs font-bold rounded-xl cursor-pointer transition-all ${
                       typingMode === "words"
-                        ? "bg-[var(--blue)] text-white shadow-sm font-extrabold"
+                        ? "bg-blue text-white shadow-sm font-extrabold"
                         : "text-paper/60 hover:text-paper"
                     }`}
                   >
@@ -303,7 +309,7 @@ export function GameSettingsModal({
 
               {/* Configure mode parameters */}
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-paper/60 block mb-2">
+                <label className="text-xs uppercase tracking-wider text-paper/60 block mb-2">
                   {typingMode === "time" ? "Timer Duration" : "Target Words"}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -315,12 +321,12 @@ export function GameSettingsModal({
                         onClick={() => onTypingTimeLimitChange(t)}
                         className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                           typingTimeLimit === t
-                            ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                            ? "border-blue bg-blue/15 text-paper ring-1 ring-blue"
                             : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                         }`}
                       >
                         <span className="text-sm font-bold">{t} Seconds</span>
-                        <span className="text-[10px] font-mono text-paper/50">time limit</span>
+                        <span className="text-[10px] text-paper/50">time limit</span>
                       </button>
                     ))
                   ) : (
@@ -331,12 +337,12 @@ export function GameSettingsModal({
                         onClick={() => onTypingWordLimitChange(w)}
                         className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                           typingWordLimit === w
-                            ? "border-[var(--blue)] bg-[var(--blue)]/15 text-paper ring-1 ring-[var(--blue)]"
+                            ? "border-blue bg-blue/15 text-paper ring-1 ring-blue"
                             : "border-paper/10 bg-paper/[0.04] text-paper/70 hover:border-paper/30 hover:text-paper"
                         }`}
                       >
                         <span className="text-sm font-bold">{w} Words</span>
-                        <span className="text-[10px] font-mono text-paper/50">limit</span>
+                        <span className="text-[10px] text-paper/50">limit</span>
                       </button>
                     ))
                   )}
@@ -345,7 +351,7 @@ export function GameSettingsModal({
 
               {/* Standard practice tip card */}
               <div className="rounded-2xl border border-paper/10 bg-paper/[0.04] p-4 text-xs space-y-2 text-paper/80">
-                <div className="font-bold text-paper font-mono uppercase tracking-wider text-[11px]">
+                <div className="font-bold text-paper uppercase tracking-wider text-[11px]">
                   Typing Practice Tips:
                 </div>
                 <ul className="space-y-1.5 list-disc list-inside text-paper/70 font-sans leading-relaxed">
@@ -366,7 +372,7 @@ export function GameSettingsModal({
               onResetGame();
               handleClose();
             }}
-            className="flex items-center gap-1.5 rounded-2xl border border-paper/20 bg-paper/10 px-4 py-2 text-xs font-mono font-medium text-paper hover:bg-paper/20 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 rounded-2xl border border-paper/20 bg-paper/10 px-4 py-2 text-xs font-medium text-paper hover:bg-paper/20 transition-colors cursor-pointer"
           >
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -377,7 +383,7 @@ export function GameSettingsModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-2xl bg-[var(--blue)] px-5 py-2 text-xs font-bold text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer"
+            className="rounded-2xl bg-blue px-5 py-2 text-xs font-bold text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer"
           >
             Done
           </button>

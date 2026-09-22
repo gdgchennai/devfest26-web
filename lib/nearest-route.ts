@@ -32,8 +32,8 @@ function editDistance(a: string, b: string): number {
  * Distance as a fraction of the longer string, so a typo in a short slug isn't
  * held to the same absolute budget as one in a long slug. 0.4 was picked
  * against the real route table: it accepts /speaker and /agend, and rejects
- * /sponsors → /speakers (0.5), which is correct — that page is retired, not
- * misspelled, and guessing at it would be worse than saying nothing.
+ * /sponsors → /speakers (0.5), which is correct — a different word, not a
+ * typo, and guessing at it would be worse than saying nothing.
  */
 const MAX_DISSIMILARITY = 0.4;
 

@@ -86,8 +86,14 @@ export function ParticleCover({
         // particle used to wipe that scale, so on Retina the first sprite
         // drew correctly and the rest landed in the top-left at 1× — the
         // vortex read as a broken cluster after canvasDpr landed.
+        // Clear the whole backing store in device pixels, not cw×ch in CSS
+        // pixels: with a fractional DPR the canvas is rounded up (e.g. 873px
+        // for 698 × 1.25), so a CSS-space clear leaves the last pixel row
+        // half-covered and every sprite that crosses it stays painted there
+        // as a dashed line along the bottom edge.
+        ctx!.setTransform(1, 0, 0, 1, 0, 0);
+        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx!.clearRect(0, 0, cw, ch);
         const target = radius * TARGET_RATIO;
         particles.forEach((p) => {
           if (!p.img.complete || p.img.naturalWidth === 0) return;

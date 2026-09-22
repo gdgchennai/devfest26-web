@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {
-  getCrosswordPuzzles,
+  getPublicCrosswordPuzzles,
   getTechCards,
   getJigsawPhotos,
 } from "@/lib/games-content";
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       case "crosswords":
         return NextResponse.json({
           kind: "crosswords",
-          data: await getCrosswordPuzzles(),
+          data: await getPublicCrosswordPuzzles(),
         });
 
       case "cards":
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
       case "all":
       default: {
         const [crosswords, cards, photos] = await Promise.all([
-          getCrosswordPuzzles(),
+          getPublicCrosswordPuzzles(),
           getTechCards(),
           getJigsawPhotos(),
         ]);

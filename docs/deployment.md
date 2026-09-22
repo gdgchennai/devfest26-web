@@ -65,7 +65,7 @@ ticketing Worker writes to.
 - A Cloudflare account with Workers, D1 and R2 enabled (the Workers Paid plan is
   the safe choice for production traffic and cache writes).
 - The `gdgchennai.in` zone on that account (for the custom domain route and the
-  `/about` + `/privacy` rewrite rules).
+  redirect rules for the short links below).
 - Node 20+, and the repo installed: `npm install`.
 - Wrangler logged in:
 
@@ -75,8 +75,6 @@ ticketing Worker writes to.
   ```
 
 - A Google Cloud project for the OAuth client (see [Google auth](#google-auth-setup)).
-- An ImageKit account/endpoint for production image resizing (optional but
-  recommended — without it images fall back to raw `/public` paths).
 
 ---
 
@@ -111,7 +109,8 @@ read D1 through `lib/content.ts` with a 5-minute ISR window (`revalidate = 300`)
 clients can also hit `GET /api/content` and `GET /api/content/{agenda|speakers|archive}`.
 `next build` falls back to the JSON files when D1 is empty or unbound.
 
-Images stay in `public/` (and ImageKit in production). The Worker cache headers
+Images stay in `public/`; in production `/_next/image` resizes them through the
+Worker `IMAGES` binding (Cloudflare Images). The Worker cache headers
 in `public/_headers` mark `/archive`, `/banner`, `/fonts`, and `/brand-shapes`
 immutable so the edge keeps them.
 
@@ -139,10 +138,23 @@ detaching the domain (it was first attached via the dashboard). The
 `ASSETS`, and `WORKER_SELF_REFERENCE` are OpenNext defaults and need no manual
 setup beyond being present in `wrangler.jsonc`.
 
-> **`/about` and `/privacy`** are served by a **Cloudflare rewrite rule**, not
-> by this Worker or the Next app — configure those in the dashboard
-> (Rules → Transform/Redirect) against the `gdgchennai.in` zone. The app links
-> them as absolute URLs and keeps them out of `lib/routes.ts`.
+> **Short links.** `/about`, `/privacy`, `/cfp` and `/cfv` are **Cloudflare redirect
+> rules** (301), not routes in this Worker or the Next app — configure them in the
+> dashboard (Rules → Redirect Rules) against the `gdgchennai.in` zone. They currently go to:
+>
+> | Path | Goes to |
+> |---|---|
+> | `/about` | the GDG Chennai chapter page (gdg.community.dev) |
+> | `/privacy` | `gdgchennai.in/privacy` |
+> | `/cfp` | the Sessionize call for proposals |
+> | `/cfv` | the volunteer sign-up (a KonfHub checkout) |
+>
+> `/sponsors` is different again: Cloudflare serves the sponsorship brochure PDF there (a
+> 200 `application/pdf`, not a redirect), also outside this repo.
+>
+> The app links them as absolute URLs and keeps them out of `lib/routes.ts`. The
+> `/llms.txt` file lists them too (`SHORT_LINKS` in `app/llms.txt/route.ts`), so update both
+> if a rule changes.
 
 ### 4. Google OAuth client
 
@@ -161,7 +173,6 @@ into the bundle — **changing one requires a rebuild + redeploy**.
 
 | Var | Purpose | Required |
 |---|---|---|
-| `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` | Production `next/image` loader endpoint | prod only |
 | `AGENDA_READY` | `"true"` brings `/agenda` + `/speakers` + `/md` twins online | no (default off) |
 | `HERO_BUTTONS` | comma-separated allow-list `tickets,cfp,volunteer,agenda` for the hero CTA row | no (default: all) |
 | `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` / `NEXT_PUBLIC_POSTHOG_KEY` | Override the committed PostHog project token | no (defaults to `siteConfig.analytics.posthogKey`) |
@@ -195,6 +206,7 @@ Read at request time by Auth.js (`auth.ts`). **Not** in `wrangler.jsonc` or any
 | `AUTH_SECRET` | `openssl rand -base64 32` (rotating logs everyone out) |
 | `AUTH_GOOGLE_ID` | Google Cloud Console OAuth 2.0 Client ID |
 | `AUTH_GOOGLE_SECRET` | …its client secret |
+| `GEMINI_API_KEY` | optional — Google AI Studio key for the typing game (see [environment.md](./environment.md#gemini_api_key--gemini_model)) |
 
 ```bash
 npx wrangler secret put AUTH_SECRET
@@ -202,9 +214,12 @@ npx wrangler secret put AUTH_GOOGLE_ID
 npx wrangler secret put AUTH_GOOGLE_SECRET
 ```
 
-Local dev: the Next dev server (`npm run dev`) reads these from `.env.local`;
-the Workers preview runtime (`npm run preview`) reads them from `.dev.vars`.
-Keep the two files in sync. Templates: `.env.example`, `.dev.vars.example`.
+Local dev: the Next dev server (`npm run dev`) reads the `AUTH_*` values from
+`.env.local`; the Workers preview runtime (`npm run preview`) reads them from
+`.dev.vars`. Keep those in sync. Anything the code reads through Cloudflare's `env`
+(such as `GEMINI_API_KEY`) goes in `.dev.vars` for *both* commands — `next dev` fills
+that object from `.dev.vars` and ignores `.env.local`. Templates: `.env.example`,
+`.dev.vars.example`; the rule is spelled out in [`environment.md`](./environment.md).
 
 ### Runtime secret — ticketing Worker
 
@@ -322,7 +337,7 @@ the URI list.
 - `curl -X POST https://devfest-ticketing.<subdomain>.workers.dev/<WEBHOOK_PATH>`
   with `--data @workers/ticketing/samples/registration.json` → `200`; the row
   appears on `/profile` for the matching email. A wrong path → `404`.
-- Image URLs point at the ImageKit endpoint (prod) not `/public`.
+- Images load from `/_next/image?url=…&w=…` (resized by the `IMAGES` binding), not as raw `/public` files.
 
 ---
 

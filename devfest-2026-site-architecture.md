@@ -76,25 +76,46 @@ recommending a page that no longer exists.
 Build priority, which is deliberately not the order above:
 `/agenda` → shared infrastructure → `/` → `/speakers` → the rest.
 
+**As built, September 2026.** The table above is the original plan; this is what the app
+serves. `lib/routes.ts` remains the source for nav / 404 / sitemap: `siteRoutes` drives all
+three, and `unlistedPublicRoutes` adds the public pages kept off the nav and the 404 grid
+(`/tickets/select`, `/partner`, `/creators`) to the sitemap. A public page belongs in one of
+those two lists; a page in neither is a bug, not a decision.
+
+| Route | What it is | Notes |
+|---|---|---|
+| `/` | The pitch: hero flythrough, "expect" cards, Location, mood, RSVP | Full motion, or `StaticHero` in lite |
+| `/tickets`, `/tickets/select` | Pick an event, then a ticket | Ticket sales come from KonfHub; `/md/tickets*` twins exist |
+| `/memories` | 2024 + 2025 photo archive (the hallway lives here too) | |
+| `/games` | Mini-games: jigsaw, crossword, memory, speed typer, leaderboard | Scores are server-authoritative — [`docs/games.md`](docs/games.md) |
+| `/agenda`, `/speakers`, `/speakers/[slug]`, `/my-agenda` | Schedule and lineup | Off (404) until `AGENDA_READY=true` |
+| `/contact` | Chapter contact | Not in the header nav |
+| `/partner`, `/creators` | Community-partner and content-creator invitation pages | Unlinked from the nav; reachable by URL |
+| `/signin`, `/profile` | Google sign-in and the account page | Account-gated, `noindex` |
+| `/md/*` | Markdown twins of pages, for `Accept: text/markdown` | Rewritten by a Cloudflare rule — [`docs/markdown-negotiation.md`](docs/markdown-negotiation.md) |
+| `/api/auth`, `/api/favorites`, `/api/content`, `/api/games/*` | Route handlers | `runtime = "nodejs"` — never edge |
+
 **As built — routes that aren't Next routes.** Several paths in the table above are not served
 by the app:
 
-- **`/code-of-conduct`, `/cfp`** — there is no local page. Every "Code of Conduct" link goes
-  straight to Google's own GDG CoC (`siteConfig.codeOfConduct.url`); every CFP link goes to
-  Sessionize (`siteConfig.cfp.formUrl`). A visitor typing either path hits the plain 404 grid.
-- **`/about`, `/privacy`** — served by a **Cloudflare URL rewrite**, not the app. They're linked
-  as full absolute URLs (`https://devfest.gdgchennai.in/…` — `siteConfig.privacyPolicyUrl` for the
+- **`/code-of-conduct`** — there is no local page. Every "Code of Conduct" link goes straight to
+  Google's own GDG CoC (`siteConfig.codeOfConduct.url`). A visitor typing the path hits the plain
+  404 grid. (`/cfp` looks similar but is a Cloudflare redirect to Sessionize — below.)
+- **`/about`, `/privacy`, `/cfp`, `/cfv`** — **Cloudflare redirect rules** (301 to other sites),
+  not the app. They're linked as full absolute URLs (`https://devfest.gdgchennai.in/…` — `siteConfig.privacyPolicyUrl` for the
   footer link) so the client router doesn't try to navigate to an app route that doesn't exist,
   and they're kept out of `lib/routes.ts` and the sitemap.
 - **`retiredRoutes` in `lib/routes.ts` is now empty.** It used to carry `/sponsors`,
   `/code-of-conduct` and `/about` with a custom "here's why it's gone" message; `/about` became a
-  real (rewritten) page, and `/sponsors` + `/code-of-conduct` were judged not worth a bespoke
-  reason — they fall through to the standard rescue grid. The `Record` and its wiring in
+  Cloudflare redirect, and `/code-of-conduct` was judged not worth a bespoke reason — it falls
+  through to the standard rescue grid. (`/sponsors` is served outside the app: see
+  [Sponsors](#sponsors--not-on-the-site-yet).) The `Record` and its wiring in
   `NotFoundRecovery` stay for the next genuinely-retired path.
 
 ### The 404
 
-No redirects: every dead URL, including `/sponsors`, lands here. The design rule is that whoever
+No redirects: every dead URL lands here. (`/sponsors` never does in production — Cloudflare serves
+the sponsorship brochure there.) The design rule is that whoever
 is reading it is already annoyed, **so every flourish has to shorten the way out rather than
 decorate the dead end.** Nothing animates on a delay, nothing blocks, and the headline plus the
 full route grid are in the static HTML — readable before hydration and with JavaScript off.
@@ -103,12 +124,12 @@ full route grid are in the static HTML — readable before hydration and with Ja
   offers the closest match as the primary button. `/speaker` → Speakers, `/agend` → Agenda. The
   threshold is a *fraction* of the longer string (0.4), not an absolute edit budget, so a typo in
   a short slug isn't judged like one in a long slug. It deliberately rejects
-  `/sponsors` → `/speakers` at 0.5: that page is gone, not misspelled.
+  `/sponsors` → `/speakers` at 0.5: a different word, not a typo.
 - **Retired routes can get a bespoke reason.** `retiredRoutes` in `lib/routes.ts` maps a removed
   URL to an explanation and a useful destination instead of the generic grid — used when a
   printed/circulated link needs more than "not found". **Currently empty:** `/about` became a
-  real (Cloudflare-rewritten) page, and `/sponsors` / `/code-of-conduct` were left to the plain
-  grid. The mechanism stays wired for the next one.
+  real (Cloudflare-served) page, `/code-of-conduct` was left to the plain grid, and `/sponsors` is
+  served outside the app. The mechanism stays wired for the next one.
 - **"Back to where you were"** — same-origin `document.referrer` only, and never a link back to
   the 404 itself.
 - **Four brand dots, one burnt out**, in place of a giant "404". The site's identity is those four
@@ -149,31 +170,33 @@ path's markup arrives via JS.
 | Scale claim | 1500+ developers | Update with 2025's actual number |
 | Format | Single day | Carry over |
 
-### Sponsor tiers — removed for 2026
+### Sponsors — not on the site yet
 
-**2026 is not running sponsorship.** The `/sponsors` route, `content/sponsors.json`, the
-`sponsorTiers` config, `sponsorSchema`/`Sponsor`, and `sponsorsByTier` were all deleted rather
-than left dormant, because a tier page with nothing in it and no programme behind it is worse than
-no page. Two lines of homepage copy went with them — "What you'll get → Hiring" no longer promises
-sponsor booths, and "Why join us" no longer promises a direct line to sponsors.
+Sponsorship exists for 2026; the site doesn't show it yet, and it is being rebuilt. The
+`/sponsors` route, `content/sponsors.json`, the `sponsorTiers` config, `sponsorSchema`/`Sponsor`,
+and `sponsorsByTier` were deleted from the code rather than left dormant, because a tier page with
+nothing in it is worse than no page. Two lines of homepage copy went with them — "What you'll get
+→ Hiring" no longer mentions sponsor booths, and "Why join us" no longer mentions a direct line to
+sponsors — and both are worth restoring when sponsors are back.
 
-Kept for reference if it returns: the 2025 structure was Gold → Associate → Community Partners,
+Kept for reference for the rebuild: the 2025 structure was Gold → Associate → Community Partners,
 filled with Poshmark (gold); Codewalla, Rezoomex, Dinodial (associate); and Women Techmakers
 Chennai, Kotlin Users Group Chennai, JS Lovers Chennai, Chennai ReactJS (community). Rebuilding it
 means a new schema plus a route — but not new UI: `components/SlotGrid.tsx` already renders a
 tiered roster with filled slots, one live invitation and ghost outlines, which is exactly what a
 sponsor wall needs.
 
-**`/sponsors` is now a plain 404, and the URL is in the 2025 sponsorship brochure. That 404 is the
-right answer — no redirect.** An earlier note here called for redirecting it to `/contact`; that
-was wrong once 2026 became self-funded with no sponsorship programme at all. Sending a sponsor
-enquiry to a contact form implies a programme exists and invites a conversation there is no answer
-to. It briefly had a `retiredRoutes` entry with a bespoke "no sponsorship this year" message;
-that was dropped too — the standard rescue grid is enough, and one less line to keep true.
+**In production `/sponsors` serves the 2026 sponsorship brochure** — a 23-page PDF
+(`application/pdf`, about 31 MB, cached for a year) — and it does so from Cloudflare, not from this
+app: the repo has no `/sponsors` route, redirect or PDF, and the app alone would return its plain 404
+(which is what you see running locally). The URL is also the one printed in the 2025 brochure, so
+whatever the rebuilt sponsors page becomes has to decide what lives at that address: keep the PDF
+reachable, or replace it deliberately. The Cloudflare rule is not in the repo; look in the
+dashboard for how it is set up before changing anything at that path.
 
-`lib/nearest-route.ts` sets its similarity threshold at 0.4 specifically so `/sponsors` →
-`/speakers` (0.5) is *rejected* — guessing at it would be worse than saying nothing. The visitor
-gets the full route list and no false lead.
+`lib/nearest-route.ts` sets its similarity threshold at 0.4 specifically so a different word like
+`/sponsors` → `/speakers` (0.5) is *rejected* — guessing at it would be worse than saying nothing.
+The visitor gets the full route list and no false lead.
 
 ### Sections on the 2025 homepage, and what to do with each
 
@@ -186,7 +209,7 @@ gets the full route list and no false lead.
 | Agenda preview — first few sessions | Keep, as a timeline spine. Same data as `/agenda` |
 | Insider tips — 9-item marquee | Keep, but move to `/agenda` where it's actually useful |
 | Tracks — 4 lanes | Keep. One Google colour each — see `lib/track-color.ts` |
-| Sponsors | **Cut for 2026.** No sponsorship programme this year — section, route and data all removed |
+| Sponsors | **Not built yet.** Sponsorship exists; the section, route and data were removed and will be rebuilt |
 | Venue — address, map, amenities | Keep, link to `/venue` |
 | FAQ — 5 questions | Keep, expand |
 | Memories — 11 photos from 2024 | **This becomes the hallway.** |
@@ -253,7 +276,7 @@ open/close timestamps. Every component reads from here. No fact appears as a lit
 version history, involves images that want `next/image`. A pull request is the right friction for
 "we're announcing a keynote." (This originally also listed sponsors, FAQ, about and CoC — sponsors
 and FAQ were cut, and about/CoC/privacy now live outside the app: CoC → Google's GDG page,
-about + privacy → Cloudflare rewrites.)
+about + privacy → Cloudflare redirects.)
 
 **In a Google Sheet** — the agenda only. One row per session:
 `track, start, end, title, speakerSlug, hall, type`. Pulled at build with ISR revalidating every
@@ -340,10 +363,16 @@ Built once in the root layout, consumed everywhere. **This lands before anything
   events; the `lenis.on("scroll", ScrollTrigger.update)` wiring exists only because Lenis takes
   the scroll over.
 - **`site.config.ts`** — single source of truth for every fact.
-- **Lite mode** — `?lite=1` on, `?lite=0` off, either way persisted. The toggle drives the
-  preference through the URL so the choice is linkable, testable and reversible. Shares its
-  rendering path with reduced-motion and no-JS; see Part 4 of the motion spec. Site-wide, not a
-  homepage feature.
+- **Lite mode** — `?lite=1` on, `?lite=0` off, either way persisted (`"1"` / `"0"` in
+  `localStorage`). The toggle drives the preference through the URL so the choice is linkable,
+  testable and reversible. Shares its rendering path with reduced-motion and no-JS; see Part 4
+  of the motion spec. Site-wide, not a homepage feature.
+  - **Reduced motion is lite by default.** With nothing stored, `isLiteMode()` follows
+    `prefers-reduced-motion`, so those visitors get the static hero, the pill nav and no
+    three.js. An explicit `?lite=0` (or the footer toggle) is stored as `"0"` and beats that
+    default. The pre-paint script in `app/layout.tsx` mirrors the same rule — change one, change
+    the other. (It used to keep a still-rendered WebGL hero for reduced motion; that meant the
+    static hero swapped to WebGL a moment later, which was a visible jump.)
   - **Reachable under the loader's "Enter" CTA** (where the choice is actually made), as the
     footer toggle (`aria-pressed`, visible on/off state) on every route, and — going the other way
     — a "Switch to the full experience" link in `<StaticHero>`. (`<IntroEscape>` used to offer a
@@ -488,7 +517,7 @@ A shared helper is not enough — two call sites can still pass different widths
 the list:** `CurvedMarqueeHero` exports `MARQUEE_TEXTURES`, the exact URL array it hands to
 `TextureLoader`, and `HeroSection` passes *that same array* to `useAssetsLoaded`. One array, no
 second source of truth, drift impossible by construction rather than by convention. The single-width
-URL builder (`optimizedSrc`) lives beside `DEVICE_SIZES` and `DEFAULT_QUALITY` in
+URL builder (`optimizedSrc`) lives beside `IMAGE_DEVICE_SIZES` and `IMAGE_QUALITY` in
 `useAssetsLoaded.ts`, so the coupling to Next's image defaults stays in one file.
 
 Optional dev-only check: after hand-off, compare each warmed URL against
@@ -675,9 +704,6 @@ unconsumed dead code), so the FAQ/CFP contradiction noted in an earlier pass of 
 longer applies — there's no rendered FAQ to contradict anything. `content/faq.json` itself is
 still sitting in the repo, unread by any code; revisit it only if the FAQ section gets rebuilt.
 
-- **`/contact` still invites "sponsorship" enquiries** (`app/contact/page.tsx`) even though there
-  is no 2026 sponsorship programme, `/sponsors` 404s, and the tiers are gone from config. This one
-  is independent of the FAQ and still live — worth a copy fix.
 - **~~The Code of Conduct ships flagged as a placeholder~~** — resolved: there's no local CoC page
   any more. Every "Code of Conduct" link goes to Google's own GDG CoC
   (`siteConfig.codeOfConduct.url`), so there's no local copy to flag or keep reviewed.

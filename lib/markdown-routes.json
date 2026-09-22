@@ -1,0 +1,5 @@
+{
+  "_comment": "The one list of pages that have a markdown twin (app/md/**). Read by lib/seo.ts (the <link rel=alternate> tags) and scripts/markdown-rule.mjs (the Cloudflare rewrite rule + the drift check). Add a page here, add its app/md handler, then update the Cloudflare rule: `npm run md:rule` prints it.",
+  "pages": ["/", "/agenda", "/speakers", "/tickets", "/tickets/select", "/partner", "/contact", "/creators", "/memories"],
+  "prefixes": ["/speakers/"]
+}

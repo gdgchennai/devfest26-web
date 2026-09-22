@@ -10,3 +10,7 @@ export function newUserId(): string {
 export function newScoreId(): string {
   return `sc_${crypto.randomUUID().replace(/-/g, "")}`;
 }
+
+export function newGameSessionId(): string {
+  return `gs_${crypto.randomUUID().replace(/-/g, "")}`;
+}

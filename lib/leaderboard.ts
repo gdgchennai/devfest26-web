@@ -13,6 +13,8 @@ export type GameScoreRecord = {
   level_data: string | null;
   created_at: number;
   attempt_number?: number;
+  /** The board this run was on (see GAME_VARIANTS). '' = a single-board game. */
+  variant: string;
 };
 
 export type LeaderboardEntry = {
@@ -27,6 +29,7 @@ export type LeaderboardEntry = {
   levelData?: string | null;
   createdAt: number;
   attemptNumber?: number;
+  variant?: string;
   rank?: number;
 };
 
@@ -74,7 +77,8 @@ async function ensureTable(db: D1Database): Promise<void> {
           time_ms     INTEGER NOT NULL,
           moves       INTEGER NOT NULL DEFAULT 0,
           level_data  TEXT,
-          created_at  INTEGER NOT NULL
+          created_at  INTEGER NOT NULL,
+          variant     TEXT NOT NULL DEFAULT ''
         )`,
       )
       .run();
@@ -103,6 +107,33 @@ async function ensureTable(db: D1Database): Promise<void> {
         // Safe to ignore if column already exists
       });
 
+    // Per-board leaderboards. Added here rather than in a migration on purpose: this runs
+    // on every cold start, so a migration doing the same ALTER would fail with "duplicate
+    // column" once any Worker had started. The ALTER only succeeds on a table from before
+    // the column existed, and only then are its old rows given a board (the level text says
+    // which one where it can: slide-mode jigsaw and typing mode were never recorded).
+    const addedVariant = await db
+      .prepare(`ALTER TABLE game_scores ADD COLUMN variant TEXT NOT NULL DEFAULT ''`)
+      .run()
+      .then(() => true)
+      .catch(() => false);
+    if (addedVariant) {
+      await db
+        .prepare(`UPDATE game_scores SET variant = substr(level_data, 1, 1) WHERE game_id = 'jigsaw' AND level_data GLOB '[345]x[345] Grid'`)
+        .run()
+        .catch(() => {});
+      await db
+        .prepare(
+          `UPDATE game_scores SET variant = CAST(CAST(substr(level_data, 1, instr(level_data, ' ') - 1) AS INTEGER) / 2 AS TEXT) WHERE game_id = 'memory' AND level_data GLOB '[0-9]* Cards*'`,
+        )
+        .run()
+        .catch(() => {});
+    }
+    await db
+      .prepare(`CREATE INDEX IF NOT EXISTS idx_game_scores_board ON game_scores(game_id, variant, score DESC, time_ms ASC)`)
+      .run()
+      .catch(() => {});
+
     tableEnsured = true;
   } catch (err) {
     console.warn("D1 game_scores table initialization fallback:", err);
@@ -113,12 +144,15 @@ async function ensureTable(db: D1Database): Promise<void> {
  * Save a new game score for an authenticated user.
  */
 export async function saveGameScore(params: {
+  /** The game session id. Used as the row id, so one run can only ever be recorded once. */
+  id?: string;
   userId: string;
   gameId: string;
   score: number;
   timeMs: number;
   moves?: number;
   levelData?: string | null;
+  variant?: string;
 }): Promise<GameScoreRecord> {
   let attemptNumber = 1;
   try {
@@ -136,7 +170,7 @@ export async function saveGameScore(params: {
   }
 
   const record: GameScoreRecord = {
-    id: newScoreId(),
+    id: params.id ?? newScoreId(),
     user_id: params.userId,
     game_id: params.gameId,
     score: Math.max(0, Math.floor(params.score)),
@@ -145,6 +179,7 @@ export async function saveGameScore(params: {
     level_data: params.levelData ?? null,
     created_at: Date.now(),
     attempt_number: attemptNumber,
+    variant: params.variant ?? "",
   };
 
   try {
@@ -152,8 +187,8 @@ export async function saveGameScore(params: {
     await ensureTable(db);
     await db
       .prepare(
-        `INSERT INTO game_scores (id, user_id, game_id, score, time_ms, moves, level_data, created_at, attempt_number)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO game_scores (id, user_id, game_id, score, time_ms, moves, level_data, created_at, attempt_number, variant)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         record.id,
@@ -165,6 +200,7 @@ export async function saveGameScore(params: {
         record.level_data,
         record.created_at,
         record.attempt_number,
+        record.variant,
       )
       .run();
   } catch (error) {
@@ -181,10 +217,10 @@ export async function saveGameScore(params: {
 }
 
 /**
- * Get top leaderboard scores for a specific game (e.g. 'jigsaw', 'crossword', 'memory').
+ * Get top leaderboard scores for one board of a game (e.g. jigsaw "4", memory "8").
  * Returns the best attempt per user directly via SQLite Window Functions.
  */
-export async function getGameLeaderboard(gameId: string, limit = 50): Promise<LeaderboardEntry[]> {
+export async function getGameLeaderboard(gameId: string, variant: string, limit = 50): Promise<LeaderboardEntry[]> {
   try {
     const db = await getDb();
     await ensureTable(db);
@@ -201,6 +237,7 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
            best_attempts.level_data,
            best_attempts.created_at,
            best_attempts.attempt_number,
+           best_attempts.variant,
            COALESCE(u.display_name, u.name, 'DevFest Player') AS user_name,
            u.image AS user_image
          FROM (
@@ -214,19 +251,20 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
              level_data,
              created_at,
              attempt_number,
+             variant,
              ROW_NUMBER() OVER (
                PARTITION BY user_id 
                ORDER BY score DESC, time_ms ASC, created_at ASC
              ) as rn
            FROM game_scores
-           WHERE game_id = ?
+           WHERE game_id = ? AND variant = ?
          ) best_attempts
          LEFT JOIN users u ON u.id = best_attempts.user_id
          WHERE best_attempts.rn = 1
          ORDER BY best_attempts.score DESC, best_attempts.time_ms ASC, best_attempts.created_at ASC
          LIMIT ?`,
       )
-      .bind(gameId, limit)
+      .bind(gameId, variant, limit)
       .all<{
         id: string;
         user_id: string;
@@ -237,6 +275,7 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
         level_data: string | null;
         created_at: number;
         attempt_number: number | null;
+        variant: string | null;
         user_name: string;
         user_image: string | null;
       }>();
@@ -253,12 +292,13 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
       levelData: row.level_data,
       createdAt: row.created_at,
       attemptNumber: row.attempt_number || 1,
+      variant: row.variant ?? variant,
       rank: index + 1,
     }));
   } catch (error) {
     console.warn("D1 getGameLeaderboard fallback to memory store:", error);
     const filtered = memoryScores
-      .filter((s) => s.game_id === gameId)
+      .filter((s) => s.game_id === gameId && s.variant === variant)
       .sort((a, b) => b.score - a.score || a.time_ms - b.time_ms || a.created_at - b.created_at);
 
     const seen = new Set<string>();
@@ -279,6 +319,7 @@ export async function getGameLeaderboard(gameId: string, limit = 50): Promise<Le
           levelData: row.level_data,
           createdAt: row.created_at,
           attemptNumber: row.attempt_number || 1,
+          variant: row.variant,
           rank: entries.length + 1,
         });
       }
@@ -417,7 +458,7 @@ export async function getUserGameScores(userId: string): Promise<GameScoreRecord
     await ensureTable(db);
     const { results } = await db
       .prepare(
-        `SELECT id, user_id, game_id, score, time_ms, moves, level_data, created_at, attempt_number
+        `SELECT id, user_id, game_id, score, time_ms, moves, level_data, created_at, attempt_number, variant
          FROM game_scores
          WHERE user_id = ?
          ORDER BY created_at DESC`,

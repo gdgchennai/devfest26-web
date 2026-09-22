@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cloudflare/OpenNext build output (created by `npm run preview` / `deploy`) and
+    // local Wrangler state. Bundled JS, not source: linting it runs Node out of memory.
+    ".open-next/**",
+    ".wrangler/**",
     // Standalone workers — not part of the app, linted/typechecked on their own.
     "workers/**",
   ]),

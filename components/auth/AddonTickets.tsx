@@ -23,7 +23,7 @@ export function AddonTickets({ addons }: { addons: TicketAddon[] }) {
 
   return (
     <div className="mt-4">
-      <p className="font-mono text-xs uppercase tracking-wide text-paper/50">Add-on tickets</p>
+      <p className="text-xs uppercase tracking-wide text-paper/50">Add-on tickets</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <select
           aria-label="View add-on tickets"

@@ -1,7 +1,7 @@
 "use client";
 
 import { track } from "@/lib/analytics";
-import { LITE_STORAGE_KEY, clearLiteMode, isLiteMode, notifyLiteModeChange } from "@/lib/motion-prefs";
+import { LITE_STORAGE_KEY, isLiteMode, notifyLiteModeChange, optOutOfLiteMode } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 
 /**
@@ -22,7 +22,7 @@ export function useLiteModeToggle(): { lite: boolean; setLite: (next: boolean) =
   function setLite(next: boolean) {
     track("lite_mode", { enabled: next ? 1 : 0 });
     if (next) window.localStorage.setItem(LITE_STORAGE_KEY, "1");
-    else clearLiteMode();
+    else optOutOfLiteMode();
 
     const url = new URL(window.location.href);
     url.searchParams.set("lite", next ? "1" : "0");

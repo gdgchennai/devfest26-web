@@ -70,7 +70,7 @@ export function NotFoundHighlights() {
 function HighlightCard({ item }: { item: Highlight }) {
   const body = (
     <>
-      <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-paper/60">
+      <span className="text-[0.6875rem] uppercase tracking-wider text-paper/60">
         {item.eyebrow}
       </span>
       <span className="mt-2 block text-lg font-semibold">

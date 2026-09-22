@@ -1,32 +1,31 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import initialCrosswords from "@/content/crosswords.json";
 import type { GameScoreSubmission } from "./ScoreModal";
-import type { CrosswordPuzzle, CrosswordClue } from "@/lib/games-content";
+import type { PublicCrosswordPuzzle as CrosswordPuzzle, PublicCrosswordClue as CrosswordClue } from "@/lib/game-rules";
+import { dailyPuzzleIndex, msUntilNextPuzzle } from "@/lib/game-rules";
+import { gameApi } from "@/lib/games-client";
 
-// Calculate current 24-hour cycle day index
-function getDailyPuzzleIndex(poolLength: number): number {
-  if (!poolLength) return 0;
-  const now = new Date();
-  const utcDays = Math.floor((now.getTime() - now.getTimezoneOffset() * 60000) / 86400000);
-  return Math.abs(utcDays) % poolLength;
-}
-
+// Same rollover as the server (midnight IST): the puzzle it deals is today's.
 function getRemainingCycleTime(): string {
-  const now = new Date();
-  const nextMidnight = new Date(now);
-  nextMidnight.setHours(24, 0, 0, 0);
-  const diffSec = Math.max(0, Math.floor((nextMidnight.getTime() - now.getTime()) / 1000));
+  const diffSec = Math.max(0, Math.floor(msUntilNextPuzzle(Date.now()) / 1000));
   const hours = Math.floor(diffSec / 3600);
   const minutes = Math.floor((diffSec % 3600) / 60);
   return `${hours}h ${minutes}m`;
 }
 
+/** Index of today's puzzle. A helper (not inline in render) because it reads the clock. */
+function todaysPuzzleIndex(poolLength: number): number {
+  return dailyPuzzleIndex(poolLength, Date.now());
+}
+
+/** Shown until the puzzle list arrives. The answers never ship with the page — the
+ *  browser only ever gets the grid and clues (see toPublicPuzzle). */
+const LOADING_PUZZLE: CrosswordPuzzle = { id: "loading", title: "Loading today's puzzle…", category: "", size: 10, clues: [] };
+
 type CellData = {
   row: number;
   col: number;
-  letter: string;
   number?: number;
   acrossClueIndex?: number;
   downClueIndex?: number;
@@ -41,9 +40,11 @@ export function CrosswordGame({
   onFinishGame,
   onCycleTimeCalculated,
 }: CrosswordGameProps) {
-  const [puzzles, setPuzzles] = useState<CrosswordPuzzle[]>(initialCrosswords as CrosswordPuzzle[]);
-  const dailyIdx = useMemo(() => getDailyPuzzleIndex(puzzles.length), [puzzles.length]);
-  const puzzle = puzzles[dailyIdx] || puzzles[0] || (initialCrosswords[0] as CrosswordPuzzle);
+  const [puzzles, setPuzzles] = useState<CrosswordPuzzle[]>([]);
+  // The puzzle the server dealt for this run; it wins over our guess at "today's".
+  const [dealtPuzzle, setDealtPuzzle] = useState<CrosswordPuzzle | null>(null);
+  const dailyIdx = useMemo(() => todaysPuzzleIndex(puzzles.length), [puzzles.length]);
+  const puzzle = dealtPuzzle || puzzles[dailyIdx] || puzzles[0] || LOADING_PUZZLE;
 
   // API-first fetch for latest crosswords
   useEffect(() => {
@@ -74,8 +75,8 @@ export function CrosswordGame({
   const { gridMatrix, actualSize } = useMemo(() => {
     let computedSize = puzzle.size || 10;
     puzzle.clues.forEach((clue) => {
-      const maxRow = clue.direction === "down" ? clue.row + clue.answer.length : clue.row + 1;
-      const maxCol = clue.direction === "across" ? clue.col + clue.answer.length : clue.col + 1;
+      const maxRow = clue.direction === "down" ? clue.row + clue.length : clue.row + 1;
+      const maxCol = clue.direction === "across" ? clue.col + clue.length : clue.col + 1;
       if (maxRow > computedSize) computedSize = maxRow;
       if (maxCol > computedSize) computedSize = maxCol;
     });
@@ -85,13 +86,13 @@ export function CrosswordGame({
     );
 
     puzzle.clues.forEach((clue, clueIdx) => {
-      const len = clue.answer.length;
+      const len = clue.length;
       for (let i = 0; i < len; i++) {
         const r = clue.direction === "across" ? clue.row : clue.row + i;
         const c = clue.direction === "across" ? clue.col + i : clue.col;
 
         if (r >= 0 && r < computedSize && c >= 0 && c < computedSize && matrix[r]) {
-          const existing = matrix[r][c] || { row: r, col: c, letter: clue.answer[i] };
+          const existing = matrix[r][c] || { row: r, col: c };
           if (i === 0) {
             existing.number = clue.number;
           }
@@ -120,8 +121,14 @@ export function CrosswordGame({
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [elapsedMs, setElapsedMs] = useState<number>(0);
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
-  const [hintsUsed, setHintsUsed] = useState<number>(0);
   const [checkedCells, setCheckedCells] = useState<Record<string, boolean>>({});
+  const [checksLeft, setChecksLeft] = useState<number | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState<boolean>(false);
+
+  // The server-side run: it holds the answers, counts hints and checks, and scores.
+  const sessionIdRef = useRef<string | null>(null);
+  const finishingRef = useRef<boolean>(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -137,14 +144,33 @@ export function CrosswordGame({
     setSelectedCell({ row: puzzle.clues[0]?.row ?? 0, col: puzzle.clues[0]?.col ?? 0 });
     setDirection(puzzle.clues[0]?.direction ?? "across");
     setCheckedCells({});
-    setHintsUsed(0);
+    setChecksLeft(null);
+    setNotice(null);
     setHasStarted(false);
     setGameCompleted(false);
     setElapsedMs(0);
     startTimeRef.current = 0;
+    sessionIdRef.current = null;
+    finishingRef.current = false;
+    setDealtPuzzle(null);
   }, [puzzle]);
 
-  const handleStartPuzzle = () => {
+  const handleStartPuzzle = async () => {
+    if (isStarting || puzzle.id === "loading") return;
+    setIsStarting(true);
+    setNotice(null);
+    // No offline mode here: without the answers on the page, only the server can tell
+    // whether the grid is right, so the puzzle needs it to start.
+    const started = await gameApi.startCrossword();
+    setIsStarting(false);
+    if (!started.ok) {
+      setNotice("Couldn't reach the game server. Check your connection and try again.");
+      return;
+    }
+    sessionIdRef.current = started.data.sessionId;
+    finishingRef.current = false;
+    setDealtPuzzle(started.data.puzzle);
+    setChecksLeft(null);
     setHasStarted(true);
     setGameCompleted(false);
     setElapsedMs(0);
@@ -169,42 +195,33 @@ export function CrosswordGame({
     };
   }, [hasStarted, gameCompleted]);
 
-  // Check victory condition
+  // Victory. The browser can't know the answers, so once every square is filled it asks
+  // the server; a wrong grid just comes back "incorrect" and play carries on.
   const checkVictory = useCallback(
     (grid: string[][]) => {
-      if (gameCompleted || !hasStarted) return;
+      const sessionId = sessionIdRef.current;
+      if (gameCompleted || !hasStarted || !sessionId || finishingRef.current) return;
 
-      let allCorrect = true;
       for (let r = 0; r < gridMatrix.length; r++) {
         for (let c = 0; c < gridMatrix[r].length; c++) {
-          const cell = gridMatrix[r][c];
-          if (cell && grid[r]?.[c]?.toUpperCase() !== cell.letter.toUpperCase()) {
-            allCorrect = false;
-            break;
-          }
+          if (gridMatrix[r][c] && !grid[r]?.[c]) return;
         }
-        if (!allCorrect) break;
       }
 
-      if (allCorrect) {
-        setGameCompleted(true);
-        const finalTime = Math.max(1000, Date.now() - startTimeRef.current);
-        const baseScore = 5000;
-        const timePenalty = Math.floor((finalTime / 1000) * 8);
-        const hintPenalty = hintsUsed * 250;
-        const finalScore = Math.max(300, baseScore - timePenalty - hintPenalty);
-
-        onFinishGame({
-          gameId: "crossword",
-          gameTitle: `Tech Crossword: ${puzzle.title}`,
-          score: finalScore,
-          timeMs: finalTime,
-          moves: hintsUsed,
-          levelData: `${puzzle.title} • ${puzzle.clues.length} Clues`,
-        });
-      }
+      finishingRef.current = true;
+      void gameApi.finish(sessionId, { grid }).then((done) => {
+        finishingRef.current = false;
+        if (done.ok) {
+          setGameCompleted(true);
+          onFinishGame({ ...done.data.result, sessionId });
+        } else if (done.reason === "too_many_attempts") {
+          setNotice("Too many wrong submissions for this run. Reset the puzzle to try again.");
+        } else if (done.reason && done.reason !== "incorrect") {
+          setNotice("The server couldn't accept this run. Reset the puzzle to try again.");
+        }
+      });
     },
-    [gameCompleted, hasStarted, gridMatrix, hintsUsed, onFinishGame, puzzle],
+    [gameCompleted, hasStarted, gridMatrix, onFinishGame],
   );
 
   function handleCellClick(row: number, col: number) {
@@ -299,35 +316,41 @@ export function CrosswordGame({
     inputRef.current?.focus();
   }
 
-  function handleRevealLetter() {
-    if (!hasStarted) return;
+  async function handleRevealLetter() {
+    const sessionId = sessionIdRef.current;
+    if (!hasStarted || !sessionId) return;
     const { row, col } = selectedCell;
-    const cellData = gridMatrix[row]?.[col];
-    if (!cellData) return;
+    if (!gridMatrix[row]?.[col]) return;
 
+    // The server holds the letter, and counts the hint against the score.
+    const res = await gameApi.hint(sessionId, row, col);
+    if (!res.ok) {
+      setNotice("Couldn't reveal that letter right now.");
+      return;
+    }
     const nextGrid = userGrid.map((r) => [...r]);
     if (!nextGrid[row]) {
       nextGrid[row] = Array.from({ length: actualSize }, () => "");
     }
-    nextGrid[row][col] = cellData.letter;
+    nextGrid[row][col] = res.data.letter;
     setUserGrid(nextGrid);
-    setHintsUsed((h) => h + 1);
     advanceToNextCell(row, col);
     checkVictory(nextGrid);
   }
 
-  function handleCheckAll() {
-    if (!hasStarted) return;
-    const checks: Record<string, boolean> = {};
-    for (let r = 0; r < gridMatrix.length; r++) {
-      for (let c = 0; c < gridMatrix[r].length; c++) {
-        const cell = gridMatrix[r][c];
-        if (cell && userGrid[r]?.[c]) {
-          checks[`${r},${c}`] = userGrid[r][c].toUpperCase() === cell.letter.toUpperCase();
-        }
+  async function handleCheckAll() {
+    const sessionId = sessionIdRef.current;
+    if (!hasStarted || !sessionId) return;
+    const res = await gameApi.check(sessionId, userGrid);
+    if (!res.ok) {
+      if (res.error === "check_limit") {
+        setChecksLeft(0);
+        setNotice("No checks left for this run.");
       }
+      return;
     }
-    setCheckedCells(checks);
+    setCheckedCells(res.data.results);
+    setChecksLeft(res.data.checksLeft);
   }
 
   const focusInput = () => {
@@ -345,13 +368,13 @@ export function CrosswordGame({
       return (
         selectedCell.row === c.row &&
         selectedCell.col >= c.col &&
-        selectedCell.col < c.col + c.answer.length
+        selectedCell.col < c.col + c.length
       );
     } else {
       return (
         selectedCell.col === c.col &&
         selectedCell.row >= c.row &&
-        selectedCell.row < c.row + c.answer.length
+        selectedCell.row < c.row + c.length
       );
     }
   });
@@ -367,13 +390,13 @@ export function CrosswordGame({
       />
 
       {/* Active Clue Bar banner */}
-      <div className="rounded-2xl border border-[var(--blue)]/30 bg-[var(--blue)]/10 p-3.5 sm:p-4 flex items-center justify-between gap-4">
+      <div className="rounded-2xl border border-blue/30 bg-blue/10 p-3.5 sm:p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--blue)] text-xs font-bold text-white font-mono shrink-0">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue text-xs font-bold text-white shrink-0">
             {activeClue ? `${activeClue.number}${activeClue.direction[0].toUpperCase()}` : "—"}
           </span>
           <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--blue-halftone)]">
+            <div className="text-[10px] uppercase tracking-wider text-blue-halftone">
               {direction.toUpperCase()} CLUE
             </div>
             <div className="text-xs sm:text-sm font-medium text-paper truncate sm:whitespace-normal mt-0.5">
@@ -386,24 +409,30 @@ export function CrosswordGame({
             type="button"
             onClick={handleRevealLetter}
             disabled={!hasStarted}
-            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs font-mono text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Reveal Letter
           </button>
           <button
             type="button"
             onClick={handleCheckAll}
-            disabled={!hasStarted}
-            className="hidden sm:inline-flex rounded-xl border border-[var(--blue)]/40 bg-[var(--blue)]/10 px-2.5 py-1 text-xs font-mono text-[var(--blue-halftone)] hover:bg-[var(--blue)]/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled={!hasStarted || checksLeft === 0}
+            className="hidden sm:inline-flex rounded-xl border border-blue/40 bg-blue/10 px-2.5 py-1 text-xs text-blue-halftone hover:bg-blue/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Check
+            {checksLeft === null ? "Check" : `Check (${checksLeft})`}
           </button>
           <div className="text-right">
-            <div className="text-[10px] font-mono uppercase text-paper/60">Time</div>
-            <div className="text-base sm:text-lg font-bold font-mono text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
+            <div className="text-[10px] uppercase text-paper/60">Time</div>
+            <div className="text-base sm:text-lg font-bold text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
           </div>
         </div>
       </div>
+
+      {hasStarted && notice && (
+        <div role="status" className="rounded-xl border border-red/30 bg-red/10 px-3 py-2 text-xs text-red">
+          {notice}
+        </div>
+      )}
 
       {/* Main Grid + Clues Container */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -412,7 +441,7 @@ export function CrosswordGame({
           <div
             tabIndex={0}
             onClick={focusInput}
-            className="relative w-full max-w-[480px] aspect-square rounded-2xl border-2 border-paper/20 bg-black/80 p-2.5 sm:p-3 shadow-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--blue)]"
+            className="relative w-full max-w-[480px] aspect-square rounded-2xl border-2 border-paper/20 bg-ink/80 p-2.5 sm:p-3 shadow-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue"
           >
             <div
               className={`grid w-full h-full gap-1 transition-all duration-300 ${
@@ -434,11 +463,11 @@ export function CrosswordGame({
                     ((activeClue.direction === "across" &&
                       r === activeClue.row &&
                       c >= activeClue.col &&
-                      c < activeClue.col + activeClue.answer.length) ||
+                      c < activeClue.col + activeClue.length) ||
                       (activeClue.direction === "down" &&
                         c === activeClue.col &&
                         r >= activeClue.row &&
-                        r < activeClue.row + activeClue.answer.length));
+                        r < activeClue.row + activeClue.length));
 
                   const checkStatus = checkedCells[key];
 
@@ -457,25 +486,25 @@ export function CrosswordGame({
                       onClick={() => handleCellClick(r, c)}
                       className={`relative flex items-center justify-center rounded-md cursor-pointer select-none transition-all duration-100 ${
                         isSelected
-                          ? "bg-[var(--blue)] text-white ring-2 ring-white z-20"
+                          ? "bg-blue text-white ring-2 ring-paper z-20"
                           : isHighlightedInWord
-                          ? "bg-[var(--blue)]/30 text-paper border border-[var(--blue)]/60"
+                          ? "bg-blue/30 text-paper border border-blue/60"
                           : "bg-surface-raised text-paper border border-paper/20 hover:border-paper/60"
                       } ${
                         checkStatus === false
-                          ? "ring-2 ring-[var(--red)]"
+                          ? "ring-2 ring-red"
                           : checkStatus === true
-                          ? "ring-2 ring-[var(--green)]"
+                          ? "ring-2 ring-green"
                           : ""
                       }`}
                     >
                       {cell.number && (
-                        <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] font-mono leading-none text-paper/70 font-semibold">
+                        <span className="absolute top-0.5 left-1 text-[8px] sm:text-[9px] leading-none text-paper/70 font-semibold">
                           {cell.number}
                         </span>
                       )}
 
-                      <span className="text-sm sm:text-base md:text-lg font-bold font-mono uppercase">
+                      <span className="text-sm sm:text-base md:text-lg font-bold uppercase">
                         {userGrid[r]?.[c] || ""}
                       </span>
                     </div>
@@ -486,22 +515,24 @@ export function CrosswordGame({
 
             {/* Start Puzzle Overlay if not started */}
             {!hasStarted && !gameCompleted && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-center animate-fade-in">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--green)]/20 text-[var(--green)] mb-3">
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-ink/60 backdrop-blur-sm p-6 text-center animate-fade-in">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green/20 text-green mb-3">
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M3 12h18M3 19h18M7 3v18M17 3v18" />
                   </svg>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{puzzle.title}</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-paper tracking-tight">{puzzle.title}</h3>
                 <p className="text-xs text-paper/70 mt-1 max-w-xs">
                   Solve {puzzle.clues.length} mixed Google, Android & Cloud clues in a {actualSize}×{actualSize} grid.
                 </p>
+                {notice && <p className="mt-3 max-w-xs text-xs text-red">{notice}</p>}
                 <button
                   type="button"
                   onClick={handleStartPuzzle}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--blue)] px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-[var(--blue)]/30 hover:bg-[var(--blue)]/90 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  disabled={isStarting || puzzle.id === "loading"}
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue/30 hover:bg-blue/90 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:hover:scale-100"
                 >
-                  <span>Start Puzzle</span>
+                  <span>{isStarting ? "Dealing…" : "Start Puzzle"}</span>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
@@ -510,7 +541,7 @@ export function CrosswordGame({
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] text-paper/60 font-mono">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] text-paper/60">
             <span>Click cell</span>
             <span>•</span>
             <span>Space/Tab to switch direction</span>
@@ -523,7 +554,7 @@ export function CrosswordGame({
         <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
           {/* ACROSS CLUES */}
           <div className="rounded-2xl border border-paper/10 bg-surface p-4 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--blue-halftone)] mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
+            <h3 className="text-xs uppercase tracking-wider text-blue-halftone mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -542,16 +573,16 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-[var(--blue)]/20 border border-[var(--blue)] text-paper shadow-sm"
+                          ? "bg-blue/20 border border-blue text-paper shadow-sm"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-mono font-bold text-[var(--blue)] mr-2">
+                      <span className="font-bold text-blue mr-2">
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
-                      <span className="block text-[10px] font-mono text-paper/40 mt-0.5">
-                        ({clue.answer.length} letters)
+                      <span className="block text-[10px] text-paper/40 mt-0.5">
+                        ({clue.length} letters)
                       </span>
                     </button>
                   );
@@ -561,7 +592,7 @@ export function CrosswordGame({
 
           {/* DOWN CLUES */}
           <div className="rounded-2xl border border-paper/10 bg-surface p-4 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--green-halftone)] mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
+            <h3 className="text-xs uppercase tracking-wider text-green-halftone mb-3 pb-2 border-b border-paper/10 flex items-center gap-2">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
@@ -580,16 +611,16 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-[var(--green)]/20 border border-[var(--green)] text-paper shadow-sm"
+                          ? "bg-green/20 border border-green text-paper shadow-sm"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-mono font-bold text-[var(--green)] mr-2">
+                      <span className="font-bold text-green mr-2">
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
-                      <span className="block text-[10px] font-mono text-paper/40 mt-0.5">
-                        ({clue.answer.length} letters)
+                      <span className="block text-[10px] text-paper/40 mt-0.5">
+                        ({clue.length} letters)
                       </span>
                     </button>
                   );

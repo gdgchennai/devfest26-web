@@ -80,10 +80,12 @@ export function GamesHub() {
           const parsed: GameScoreSubmission = JSON.parse(stored);
           localStorage.removeItem("devfest_pending_score");
 
+          // Nothing to tamper with: the run's score lives on the server, we send its id.
+          if (!parsed.sessionId) return;
           fetch("/api/games/scores", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(parsed),
+            body: JSON.stringify({ sessionId: parsed.sessionId }),
           })
             .then((res) => res.json() as Promise<{ ok?: boolean }>)
             .then((data) => {
@@ -125,7 +127,7 @@ export function GamesHub() {
     <div className="flex flex-col gap-6 sm:gap-8">
       {/* Auto Submit Notification Banner */}
       {autoSubmitMessage && (
-        <div className="rounded-2xl border border-[var(--green)]/40 bg-[var(--green)]/10 p-4 text-center text-xs sm:text-sm font-medium text-[var(--green)] shadow-lg animate-fade-in flex items-center justify-between gap-3">
+        <div className="rounded-2xl border border-green/40 bg-green/10 p-4 text-center text-xs sm:text-sm font-medium text-green shadow-lg animate-fade-in flex items-center justify-between gap-3">
           <span>{autoSubmitMessage}</span>
           <button
             type="button"
@@ -208,14 +210,14 @@ export function GamesHub() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left transition-all shrink-0 cursor-pointer ${
                   isActive
-                    ? "border-[var(--blue)] bg-surface-raised ring-2 ring-[var(--blue)]/30 text-paper shadow-lg"
+                    ? "border-blue bg-surface-raised ring-2 ring-blue/30 text-paper shadow-lg"
                     : "border-paper/10 bg-surface text-paper/70 hover:border-paper/30 hover:text-paper hover:bg-surface-raised"
                 }`}
               >
                 <span
                   className="flex h-8 w-8 items-center justify-center rounded-xl transition-colors"
                   style={{
-                    backgroundColor: isActive ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)",
+                    backgroundColor: isActive ? "color-mix(in srgb, var(--paper) 8%, transparent)" : "color-mix(in srgb, var(--paper) 3%, transparent)",
                     color: isActive ? tab.accent : "currentColor",
                   }}
                 >
@@ -223,7 +225,7 @@ export function GamesHub() {
                 </span>
                 <div>
                   <div className="text-xs sm:text-sm font-bold leading-tight">{tab.label}</div>
-                  <div className="text-[10px] font-mono text-paper/50 hidden sm:block">
+                  <div className="text-[10px] text-paper/50 hidden sm:block">
                     {tab.desc}
                   </div>
                 </div>

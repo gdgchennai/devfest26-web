@@ -14,6 +14,9 @@ declare global {
     AUTH_GOOGLE_SECRET: string;
     /** Gemini API key for the typing game's word-generation prompt. */
     GEMINI_API_KEY?: string;
+    /** Gemini model id for that prompt. Optional — see DEFAULT_GEMINI_MODEL in
+     *  app/api/games/typing/route.ts. Set this when a model is retired. */
+    GEMINI_MODEL?: string;
   }
 }
 
