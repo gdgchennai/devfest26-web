@@ -283,8 +283,8 @@ export const siteConfig = {
       date: "2026-09-12",
       description:
         "Dive into the world of AI workflows, build, network and have fun.",
-      ctaLabel: "Sold out",
-      // href: "https://luma.com/1jjkxsmy",
+      ctaLabel: "See highlights →",
+      href: "https://drive.google.com/drive/folders/1ibaQI0qqio_8l3eY49vCJRfFDIz_gs6Y",
       image: "/banner/purple.webp",
       color: "bg-purple-pastel",
     },
@@ -294,8 +294,8 @@ export const siteConfig = {
       date: "2026-09-13",
       description:
         "Learn how AI impacts fields beyond tech. Explore how science is evolving with AI",
-      ctaLabel: "Sold out",
-      // href: "https://gdg.community.dev/events/details/google-gdg-chennai-presents-devfest-roadshow-2-from-mind-to-universe-how-neuro-science-shapes-ai-and-ai-unlocks-cosmic-discoveries/",
+      ctaLabel: "See highlights →",
+      href: "https://drive.google.com/drive/folders/1ebyTWq5a4OpT0Z9HzlQnY0PSW6UCWz3B",
       image: "/banner/green.webp",
       color: "bg-green-pastel",
     },
@@ -305,8 +305,8 @@ export const siteConfig = {
       date: "2026-09-19",
       description:
         "React in 2026: bigger, faster, still your favorite. Let's talk.",
-      ctaLabel: "RSVP now →",
-      href: "https://luma.com/49bulo2m",
+      ctaLabel: "See highlights →",
+      href: "https://drive.google.com/drive/folders/1Q7ugi4JWnYQwltE9TwRMNeLjoESMqRXC",
       image: "/banner/blue.webp",
       color: "bg-blue-pastel",
     },
@@ -333,15 +333,26 @@ export const siteConfig = {
       color: "bg-blue-pastel",
     },
     {
-      slug: "kug-irl",
-      title: "Shipaton - Kotlin Edition",
+      slug: "mongo-grafana",
+      title: "AI in Action: RAG, Chatbots & Agents",
       date: "2026-09-26",
       description:
-        "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
+        "Join us to learn building intelligent applications with Grafana and MongoDB",
       ctaLabel: "RSVP Now →",
-      href: "https://luma.com/mprx0ocg",
-      image: "/banner/purple.webp",
-      color: "bg-purple-pastel",
+      href: "https://www.meetup.com/mongodb-usergroup-chennai/events/316460911/",
+      image: "/banner/red.webp",
+      color: "bg-red-pastel",
+    },
+    {
+      slug: "ai-geeks",
+      title: "Agentic AI at Enterprise level",
+      date: "2026-09-26",
+      description:
+        "Get ready for an exciting day of AI, Cloud, Kubernetes and more!",
+      ctaLabel: "RSVP Now →",
+      href: "https://luma.com/24f2qo7d",
+      image: "/banner/green.webp",
+      color: "bg-green-pastel",
     },
     {
       slug: "army-exclusive",
@@ -362,6 +373,17 @@ export const siteConfig = {
       ctaLabel: "Coming soon →",
       image: "/banner/red.webp",
       color: "bg-red-pastel",
+    },
+    {
+      slug: "kug-irl",
+      title: "Shipaton - Kotlin Edition",
+      date: "2026-10-10",
+      description:
+        "A Kotlin Mini Hackathon by Kotlin User Group Chennai.",
+      ctaLabel: "RSVP Now →",
+      href: "https://luma.com/mprx0ocg",
+      image: "/banner/purple.webp",
+      color: "bg-purple-pastel",
     },
     {
       slug: "devfest-on-campus",
@@ -576,7 +598,7 @@ export const uiCopy = {
     heading: "Page not found.",
     whatMostPeopleWantHeading: "What most people are looking for",
     everywhereElseHeading: "Everywhere else on the site",
-    whileYoureHere: "While you’re here",
+    whileYoureHere: "While you're here",
     archiveBlurb: "The 2024 and 2025 archive is the one part of this site that was never going to 404.",
     closing: "Hope to see you at DevFest.",
     highlights: {
