@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import Image from "next/image";
 import { useDialog } from "./useDialog";
+import { burstConfetti } from "@/lib/confetti";
 
 export type GameScoreSubmission = {
   gameId: "jigsaw" | "crossword" | "memory" | "typing";
@@ -46,6 +46,14 @@ export function ScoreModal({
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useDialog(dialogRef, isOpen && !!scoreData, onClose);
+
+  // Burst celebratory confetti from the bottom of the screen upon completion
+  useEffect(() => {
+    if (isOpen && scoreData) {
+      const cleanup = burstConfetti();
+      return cleanup;
+    }
+  }, [isOpen, scoreData]);
 
   if (!isOpen || !scoreData) return null;
 

@@ -8,9 +8,16 @@
  * If the server can't be reached the games fall back to a local, unranked practice
  * run (no `sessionId` on the result), so a network blip never blocks playing.
  */
-import type { GameResult, PublicCrosswordPuzzle } from "@/lib/game-rules";
+import type { GameResult, PublicCrosswordPuzzle, WrongClue } from "@/lib/game-rules";
 
-export type ApiFailure = { ok: false; status: number; error: string; reason?: string; checksLeft?: number };
+export type ApiFailure = {
+  ok: false;
+  status: number;
+  error: string;
+  reason?: string;
+  checksLeft?: number;
+  wrongClues?: WrongClue[];
+};
 export type ApiResult<T> = { ok: true; data: T } | ApiFailure;
 
 async function post<T>(url: string, body: unknown, timeoutMs = 8000): Promise<ApiResult<T>> {
@@ -29,6 +36,7 @@ async function post<T>(url: string, body: unknown, timeoutMs = 8000): Promise<Ap
         error: String(json.error ?? "request_failed"),
         reason: typeof json.reason === "string" ? json.reason : undefined,
         checksLeft: typeof json.checksLeft === "number" ? json.checksLeft : undefined,
+        wrongClues: Array.isArray(json.wrongClues) ? (json.wrongClues as WrongClue[]) : undefined,
       };
     }
     return { ok: true, data: json as T };
@@ -57,7 +65,10 @@ export const gameApi = {
     post<{ letter: string; hints: number }>("/api/games/session/hint", { sessionId, row, col }),
 
   check: (sessionId: string, grid: string[][]) =>
-    post<{ results: Record<string, boolean>; checksLeft: number }>("/api/games/session/check", { sessionId, grid }),
+    post<{ results: Record<string, boolean>; checksLeft: number; wrongClues?: WrongClue[] }>(
+      "/api/games/session/check",
+      { sessionId, grid },
+    ),
 
   finish: (sessionId: string, evidence: Record<string, unknown>) => post<FinishData>("/api/games/session/finish", { sessionId, evidence }),
 };

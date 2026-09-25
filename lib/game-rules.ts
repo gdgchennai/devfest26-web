@@ -278,6 +278,41 @@ export function crosswordCheck(p: CrosswordPuzzle, grid: unknown): Record<string
   return out;
 }
 
+export type WrongClue = {
+  number: number;
+  direction: "across" | "down";
+  row: number;
+  col: number;
+  length: number;
+};
+
+/** Identifies which clues (entire rows or columns) have incorrect answers without revealing the solution letters. */
+export function crosswordWrongClues(p: CrosswordPuzzle, grid: unknown): WrongClue[] {
+  const wrong: WrongClue[] = [];
+  for (const clue of p.clues) {
+    let hasMistake = false;
+    for (let i = 0; i < clue.answer.length; i++) {
+      const r = clue.direction === "across" ? clue.row : clue.row + i;
+      const c = clue.direction === "across" ? clue.col + i : clue.col;
+      const typed = gridLetter(grid, r, c);
+      if (typed !== clue.answer[i].toUpperCase()) {
+        hasMistake = true;
+        break;
+      }
+    }
+    if (hasMistake) {
+      wrong.push({
+        number: clue.number,
+        direction: clue.direction,
+        row: clue.row,
+        col: clue.col,
+        length: clue.answer.length,
+      });
+    }
+  }
+  return wrong;
+}
+
 export function crosswordScore(timeMs: number, hints: number): number {
   return Math.max(300, 5000 - Math.floor((timeMs / 1000) * 8) - hints * 250);
 }

@@ -17,11 +17,13 @@ const HeaderTitleContext = createContext<HeaderTitleContextType>({
 export function HeaderTitleProvider({ children }: { children: ReactNode }) {
   const [title, setTitle] = useState<string | null>(null);
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Reset custom title override whenever the route changes
-  useEffect(() => {
+  // Reset custom title override during render when pathname changes
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setTitle(null);
-  }, [pathname]);
+  }
 
   return (
     <HeaderTitleContext.Provider value={{ title, setTitle }}>

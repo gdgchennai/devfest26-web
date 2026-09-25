@@ -19,7 +19,6 @@ type JigsawGameProps = {
   gridSize?: number;
   isSlideMode?: boolean;
   selectedPhoto?: ArchivePhotoChoice;
-  onSelectPhoto?: (photo: ArchivePhotoChoice) => void;
 };
 
 export function JigsawGame({
@@ -27,7 +26,6 @@ export function JigsawGame({
   gridSize: externalGridSize = 3,
   isSlideMode: externalSlideMode = false,
   selectedPhoto: externalSelectedPhoto,
-  onSelectPhoto,
 }: JigsawGameProps) {
   const [photosPool, setPhotosPool] = useState<ArchivePhotoChoice[]>(initialPhotos as ArchivePhotoChoice[]);
   const currentPhoto = externalSelectedPhoto || photosPool[0] || (initialPhotos[0] as ArchivePhotoChoice);

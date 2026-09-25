@@ -32,10 +32,6 @@ export function GamesHub() {
   );
 
   const [crosswordCycleTime, setCrosswordCycleTime] = useState<string>("");
-  const [crosswordHasStarted, setCrosswordHasStarted] = useState<boolean>(false);
-  const [crosswordRevealTrigger, setCrosswordRevealTrigger] = useState<number>(0);
-  const [crosswordCheckTrigger, setCrosswordCheckTrigger] = useState<number>(0);
-
   const [memoryPairsCount, setMemoryPairsCount] = useState<number>(8);
 
   // Typing game states
@@ -276,7 +272,6 @@ export function GamesHub() {
             gridSize={jigsawGridSize}
             isSlideMode={jigsawSlideMode}
             selectedPhoto={selectedPhoto}
-            onSelectPhoto={setSelectedPhoto}
           />
         )}
         {activeTab === "crossword" && (

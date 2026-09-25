@@ -13,6 +13,7 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
 import { HeaderTitleProvider } from "@/components/HeaderTitleContext";
+import { CrosswordPreloader } from "@/components/CrosswordPreloader";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { OG_IMAGE, siteDescription } from "@/lib/seo";
 import { CtaTracker } from "@/components/CtaTracker";
@@ -193,6 +194,8 @@ export default function RootLayout({
               child of MotionProvider so its effect registers before the
               route-transition interceptor — see CtaTracker. */}
           <CtaTracker />
+          {/* Silently caches the daily crossword puzzle in localStorage for 24 hours */}
+          <CrosswordPreloader />
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets

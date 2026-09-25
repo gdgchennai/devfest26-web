@@ -2,9 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { GameScoreSubmission } from "./ScoreModal";
-import type { PublicCrosswordPuzzle as CrosswordPuzzle, PublicCrosswordClue as CrosswordClue } from "@/lib/game-rules";
+import type {
+  PublicCrosswordPuzzle as CrosswordPuzzle,
+  PublicCrosswordClue as CrosswordClue,
+  WrongClue,
+} from "@/lib/game-rules";
 import { dailyPuzzleIndex, msUntilNextPuzzle } from "@/lib/game-rules";
 import { gameApi } from "@/lib/games-client";
+import { getOrFetchDailyCrossword } from "@/lib/crossword-client";
 
 // Same rollover as the server (midnight IST): the puzzle it deals is today's.
 function getRemainingCycleTime(): string {
@@ -46,13 +51,12 @@ export function CrosswordGame({
   const dailyIdx = useMemo(() => todaysPuzzleIndex(puzzles.length), [puzzles.length]);
   const puzzle = dealtPuzzle || puzzles[dailyIdx] || puzzles[0] || LOADING_PUZZLE;
 
-  // API-first fetch for latest crosswords
+  // Client-first cache check from localStorage, then API
   useEffect(() => {
-    fetch("/api/games/content?kind=crosswords")
-      .then((res) => res.json() as Promise<{ data?: CrosswordPuzzle[] }>)
-      .then((payload) => {
-        if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
-          setPuzzles(payload.data);
+    getOrFetchDailyCrossword()
+      .then((data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setPuzzles(data);
         }
       })
       .catch((err) => console.warn("Using fallback crosswords content", err));
@@ -123,6 +127,7 @@ export function CrosswordGame({
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
   const [checkedCells, setCheckedCells] = useState<Record<string, boolean>>({});
   const [checksLeft, setChecksLeft] = useState<number | null>(null);
+  const [wrongClues, setWrongClues] = useState<WrongClue[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
@@ -145,6 +150,7 @@ export function CrosswordGame({
     setDirection(puzzle.clues[0]?.direction ?? "across");
     setCheckedCells({});
     setChecksLeft(null);
+    setWrongClues([]);
     setNotice(null);
     setHasStarted(false);
     setGameCompleted(false);
@@ -213,10 +219,16 @@ export function CrosswordGame({
         finishingRef.current = false;
         if (done.ok) {
           setGameCompleted(true);
+          setWrongClues([]);
+          setNotice(null);
           onFinishGame({ ...done.data.result, sessionId });
+        } else if (done.reason === "incorrect") {
+          if (done.wrongClues) setWrongClues(done.wrongClues);
+          setNotice("Grid completed, but some answers are incorrect. Review the highlighted rows and columns.");
         } else if (done.reason === "too_many_attempts") {
+          if (done.wrongClues) setWrongClues(done.wrongClues);
           setNotice("Too many wrong submissions for this run. Reset the puzzle to try again.");
-        } else if (done.reason && done.reason !== "incorrect") {
+        } else {
           setNotice("The server couldn't accept this run. Reset the puzzle to try again.");
         }
       });
@@ -226,40 +238,88 @@ export function CrosswordGame({
 
   function handleCellClick(row: number, col: number) {
     if (!hasStarted || !gridMatrix[row]?.[col]) return;
+    const cell = gridMatrix[row][col];
+    const hasAcross = cell.acrossClueIndex !== undefined;
+    const hasDown = cell.downClueIndex !== undefined;
 
+    // 1. If clicking the already selected cell, toggle direction ONLY IF the cell supports both directions
     if (selectedCell.row === row && selectedCell.col === col) {
-      setDirection((d) => (d === "across" ? "down" : "across"));
-    } else {
-      setSelectedCell({ row, col });
+      if (hasAcross && hasDown) {
+        setDirection((d) => (d === "across" ? "down" : "across"));
+      }
+      inputRef.current?.focus();
+      return;
     }
+
+    // 2. If clicking a cell that belongs to the currently active clue, KEEP the active clue's direction
+    const inCurrentClue =
+      activeClue &&
+      ((direction === "across" &&
+        row === activeClue.row &&
+        col >= activeClue.col &&
+        col < activeClue.col + activeClue.length) ||
+        (direction === "down" &&
+          col === activeClue.col &&
+          row >= activeClue.row &&
+          row < activeClue.row + activeClue.length));
+
+    if (inCurrentClue) {
+      // Cell is part of the currently selected clue — stay in this direction
+    } else if (hasAcross && !hasDown) {
+      setDirection("across");
+    } else if (hasDown && !hasAcross) {
+      setDirection("down");
+    }
+
+    setSelectedCell({ row, col });
     inputRef.current?.focus();
   }
 
   function advanceToNextCell(currentRow: number, currentCol: number) {
-    let nextRow = currentRow;
-    let nextCol = currentCol;
-
-    if (direction === "across") {
-      nextCol++;
-    } else {
-      nextRow++;
+    // If we have an active clue, advance strictly within that clue's consecutive boxes
+    if (activeClue) {
+      if (direction === "across") {
+        const nextCol = currentCol + 1;
+        if (nextCol < activeClue.col + activeClue.length) {
+          setSelectedCell({ row: currentRow, col: nextCol });
+          return;
+        }
+      } else {
+        const nextRow = currentRow + 1;
+        if (nextRow < activeClue.row + activeClue.length) {
+          setSelectedCell({ row: nextRow, col: currentCol });
+          return;
+        }
+      }
     }
 
+    // Fallback if at edge or no active clue
+    const nextRow = direction === "down" ? currentRow + 1 : currentRow;
+    const nextCol = direction === "across" ? currentCol + 1 : currentCol;
     if (gridMatrix[nextRow]?.[nextCol]) {
       setSelectedCell({ row: nextRow, col: nextCol });
     }
   }
 
   function stepBackCell(currentRow: number, currentCol: number) {
-    let prevRow = currentRow;
-    let prevCol = currentCol;
-
-    if (direction === "across") {
-      prevCol--;
-    } else {
-      prevRow--;
+    if (activeClue) {
+      if (direction === "across") {
+        const prevCol = currentCol - 1;
+        if (prevCol >= activeClue.col) {
+          setSelectedCell({ row: currentRow, col: prevCol });
+          return;
+        }
+      } else {
+        const prevRow = currentRow - 1;
+        if (prevRow >= activeClue.row) {
+          setSelectedCell({ row: prevRow, col: currentCol });
+          return;
+        }
+      }
     }
 
+    const prevRow = direction === "down" ? currentRow - 1 : currentRow;
+    const prevCol = direction === "across" ? currentCol - 1 : currentCol;
     if (gridMatrix[prevRow]?.[prevCol]) {
       setSelectedCell({ row: prevRow, col: prevCol });
     }
@@ -285,11 +345,15 @@ export function CrosswordGame({
       if (gridMatrix[row - 1]?.[col]) setSelectedCell({ row: row - 1, col });
     } else if (e.key === " " || e.key === "Tab") {
       e.preventDefault();
-      setDirection((d) => (d === "across" ? "down" : "across"));
+      const cell = gridMatrix[row][col];
+      if (cell.acrossClueIndex !== undefined && cell.downClueIndex !== undefined) {
+        setDirection((d) => (d === "across" ? "down" : "across"));
+      }
     } else if (e.key === "Backspace") {
       e.preventDefault();
       const nextGrid = userGrid.map((r) => [...r]);
-      if (nextGrid[row]?.[col]) {
+      const currentVal = nextGrid[row]?.[col] || "";
+      if (currentVal !== "") {
         nextGrid[row][col] = "";
         setUserGrid(nextGrid);
       } else {
@@ -311,8 +375,8 @@ export function CrosswordGame({
 
   function handleClueClick(clue: CrosswordClue) {
     if (!hasStarted) return;
-    setSelectedCell({ row: clue.row, col: clue.col });
     setDirection(clue.direction);
+    setSelectedCell({ row: clue.row, col: clue.col });
     inputRef.current?.focus();
   }
 
@@ -351,6 +415,14 @@ export function CrosswordGame({
     }
     setCheckedCells(res.data.results);
     setChecksLeft(res.data.checksLeft);
+    if (res.data.wrongClues) {
+      setWrongClues(res.data.wrongClues);
+      if (res.data.wrongClues.length > 0) {
+        setNotice("Some answers are still incorrect. Highlighted rows and columns need review.");
+      } else {
+        setNotice(null);
+      }
+    }
   }
 
   const focusInput = () => {
@@ -361,6 +433,19 @@ export function CrosswordGame({
 
   const seconds = Math.floor(elapsedMs / 1000);
   const timeFormatted = `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`;
+
+  // Entire row or column cells that have mistakes (without revealing letters)
+  const errorCells = useMemo(() => {
+    const set = new Set<string>();
+    for (const wc of wrongClues) {
+      for (let i = 0; i < wc.length; i++) {
+        const r = wc.direction === "across" ? wc.row : wc.row + i;
+        const c = wc.direction === "across" ? wc.col + i : wc.col;
+        set.add(`${r},${c}`);
+      }
+    }
+    return set;
+  }, [wrongClues]);
 
   const activeClue = puzzle.clues.find((c) => {
     if (c.direction !== direction) return false;
@@ -384,9 +469,16 @@ export function CrosswordGame({
       <input
         ref={inputRef}
         type="text"
-        className="opacity-0 absolute pointer-events-none w-0 h-0"
+        value=""
+        onChange={() => {}}
+        onKeyDown={handleKeyDown}
+        className="opacity-0 absolute -top-[9999px] left-0 w-1 h-1 pointer-events-none"
         aria-hidden="true"
         tabIndex={-1}
+        autoCapitalize="characters"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
       />
 
       {/* Active Clue Bar banner */}
@@ -421,6 +513,14 @@ export function CrosswordGame({
           >
             {checksLeft === null ? "Check" : `Check (${checksLeft})`}
           </button>
+          <button
+            type="button"
+            onClick={resetPuzzle}
+            disabled={!hasStarted}
+            className="hidden sm:inline-flex rounded-xl border border-paper/10 bg-paper/[0.04] px-2.5 py-1 text-xs text-paper/80 hover:text-paper hover:bg-paper/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Reset
+          </button>
           <div className="text-right">
             <div className="text-[10px] uppercase text-paper/60">Time</div>
             <div className="text-base sm:text-lg font-bold text-paper">{hasStarted ? timeFormatted : "0:00"}</div>
@@ -441,6 +541,7 @@ export function CrosswordGame({
           <div
             tabIndex={0}
             onClick={focusInput}
+            onKeyDown={handleKeyDown}
             className="relative w-full max-w-[480px] aspect-square rounded-2xl border-2 border-paper/20 bg-ink/80 p-2.5 sm:p-3 shadow-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue"
           >
             <div
@@ -470,6 +571,7 @@ export function CrosswordGame({
                         r < activeClue.row + activeClue.length));
 
                   const checkStatus = checkedCells[key];
+                  const isCellError = errorCells.has(key);
 
                   if (!cell) {
                     return (
@@ -486,9 +588,15 @@ export function CrosswordGame({
                       onClick={() => handleCellClick(r, c)}
                       className={`relative flex items-center justify-center rounded-md cursor-pointer select-none transition-all duration-100 ${
                         isSelected
-                          ? "bg-blue text-white ring-2 ring-paper z-20"
+                          ? isCellError
+                            ? "bg-red/40 text-white ring-2 ring-red z-20"
+                            : "bg-blue text-white ring-2 ring-paper z-20"
                           : isHighlightedInWord
-                          ? "bg-blue/30 text-paper border border-blue/60"
+                          ? isCellError
+                            ? "bg-red/25 text-paper border border-red/60"
+                            : "bg-blue/30 text-paper border border-blue/60"
+                          : isCellError
+                          ? "bg-red/15 text-paper border border-red/50 shadow-[0_0_8px_rgba(234,67,53,0.3)]"
                           : "bg-surface-raised text-paper border border-paper/20 hover:border-paper/60"
                       } ${
                         checkStatus === false
@@ -566,6 +674,9 @@ export function CrosswordGame({
                 .map((clue) => {
                   const isClueActive =
                     activeClue?.number === clue.number && activeClue?.direction === "across";
+                  const isClueWrong = wrongClues.some(
+                    (wc) => wc.number === clue.number && wc.direction === "across",
+                  );
                   return (
                     <button
                       key={`${clue.number}-across`}
@@ -573,14 +684,23 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-blue/20 border border-blue text-paper shadow-sm"
+                          ? isClueWrong
+                            ? "bg-red/20 border border-red text-paper shadow-sm"
+                            : "bg-blue/20 border border-blue text-paper shadow-sm"
+                          : isClueWrong
+                          ? "bg-red/10 border border-red/40 text-paper/90 hover:bg-red/15"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-bold text-blue mr-2">
+                      <span className={`font-bold mr-2 ${isClueWrong ? "text-red" : "text-blue"}`}>
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
+                      {isClueWrong && (
+                        <span className="ml-2 text-[10px] font-mono text-red font-semibold uppercase">
+                          [Incorrect]
+                        </span>
+                      )}
                       <span className="block text-[10px] text-paper/40 mt-0.5">
                         ({clue.length} letters)
                       </span>
@@ -604,6 +724,9 @@ export function CrosswordGame({
                 .map((clue) => {
                   const isClueActive =
                     activeClue?.number === clue.number && activeClue?.direction === "down";
+                  const isClueWrong = wrongClues.some(
+                    (wc) => wc.number === clue.number && wc.direction === "down",
+                  );
                   return (
                     <button
                       key={`${clue.number}-down`}
@@ -611,14 +734,23 @@ export function CrosswordGame({
                       onClick={() => handleClueClick(clue)}
                       className={`text-left rounded-xl p-2.5 transition-all text-xs cursor-pointer ${
                         isClueActive
-                          ? "bg-green/20 border border-green text-paper shadow-sm"
+                          ? isClueWrong
+                            ? "bg-red/20 border border-red text-paper shadow-sm"
+                            : "bg-green/20 border border-green text-paper shadow-sm"
+                          : isClueWrong
+                          ? "bg-red/10 border border-red/40 text-paper/90 hover:bg-red/15"
                           : "hover:bg-paper/5 text-paper/80 border border-transparent"
                       }`}
                     >
-                      <span className="font-bold text-green mr-2">
+                      <span className={`font-bold mr-2 ${isClueWrong ? "text-red" : "text-green"}`}>
                         {clue.number}.
                       </span>
                       <span>{clue.clue}</span>
+                      {isClueWrong && (
+                        <span className="ml-2 text-[10px] font-mono text-red font-semibold uppercase">
+                          [Incorrect]
+                        </span>
+                      )}
                       <span className="block text-[10px] text-paper/40 mt-0.5">
                         ({clue.length} letters)
                       </span>

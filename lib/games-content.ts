@@ -1,10 +1,15 @@
-import crosswordsData from "@/content/crosswords.json";
+import {
+  getDailyCrosswordPuzzle,
+  getDailyPublicCrossword,
+  getCrosswordPuzzleById,
+} from "@/lib/crossword-generator";
 import techCardsData from "@/content/tech-cards.json";
 import jigsawPhotosData from "@/content/jigsaw-photos.json";
 
-import { toPublicPuzzle, type CrosswordPuzzle, type PublicCrosswordPuzzle } from "@/lib/game-rules";
+import type { CrosswordPuzzle, PublicCrosswordPuzzle } from "@/lib/game-rules";
 
 export type { CrosswordClue, CrosswordPuzzle, PublicCrosswordClue, PublicCrosswordPuzzle } from "@/lib/game-rules";
+export { getCrosswordPuzzleById } from "@/lib/crossword-generator";
 
 export type TechCardDefinition = {
   id: string;
@@ -22,12 +27,14 @@ export type ArchivePhotoChoice = {
 };
 
 export async function getCrosswordPuzzles(): Promise<CrosswordPuzzle[]> {
-  return crosswordsData as CrosswordPuzzle[];
+  const daily = await getDailyCrosswordPuzzle();
+  return [daily];
 }
 
 /** The list the browser gets: grid and clues only — the answers stay on the server. */
 export async function getPublicCrosswordPuzzles(): Promise<PublicCrosswordPuzzle[]> {
-  return (crosswordsData as CrosswordPuzzle[]).map(toPublicPuzzle);
+  const daily = await getDailyPublicCrossword();
+  return [daily];
 }
 
 export async function getTechCards(): Promise<TechCardDefinition[]> {

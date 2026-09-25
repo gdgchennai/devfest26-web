@@ -1,9 +1,11 @@
-import { getCrosswordPuzzles } from "@/lib/games-content";
+import { getCrosswordPuzzles, getCrosswordPuzzleById } from "@/lib/games-content";
 import {
   MAX_WPM,
   crosswordCheck,
   crosswordComplete,
   crosswordScore,
+  crosswordWrongClues,
+  type WrongClue,
   jigsawScore,
   jigsawVariant,
   memoryScore,
@@ -85,8 +87,12 @@ async function begin(s: GameSession) {
 
 async function crosswordFor(s: GameSession) {
   if (s.gameId !== "crossword") return null;
+  if (typeof s.state.puzzleId === "string") {
+    const puzzle = await getCrosswordPuzzleById(s.state.puzzleId);
+    if (puzzle) return puzzle;
+  }
   const puzzles = await getCrosswordPuzzles();
-  return puzzles.find((p) => p.id === s.state.puzzleId) ?? null;
+  return puzzles.find((p) => p.id === s.state.puzzleId) ?? puzzles[0] ?? null;
 }
 
 async function hint(s: GameSession, body: Body) {
@@ -111,7 +117,12 @@ async function check(s: GameSession, body: Body) {
 
   const checks = await spend(s.id, "checks", MAX_CHECKS);
   if (checks === null) return bad("check_limit", 429, { checksLeft: 0 });
-  return Response.json({ results: crosswordCheck(puzzle, body.grid), checksLeft: MAX_CHECKS - checks });
+  const wrongClues = crosswordWrongClues(puzzle, body.grid);
+  return Response.json({
+    results: crosswordCheck(puzzle, body.grid),
+    checksLeft: MAX_CHECKS - checks,
+    wrongClues,
+  });
 }
 
 async function finish(s: GameSession, body: Body) {
@@ -125,14 +136,21 @@ async function finish(s: GameSession, body: Body) {
   const evidence = (body.evidence && typeof body.evidence === "object" ? body.evidence : {}) as Body;
 
   const scored = await score(s, evidence, timeMs);
-  if (!scored.ok) return bad("invalid_run", 400, { reason: scored.reason });
+  if (!scored.ok) {
+    return bad("invalid_run", 400, {
+      reason: scored.reason,
+      wrongClues: "wrongClues" in scored ? scored.wrongClues : undefined,
+    });
+  }
 
   // Once: a second finish (or a concurrent one) loses here and gets `already_finished`.
   if (!(await finishSession(s.id, scored.result, now))) return bad("already_finished", 409);
   return Response.json({ ok: true, sessionId: s.id, result: scored.result });
 }
 
-type Scored = { ok: true; result: GameResult } | { ok: false; reason: string };
+type Scored =
+  | { ok: true; result: GameResult }
+  | { ok: false; reason: string; wrongClues?: WrongClue[] };
 
 async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Scored> {
   switch (s.gameId) {
@@ -181,9 +199,10 @@ async function score(s: GameSession, evidence: Body, timeMs: number): Promise<Sc
       if (!puzzle) return { ok: false, reason: "unknown_puzzle" };
       if (!Array.isArray(evidence.grid) || evidence.grid.length > MAX_GRID) return { ok: false, reason: "invalid_grid" };
       if (!crosswordComplete(puzzle, evidence.grid)) {
+        const wrongClues = crosswordWrongClues(puzzle, evidence.grid);
         // Wrong answers are normal play (the client sends the grid to find out), but bounded.
-        if ((await spend(s.id, "attempts", MAX_FINISH_ATTEMPTS)) === null) return { ok: false, reason: "too_many_attempts" };
-        return { ok: false, reason: "incorrect" };
+        if ((await spend(s.id, "attempts", MAX_FINISH_ATTEMPTS)) === null) return { ok: false, reason: "too_many_attempts", wrongClues };
+        return { ok: false, reason: "incorrect", wrongClues };
       }
       // Hints are typed in by the player, so they don't count as filling time.
       const cells = solutionLetters(puzzle).size;

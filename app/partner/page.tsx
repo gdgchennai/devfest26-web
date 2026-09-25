@@ -21,7 +21,7 @@ export const dynamic = "force-static";
  * at /md/partner (partnerMarkdown()), so the two never drift.
  */
 export default function PartnerPage() {
-  const { heading, lede, what, why, asks, benefits, finePrint, timeline, assets, contact } = partnership;
+  const { lede, what, why, asks, benefits, finePrint, timeline, assets, contact } = partnership;
 
   return (
     <>

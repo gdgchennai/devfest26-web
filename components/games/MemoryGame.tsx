@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import initialTechCards from "@/content/tech-cards.json";
 import type { GameScoreSubmission } from "./ScoreModal";
 import type { TechCardDefinition } from "@/lib/games-content";
@@ -111,25 +111,6 @@ export function MemoryGame({
       .catch((err) => console.warn("Using fallback cards content", err));
   }, []);
 
-  const restartGame = useCallback(
-    (count = pairsCount) => {
-      setCards(getInitialDeck(cardsPool, count));
-      setFlippedIndices([]);
-      setMatchedPairs(0);
-      setCombo(1);
-      setMaxCombo(1);
-      setScore(0);
-      setHasStarted(false);
-      setGameCompleted(false);
-      setElapsedMs(0);
-      lockBoardRef.current = false;
-      startTimeRef.current = 0;
-      sessionIdRef.current = null;
-      flipLogRef.current = [];
-    },
-    [cardsPool, pairsCount],
-  );
-
   const handleStartGame = async () => {
     if (isStarting) return;
     setIsStarting(true);
@@ -151,7 +132,8 @@ export function MemoryGame({
     setHasStarted(true);
     setGameCompleted(false);
     setElapsedMs(0);
-    startTimeRef.current = Date.now();
+    const now = Date.now();
+    startTimeRef.current = now;
   };
 
   // Stopwatch timer
