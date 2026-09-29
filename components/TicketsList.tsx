@@ -50,7 +50,7 @@ type EventCard = {
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
  */
 function buildEvents(): EventCard[] {
-  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
+  const pastEvents: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
     key: event.slug,
     title: event.title,
     date: shortEventDate(event.date),
@@ -61,7 +61,7 @@ function buildEvents(): EventCard[] {
   }));
 
   const ticket = ticketCta();
-  cards.push({
+  const flagship: EventCard = {
     key: "devfest-2026",
     title: siteConfig.name,
     date: shortEventDate(siteConfig.date),
@@ -71,9 +71,11 @@ function buildEvents(): EventCard[] {
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
     image: { src: "/banner/main.webp", alt: siteConfig.name },
-  });
+  };
 
-  return cards;
+  // The flagship is the default card: past community events remain available
+  // through the carousel, but highlights never displace the ticket CTA on entry.
+  return [flagship, ...pastEvents];
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
@@ -238,7 +240,8 @@ function TicketsCarouselMotion() {
     jumpToIndex: (index: number) => void;
     spacing: number;
   } | null>(null);
-  const flagshipIndex = events.length - 1;
+  const flagshipIndex = 0;
+  const [activeIndex, setActiveIndex] = useState(flagshipIndex);
 
   useGSAP(
     () => {
@@ -279,6 +282,10 @@ function TicketsCarouselMotion() {
 
       const cardEls = gsap.utils.toArray<HTMLElement>(cards.children);
       const spacing = 0.1;
+      function updateActiveIndex(offset: number) {
+        const current = Math.round(offset / spacing);
+        setActiveIndex(((current % cardEls.length) + cardEls.length) % cardEls.length);
+      }
       // ±1 at 76% of card width (the readable centre three); ±2 at 152%
       // and a smaller scale — a peek that there is more deck past the trio.
       const X_TRAVEL = 380;
@@ -344,6 +351,7 @@ function TicketsCarouselMotion() {
         offset: 0,
         onUpdate() {
           seamlessLoop.time(wrapTime(playhead.offset));
+          updateActiveIndex(playhead.offset);
         },
         duration: 0.85,
         ease: "power2.inOut",
@@ -426,6 +434,7 @@ function TicketsCarouselMotion() {
         playhead.offset += (-d / w) * spacing;
         scrub.vars.offset = playhead.offset;
         seamlessLoop.time(wrapTime(playhead.offset));
+        updateActiveIndex(playhead.offset);
       }
 
       function onPointerUp(e: PointerEvent) {
@@ -484,6 +493,7 @@ function TicketsCarouselMotion() {
         playhead.offset += (dx / w) * spacing;
         scrub.vars.offset = playhead.offset;
         seamlessLoop.time(wrapTime(playhead.offset));
+        updateActiveIndex(playhead.offset);
         window.clearTimeout(wheelTimer);
         wheelTimer = window.setTimeout(() => scrollToOffset(playhead.offset), 90);
       }
@@ -559,10 +569,11 @@ function TicketsCarouselMotion() {
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
             <ArrowGlyph direction="left" />
           </GlowButton>
-          {/* Jumps straight to the flagship card — not a label for whichever
-              card happens to be centred right now. */}
+          {/* This action changes its label when a past event is centred. */}
           <GlowButton shape="pill" size="md" onClick={() => apiRef.current?.jumpToIndex(flagshipIndex)}>
-            {uiCopy.ticketsList.mainEventLabel}
+            {activeIndex === flagshipIndex
+              ? uiCopy.ticketsList.mainEventLabel
+              : uiCopy.ticketsList.goToMainEventLabel}
           </GlowButton>
           <GlowButton
             shape="circle"
@@ -592,7 +603,7 @@ function TicketsCarouselMotion() {
 function TicketsCarouselStatic() {
   const events = useRef(buildEvents()).current;
   const [index, setIndex] = useState(0);
-  const flagshipIndex = events.length - 1;
+  const flagshipIndex = 0;
   const current = events[index];
 
   function prev() {
@@ -640,10 +651,11 @@ function TicketsCarouselStatic() {
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
             <ArrowGlyph direction="left" />
           </GlowButton>
-          {/* Jumps straight to the flagship card — not a label for whichever
-              card happens to be centred right now. */}
+          {/* This action changes its label when a past event is selected. */}
           <GlowButton shape="pill" size="md" onClick={() => setIndex(flagshipIndex)}>
-            {uiCopy.ticketsList.mainEventLabel}
+            {index === flagshipIndex
+              ? uiCopy.ticketsList.mainEventLabel
+              : uiCopy.ticketsList.goToMainEventLabel}
           </GlowButton>
           <GlowButton shape="circle" size="md" onClick={next}>
             <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>

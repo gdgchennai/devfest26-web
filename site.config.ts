@@ -678,6 +678,7 @@ export const uiCopy = {
     previousEventSr: "Previous event",
     nextEventSr: "Next event",
     mainEventLabel: "Main event",
+    goToMainEventLabel: "Go to main event",
   },
 
   heroCopy: {
