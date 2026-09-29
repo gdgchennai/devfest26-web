@@ -50,15 +50,17 @@ type EventCard = {
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
  */
 function buildEvents(): EventCard[] {
-  const pastEvents: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
-    key: event.slug,
-    title: event.title,
-    date: shortEventDate(event.date),
-    description: event.description,
-    cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
-    color: event.color ?? COLORS[i % COLORS.length],
-    image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
-  }));
+  const communityEvents: EventCard[] = [...siteConfig.subEvents]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((event: SubEvent, i) => ({
+      key: event.slug,
+      title: event.title,
+      date: shortEventDate(event.date),
+      description: event.description,
+      cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
+      color: event.color ?? COLORS[i % COLORS.length],
+      image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
+    }));
 
   const ticket = ticketCta();
   const flagship: EventCard = {
@@ -73,9 +75,9 @@ function buildEvents(): EventCard[] {
     image: { src: "/banner/main.webp", alt: siteConfig.name },
   };
 
-  // The flagship is the default card: past community events remain available
-  // through the carousel, but highlights never displace the ticket CTA on entry.
-  return [flagship, ...pastEvents];
+  // Descending dates keep the nearest community events beside the flagship:
+  // upcoming events are discovered first, followed by past highlights.
+  return [flagship, ...communityEvents];
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
