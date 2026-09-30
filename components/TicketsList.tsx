@@ -48,9 +48,12 @@ type EventCard = {
  * of being hand-written alongside them, so its date and "Get tickets" link
  * can't drift out of sync with the real event — and so it never promises a
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
+ *
+ * The flagship is first. Both carousels rest on card 0, so /tickets opens on
+ * the main event. Prev and Next still walk the satellite events after it.
  */
 function buildEvents(): EventCard[] {
-  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
+  const satellites: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
     key: event.slug,
     title: event.title,
     date: shortEventDate(event.date),
@@ -61,7 +64,7 @@ function buildEvents(): EventCard[] {
   }));
 
   const ticket = ticketCta();
-  cards.push({
+  const flagship: EventCard = {
     key: "devfest-2026",
     title: siteConfig.name,
     date: shortEventDate(siteConfig.date),
@@ -71,9 +74,9 @@ function buildEvents(): EventCard[] {
       : { label: ticket.label },
     color: FLAGSHIP_COLOR,
     image: { src: "/banner/main.webp", alt: siteConfig.name },
-  });
+  };
 
-  return cards;
+  return [flagship, ...satellites];
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
@@ -238,7 +241,8 @@ function TicketsCarouselMotion() {
     jumpToIndex: (index: number) => void;
     spacing: number;
   } | null>(null);
-  const flagshipIndex = events.length - 1;
+  // Card 0 — buildEvents() puts the main event first.
+  const flagshipIndex = 0;
 
   useGSAP(
     () => {
@@ -301,10 +305,9 @@ function TicketsCarouselMotion() {
         // three copies of every card's animation on the same element; near the
         // loop seam a just-finished copy and a starting copy briefly coexist,
         // and under the loop's non-linear seek GSAP's `scale` shorthand leaves
-        // scaleX on one and scaleY on the other — the cards flanking the
-        // flagship (index 9, right at the seam) rendered horizontally
-        // squashed. Tweening the two axes as first-class props keeps them in
-        // lockstep.
+        // scaleX on one and scaleY on the other — the cards at the loop seam
+        // rendered horizontally squashed. Tweening the two axes as first-class
+        // props keeps them in lockstep.
         tl.fromTo(
           element,
           { scaleX: 0.5, scaleY: 0.5, opacity: 0.5 },
@@ -592,7 +595,8 @@ function TicketsCarouselMotion() {
 function TicketsCarouselStatic() {
   const events = useRef(buildEvents()).current;
   const [index, setIndex] = useState(0);
-  const flagshipIndex = events.length - 1;
+  // Card 0 — buildEvents() puts the main event first.
+  const flagshipIndex = 0;
   const current = events[index];
 
   function prev() {
