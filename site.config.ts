@@ -276,6 +276,13 @@ export const siteConfig = {
   // builds that card from the `date`/`venue`/`ticketing` fields above plus
   // ticketCta(), so its date and "Get tickets" link stay real instead of a
   // copy here that can drift out of sync.
+  //
+  // Once a satellite's date is before the viewer's local day, its card stops
+  // offering RSVP and shows "See highlights" instead. A Google Drive `href`
+  // (drive.google.com) is the destination; anything else falls back to the
+  // shared Instagram highlights below.
+  pastEventHighlightsUrl:
+    "https://www.instagram.com/stories/highlights/18115203068060418/",
   subEvents: [
     {
       slug: "united-by-ai",
@@ -678,6 +685,7 @@ export const uiCopy = {
     previousEventSr: "Previous event",
     nextEventSr: "Next event",
     mainEventLabel: "Main event",
+    seeHighlights: "See highlights →",
   },
 
   heroCopy: {

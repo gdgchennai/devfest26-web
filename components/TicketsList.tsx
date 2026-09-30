@@ -29,10 +29,6 @@ const FLAGSHIP_COLOR = "bg-yellow-pastel";
 // so it skips the picker and goes straight to the tier selector.
 const FLAGSHIP_TICKET_HREF = "/tickets/select";
 const FLAGSHIP_KEY = "devfest-2026";
-/** The motion deck peeks two cards either side of centre. Empty slots at
- *  both ends keep that peek from wrapping a past event onto Next, or an
- *  upcoming event onto Previous. */
-const EDGE_SPACERS = 2;
 
 // Fallback for events with no real photography yet (see SubEvent's `image`
 // doc comment) — the same venue shot VenueReveal.tsx uses.
@@ -57,6 +53,30 @@ function localISODate(): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+function isDriveLink(href: string): boolean {
+  try {
+    return new URL(href).hostname === "drive.google.com";
+  } catch {
+    return false;
+  }
+}
+
+/** Past satellites always offer highlights. A Drive folder on the event wins;
+ *  otherwise the shared Instagram highlights page. */
+function satelliteCta(event: SubEvent, past: boolean): EventCard["cta"] {
+  if (past) {
+    const drive = event.href && isDriveLink(event.href) ? event.href : undefined;
+    return {
+      label: uiCopy.ticketsList.seeHighlights,
+      href: drive ?? siteConfig.pastEventHighlightsUrl,
+      external: true,
+    };
+  }
+  return event.href
+    ? { label: event.ctaLabel, href: event.href, external: true }
+    : { label: event.ctaLabel };
+}
+
 function flagshipCard(): EventCard {
   const ticket = ticketCta();
   return {
@@ -79,11 +99,12 @@ function flagshipCard(): EventCard {
  * can't drift out of sync with the real event — and so it never promises a
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
  *
- * The flagship stays in the centre. Satellites dated before `today` sit to
- * its left (Previous), soonest last. Satellites dated today or later sit to
- * its right (Next), soonest first. Same-day events keep their site.config
- * order. `today` is null until the browser clock is known — the server
- * render is the flagship alone, so a past event never flashes on the right.
+ * The flagship stays in the centre when the page opens. Satellites dated
+ * before `today` sit to its left, soonest last. Satellites dated today or
+ * later sit to its right, soonest first. Same-day events keep their
+ * site.config order. Prev/Next roll past either end and come back around.
+ * `today` is null until the browser clock is known — the server render is
+ * the flagship alone, so a past event never flashes on the right.
  */
 function buildDeck(today: string | null): { events: EventCard[]; mainIndex: number } {
   const flagship = flagshipCard();
@@ -97,7 +118,7 @@ function buildDeck(today: string | null): { events: EventCard[]; mainIndex: numb
       title: event.title,
       date: shortEventDate(event.date),
       description: event.description,
-      cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
+      cta: satelliteCta(event, event.date < today),
       color: event.color ?? COLORS[order % COLORS.length],
       image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
     } satisfies EventCard,
@@ -113,12 +134,15 @@ function buildDeck(today: string | null): { events: EventCard[]; mainIndex: numb
   };
 }
 
-/** Community links are already `community_event` via CtaTracker. A CTA with
- *  no URL (Coming soon) never hits that listener, so count it here. The
- *  flagship ticket link is recorded in trackCtaFromAnchor — MotionProvider
- *  stopPropagation()s internal links before this span's click handler. */
+/** Community links are already `community_event` via CtaTracker, matched on
+ *  the event's own href. A CTA with no URL (Coming soon) never hits that
+ *  listener, and every past event without a Drive folder shares one Instagram
+ *  URL, so count both here with the card's own key. The flagship ticket link
+ *  is recorded in trackCtaFromAnchor — MotionProvider stopPropagation()s
+ *  internal links before this span's click handler. */
 function trackCardCta(event: EventCard) {
-  if (event.cta.href) return;
+  const sharedHighlights = event.cta.href === siteConfig.pastEventHighlightsUrl;
+  if (event.cta.href && !sharedHighlights) return;
   track("select_content", { content_type: "community_event", content_id: event.key });
 }
 
@@ -288,8 +312,10 @@ function TicketsCarouselMotion() {
   // Read by the Prev/Next buttons' onClick — set once the whole apparatus
   // (scrub tween + scrollToOffset) exists, inside useGSAP below.
   const apiRef = useRef<{
-    step: (dir: -1 | 1) => void;
+    scrub: gsap.core.Tween;
+    scrollToOffset: (offset: number, duration?: number) => void;
     jumpToIndex: (index: number) => void;
+    spacing: number;
   } | null>(null);
 
   useGSAP(
@@ -349,23 +375,21 @@ function TicketsCarouselMotion() {
       const snapTime = gsap.utils.snap(spacing);
       const animateFunc = (element: HTMLElement) => {
         const tl = gsap.timeline();
-        const spacer = element.hasAttribute("data-spacer");
         // scaleX/scaleY, NOT the `scale` shorthand. buildSeamlessLoop stacks
         // three copies of every card's animation on the same element; near the
         // loop seam a just-finished copy and a starting copy briefly coexist,
         // and under the loop's non-linear seek GSAP's `scale` shorthand leaves
         // scaleX on one and scaleY on the other — the cards at the loop seam
         // rendered horizontally squashed. Tweening the two axes as first-class
-        // props keeps them in lockstep. Spacers keep the slot but never paint,
-        // so the deck ends instead of wrapping past events onto the right.
+        // props keeps them in lockstep.
         tl.fromTo(
           element,
-          { scaleX: 0.5, scaleY: 0.5, opacity: spacer ? 0 : 0.5 },
+          { scaleX: 0.5, scaleY: 0.5, opacity: 0.5 },
           {
-            scaleX: spacer ? 0.5 : 1,
-            scaleY: spacer ? 0.5 : 1,
-            opacity: spacer ? 0 : 1,
-            zIndex: spacer ? 0 : 100,
+            scaleX: 1,
+            scaleY: 1,
+            opacity: 1,
+            zIndex: 100,
             duration: 0.5,
             yoyo: true,
             repeat: 1,
@@ -377,12 +401,7 @@ function TicketsCarouselMotion() {
       };
 
       const seamlessLoop = buildSeamlessLoop(cardEls, spacing, animateFunc);
-      // Real cards sit between the edge spacers. Offset 0 would centre the
-      // first spacer; the flagship is `mainIndex` cards after the left pads.
-      const minOffset = EDGE_SPACERS * spacing;
-      const maxOffset = (cardEls.length - 1 - EDGE_SPACERS) * spacing;
-      const start = (EDGE_SPACERS + deck.mainIndex) * spacing;
-      const playhead = { offset: start };
+      const playhead = { offset: 0 };
       // prev/next/jumpToIndex and wrapTime all assume "offset ± k*spacing ==
       // move k cards", which holds only while the loop's period is exactly
       // cardEls.length * spacing. Guard in dev in case a future change to
@@ -398,53 +417,51 @@ function TicketsCarouselMotion() {
       }
       const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
 
-      function syncLoop() {
-        seamlessLoop.time(wrapTime(playhead.offset));
-      }
-      // fromTo above parks the loop on card 0 (a spacer). Seek to the
-      // flagship before paint so the page opens on the main event.
-      syncLoop();
+      const scrub = gsap.to(playhead, {
+        offset: 0,
+        onUpdate() {
+          seamlessLoop.time(wrapTime(playhead.offset));
+        },
+        duration: 0.85,
+        ease: "power2.inOut",
+        paused: true,
+      });
 
-      // A fresh tween per move. Reusing one gsap.to() and rewriting
-      // vars.offset does not leave the flagship: that tween is created
-      // with from === to (the opening offset), and invalidate() keeps
-      // treating later destinations as a zero-distance change.
-      let scrub = gsap.to(playhead, { offset: start, duration: 0, paused: true });
+      // The loop is built to open on card 0. Park it on the flagship (past
+      // events to the left, upcoming to the right) without playing the tween,
+      // so the first Next/Previous still uses the original scrub.
+      playhead.offset = deck.mainIndex * spacing;
+      scrub.vars.offset = playhead.offset;
+      seamlessLoop.time(wrapTime(playhead.offset));
 
-      function clampOffset(offset: number) {
-        return gsap.utils.clamp(minOffset, maxOffset, offset);
-      }
-
-      // Eases the playhead to the nearest card, and never past the first
-      // past event or the last upcoming one. The seamless loop would
-      // otherwise wrap Next into events that are already over.
+      // Eases the playhead to the nearest card position — no ScrollTrigger,
+      // no page scroll position involved at all. wrapTime() (used inside
+      // scrub's onUpdate above) already wraps ANY offset, positive or
+      // negative, onto a valid spot on the repeating seamlessLoop timeline,
+      // so "infinite" here falls straight out of that wrap — it never
+      // needed to be tied to how far the PAGE has scrolled.
       function scrollToOffset(offset: number, duration = 0.85) {
-        const dest = clampOffset(snapTime(offset));
-        scrub.kill();
-        scrub = gsap.to(playhead, {
-          offset: dest,
-          duration,
-          ease: "power2.inOut",
-          onUpdate: syncLoop,
-        });
+        scrub.vars.offset = snapTime(offset);
+        scrub.duration(duration);
+        scrub.invalidate().restart();
       }
 
-      // `eventIndex` is an index into `deck.events` (0 = oldest past event,
-      // mainIndex = the flagship). Duration scales with how far the card has
-      // to travel so a one-card nudge stays snappy.
-      function jumpToIndex(eventIndex: number) {
-        const target = (EDGE_SPACERS + eventIndex) * spacing;
-        const steps = Math.abs(Math.round((target - playhead.offset) / spacing));
-        scrollToOffset(target, 0.7 + Math.min(steps, 4) * 0.18);
-      }
-
-      function step(dir: -1 | 1) {
-        const current = Math.round(playhead.offset / spacing);
-        const next = current + dir;
-        const minIndex = Math.round(minOffset / spacing);
-        const maxIndex = Math.round(maxOffset / spacing);
-        if (next < minIndex || next > maxIndex) return;
-        scrollToOffset(next * spacing);
+      // Each card owns exactly one `spacing`-sized slot on the timeline (see
+      // buildSeamlessLoop's `time = i * spacing`), so the currently-centred
+      // card's index is just the offset in units of spacing, wrapped to the
+      // real card count — no separate "which card is showing" state to keep
+      // in sync with the tween. Shorter path (forward or back) so "Main
+      // event" does not spin the long way around the deck; duration scales
+      // with steps so a one-card nudge stays snappy and a longer jump still
+      // eases the target into the middle.
+      function jumpToIndex(targetIndex: number) {
+        const n = cardEls.length;
+        const current = Math.round((scrub.vars.offset as number) / spacing);
+        const currentIndex = ((current % n) + n) % n;
+        let delta = ((targetIndex - currentIndex) % n + n) % n;
+        if (delta > n / 2) delta -= n;
+        const steps = Math.abs(delta);
+        scrollToOffset((scrub.vars.offset as number) + delta * spacing, 0.7 + Math.min(steps, 4) * 0.18);
       }
 
       // Horizontal swipe / click-drag on the stage. Axis-locked: a mostly
@@ -490,8 +507,9 @@ function TicketsCarouselMotion() {
         lastX = e.clientX;
         lastT = now;
         const w = cards.offsetWidth || 1;
-        playhead.offset = clampOffset(playhead.offset + (-d / w) * spacing);
-        syncLoop();
+        playhead.offset += (-d / w) * spacing;
+        scrub.vars.offset = playhead.offset;
+        seamlessLoop.time(wrapTime(playhead.offset));
       }
 
       function onPointerUp(e: PointerEvent) {
@@ -547,14 +565,15 @@ function TicketsCarouselMotion() {
         e.preventDefault();
         scrub.pause();
         const w = cards.offsetWidth || 1;
-        playhead.offset = clampOffset(playhead.offset + (dx / w) * spacing);
-        syncLoop();
+        playhead.offset += (dx / w) * spacing;
+        scrub.vars.offset = playhead.offset;
+        seamlessLoop.time(wrapTime(playhead.offset));
         window.clearTimeout(wheelTimer);
         wheelTimer = window.setTimeout(() => scrollToOffset(playhead.offset), 90);
       }
       galleryEl?.addEventListener("wheel", onWheel, { passive: false, capture: true });
 
-      apiRef.current = { step, jumpToIndex };
+      apiRef.current = { scrub, scrollToOffset, jumpToIndex, spacing };
 
       return () => {
         window.removeEventListener("resize", sizeCard);
@@ -605,26 +624,10 @@ function TicketsCarouselMotion() {
             ref={cardsRef}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           >
-            {Array.from({ length: EDGE_SPACERS }, (_, i) => (
-              <li
-                key={`pad-start-${i}`}
-                data-spacer=""
-                aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-0 h-full w-full"
-              />
-            ))}
             {deck.events.map((event) => (
               <li key={event.key} className="absolute left-0 top-0 h-full w-full">
                 <CardFace event={event} />
               </li>
-            ))}
-            {Array.from({ length: EDGE_SPACERS }, (_, i) => (
-              <li
-                key={`pad-end-${i}`}
-                data-spacer=""
-                aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-0 h-full w-full"
-              />
             ))}
           </ul>
         </div>
@@ -635,7 +638,9 @@ function TicketsCarouselMotion() {
             size="md"
             onClick={() => {
               trackCarouselControl("previous");
-              apiRef.current?.step(-1);
+              const api = apiRef.current;
+              if (!api) return;
+              api.scrollToOffset((api.scrub.vars.offset as number) - api.spacing);
             }}
           >
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
@@ -658,7 +663,9 @@ function TicketsCarouselMotion() {
             size="md"
             onClick={() => {
               trackCarouselControl("next");
-              apiRef.current?.step(1);
+              const api = apiRef.current;
+              if (!api) return;
+              api.scrollToOffset((api.scrub.vars.offset as number) + api.spacing);
             }}
           >
             <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
@@ -695,11 +702,11 @@ function TicketsCarouselStatic() {
 
   function prev() {
     trackCarouselControl("previous");
-    setIndex((i) => Math.max(0, i - 1));
+    setIndex((i) => (i - 1 + deck.events.length) % deck.events.length);
   }
   function next() {
     trackCarouselControl("next");
-    setIndex((i) => Math.min(deck.events.length - 1, i + 1));
+    setIndex((i) => (i + 1) % deck.events.length);
   }
 
   return (
