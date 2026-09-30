@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
+import { EVENT_TIME_ZONE } from "@/lib/format";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
 import { ArrowGlyph } from "@/components/ArrowGlyph";
@@ -36,11 +37,26 @@ type EventCard = {
   key: string;
   title: string;
   date: string;
+  isoDate: string;
+  isPast: boolean;
   description: string;
   cta: { label: string; href?: string; external?: boolean };
   color: string;
   image: { src: string; alt: string };
 };
+
+function getTodayIsoDate(): string {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: EVENT_TIME_ZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
 
 /**
  * The community events are static placeholders (siteConfig.subEvents). The
@@ -48,23 +64,38 @@ type EventCard = {
  * of being hand-written alongside them, so its date and "Get tickets" link
  * can't drift out of sync with the real event — and so it never promises a
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
+ *
+ * All cards are sorted chronologically by date so the deck naturally orders
+ * events from past to future.
  */
 function buildEvents(): EventCard[] {
-  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => ({
-    key: event.slug,
-    title: event.title,
-    date: shortEventDate(event.date),
-    description: event.description,
-    cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
-    color: event.color ?? COLORS[i % COLORS.length],
-    image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
-  }));
+  const todayIso = getTodayIsoDate();
+
+  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => {
+    const isoDate = event.date;
+    const isPast = Boolean(isoDate && isoDate < todayIso);
+    return {
+      key: event.slug,
+      title: event.title,
+      date: shortEventDate(event.date),
+      isoDate,
+      isPast,
+      description: event.description,
+      cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
+      color: event.color ?? COLORS[i % COLORS.length],
+      image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
+    };
+  });
 
   const ticket = ticketCta();
+  const flagshipIsoDate = siteConfig.date ?? "9999-99-99";
+  const flagshipIsPast = Boolean(siteConfig.date && siteConfig.date < todayIso);
   cards.push({
     key: "devfest-2026",
     title: siteConfig.name,
     date: shortEventDate(siteConfig.date),
+    isoDate: flagshipIsoDate,
+    isPast: flagshipIsPast,
     description: `${uiCopy.ticketsList.flagshipDescriptionPrefix}${siteConfig.chapter}${uiCopy.ticketsList.flagshipDescriptionMiddle}${siteConfig.venue.name}${uiCopy.ticketsList.flagshipDescriptionSuffix}`,
     cta: ticket.available
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
@@ -73,7 +104,17 @@ function buildEvents(): EventCard[] {
     image: { src: "/banner/main.webp", alt: siteConfig.name },
   });
 
-  return cards;
+  return cards.sort((a, b) => a.isoDate.localeCompare(b.isoDate));
+}
+
+/**
+ * Returns the index of the first upcoming or present event (or the last event
+ * if all have passed) so the initial view displays upcoming events from the
+ * middle towards the right and past events stacked to the left.
+ */
+function getInitialEventIndex(events: EventCard[]): number {
+  const upcomingIdx = events.findIndex((e) => !e.isPast);
+  return upcomingIdx !== -1 ? upcomingIdx : Math.max(0, events.length - 1);
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
@@ -119,6 +160,24 @@ function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean 
   );
 }
 
+function DoneStamp({ plain = false }: { plain?: boolean }) {
+  return (
+    <div className="pointer-events-none absolute right-[5cqw] top-[5cqw] z-20 -rotate-12 select-none">
+      <div
+        className={`flex items-center justify-center rounded-xl border-[0.6cqw] border-red/90 p-[0.5cqw] ${
+          plain ? "" : "shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+        }`}
+      >
+        <div className="flex items-center justify-center whitespace-nowrap rounded-lg border-[0.35cqw] border-dashed border-red/90 px-[3.5cqw] py-[1cqw]">
+          <span className="font-black uppercase tracking-[0.25em] text-red text-[clamp(1rem,6.5cqw,1.75rem)] leading-none">
+            Done
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** `plain`: lite mode — passed straight through to EventCta, and drops the
  *  drop shadow (no motion/depth effects in lite mode, same reasoning). */
 function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean }) {
@@ -131,18 +190,24 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
     // the card's real width lands between them (or below the smallest one,
     // which is what was clipping the flagship card's text).
     <div
-      className={`flex h-full w-full flex-col overflow-hidden rounded-2xl ${
+      className={`relative flex h-full w-full flex-col overflow-hidden rounded-2xl ${
         plain ? "" : "shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
       } ${event.color}`}
       style={{ containerType: "inline-size" }}
     >
+      {event.isPast && (
+        <>
+          <div className="pointer-events-none absolute inset-0 z-10 bg-black/40" />
+          <DoneStamp plain={plain} />
+        </>
+      )}
       <div className="relative h-2/5 w-full shrink-0">
         <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" decoding="async" fetchPriority="low" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-[2cqw] p-[5cqw]">
         <h3 className="text-[clamp(0.95rem,7.5cqw,1.75rem)] font-bold leading-snug text-black">{event.title}</h3>
         <p className="line-clamp-3 text-[clamp(0.75rem,4.4cqw,1.1rem)] text-black/70">{event.description}</p>
-        <div className="mb-[6cqw] mt-auto flex items-center justify-between gap-2 text-[clamp(0.75rem,4.2cqw,1.05rem)]">
+        <div className="relative z-20 mb-[6cqw] mt-auto flex items-center justify-between gap-2 text-[clamp(0.75rem,4.2cqw,1.05rem)]">
           <EventCta event={event} plain={plain} />
           <span className="shrink-0 text-black/70">{event.date}</span>
         </div>
@@ -226,7 +291,8 @@ function buildSeamlessLoop(items: HTMLElement[], spacing: number, animateFunc: (
 }
 
 function TicketsCarouselMotion() {
-  const events = useRef(buildEvents()).current;
+  const events = useMemo(() => buildEvents(), []);
+  const initialIndex = getInitialEventIndex(events);
   const galleryRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLUListElement>(null);
@@ -238,7 +304,7 @@ function TicketsCarouselMotion() {
     jumpToIndex: (index: number) => void;
     spacing: number;
   } | null>(null);
-  const flagshipIndex = events.length - 1;
+  const flagshipIndex = events.findIndex((e) => e.key === "devfest-2026");
 
   useGSAP(
     () => {
@@ -282,13 +348,13 @@ function TicketsCarouselMotion() {
       // ±1 at 76% of card width (the readable centre three); ±2 at 152%
       // and a smaller scale — a peek that there is more deck past the trio.
       const X_TRAVEL = 380;
-      gsap.set(cardEls, { xPercent: X_TRAVEL, opacity: 0, scaleX: 0.5, scaleY: 0.5 });
+      gsap.set(cardEls, { xPercent: X_TRAVEL, autoAlpha: 0, scaleX: 0.5, scaleY: 0.5, zIndex: 1 });
 
-      // Visible window is centre ±2 (five cards). Ease stays at 0 until
-      // global t≈0.25 so ±3 never appear; the remainder is power2.out so
-      // the ±2 peeks land smaller/dimmer than the neighbours.
+      // Visible window is centre ±2 (five cards). Outside this window, ease stays
+      // at 0 so cards remain autoAlpha 0 (invisible with zero pointer events/shadows)
+      // preventing card artifacts overlapping at viewport edges.
       const packEase = (t: number) => {
-        const start = 0.48;
+        const start = 0.45;
         if (t <= start) return 0;
         const u = (t - start) / (1 - start);
         return u * (2 - u);
@@ -307,24 +373,24 @@ function TicketsCarouselMotion() {
         // lockstep.
         tl.fromTo(
           element,
-          { scaleX: 0.5, scaleY: 0.5, opacity: 0.5 },
+          { scaleX: 0.5, scaleY: 0.5, autoAlpha: 0, zIndex: 1 },
           {
             scaleX: 1,
             scaleY: 1,
-            opacity: 1,
+            autoAlpha: 1,
             zIndex: 100,
             duration: 0.5,
             yoyo: true,
             repeat: 1,
             ease: packEase,
-            immediateRender: false,
           },
-        ).fromTo(element, { xPercent: X_TRAVEL }, { xPercent: -X_TRAVEL, duration: 1, ease: "none", immediateRender: false }, 0);
+        ).fromTo(element, { xPercent: X_TRAVEL }, { xPercent: -X_TRAVEL, duration: 1, ease: "none" }, 0);
         return tl;
       };
 
       const seamlessLoop = buildSeamlessLoop(cardEls, spacing, animateFunc);
-      const playhead = { offset: 0 };
+      const initialOffset = initialIndex * spacing;
+      const playhead = { offset: initialOffset };
       // prev/next/jumpToIndex and wrapTime all assume "offset ± k*spacing ==
       // move k cards", which holds only while the loop's period is exactly
       // cardEls.length * spacing. Guard in dev in case a future change to
@@ -339,9 +405,10 @@ function TicketsCarouselMotion() {
         }
       }
       const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
+      seamlessLoop.time(wrapTime(initialOffset));
 
       const scrub = gsap.to(playhead, {
-        offset: 0,
+        offset: initialOffset,
         onUpdate() {
           seamlessLoop.time(wrapTime(playhead.offset));
         },
@@ -590,9 +657,10 @@ function TicketsCarouselMotion() {
  * animation — doesn't run in lite mode either.
  */
 function TicketsCarouselStatic() {
-  const events = useRef(buildEvents()).current;
-  const [index, setIndex] = useState(0);
-  const flagshipIndex = events.length - 1;
+  const events = useMemo(() => buildEvents(), []);
+  const initialIndex = getInitialEventIndex(events);
+  const [index, setIndex] = useState(initialIndex);
+  const flagshipIndex = events.findIndex((e) => e.key === "devfest-2026");
   const current = events[index];
 
   function prev() {
