@@ -398,7 +398,8 @@ export const siteConfig = {
       date: "2026-10-10",
       description:
         "Bringing the DevFest spirit to campus.",
-      ctaLabel: "Coming soon →",
+      ctaLabel: "RSVP Now →",
+      href: "https://gdg.community.dev/events/details/google-gdg-chennai-presents-devfest-on-campus-chennai/cohost-gdg-chennai/",
       image: "/banner/on-campus.webp",
       color: "bg-yellow-pastel",
     },
