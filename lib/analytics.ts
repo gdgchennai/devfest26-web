@@ -119,5 +119,13 @@ export function eventForUrl(href: string): { name: string; params: AnalyticsPara
 /** Resolve a clicked `<a>` (Next `<Link>` included) to a conversion event. */
 export function trackCtaFromAnchor(anchor: HTMLAnchorElement) {
   const event = eventForUrl(anchor.href);
-  if (event) track(event.name, event.params);
+  if (!event) return;
+  track(event.name, event.params);
+  // The flagship "Get tickets" button is the only link to /tickets/select, and
+  // MotionProvider stopPropagation()s that click in the capture phase, so a
+  // listener on the card never runs. Record the card itself here, next to the
+  // generic ticket_select event, so the two stay separable in the funnel.
+  if (event.params.content_id === "ticket_select") {
+    track("select_content", { content_type: "main_event", content_id: "devfest-2026" });
+  }
 }

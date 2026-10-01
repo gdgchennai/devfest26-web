@@ -741,7 +741,10 @@ export function TicketSelector() {
         <TicketDropdown
           label={uiCopy.ticketSelector.imAPrompt}
           value={profileKey}
-          onChange={setProfileKey}
+          onChange={(value) => {
+            track("select_content", { content_type: "tickets", content_id: value });
+            setProfileKey(value);
+          }}
           options={profiles.map((p) => ({ value: p.key, label: p.label }))}
           panelClassName="bg-yellow-pastel"
         />
