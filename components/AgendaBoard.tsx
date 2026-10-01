@@ -10,13 +10,16 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { AgendaSession } from "@/lib/schemas";
-import type { Track } from "@/site.config";
+import type { Floor, Track } from "@/site.config";
 import { formatSessionTime, sessionHour } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
 import { findSpeaker } from "@/lib/find-speaker";
 import type { Speaker } from "@/lib/schemas";
+import { AgendaControls } from "@/components/AgendaControls";
+import { floorTracks } from "@/lib/agenda-floors";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
@@ -110,7 +113,10 @@ export function AgendaBoard({
   speakers,
   tracks,
   activeTrack,
+  floors,
 }: {
+  /** `tracks` is every track, already in floor order (see AgendaView). */
+  floors: readonly Floor[];
   sessions: AgendaSession[];
   speakers: Speaker[];
   tracks: Track[];
@@ -121,6 +127,22 @@ export function AgendaBoard({
     ? activeTrack
     : defaultTrackSlug(sessions, tracks, now);
   const activeIndex = Math.max(0, tracks.findIndex((t) => t.slug === resolvedTrack));
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // The floor is whichever one owns the current track, so the left/right
+  // buttons carry both dropdowns along as they cross from one floor to the next.
+  const currentFloor = floors.find((f) => f.tracks.includes(resolvedTrack)) ?? floors[0];
+  const floorTrackList = floorTracks(currentFloor, tracks);
+  // The URL is the source of truth for the track, so updating it also moves
+  // the dropdowns (AgendaControls reads `resolvedTrack`).
+  const goToTrack = (index: number) => {
+    const target = tracks[index];
+    if (!target) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("track", target.slug);
+    params.delete("floor");
+    router.replace(`/agenda?${params.toString()}`, { scroll: false });
+  };
   const [focusedSession, setFocusedSession] = useState<AgendaSession | null>(null);
   const columnRefs = useRef<Array<TrackColumnHandle | null>>([]);
 
@@ -148,24 +170,13 @@ export function AgendaBoard({
 
   return (
     <div className="mt-8">
-      <div className="flex flex-wrap justify-center gap-3">
-        {tracks.map((t) => {
-          const active = t.slug === resolvedTrack;
-          return (
-            <GlowButton
-              key={t.slug}
-              href={`/agenda?track=${t.slug}`}
-              scroll={false}
-              shape="pill"
-              size="md"
-              textClassName={active ? "text-paper font-semibold" : "text-paper/60 font-medium"}
-              className={active ? "agenda-board-pill--active" : ""}
-            >
-              {t.name}
-            </GlowButton>
-          );
-        })}
-      </div>
+      <AgendaControls
+        floors={floors}
+        floor={currentFloor.slug}
+        tracks={floorTrackList}
+        value={resolvedTrack}
+        simple={false}
+      />
 
       <div className="mt-10 flex items-stretch justify-center gap-2 sm:gap-6">
         <div className="agenda-board-ruler hidden sm:block" aria-hidden>
@@ -222,6 +233,27 @@ export function AgendaBoard({
             <ChevronIcon direction="down" />
           </GlowButton>
         </div>
+      </div>
+
+      <div className="mt-6 flex items-center justify-center gap-4">
+        <GlowButton
+          shape="circle"
+          size="sm"
+          onClick={() => goToTrack(activeIndex - 1)}
+          disabled={activeIndex <= 0}
+        >
+          <span className="sr-only">{uiCopy.agendaBoard.previousTrackSr}</span>
+          <ChevronIcon direction="left" />
+        </GlowButton>
+        <GlowButton
+          shape="circle"
+          size="sm"
+          onClick={() => goToTrack(activeIndex + 1)}
+          disabled={activeIndex >= tracks.length - 1}
+        >
+          <span className="sr-only">{uiCopy.agendaBoard.nextTrackSr}</span>
+          <ChevronIcon direction="right" />
+        </GlowButton>
       </div>
     </div>
   );
@@ -428,11 +460,18 @@ const TrackColumn = forwardRef<
   );
 });
 
-function ChevronIcon({ direction }: { direction: "up" | "down" }) {
+const CHEVRON_PATHS = {
+  up: "M6 15l6-6 6 6",
+  down: "M6 9l6 6 6-6",
+  left: "M15 6l-6 6 6 6",
+  right: "M9 6l6 6-6 6",
+} as const;
+
+function ChevronIcon({ direction }: { direction: keyof typeof CHEVRON_PATHS }) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
       <path
-        d={direction === "up" ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6"}
+        d={CHEVRON_PATHS[direction]}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"

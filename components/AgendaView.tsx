@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { AgendaSession, Speaker } from "@/lib/schemas";
-import type { Track } from "@/site.config";
+import { siteConfig, type Track } from "@/site.config";
 import { AgendaList } from "@/components/AgendaList";
 import { AgendaBoard } from "@/components/AgendaBoard";
+import { AgendaControls } from "@/components/AgendaControls";
+import { floorTracks, resolveFloor } from "@/lib/agenda-floors";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
-import { uiCopy } from "@/site.config";
 
 export function AgendaView({
   sessions,
@@ -21,37 +21,47 @@ export function AgendaView({
 }) {
   const searchParams = useSearchParams();
   const requestedTrack = searchParams.get("track");
-  const activeTrack = tracks.some((t) => t.slug === requestedTrack) ? requestedTrack! : "all";
+  // Nothing is hidden per floor: every track and session stays in play, with
+  // tracks ordered floor by floor. The floor/track dropdowns only jump to one.
+  const floors = siteConfig.floors;
+  const orderedTracks = floors.flatMap((f) => floorTracks(f, tracks));
+  const floor = resolveFloor(floors, searchParams.get("floor"), requestedTrack);
+  const activeTrack = orderedTracks.some((t) => t.slug === requestedTrack) ? requestedTrack! : "all";
   // Static baseline (reduced-motion or ?lite=1) gets the flat instant-paint
   // list below; everyone else gets the spatial board. Defaults to the safe
   // static list on the server/first paint, same convention as every other
   // lite-gated component (see MotionProvider.tsx and its siblings).
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
+  // "Simple view" is the user's own switch (?view=simple). It shows the same
+  // flat table lite mode does, but never flips lite mode itself.
+  const simpleRequested = searchParams.get("view") === "simple";
 
-  if (!staticBaseline) {
-    return <AgendaBoard sessions={sessions} speakers={speakers} tracks={tracks} activeTrack={activeTrack} />;
+  if (!staticBaseline && !simpleRequested) {
+    return (
+      <AgendaBoard
+        sessions={sessions}
+        speakers={speakers}
+        tracks={orderedTracks}
+        activeTrack={activeTrack}
+        floors={floors}
+      />
+    );
   }
 
   const filtered = activeTrack === "all" ? sessions : sessions.filter((s) => s.track === activeTrack);
-  const trackOptions = [{ slug: "all", name: uiCopy.agendaView.allTracksLabel }, ...tracks];
 
   return (
     <>
-      <div className="mt-6 flex flex-wrap gap-2">
-        {trackOptions.map((t) => (
-          <Link
-            key={t.slug}
-            href={t.slug === "all" ? "/agenda" : `/agenda?track=${t.slug}`}
-            scroll={false}
-            className={`rounded-full px-4 py-2 text-sm font-medium ${
-              activeTrack === t.slug
-                ? "bg-blue text-paper"
-                : "bg-paper/10 text-paper/80 hover:bg-paper/20"
-            }`}
-          >
-            {t.name}
-          </Link>
-        ))}
+      <div className="mt-6">
+        <AgendaControls
+          floors={floors}
+          floor={floor.slug}
+          tracks={floorTracks(floor, tracks)}
+          value={activeTrack}
+          simple
+          simpleLocked={staticBaseline}
+          allowAll
+        />
       </div>
 
       <div className="mt-8">

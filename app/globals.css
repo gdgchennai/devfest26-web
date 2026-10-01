@@ -1025,8 +1025,8 @@ html.gpu .hallway-stack {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
-  height: min(70vh, 620px);
-  min-height: 460px;
+  height: min(60vh, 520px);
+  min-height: 400px;
   perspective: 1600px;
   /* The far (dist>=2) columns translate well past the stage's own edge —
      invisible (opacity:0) but, being position:absolute, still contribute to
@@ -1057,8 +1057,8 @@ html.gpu .hallway-stack {
   position: relative;
   overflow: hidden;
   width: 3.75rem;
-  height: min(70vh, 620px);
-  min-height: 460px;
+  height: min(60vh, 520px);
+  min-height: 400px;
 }
 
 .agenda-board-ruler__track {

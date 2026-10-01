@@ -6,6 +6,13 @@ export type Track = {
   description: string;
 };
 
+export type Floor = {
+  slug: string;
+  name: string;
+  /** Track slugs on this floor, in display order. */
+  tracks: string[];
+};
+
 export type TicketProfile = { key: string; label: string };
 
 export type Ticket = {
@@ -260,11 +267,62 @@ export const siteConfig = {
   agendaUrl: "/agenda",
 
   tracks: [
-    { slug: "tech", name: "Tech", description: "General tech talks." },
-    { slug: "deep tech", name: "Deep Tech", description: "Tech in Science, Math, Hardware." },
-    { slug: "experience", name: "Experience", description: "Open lounges for anyone to experience building and creating with AI" },
-    { slug: "competition", name: "Competition", description: "Competition zones for humans and AI agents." },
+    {
+      slug: "d7-auditorium",
+      name: "Tech",
+      description: "General talks, the keynote, the panel, and the closing ceremony.",
+    },
+    {
+      slug: "d7-amphitheater",
+      name: "Deep tech",
+      description: "Deep tech talks.",
+    },
+    {
+      slug: "agent-wars",
+      name: "Agent Wars",
+      description: "Live tournament in D6 Multi-purpose Hall.",
+    },
+    {
+      slug: "lightning",
+      name: "Lightning Talks",
+      description: "15-minute lightning talks in D6 Multi-purpose Hall.",
+    },
+    {
+      slug: "vibe-coding",
+      name: "Vibe Lounge",
+      description: "Vibe Coding Challenge in D6 Multi-purpose Hall.",
+    },
+    {
+      slug: "pitchathon",
+      name: "Pitchathon",
+      description: "Pitchathon kickoff, demos, and closing in D6 Multi-purpose Hall.",
+    },
+    {
+      slug: "creators-lounge",
+      name: "Creators Lounge",
+      description: "Creators Lounge in the D7 Pre-Function Area.",
+    },
+    {
+      slug: "meetup-lounge",
+      name: "Meetup Lounge",
+      description: "Meetup Lounge in the D7 Pre-Function Area.",
+    },
   ] satisfies Track[],
+
+  // Which tracks run on which floor, in display order. The agenda's floor
+  // selector reads this; every track slug above should appear exactly once.
+  floors: [
+    {
+      slug: "d7",
+      name: "D block 7th floor",
+      tracks: ["d7-auditorium", "d7-amphitheater", "creators-lounge", "meetup-lounge", "pitchathon"],
+    },
+    {
+      slug: "d6",
+      name: "D block 6th floor",
+      tracks: ["agent-wars", "vibe-coding", "lightning"],
+    },
+  ] satisfies Floor[],
 
   // The community events feeding into the main festival, for the /tickets
   // "Pick your event" page. Every field below — names, dates, copy, CTA
@@ -612,7 +670,7 @@ export const uiCopy = {
     highlights: {
       agendaEyebrow: "The day",
       agendaTitle: "Agenda",
-      agendaDescription: "Four tracks, one day. The full schedule as it firms up.",
+      agendaDescription: "A track for each stage and program. The full schedule as it firms up.",
       ticketsEyebrow: "Get in",
       ticketsDescription: "Book your place at DevFest Chennai 2026.",
       speakingEyebrow: "Get on stage",
@@ -639,6 +697,8 @@ export const uiCopy = {
   agendaBoard: {
     previousSessionSr: "Previous session",
     nextSessionSr: "Next session",
+    previousTrackSr: "Previous track",
+    nextTrackSr: "Next track",
     previousEyebrow: "Previous",
     upNextEyebrow: "Up next",
     liveNowLabel: "Live now",
@@ -654,6 +714,9 @@ export const uiCopy = {
 
   agendaView: {
     allTracksLabel: "All",
+    floorLabel: "Floor",
+    trackLabel: "Track",
+    simpleViewLabel: "Simple view",
   },
 
   ticketSelector: {
