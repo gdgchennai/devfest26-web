@@ -46,14 +46,12 @@ export function ScrollProgress() {
       className="pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.4rem,env(safe-area-inset-bottom,0px))]"
       aria-hidden
     >
-      <div className="relative mx-auto h-1 max-w-[48rem] overflow-hidden rounded-full bg-paper/20 shadow-[0_0_0_1px_color-mix(in_srgb,var(--paper)_14%,transparent)]">
+      <div className="relative mx-auto h-1 max-w-[48rem] overflow-hidden rounded-full bg-white/20 shadow-[0_0_0_1px_rgba(255,255,255,0.14)]">
         <div
           ref={fillRef}
-          className="h-full w-full origin-left rounded-full will-change-transform"
+          className="h-full w-full origin-left rounded-full bg-white will-change-transform"
           style={{
             transform: "scaleX(0)",
-            background:
-              "linear-gradient(90deg, var(--blue), var(--red) 34%, var(--yellow) 67%, var(--green))",
           }}
         />
       </div>

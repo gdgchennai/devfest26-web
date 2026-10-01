@@ -80,6 +80,8 @@ function ExpectCarousel() {
                       className="object-cover"
                     />
                   )}
+                  {/* Subtle black scrim overlay over the picture */}
+                  <div className="absolute inset-0 bg-black/20" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
                 </div>
                 <div className="relative flex h-full flex-col justify-end p-8 sm:p-12">
@@ -508,6 +510,8 @@ export function ExpectShowcase() {
                       ) : (
                         photo && <ExpectCardPhoto src={photo.src} eager={cardIndex < 2} />
                       )}
+                      {/* Subtle black scrim overlay over the picture */}
+                      <div className="absolute inset-0 bg-black/20" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
                     </div>
                     <div className="relative flex h-full skew-x-[9deg] flex-col justify-end p-8 sm:p-12">

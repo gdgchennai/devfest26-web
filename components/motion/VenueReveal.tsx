@@ -927,6 +927,8 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   priority={true}
                   className="object-fill"
                 />
+                {/* Subtle black scrim overlay over the picture */}
+                <div className="pointer-events-none absolute inset-0 bg-black/20" />
               </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)
                   property to an invalid colour, not stroke-width — Tailwind's
@@ -956,6 +958,8 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 priority={true}
                 className="object-cover"
               />
+              {/* Subtle black scrim overlay over the picture */}
+              <div className="pointer-events-none absolute inset-0 bg-black/20" />
             </div>
           )}
 
