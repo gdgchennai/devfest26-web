@@ -174,7 +174,7 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -183,7 +183,7 @@
     "track": "d7-amphitheater",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -192,7 +192,7 @@
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -201,7 +201,7 @@
     "track": "lightning",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -210,7 +210,7 @@
     "track": "vibe-coding",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -219,7 +219,7 @@
     "track": "pitchathon",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -228,7 +228,7 @@
     "track": "creators-lounge",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -237,7 +237,7 @@
     "track": "meetup-lounge",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Morning coffee break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -561,7 +561,7 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -570,7 +570,7 @@
     "track": "d7-amphitheater",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -579,7 +579,7 @@
     "track": "agent-wars",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -588,7 +588,7 @@
     "track": "lightning",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -597,7 +597,7 @@
     "track": "vibe-coding",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -606,7 +606,7 @@
     "track": "pitchathon",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -615,7 +615,7 @@
     "track": "creators-lounge",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
@@ -624,7 +624,7 @@
     "track": "meetup-lounge",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:00:00+05:30",
-    "title": "Evening Tea & Snacks Break",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
