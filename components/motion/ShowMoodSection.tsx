@@ -132,7 +132,7 @@ function TextScrim({ corner }: { corner: "top left" | "bottom right" }) {
   return (
     <>
       {/* Subtle black scrim overlay over the picture to lift overlay text */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/20" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/10" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"

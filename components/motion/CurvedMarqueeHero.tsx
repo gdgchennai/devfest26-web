@@ -776,7 +776,7 @@ export function CurvedMarqueeHero({ photos, paused = false }: { photos: ArchiveP
       <div ref={containerRef} className="pointer-events-none absolute inset-0 max-sm:-translate-y-[8%]" />
 
       {/* Subtle black scrim overlay over the photo strip to ground overlying text */}
-      <div className="pointer-events-none absolute inset-0 z-[4] bg-black/20 max-sm:-translate-y-[8%]" />
+      <div className="pointer-events-none absolute inset-0 z-[4] bg-black/10 max-sm:-translate-y-[8%]" />
 
       {/* Soft radial hint behind the title — just enough to lift the wordmark
           off the photos; legibility mostly comes from the text-shadow so the

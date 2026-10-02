@@ -237,7 +237,7 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
     >
       {event.isPast && (
         <>
-          <div className="pointer-events-none absolute inset-0 z-10 bg-black/40" />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-black/25" />
           <DoneStamp plain={plain} />
         </>
       )}
