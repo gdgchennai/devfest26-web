@@ -75,13 +75,14 @@ export function FooterLogo({
   const field3D = BRACKETS_FIELD_ROUTES.includes(pathname) && !staticBaseline;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-10">
+    <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5 sm:gap-6 md:gap-7">
       {/* The logo box. `relative` so the static fallback brackets can anchor to
           it; the 3D field reads this same box via id="footer-logo". The capped
           width leaves the transparent gutters the brackets settle into, and the
           aspect-ratio keeps the box measured before the image loads so the 3D
-          settle target is stable. */}
-      <div className="relative mx-auto aspect-[1370/531] w-[min(60vw,420px)]">
+          settle target is stable. Scaled responsively across device viewports
+          (phones, 13" laptops, wide monitors) to avoid dominating the footer. */}
+      <div className="relative mx-auto aspect-[1370/531] w-[clamp(170px,26vw,300px)]">
         <FooterBrackets />
         {/* eslint-disable-next-line @next/next/no-img-element -- a static brand
             SVG measured by the motion layer; next/image adds nothing here. */}
@@ -108,13 +109,14 @@ export function FooterLogo({
       {/* Social buttons — same glass/neon treatment as the site's other CTAs
           (see components/GlowButton.tsx), circle-shaped for an icon-only
           control. aria-label carries the accessible name since the visible
-          content is just the icon. */}
+          content is just the icon. Sized down proportionally (xs) so six icons
+          read cleanly on 13" laptops and mobile screens. */}
       {social.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3">
           {social.map((link) => (
-            <GlowButton key={link.label} href={link.href} target="_blank" rel="noreferrer" shape="circle" size="sm">
+            <GlowButton key={link.label} href={link.href} target="_blank" rel="noreferrer" shape="circle" size="xs">
               <span className="sr-only">{link.label}</span>
-              <svg viewBox="0 0 24 24" aria-hidden className="relative h-5 w-5 fill-paper">
+              <svg viewBox="0 0 24 24" aria-hidden className="relative h-4 w-4 fill-paper sm:h-[18px] sm:w-[18px]">
                 {ICONS[link.label] ?? null}
               </svg>
             </GlowButton>
