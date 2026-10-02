@@ -881,6 +881,9 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
           particle vortex) from actual scroll position. A stable CSS unit
           that needs no JS and no refresh has no such window. */}
       <div className="relative z-10 flex h-[100lvh] flex-col">
+        {/* Scrim overlay over the entire Location and Save the Date section */}
+        <div className="pointer-events-none absolute inset-0 z-[15] bg-black/20" />
+
         {/* Heading: lives above the image stage, not overlaid on it — no
             animated move, only a fade-in — so the sketch draw is what draws
             the eye. Sitting in normal flow (not absolutely over the photo)
@@ -927,8 +930,6 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                   priority={true}
                   className="object-fill"
                 />
-                {/* Subtle black scrim overlay over the picture */}
-                <div className="pointer-events-none absolute inset-0 bg-black/20" />
               </div>
               {/* [&_path]:stroke-[1.5px] would set the SVG `stroke` (paint)
                   property to an invalid colour, not stroke-width — Tailwind's
@@ -958,8 +959,6 @@ export function VenueReveal({ brandShapes }: { brandShapes: string[] }) {
                 priority={true}
                 className="object-cover"
               />
-              {/* Subtle black scrim overlay over the picture */}
-              <div className="pointer-events-none absolute inset-0 bg-black/20" />
             </div>
           )}
 

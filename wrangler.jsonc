@@ -56,5 +56,32 @@
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
+	},
+	"previews": {
+		"d1_databases": [
+			{
+				"binding": "DB",
+				"database_id": "7460097a-f29e-4c9d-95ac-fd6070d666d0"
+			}
+		],
+		"images": {
+			"binding": "IMAGES"
+		},
+		"r2_buckets": [
+			{
+				"binding": "NEXT_INC_CACHE_R2_BUCKET",
+				"bucket_name": "devfest-chennai-2026-opennext-cache"
+			}
+		],
+		"unsafe": {
+			"bindings": [
+				{
+					"name": "WORKER_SELF_REFERENCE",
+					"type": "service",
+					"service": "devfest-chennai-2026",
+					"environment": "production"
+				}
+			]
+		}
 	}
 }

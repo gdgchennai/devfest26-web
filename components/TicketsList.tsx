@@ -1,17 +1,17 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { siteConfig, shortEventDate, uiCopy, type SubEvent } from "@/site.config";
-import { EVENT_TIME_ZONE } from "@/lib/format";
 import { ticketCta } from "@/lib/cta";
 import { GlowButton } from "@/components/GlowButton";
 import { ArrowGlyph } from "@/components/ArrowGlyph";
 import { RollingText } from "@/components/motion/RollingText";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
+import { track } from "@/lib/analytics";
 
 gsap.registerPlugin(useGSAP);
 
@@ -28,6 +28,7 @@ const FLAGSHIP_COLOR = "bg-yellow-pastel";
 // same-page no-op. This is the one card that should actually sell a ticket,
 // so it skips the picker and goes straight to the tier selector.
 const FLAGSHIP_TICKET_HREF = "/tickets/select";
+const FLAGSHIP_KEY = "devfest-2026";
 
 // Fallback for events with no real photography yet (see SubEvent's `image`
 // doc comment) — the same venue shot VenueReveal.tsx uses.
@@ -37,25 +38,61 @@ type EventCard = {
   key: string;
   title: string;
   date: string;
-  isoDate: string;
-  isPast: boolean;
+  isPast?: boolean;
   description: string;
   cta: { label: string; href?: string; external?: boolean };
   color: string;
   image: { src: string; alt: string };
 };
 
-function getTodayIsoDate(): string {
+/** Viewer's local calendar day, `YYYY-MM-DD`, so "today" follows the clock
+ *  on the machine opening the page. */
+function localISODate(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function isDriveLink(href: string): boolean {
   try {
-    return new Intl.DateTimeFormat("en-CA", {
-      timeZone: EVENT_TIME_ZONE,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date());
+    return new URL(href).hostname === "drive.google.com";
   } catch {
-    return new Date().toISOString().slice(0, 10);
+    return false;
   }
+}
+
+/** Past satellites always offer highlights. A Drive folder on the event wins;
+ *  otherwise the shared Instagram highlights page. */
+function satelliteCta(event: SubEvent, past: boolean): EventCard["cta"] {
+  if (past) {
+    const drive = event.href && isDriveLink(event.href) ? event.href : undefined;
+    return {
+      label: uiCopy.ticketsList.seeHighlights,
+      href: drive ?? siteConfig.pastEventHighlightsUrl,
+      external: true,
+    };
+  }
+  return event.href
+    ? { label: event.ctaLabel, href: event.href, external: true }
+    : { label: event.ctaLabel };
+}
+
+function flagshipCard(today?: string | null): EventCard {
+  const ticket = ticketCta();
+  const flagshipIsPast = Boolean(today && siteConfig.date && siteConfig.date < today);
+  return {
+    key: FLAGSHIP_KEY,
+    title: siteConfig.name,
+    date: shortEventDate(siteConfig.date),
+    isPast: flagshipIsPast,
+    description: `${uiCopy.ticketsList.flagshipDescriptionPrefix}${siteConfig.chapter}${uiCopy.ticketsList.flagshipDescriptionMiddle}${siteConfig.venue.name}${uiCopy.ticketsList.flagshipDescriptionSuffix}`,
+    cta: ticket.available
+      ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
+      : { label: ticket.label },
+    color: FLAGSHIP_COLOR,
+    image: { src: "/banner/main.webp", alt: siteConfig.name },
+  };
 }
 
 /**
@@ -65,56 +102,59 @@ function getTodayIsoDate(): string {
  * can't drift out of sync with the real event — and so it never promises a
  * ticket link that doesn't exist yet (see ticketCta()'s own doc comment).
  *
- * All cards are sorted chronologically by date so the deck naturally orders
- * events from past to future.
+ * The flagship stays in the centre when the page opens. Satellites dated
+ * before `today` sit to its left, soonest last. Satellites dated today or
+ * later sit to its right, soonest first. Same-day events keep their
+ * site.config order. Prev/Next roll past either end and come back around.
+ * `today` is null until the browser clock is known — the server render is
+ * the flagship alone, so a past event never flashes on the right.
  */
-function buildEvents(): EventCard[] {
-  const todayIso = getTodayIsoDate();
+function buildDeck(today: string | null): { events: EventCard[]; mainIndex: number } {
+  const flagship = flagshipCard(today);
+  if (!today) return { events: [flagship], mainIndex: 0 };
 
-  const cards: EventCard[] = siteConfig.subEvents.map((event: SubEvent, i) => {
-    const isoDate = event.date;
-    const isPast = Boolean(isoDate && isoDate < todayIso);
+  const satellites = siteConfig.subEvents.map((event: SubEvent, order) => {
+    const isPast = event.date < today;
     return {
-      key: event.slug,
-      title: event.title,
-      date: shortEventDate(event.date),
-      isoDate,
-      isPast,
-      description: event.description,
-      cta: event.href ? { label: event.ctaLabel, href: event.href, external: true } : { label: event.ctaLabel },
-      color: event.color ?? COLORS[i % COLORS.length],
-      image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
+      order,
+      isoDate: event.date,
+      card: {
+        key: event.slug,
+        title: event.title,
+        date: shortEventDate(event.date),
+        isPast,
+        description: event.description,
+        cta: satelliteCta(event, isPast),
+        color: event.color ?? COLORS[order % COLORS.length],
+        image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
+      } satisfies EventCard,
     };
   });
+  const byDate = (a: (typeof satellites)[number], b: (typeof satellites)[number]) =>
+    a.isoDate.localeCompare(b.isoDate) || a.order - b.order;
+  const past = satellites.filter((event) => event.isoDate < today).sort(byDate);
+  const upcoming = satellites.filter((event) => event.isoDate >= today).sort(byDate);
 
-  const ticket = ticketCta();
-  const flagshipIsoDate = siteConfig.date ?? "9999-99-99";
-  const flagshipIsPast = Boolean(siteConfig.date && siteConfig.date < todayIso);
-  cards.push({
-    key: "devfest-2026",
-    title: siteConfig.name,
-    date: shortEventDate(siteConfig.date),
-    isoDate: flagshipIsoDate,
-    isPast: flagshipIsPast,
-    description: `${uiCopy.ticketsList.flagshipDescriptionPrefix}${siteConfig.chapter}${uiCopy.ticketsList.flagshipDescriptionMiddle}${siteConfig.venue.name}${uiCopy.ticketsList.flagshipDescriptionSuffix}`,
-    cta: ticket.available
-      ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
-      : { label: ticket.label },
-    color: FLAGSHIP_COLOR,
-    image: { src: "/banner/main.webp", alt: siteConfig.name },
-  });
-
-  return cards.sort((a, b) => a.isoDate.localeCompare(b.isoDate));
+  return {
+    events: [...past.map((event) => event.card), flagship, ...upcoming.map((event) => event.card)],
+    mainIndex: past.length,
+  };
 }
 
-/**
- * Returns the index of the first upcoming or present event (or the last event
- * if all have passed) so the initial view displays upcoming events from the
- * middle towards the right and past events stacked to the left.
- */
-function getInitialEventIndex(events: EventCard[]): number {
-  const upcomingIdx = events.findIndex((e) => !e.isPast);
-  return upcomingIdx !== -1 ? upcomingIdx : Math.max(0, events.length - 1);
+/** Community links are already `community_event` via CtaTracker, matched on
+ *  the event's own href. A CTA with no URL (Coming soon) never hits that
+ *  listener, and every past event without a Drive folder shares one Instagram
+ *  URL, so count both here with the card's own key. The flagship ticket link
+ *  is recorded in trackCtaFromAnchor — MotionProvider stopPropagation()s
+ *  internal links before this span's click handler. */
+function trackCardCta(event: EventCard) {
+  const sharedHighlights = event.cta.href === siteConfig.pastEventHighlightsUrl;
+  if (event.cta.href && !sharedHighlights) return;
+  track("select_content", { content_type: "community_event", content_id: event.key });
+}
+
+function trackCarouselControl(control: "previous" | "next" | "main") {
+  track("select_content", { content_type: "ticket_carousel", content_id: control });
 }
 
 /** `plain`: lite mode — same GlowButton, no RollingText (no animation at all
@@ -136,7 +176,7 @@ function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean 
     // wrap between ANY two of them, including mid-word ("Comin" / "g").
     // shrink-0 stops the squeeze; whitespace-nowrap is the belt-and-braces
     // second guard in case the row is ever narrower than the button itself.
-    <span className="shrink-0 whitespace-nowrap">
+    <span className="shrink-0 whitespace-nowrap" onClick={() => trackCardCta(event)}>
       {event.cta.href ? (
         <GlowButton
           shape="pill"
@@ -291,8 +331,12 @@ function buildSeamlessLoop(items: HTMLElement[], spacing: number, animateFunc: (
 }
 
 function TicketsCarouselMotion() {
-  const events = useMemo(() => buildEvents(), []);
-  const initialIndex = getInitialEventIndex(events);
+  // "" on the server / hydration so buildDeck stays the flagship until the
+  // browser clock is available. This component only mounts on the client
+  // (the static carousel is the SSR tree), so the first motion render
+  // already has the real date.
+  const today = useClientValue(localISODate, "");
+  const deck = buildDeck(today || null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLUListElement>(null);
@@ -300,11 +344,10 @@ function TicketsCarouselMotion() {
   // (scrub tween + scrollToOffset) exists, inside useGSAP below.
   const apiRef = useRef<{
     scrub: gsap.core.Tween;
-    scrollToOffset: (offset: number) => void;
+    scrollToOffset: (offset: number, duration?: number) => void;
     jumpToIndex: (index: number) => void;
     spacing: number;
   } | null>(null);
-  const flagshipIndex = events.findIndex((e) => e.key === "devfest-2026");
 
   useGSAP(
     () => {
@@ -367,10 +410,9 @@ function TicketsCarouselMotion() {
         // three copies of every card's animation on the same element; near the
         // loop seam a just-finished copy and a starting copy briefly coexist,
         // and under the loop's non-linear seek GSAP's `scale` shorthand leaves
-        // scaleX on one and scaleY on the other — the cards flanking the
-        // flagship (index 9, right at the seam) rendered horizontally
-        // squashed. Tweening the two axes as first-class props keeps them in
-        // lockstep.
+        // scaleX on one and scaleY on the other — the cards at the loop seam
+        // rendered horizontally squashed. Tweening the two axes as first-class
+        // props keeps them in lockstep.
         tl.fromTo(
           element,
           { scaleX: 0.5, scaleY: 0.5, autoAlpha: 0, zIndex: 1 },
@@ -389,8 +431,7 @@ function TicketsCarouselMotion() {
       };
 
       const seamlessLoop = buildSeamlessLoop(cardEls, spacing, animateFunc);
-      const initialOffset = initialIndex * spacing;
-      const playhead = { offset: initialOffset };
+      const playhead = { offset: 0 };
       // prev/next/jumpToIndex and wrapTime all assume "offset ± k*spacing ==
       // move k cards", which holds only while the loop's period is exactly
       // cardEls.length * spacing. Guard in dev in case a future change to
@@ -405,10 +446,9 @@ function TicketsCarouselMotion() {
         }
       }
       const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
-      seamlessLoop.time(wrapTime(initialOffset));
 
       const scrub = gsap.to(playhead, {
-        offset: initialOffset,
+        offset: 0,
         onUpdate() {
           seamlessLoop.time(wrapTime(playhead.offset));
         },
@@ -416,6 +456,13 @@ function TicketsCarouselMotion() {
         ease: "power2.inOut",
         paused: true,
       });
+
+      // The loop is built to open on card 0. Park it on the flagship (past
+      // events to the left, upcoming to the right) without playing the tween,
+      // so the first Next/Previous still uses the original scrub.
+      playhead.offset = deck.mainIndex * spacing;
+      scrub.vars.offset = playhead.offset;
+      seamlessLoop.time(wrapTime(playhead.offset));
 
       // Eases the playhead to the nearest card position — no ScrollTrigger,
       // no page scroll position involved at all. wrapTime() (used inside
@@ -570,7 +617,7 @@ function TicketsCarouselMotion() {
         stage.removeEventListener("click", onClickCapture, true);
       };
     },
-    { scope: galleryRef },
+    { scope: galleryRef, dependencies: [today] },
   );
 
   return (
@@ -607,7 +654,7 @@ function TicketsCarouselMotion() {
             ref={cardsRef}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           >
-            {events.map((event) => (
+            {deck.events.map((event) => (
               <li key={event.key} className="absolute left-0 top-0 h-full w-full">
                 <CardFace event={event} />
               </li>
@@ -619,24 +666,37 @@ function TicketsCarouselMotion() {
           <GlowButton
             shape="circle"
             size="md"
-            onClick={() =>
-              apiRef.current?.scrollToOffset((apiRef.current.scrub.vars.offset as number) - apiRef.current.spacing)
-            }
+            onClick={() => {
+              trackCarouselControl("previous");
+              const api = apiRef.current;
+              if (!api) return;
+              api.scrollToOffset((api.scrub.vars.offset as number) - api.spacing);
+            }}
           >
             <span className="sr-only">{uiCopy.ticketsList.previousEventSr}</span>
             <ArrowGlyph direction="left" />
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
-          <GlowButton shape="pill" size="md" onClick={() => apiRef.current?.jumpToIndex(flagshipIndex)}>
+          <GlowButton
+            shape="pill"
+            size="md"
+            onClick={() => {
+              trackCarouselControl("main");
+              apiRef.current?.jumpToIndex(deck.mainIndex);
+            }}
+          >
             {uiCopy.ticketsList.mainEventLabel}
           </GlowButton>
           <GlowButton
             shape="circle"
             size="md"
-            onClick={() =>
-              apiRef.current?.scrollToOffset((apiRef.current.scrub.vars.offset as number) + apiRef.current.spacing)
-            }
+            onClick={() => {
+              trackCarouselControl("next");
+              const api = apiRef.current;
+              if (!api) return;
+              api.scrollToOffset((api.scrub.vars.offset as number) + api.spacing);
+            }}
           >
             <span className="sr-only">{uiCopy.ticketsList.nextEventSr}</span>
             <ArrowGlyph direction="right" />
@@ -657,17 +717,26 @@ function TicketsCarouselMotion() {
  * animation — doesn't run in lite mode either.
  */
 function TicketsCarouselStatic() {
-  const events = useMemo(() => buildEvents(), []);
-  const initialIndex = getInitialEventIndex(events);
-  const [index, setIndex] = useState(initialIndex);
-  const flagshipIndex = events.findIndex((e) => e.key === "devfest-2026");
-  const current = events[index];
+  const today = useClientValue(localISODate, "");
+  const deck = buildDeck(today || null);
+  const [index, setIndex] = useState(deck.mainIndex);
+  const [seenToday, setSeenToday] = useState(today);
+  // The server deck is the flagship alone. Once the browser date arrives,
+  // past events land on the left — reset onto the flagship rather than
+  // leaving index 0 pointing at the oldest one.
+  if (today !== seenToday) {
+    setSeenToday(today);
+    setIndex(deck.mainIndex);
+  }
+  const current = deck.events[index] ?? deck.events[deck.mainIndex];
 
   function prev() {
-    setIndex((i) => (i - 1 + events.length) % events.length);
+    trackCarouselControl("previous");
+    setIndex((i) => (i - 1 + deck.events.length) % deck.events.length);
   }
   function next() {
-    setIndex((i) => (i + 1) % events.length);
+    trackCarouselControl("next");
+    setIndex((i) => (i + 1) % deck.events.length);
   }
 
   return (
@@ -710,7 +779,14 @@ function TicketsCarouselStatic() {
           </GlowButton>
           {/* Jumps straight to the flagship card — not a label for whichever
               card happens to be centred right now. */}
-          <GlowButton shape="pill" size="md" onClick={() => setIndex(flagshipIndex)}>
+          <GlowButton
+            shape="pill"
+            size="md"
+            onClick={() => {
+              trackCarouselControl("main");
+              setIndex(deck.mainIndex);
+            }}
+          >
             {uiCopy.ticketsList.mainEventLabel}
           </GlowButton>
           <GlowButton shape="circle" size="md" onClick={next}>
