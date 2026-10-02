@@ -44,7 +44,7 @@ const PADDING: Record<"box" | "pill", Record<Size, string>> = {
 // good on phones, scales up smoothly on larger screens. Border stays 1.5px for
 // consistent visual weight ratio across sizes.
 const CIRCLE_SIZE: Record<Size, string> = {
-  xs: "h-8 w-8 sm:h-8.5 sm:w-8.5 md:h-9 md:w-9",
+  xs: "h-7 w-7 sm:h-7.5 sm:w-7.5 md:h-8 md:w-8",
   sm: "h-10 w-10 sm:h-11 sm:w-11",
   md: "h-11 w-11 sm:h-12 sm:w-12",
   lg: "h-13 w-13 sm:h-14 sm:w-14",
