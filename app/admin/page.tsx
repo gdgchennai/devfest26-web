@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/admin";
+import { currentAdminUser } from "@/lib/admin";
 import { getAgenda } from "@/lib/content";
 import { getSessionStatuses } from "@/lib/session-status";
 import { sessionKey } from "@/lib/session-key";
 import { siteConfig } from "@/site.config";
 import { HeaderTitle } from "@/components/HeaderTitleContext";
 import { AdminSessionRow } from "@/components/admin/AdminSessionRow";
+import { AdminNav } from "@/components/admin/AdminNav";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -23,7 +24,7 @@ export default async function AdminPage() {
   if (!session?.user?.uid) {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/admin")}`);
   }
-  if (!(await isAdminEmail(session.user.email))) {
+  if (!(await currentAdminUser(session.user.uid))) {
     redirect("/");
   }
 
@@ -33,7 +34,8 @@ export default async function AdminPage() {
     <>
       <HeaderTitle title="Admin" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <h1 className="text-xl font-bold text-paper sm:text-2xl">Session status</h1>
+        <AdminNav active="/admin" />
+        <h1 className="mt-4 text-xl font-bold text-paper sm:text-2xl">Session status</h1>
         <p className="mt-1 max-w-md text-sm text-paper/60">
           Marking a session started or ended notifies everyone who saved it and has push
           notifications on.

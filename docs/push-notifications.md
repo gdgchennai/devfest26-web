@@ -53,11 +53,8 @@ which:
    `sendPushToUsers` — a notification goes out immediately, inline in the
    request (no confirm step, no queue).
 
-**Access:** gated by `ADMIN_EMAILS` (see `docs/environment.md`) via
-[`lib/admin.ts`](../lib/admin.ts) — there's no `role` column or any other
-privilege concept in this codebase, so this allow-list env var is the entire
-mechanism. `/admin` isn't listed in `lib/routes.ts`, so it won't show up on
-the 404 rescue grid or sitemap, same as `/signin`.
+**Access:** see [`docs/admin.md`](./admin.md) for the full `/admin` access
+model (`ADMIN_EMAILS` + the DB `is_admin` flag, managed from `/admin/users`).
 
 Nothing else calls `sendPushToUser`/`sendPushToUsers` yet, but they're
 generic — call them from any other server-side event that should notify

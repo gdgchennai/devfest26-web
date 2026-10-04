@@ -10,6 +10,9 @@ export type UserRecord = {
   image: string | null;
   display_name: string | null;
   created_at: number;
+  /** DB-granted admin role, set from /admin/users. See lib/admin.ts — the
+   *  ADMIN_EMAILS env allow-list is a separate, always-wins bootstrap. */
+  is_admin: number;
 };
 
 /**
@@ -51,6 +54,7 @@ export async function upsertUserByGoogle(profile: {
     image: profile.image ?? null,
     display_name: null,
     created_at: Date.now(),
+    is_admin: 0,
   };
 
   await db
@@ -66,4 +70,39 @@ export async function upsertUserByGoogle(profile: {
 export async function getUserById(id: string): Promise<UserRecord | null> {
   const db = await getDb();
   return db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<UserRecord>();
+}
+
+export async function setUserAdmin(userId: string, isAdmin: boolean): Promise<void> {
+  const db = await getDb();
+  await db
+    .prepare("UPDATE users SET is_admin = ? WHERE id = ?")
+    .bind(isAdmin ? 1 : 0, userId)
+    .run();
+}
+
+/**
+ * Every account, with its ticket name resolved the same way the profile page
+ * resolves one (an explicit ticket_claims link wins, else a direct email
+ * match) — but batched into three queries total instead of one-per-user, for
+ * the /admin/users list. `null` means no ticket found under either path.
+ */
+export async function listUsersWithTicketNames(): Promise<Array<UserRecord & { ticket_name: string | null }>> {
+  const db = await getDb();
+  const [usersResult, ticketsResult, claimsResult] = await Promise.all([
+    db.prepare("SELECT * FROM users ORDER BY created_at DESC").all<UserRecord>(),
+    db.prepare("SELECT email, ticket_name FROM tickets").all<{ email: string; ticket_name: string | null }>(),
+    db.prepare("SELECT user_id, ticket_email FROM ticket_claims").all<{ user_id: string; ticket_email: string }>(),
+  ]);
+
+  const ticketByEmail = new Map(ticketsResult.results.map((t) => [t.email.toLowerCase(), t.ticket_name]));
+  const claimedEmailByUser = new Map(claimsResult.results.map((c) => [c.user_id, c.ticket_email.toLowerCase()]));
+
+  return usersResult.results.map((user) => {
+    const claimedEmail = claimedEmailByUser.get(user.id);
+    const ticketName =
+      (claimedEmail ? ticketByEmail.get(claimedEmail) : undefined) ??
+      (user.email ? ticketByEmail.get(user.email.toLowerCase()) : undefined) ??
+      null;
+    return { ...user, ticket_name: ticketName };
+  });
 }

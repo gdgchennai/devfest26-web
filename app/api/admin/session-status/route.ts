@@ -1,5 +1,4 @@
-import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/admin";
+import { requireAdminApi } from "@/lib/admin";
 import { getAgenda } from "@/lib/content";
 import { sessionKey as keyFor } from "@/lib/session-key";
 import { setSessionStatus, type SessionStatus } from "@/lib/session-status";
@@ -10,18 +9,9 @@ export const runtime = "nodejs";
 
 const STATUSES: readonly SessionStatus[] = ["upcoming", "started", "ended"];
 
-async function requireAdmin(): Promise<Response | null> {
-  const session = await auth();
-  if (!session?.user?.uid) return Response.json({ error: "unauthorized" }, { status: 401 });
-  if (!(await isAdminEmail(session.user.email))) {
-    return Response.json({ error: "forbidden" }, { status: 403 });
-  }
-  return null;
-}
-
 export async function POST(req: Request) {
-  const denied = await requireAdmin();
-  if (denied) return denied;
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) return admin;
 
   const body = (await req.json().catch(() => null)) as { sessionKey?: unknown; status?: unknown } | null;
   const key = body?.sessionKey;
