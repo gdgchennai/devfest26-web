@@ -12,6 +12,7 @@ import { Header } from "@/components/Header";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FavoritesProvider } from "@/components/favorites/FavoritesProvider";
+import { PushPrompt } from "@/components/push/PushPrompt";
 import { HeaderTitleProvider } from "@/components/HeaderTitleContext";
 import { CrosswordPreloader } from "@/components/CrosswordPreloader";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
@@ -187,6 +188,7 @@ export default function RootLayout({
         <BootPreloaderRelease />
         <AuthProvider>
           <PostHogIdentify />
+          <PushPrompt />
           <FavoritesProvider>
             <HeaderTitleProvider>
               <MotionProvider>

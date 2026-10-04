@@ -73,6 +73,7 @@ There is **no test suite**. Verify by typechecking, linting, and exercising the 
 | Deploy, Workers, secrets, migrations | [`docs/deployment.md`](docs/deployment.md) |
 | Every env var | [`docs/environment.md`](docs/environment.md) |
 | Sign-in, saved sessions, tickets | [`docs/accounts-and-favorites.md`](docs/accounts-and-favorites.md) |
+| Push notifications (Web Push/VAPID) | [`docs/push-notifications.md`](docs/push-notifications.md) |
 | Mini-games and score integrity | [`docs/games.md`](docs/games.md) |
 | `/md/*` markdown twins | [`docs/markdown-negotiation.md`](docs/markdown-negotiation.md) |
 | Scroll hallway (homepage hero + `/memories`) | [`.claude/skills/hallway/SKILL.md`](.claude/skills/hallway/SKILL.md) |

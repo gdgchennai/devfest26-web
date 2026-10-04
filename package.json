@@ -24,6 +24,7 @@
     "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@block65/webcrypto-web-push": "^2.0.0",
     "@gsap/react": "^2.1.2",
     "@next/third-parties": "^16.3.4",
     "@opennextjs/cloudflare": "^1.20.7",

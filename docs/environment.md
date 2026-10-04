@@ -25,10 +25,10 @@ go in the build environment and secrets are set with `wrangler secret put`.
 
 | Context | File | Vars it needs |
 | --- | --- | --- |
-| `npm run dev` (Next dev server) | `.env.local` **and** `.dev.vars` | `.env.local`: build-time vars + `AUTH_*`. `.dev.vars`: `GEMINI_*` |
+| `npm run dev` (Next dev server) | `.env.local` **and** `.dev.vars` | `.env.local`: build-time vars + `AUTH_*` + `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. `.dev.vars`: `GEMINI_*`, `VAPID_PRIVATE_KEY` |
 | `npm run deploy` / `npm run preview` build step (`next build`) | `.env.local` / `.env.production` / shell env | build-time vars only |
-| Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` / `GEMINI_MODEL` |
-| Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, optional `GEMINI_API_KEY` |
+| Cloudflare Workers runtime, local (`npm run preview`) | `.dev.vars` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `VAPID_PRIVATE_KEY`, optional `GEMINI_API_KEY` / `GEMINI_MODEL` / `ADMIN_EMAILS` |
+| Cloudflare Workers runtime, production | `wrangler secret put …` | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `VAPID_PRIVATE_KEY`, optional `GEMINI_API_KEY` / `ADMIN_EMAILS` |
 | Git-triggered build (only if Cloudflare Workers Builds is connected) | dashboard → Worker → Settings → Build | `AGENDA_READY`, `HERO_BUTTONS`, optional PostHog overrides |
 
 Full deploy walkthrough: [`deployment.md`](./deployment.md).
@@ -94,6 +94,38 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
   error). Both are best-effort and per Worker isolate. For a hard limit, add a
   Cloudflare rate-limiting rule on `/api/games/session`.
 
+### `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`
+- **Type:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY` is build-time, public (inlined into
+  the client bundle — it's not secret, the browser needs it to call
+  `PushManager.subscribe()`). `VAPID_PRIVATE_KEY` is a runtime secret.
+- **Used by:** [`components/push/PushSubscribeButton.tsx`](../components/push/PushSubscribeButton.tsx)
+  (public key, client-side) and [`lib/push.ts`](../lib/push.ts) (private key,
+  signs the VAPID JWT for each push via
+  [`@block65/webcrypto-web-push`](https://github.com/block65/webcrypto-web-push))
+- **Required:** no. Without `VAPID_PRIVATE_KEY`, `lib/push.ts` throws when a
+  send is attempted — subscribing still works (rows land in
+  `push_subscriptions`), but nothing can be sent until it's set. Without the
+  public key, the "Get notified" button on `/profile` no-ops.
+- **Generate a pair:**
+  ```
+  node -e "crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']).then(async k=>{const pub=Buffer.from(await crypto.subtle.exportKey('raw',k.publicKey)).toString('base64url');const jwk=await crypto.subtle.exportKey('jwk',k.privateKey);console.log('NEXT_PUBLIC_VAPID_PUBLIC_KEY='+pub);console.log('VAPID_PRIVATE_KEY='+jwk.d)})"
+  ```
+  Put the public line in `.env.local`, the private line in `.dev.vars`
+  (`wrangler secret put VAPID_PRIVATE_KEY` in production — the public key for
+  prod is a normal build-time var, not a secret).
+- **Subject:** the VAPID `sub` claim is `mailto:${siteConfig.contact.email}` —
+  not a separate env var.
+
+### `ADMIN_EMAILS`
+- **Type:** runtime variable (not really a secret, but not public either —
+  belongs in `.dev.vars`/`wrangler secret put` like the others in this table)
+- **Used by:** [`lib/admin.ts`](../lib/admin.ts) — gates `/admin` (mark
+  sessions started/ended) and `POST /api/admin/session-status`
+- **Required:** no, but without it `/admin` 403s for every signed-in user —
+  there's no other way in. Comma-separated, case-insensitive, matched against
+  the signed-in Google account's email.
+- **Example:** `ADMIN_EMAILS=you@example.com,teammate@example.com`
+
 ### `NODE_ENV`
 - Set automatically by `next dev` / `next build` / Wrangler. Never set it by
   hand. `next.config.ts` branches on it (dev-only `allowedDevOrigins`).
@@ -139,7 +171,7 @@ Configured in [`wrangler.jsonc`](../wrangler.jsonc), surfaced on `CloudflareEnv`
 
 | Binding | What | Set up by |
 | --- | --- | --- |
-| `DB` | D1 — accounts, favorites, tickets, and `content_documents` (agenda / speakers / archive). Seed content with `npm run content:sync` | `wrangler d1 create devfest-chennai-2026`, then paste `database_id` |
+| `DB` | D1 — accounts, favorites, tickets, `push_subscriptions`, `session_status`, and `content_documents` (agenda / speakers / archive). Seed content with `npm run content:sync` | `wrangler d1 create devfest-chennai-2026`, then paste `database_id` |
 | `ASSETS` | static asset serving | OpenNext default |
 | `NEXT_INC_CACHE_R2_BUCKET` | ISR/incremental cache | `wrangler r2 bucket create devfest-chennai-2026-opennext-cache` |
 | `IMAGES` | Cloudflare image optimization | OpenNext default |

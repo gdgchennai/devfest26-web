@@ -14,3 +14,7 @@ export function newScoreId(): string {
 export function newGameSessionId(): string {
   return `gs_${crypto.randomUUID().replace(/-/g, "")}`;
 }
+
+export function newPushSubscriptionId(): string {
+  return `psub_${crypto.randomUUID().replace(/-/g, "")}`;
+}
