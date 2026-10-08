@@ -237,11 +237,11 @@ export const siteConfig = {
         name: "Late Students",
         category: "student",
         audience: "all",
-        price: 800,
+        price: 600,
         currency: "₹",
         opens: "2026-10-03T00:00:00+05:30",
         closes: "2026-10-10T23:59:00+05:30",
-        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=118811&ticketId=118811%7C1",
+        href: "https://konfhub.com/widget/devfest-2026-chennai?desc=true&secondaryBg=ffffff&ticketBg=ffffff&borderCl=ffffff&bg=c3ecf6&fontColor=1e1f24&ticketCl=1e1f24&btnColor=4285f4&fontFamily=Nunito&borderRadius=10&widget_type=quick&screen=2&tickets=123010&ticketId=123010%7C1",
       },
       {
         id: "student-women-diverse",
