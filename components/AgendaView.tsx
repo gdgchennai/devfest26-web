@@ -48,15 +48,19 @@ export function AgendaView({
     );
   }
 
-  const filtered = activeTrack === "all" ? sessions : sessions.filter((s) => s.track === activeTrack);
+  // A null-track session (e.g. check-in) belongs to no single track, so it
+  // stays visible under every track filter — but "all" already includes it
+  // exactly once, with no filtering needed.
+  const filtered =
+    activeTrack === "all" ? sessions : sessions.filter((s) => s.track === null || s.track === activeTrack);
 
   return (
     <>
       <div className="mt-6">
         <AgendaControls
           floors={floors}
-          floor={floor.slug}
-          tracks={floorTracks(floor, tracks)}
+          floor={floor?.slug ?? "all"}
+          tracks={floor ? floorTracks(floor, tracks) : orderedTracks}
           value={activeTrack}
           simple
           simpleLocked={staticBaseline}
@@ -65,7 +69,7 @@ export function AgendaView({
       </div>
 
       <div className="mt-8">
-        <AgendaList sessions={filtered} showFavorite />
+        <AgendaList sessions={filtered} speakers={speakers} showFavorite />
       </div>
     </>
   );

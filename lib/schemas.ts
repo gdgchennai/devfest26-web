@@ -6,13 +6,15 @@ export const trackSlugSchema = z.enum([
   "agent-wars",
   "lightning",
   "vibe-coding",
-  "pitchathon",
+  "raman-hall",
   "creators-lounge",
   "meetup-lounge",
 ]);
 
 export const agendaSessionSchema = z.object({
-  track: trackSlugSchema,
+  /** Null for venue-wide sessions (e.g. check-in) that belong to no single
+   *  track — shown on every track's timeline, but only once in the flat list. */
+  track: trackSlugSchema.nullable(),
   start: z.iso.datetime({ offset: true }),
   end: z.iso.datetime({ offset: true }),
   title: z.string().min(1),

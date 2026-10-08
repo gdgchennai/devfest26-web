@@ -16,20 +16,32 @@
 export const EVENT_TIME_ZONE = "Asia/Kolkata";
 
 export function formatSessionTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: EVENT_TIME_ZONE,
-  });
+  return new Date(iso)
+    .toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: EVENT_TIME_ZONE,
+    })
+    .toUpperCase();
 }
 
 /** The IST hour a session starts in, as "09" — used to group sessions under
- *  hour dividers on the spatial agenda board's timeline. */
+ *  hour dividers on the spatial agenda board's timeline. Stays 24-hour and
+ *  zero-padded so it sorts and compares as a stable key; use
+ *  `formatHourLabel` to display it. */
 export function sessionHour(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-IN", {
     hour: "2-digit",
     hour12: false,
     timeZone: EVENT_TIME_ZONE,
   });
+}
+
+/** Formats a `sessionHour` value ("00"–"23") as a 12-hour label, e.g. "8 AM". */
+export function formatHourLabel(hour24: string): string {
+  const h = Number(hour24) % 24;
+  const period = h < 12 ? "AM" : "PM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12} ${period}`;
 }

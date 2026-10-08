@@ -1,17 +1,21 @@
 "use client";
 
-import type { AgendaSession } from "@/lib/schemas";
+import type { AgendaSession, Speaker } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
+import { findSpeaker } from "@/lib/find-speaker";
 import { useNow } from "@/lib/useNow";
 import { uiCopy } from "@/site.config";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 export function AgendaList({
   sessions,
+  speakers = [],
   showFavorite = false,
 }: {
   sessions: AgendaSession[];
+  /** Looked up by `speakerSlug` to show the speaker's name under the title. */
+  speakers?: Speaker[];
   /** Render a save/remove star on each real session (not breaks). */
   showFavorite?: boolean;
 }) {
@@ -24,6 +28,7 @@ export function AgendaList({
       {sessions.map((session, i) => {
         const isNow =
           now !== null && now >= new Date(session.start) && now <= new Date(session.end);
+        const speaker = findSpeaker(speakers, session.speakerSlug);
 
         return (
           <li
@@ -38,9 +43,11 @@ export function AgendaList({
 
             <div className="flex-1">
               <p className="text-lg font-medium">{session.title}</p>
-              <p className={`text-xs uppercase tracking-wide ${trackColor(session.track).text}`}>
-                {session.track}
-              </p>
+              {speaker && (
+                <p className={`text-xs uppercase tracking-wide ${trackColor(session.track).text}`}>
+                  {speaker.name}
+                </p>
+              )}
             </div>
 
             <span className="text-lg font-medium text-paper sm:text-right">

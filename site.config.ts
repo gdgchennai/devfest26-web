@@ -293,9 +293,9 @@ export const siteConfig = {
       description: "Vibe Coding Challenge in D6 Multi-purpose Hall.",
     },
     {
-      slug: "pitchathon",
-      name: "Pitchathon",
-      description: "Pitchathon kickoff, demos, and closing in D6 Multi-purpose Hall.",
+      slug: "raman-hall",
+      name: "Raman Hall",
+      description: "Workshops, the Qualcomm hardware session, and the Pitchathon in Raman Hall.",
     },
     {
       slug: "creators-lounge",
@@ -315,12 +315,17 @@ export const siteConfig = {
     {
       slug: "d7",
       name: "D block 7th floor",
-      tracks: ["d7-auditorium", "d7-amphitheater", "creators-lounge", "meetup-lounge", "pitchathon"],
+      tracks: ["d7-auditorium", "d7-amphitheater", "creators-lounge", "meetup-lounge"],
     },
     {
       slug: "d6",
       name: "D block 6th floor",
       tracks: ["agent-wars", "vibe-coding", "lightning"],
+    },
+    {
+      slug: "e-ground",
+      name: "E block Ground floor",
+      tracks: ["raman-hall"],
     },
   ] satisfies Floor[],
 
@@ -714,6 +719,7 @@ export const uiCopy = {
 
   agendaView: {
     allTracksLabel: "All",
+    allFloorsLabel: "All",
     floorLabel: "Floor",
     trackLabel: "Track",
     simpleViewLabel: "Simple view",

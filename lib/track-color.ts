@@ -26,7 +26,7 @@ const PALETTE: Record<string, TrackPalette> = {
   "agent-wars": { text: "text-red", bg: "bg-red", border: "border-red", cssVar: "var(--red)" },
   lightning: { text: "text-yellow", bg: "bg-yellow", border: "border-yellow", cssVar: "var(--yellow)" },
   "vibe-coding": { text: "text-purple", bg: "bg-purple", border: "border-purple", cssVar: "var(--purple)" },
-  pitchathon: {
+  "raman-hall": {
     text: "text-blue-halftone",
     bg: "bg-blue-halftone",
     border: "border-blue-halftone",
@@ -53,7 +53,8 @@ const NEUTRAL: TrackPalette = {
   cssVar: "var(--paper)",
 };
 
-/** Never throws on an unknown slug — content is author-edited JSON. */
-export function trackColor(slug: string): TrackPalette {
-  return PALETTE[slug] ?? NEUTRAL;
+/** Never throws on an unknown slug — content is author-edited JSON. `null` is
+ *  a venue-wide session with no single track (see agendaSessionSchema). */
+export function trackColor(slug: string | null): TrackPalette {
+  return (slug ? PALETTE[slug] : undefined) ?? NEUTRAL;
 }

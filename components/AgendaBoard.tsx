@@ -13,7 +13,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AgendaSession } from "@/lib/schemas";
 import type { Floor, Track } from "@/site.config";
-import { formatSessionTime, sessionHour } from "@/lib/format";
+import { formatHourLabel, formatSessionTime, sessionHour } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
 import { findSpeaker } from "@/lib/find-speaker";
@@ -65,12 +65,14 @@ function buildTimeline(sessions: AgendaSession[]): TimelineItem[] {
 function defaultTrackSlug(sessions: AgendaSession[], tracks: Track[], now: Date | null): string {
   if (tracks.length === 0) return "";
   if (now) {
-    const current = sessions.find((s) => now >= new Date(s.start) && now <= new Date(s.end));
-    if (current) return current.track;
+    const current = sessions.find(
+      (s) => s.track !== null && now >= new Date(s.start) && now <= new Date(s.end),
+    );
+    if (current) return current.track!;
     const next = [...sessions]
-      .filter((s) => new Date(s.start) > now)
+      .filter((s) => s.track !== null && new Date(s.start) > now)
       .sort((a, b) => a.start.localeCompare(b.start))[0];
-    if (next) return next.track;
+    if (next) return next.track!;
   }
   return tracks[0].slug;
 }
@@ -149,7 +151,9 @@ export function AgendaBoard({
   const byTrack = useMemo(() => {
     const map = new Map<string, TimelineItem[]>();
     for (const t of tracks) {
-      map.set(t.slug, buildTimeline(sessions.filter((s) => s.track === t.slug)));
+      // A null track is a venue-wide session (e.g. check-in): it has no column
+      // of its own, so it's folded into every track's timeline instead.
+      map.set(t.slug, buildTimeline(sessions.filter((s) => s.track === null || s.track === t.slug)));
     }
     return map;
   }, [sessions, tracks]);
@@ -189,7 +193,7 @@ export function AgendaBoard({
                 key={h.key}
                 className={`agenda-board-ruler__mark ${h.hour === focusedHour ? "agenda-board-ruler__mark--active" : ""}`}
               >
-                {h.hour}:00
+                {formatHourLabel(h.hour)}
               </span>
             ))}
           </div>
@@ -434,7 +438,7 @@ const TrackColumn = forwardRef<
           if (item.kind === "divider") {
             return (
               <div key={item.key} className="agenda-board-hour">
-                {item.hour}:00
+                {formatHourLabel(item.hour)}
               </div>
             );
           }

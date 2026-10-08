@@ -41,14 +41,19 @@ export default async function AdminPage() {
           notifications on.
         </p>
 
-        {siteConfig.tracks.map((track) => {
-          const sessions = agenda
-            .filter((s) => s.track === track.slug)
-            .sort((a, b) => a.start.localeCompare(b.start));
+        {[
+          { slug: "general", name: "General (no track)", sessions: agenda.filter((s) => s.track === null) },
+          ...siteConfig.tracks.map((track) => ({
+            slug: track.slug,
+            name: track.name,
+            sessions: agenda.filter((s) => s.track === track.slug),
+          })),
+        ].map(({ slug, name, sessions: trackSessions }) => {
+          const sessions = [...trackSessions].sort((a, b) => a.start.localeCompare(b.start));
           if (sessions.length === 0) return null;
           return (
-            <section key={track.slug} className="mt-8 sm:mt-10">
-              <h2 className="text-lg font-medium text-paper">{track.name}</h2>
+            <section key={slug} className="mt-8 sm:mt-10">
+              <h2 className="text-lg font-medium text-paper">{name}</h2>
               <div className="mt-2">
                 {sessions.map((s) => {
                   const key = sessionKey(s);

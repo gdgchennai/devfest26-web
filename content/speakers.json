@@ -1,1 +1,368 @@
-[]
+[
+  {
+    "slug": "saurabh-mishra",
+    "name": "Saurabh Mishra",
+    "title": "Lead Consultant",
+    "company": "Independent",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "srushti-raybhoge",
+    "name": "Srushti Raybhoge",
+    "title": "Software Engineer 2 (Google Developer Expert, Firebase)",
+    "company": "Addepar",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "bhargav-patel",
+    "name": "Bhargav Patel",
+    "title": "AI Forward Deployed Engineer",
+    "company": "Google",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "dinoy-raj",
+    "name": "Dinoy Raj",
+    "title": "Product Engineer, Android",
+    "company": "Strollby",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "jeeththenthar-l",
+    "name": "Jeeththenthar L",
+    "title": "AI Engineer",
+    "company": "Kovanlabs",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "varun-poladiya",
+    "name": "Varun Poladiya",
+    "title": "B2B Marketing Leader (12+ years, AdTech/EdTech/IT/AI)",
+    "company": "Independent",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "neel-shah",
+    "name": "Neel Shah",
+    "title": "Developer Advocate (GDE, Cloud)",
+    "company": "StackGen",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Agentic SRE with Google Cloud: Detect, Diagnose, and Remediate Faster",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "aditya-shinde",
+    "name": "Aditya Shinde",
+    "title": "Founder",
+    "company": "Ketoy",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "achintya-jai",
+    "name": "Achintya Jai",
+    "title": "Researcher, Privacy Tech",
+    "company": "OWASP",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Developing and Using OWASP Nettacker for Security Testing",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "neeraj-pathak",
+    "name": "Neeraj Pathak",
+    "title": "Summer Intern",
+    "company": "Deloitte",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
+      "track": "d7-auditorium",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "rashmi-asokan",
+    "name": "Rashmi Asokan",
+    "title": "Lightning Talk Speaker",
+    "company": "Independent",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Lessons from Building an AI Native Product Ground Up",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "dhanush-kandhan",
+    "name": "Dhanush Kandhan",
+    "title": "Engineering, Climate Activist",
+    "company": "letRetro",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Rethinking Infrastructure for Agentic Workloads",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "aakash-dhakshnamoorthy",
+    "name": "Aakash Dhakshnamoorthy",
+    "title": "AI/ML Engineer & Strategist",
+    "company": "Zenardy Technologies India",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "imran-roshan",
+    "name": "Imran Roshan",
+    "title": "Making Information Security Fun!",
+    "company": "Independent",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "AI Assisted SREs Are a Thing!",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "gokulbarath",
+    "name": "Gokulbarath N",
+    "title": "AI & Robotics Engineer, Founder",
+    "company": "BGO Apps",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Local AI: The Google Gemma Edition",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "shangeeth-sivan-adiyapatham",
+    "name": "Shangeeth Sivan Adiyapatham",
+    "title": "Android Engineer",
+    "company": "Poshmark",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
+      "track": "lightning",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "dishant-parakh",
+    "name": "Dishant Parakh",
+    "title": "Program Associate, India Team",
+    "company": "Ocean Energy Pathway (OEP)",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Can AI Help a City Breathe?",
+      "track": "d7-amphitheater",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "ayana-ghosh",
+    "name": "Dr Ayana Ghosh",
+    "title": "Assistant Professor, Department of Physics",
+    "company": "Indian Institute of Technology Madras",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": {
+      "title": "Deep Tech Workshop: Machine Learning the Physical World",
+      "track": "d7-amphitheater",
+      "abstract": ""
+    }
+  },
+  {
+    "slug": "moumita-mukherjee",
+    "name": "Dr Moumita Mukherjee",
+    "title": "AI Team Lead",
+    "company": "Solinas Integrity",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": null
+  },
+  {
+    "slug": "nimeshika",
+    "name": "Dr Nimeshika",
+    "title": "Speaker",
+    "company": "MediSimVR",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": null
+  },
+  {
+    "slug": "gopalakrishnan-srinivasan",
+    "name": "Dr Gopalakrishnan Srinivasan",
+    "title": "Assistant Professor",
+    "company": "IIT Madras",
+    "bio": "",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talk": null
+  }
+]

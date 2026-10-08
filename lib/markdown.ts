@@ -64,17 +64,16 @@ export async function agendaMarkdown(): Promise<string> {
   }
 
   const [agenda, speakers] = await Promise.all([getAgenda(), getSpeakers()]);
-  const byTrack = new Map<string, typeof agenda>();
+  const byTrack = new Map<string | null, typeof agenda>();
   for (const session of agenda) {
     byTrack.set(session.track, [...(byTrack.get(session.track) ?? []), session]);
   }
 
   const lines = [frontMatter(`Agenda — ${siteConfig.name}`), `${formatEventDate(siteConfig.date)} · ${siteConfig.venue.name}`, ""];
 
-  for (const track of siteConfig.tracks) {
-    const sessions = byTrack.get(track.slug);
-    if (!sessions?.length) continue;
-    lines.push(`## ${track.name}`, "");
+  function pushSessions(heading: string, sessions: typeof agenda | undefined) {
+    if (!sessions?.length) return;
+    lines.push(`## ${heading}`, "");
     for (const session of sessions) {
       const speaker = session.speakerSlug ? speakers.find((s) => s.slug === session.speakerSlug) : undefined;
       const time = `${formatSessionTime(session.start)}–${formatSessionTime(session.end)}`;
@@ -82,6 +81,12 @@ export async function agendaMarkdown(): Promise<string> {
       lines.push(`- **${time}** (${session.hall}) ${session.title}${by}`);
     }
     lines.push("");
+  }
+
+  // Venue-wide sessions (no single track, e.g. check-in) go first.
+  pushSessions("General", byTrack.get(null));
+  for (const track of siteConfig.tracks) {
+    pushSessions(track.name, byTrack.get(track.slug));
   }
 
   // Exactly one final newline, like every other twin (the trailing blank line above already

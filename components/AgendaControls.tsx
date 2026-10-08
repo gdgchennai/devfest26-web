@@ -45,11 +45,17 @@ export function AgendaControls({
     const params = new URLSearchParams(searchParams.toString());
     if (next.floor !== undefined) params.set("floor", next.floor);
     if (next.track !== undefined) {
-      if (next.track === "all") params.delete("track");
-      else params.set("track", next.track);
-      // A concrete track already implies its floor; only "All" needs the
-      // explicit `floor` param to remember which floor the dropdown shows.
-      if (next.track !== "all" && next.floor === undefined) params.delete("floor");
+      if (next.track === "all") {
+        params.delete("track");
+        // "All" tracks, with no floor named, means every floor too — the
+        // pairing mirrors picking "All" directly in the floor dropdown.
+        if (next.floor === undefined) params.set("floor", "all");
+      } else {
+        params.set("track", next.track);
+        // A concrete track already implies its floor; only "All" needs the
+        // explicit `floor` param to remember which floor the dropdown shows.
+        if (next.floor === undefined) params.delete("floor");
+      }
     }
     if (next.simple !== undefined) {
       if (next.simple) params.set("view", "simple");
@@ -60,6 +66,10 @@ export function AgendaControls({
   }
 
   function changeFloor(slug: string) {
+    if (slug === "all") {
+      update({ floor: "all", track: "all" });
+      return;
+    }
     const target = floors.find((f) => f.slug === slug);
     if (!target) return;
     // Jump straight to the floor's first track. Nothing is hidden: the board
@@ -72,6 +82,11 @@ export function AgendaControls({
       <label className="flex items-center gap-3 text-sm font-medium text-paper/70">
         <span>{uiCopy.agendaView.floorLabel}</span>
         <select value={floor} onChange={(e) => changeFloor(e.target.value)} className={SELECT_CLASS}>
+          {allowAll && (
+            <option value="all" className="bg-ink text-paper">
+              {uiCopy.agendaView.allFloorsLabel}
+            </option>
+          )}
           {floors.map((f) => (
             <option key={f.slug} value={f.slug} className="bg-ink text-paper">
               {f.name}
