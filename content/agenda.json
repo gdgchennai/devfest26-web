@@ -6,7 +6,8 @@
     "title": "Check-in and Badge Collection",
     "hall": "D7 Pre-Function Area",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "d7-auditorium",
@@ -15,7 +16,8 @@
     "title": "Welcome Note",
     "hall": "D7 Auditorium",
     "type": "keynote",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
     "track": "d7-auditorium",
@@ -24,7 +26,8 @@
     "title": "Keynote",
     "hall": "D7 Auditorium",
     "type": "keynote",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
@@ -33,7 +36,8 @@
     "title": "Sponsor Talk",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "d7-auditorium",
@@ -42,7 +46,8 @@
     "title": "Sponsor Talk",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "d7-auditorium",
@@ -51,7 +56,8 @@
     "title": "Sponsor Talk",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
     "track": "d7-auditorium",
@@ -62,7 +68,8 @@
     "type": "talk",
     "speakerSlugs": [
       "aditya-shinde"
-    ]
+    ],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "d7-amphitheater",
@@ -73,7 +80,8 @@
     "type": "talk",
     "speakerSlugs": [
       "dishant-parakh"
-    ]
+    ],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
     "track": "creators-lounge",
@@ -82,7 +90,8 @@
     "title": "Creators Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "meetup-lounge",
@@ -91,7 +100,8 @@
     "title": "Meetup Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
@@ -100,7 +110,8 @@
     "title": "Agent Wars: Live Tournament (Round 1)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
     "track": "lightning",
@@ -111,7 +122,8 @@
     "type": "talk",
     "speakerSlugs": [
       "rashmi-asokan"
-    ]
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "vibe-coding",
@@ -120,7 +132,8 @@
     "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "raman-hall",
@@ -129,7 +142,8 @@
     "title": "Workshop: TBD",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "d7-auditorium",
@@ -140,7 +154,8 @@
     "type": "talk",
     "speakerSlugs": [
       "neeraj-pathak"
-    ]
+    ],
+    "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
@@ -149,7 +164,8 @@
     "title": "Agent Wars: Live Tournament (Round 2)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "agent-wars",
@@ -158,7 +174,8 @@
     "title": "Agent Wars: Live Tournament (Round 3)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
     "track": "lightning",
@@ -169,7 +186,8 @@
     "type": "talk",
     "speakerSlugs": [
       "dhanush-kandhan"
-    ]
+    ],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "d7-amphitheater",
@@ -178,7 +196,8 @@
     "title": "Deep Tech Talk 2",
     "hall": "D7 Amphitheater",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "agent-wars",
@@ -187,7 +206,8 @@
     "title": "Agent Wars: Live Tournament (Rounds 4-6)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "d7-auditorium",
@@ -198,7 +218,8 @@
     "type": "talk",
     "speakerSlugs": [
       "achintya-jai"
-    ]
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
     "track": "lightning",
@@ -209,7 +230,8 @@
     "type": "talk",
     "speakerSlugs": [
       "aakash-dhakshnamoorthy"
-    ]
+    ],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "d7-auditorium",
@@ -220,7 +242,8 @@
     "type": "talk",
     "speakerSlugs": [
       "neel-shah"
-    ]
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "agent-wars",
@@ -229,7 +252,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
     "track": "lightning",
@@ -238,7 +262,8 @@
     "title": "Lightning Talk 4",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
     "track": "vibe-coding",
@@ -247,7 +272,8 @@
     "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "raman-hall",
@@ -256,7 +282,8 @@
     "title": "Hardware Lab",
     "hall": "Raman Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "d7-amphitheater",
@@ -265,7 +292,8 @@
     "title": "Deep Tech Talk 3",
     "hall": "D7 Amphitheater",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
     "track": "lightning",
@@ -276,7 +304,8 @@
     "type": "talk",
     "speakerSlugs": [
       "imran-roshan"
-    ]
+    ],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
@@ -285,7 +314,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
     "track": "lightning",
@@ -294,7 +324,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "vibe-coding",
@@ -303,7 +334,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "creators-lounge",
@@ -312,7 +344,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "meetup-lounge",
@@ -321,7 +354,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-amphitheater",
@@ -330,7 +364,8 @@
     "title": "Lunch",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "raman-hall",
@@ -339,7 +374,8 @@
     "title": "Workshop: TBD",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
     "track": "d7-auditorium",
@@ -350,7 +386,8 @@
     "type": "talk",
     "speakerSlugs": [
       "jeeththenthar-l"
-    ]
+    ],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "d7-amphitheater",
@@ -359,7 +396,8 @@
     "title": "Deep Tech Talk 4",
     "hall": "D7 Amphitheater",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
@@ -368,7 +406,8 @@
     "title": "Agent Wars: Live Tournament (Semi-Finals)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "lightning",
@@ -377,7 +416,8 @@
     "title": "Lightning Talk 6",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "vibe-coding",
@@ -386,7 +426,8 @@
     "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "creators-lounge",
@@ -395,7 +436,8 @@
     "title": "Creators Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "meetup-lounge",
@@ -404,7 +446,8 @@
     "title": "Meetup Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "agent-wars",
@@ -413,7 +456,8 @@
     "title": "Agent Wars: Live Tournament (Finals)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "lightning",
@@ -422,7 +466,8 @@
     "title": "Lightning Talk 7",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "d7-auditorium",
@@ -433,7 +478,8 @@
     "type": "talk",
     "speakerSlugs": [
       "dinoy-raj"
-    ]
+    ],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "raman-hall",
@@ -442,7 +488,8 @@
     "title": "Pitchathon: TBD",
     "hall": "Raman Hall",
     "type": "competition",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "d7-amphitheater",
@@ -453,7 +500,8 @@
     "type": "workshop",
     "speakerSlugs": [
       "ayana-ghosh"
-    ]
+    ],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "lightning",
@@ -464,7 +512,8 @@
     "type": "talk",
     "speakerSlugs": [
       "gokulbarath"
-    ]
+    ],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
@@ -475,7 +524,8 @@
     "type": "talk",
     "speakerSlugs": [
       "bhargav-patel"
-    ]
+    ],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "lightning",
@@ -486,7 +536,8 @@
     "type": "talk",
     "speakerSlugs": [
       "shangeeth-sivan-adiyapatham"
-    ]
+    ],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-auditorium",
@@ -497,7 +548,8 @@
     "type": "talk",
     "speakerSlugs": [
       "srushti-raybhoge"
-    ]
+    ],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "lightning",
@@ -506,7 +558,8 @@
     "title": "Lightning Talk 10",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-auditorium",
@@ -517,7 +570,8 @@
     "type": "talk",
     "speakerSlugs": [
       "saurabh-mishra"
-    ]
+    ],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "lightning",
@@ -526,7 +580,8 @@
     "title": "Lightning Talk: TBD",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
     "track": "d7-auditorium",
@@ -537,7 +592,8 @@
     "type": "talk",
     "speakerSlugs": [
       "varun-poladiya"
-    ]
+    ],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "d7-auditorium",
@@ -546,7 +602,8 @@
     "title": "Quick Break",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "d7-amphitheater",
@@ -555,7 +612,8 @@
     "title": "Quick Break",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
@@ -564,7 +622,8 @@
     "title": "Quick Break",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "lightning",
@@ -573,7 +632,8 @@
     "title": "Quick Break",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "vibe-coding",
@@ -582,7 +642,8 @@
     "title": "Quick Break",
     "hall": "F&B",
     "type": "break",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
@@ -591,6 +652,7 @@
     "title": "Closing Note",
     "hall": "D7 Auditorium",
     "type": "keynote",
-    "speakerSlugs": []
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions."
   }
 ]

@@ -24,6 +24,7 @@ import { floorTracks } from "@/lib/agenda-floors";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { SessionDescriptionModal } from "@/components/SessionDescriptionModal";
 import { siteConfig, uiCopy } from "@/site.config";
 
 /**
@@ -147,6 +148,12 @@ export function AgendaBoard({
     router.replace(`/agenda?${params.toString()}`, { scroll: false });
   };
   const [focusedSession, setFocusedSession] = useState<AgendaSession | null>(null);
+  // The session whose title was clicked — rendered as a popup below. Separate
+  // from `focusedSession` (which tracks whatever's centred on scroll): a far
+  // or adjacent card's title can't be clicked, only the focused one's, but
+  // the modal itself should stay open on whatever it was opened for even if
+  // the board keeps scrolling behind it.
+  const [descriptionSession, setDescriptionSession] = useState<AgendaSession | null>(null);
   const columnRefs = useRef<Array<TrackColumnHandle | null>>([]);
   // Keeps every background column moving in step with whichever column is
   // active, instead of each catching up afterwards on its own — see the
@@ -310,6 +317,7 @@ export function AgendaBoard({
               speakers={speakers}
               onFocusChange={setFocusedSession}
               onActiveScroll={syncBackgroundScroll}
+              onTitleClick={setDescriptionSession}
             />
           ))}
         </div>
@@ -356,6 +364,12 @@ export function AgendaBoard({
           <ChevronIcon direction="right" />
         </GlowButton>
       </div>
+
+      <SessionDescriptionModal
+        session={descriptionSession}
+        speakers={speakers}
+        onClose={() => setDescriptionSession(null)}
+      />
     </div>
   );
 }
@@ -423,8 +437,10 @@ const TrackColumn = forwardRef<
      *  this column's own sessions is nearest its centre right now, so every
      *  other column can centre on the same moment. */
     onActiveScroll: (isoTime: string) => void;
+    /** The focused card's title was clicked — open the description popup. */
+    onTitleClick: (session: AgendaSession) => void;
   }
->(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange, onActiveScroll }, ref) {
+>(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange, onActiveScroll, onTitleClick }, ref) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
 
@@ -614,6 +630,7 @@ const TrackColumn = forwardRef<
               distance={active ? distance : 0}
               isNow={isNow}
               speakers={speakers}
+              onTitleClick={onTitleClick}
             />
           );
         })}
@@ -650,12 +667,14 @@ function SessionCard({
   distance,
   isNow,
   speakers,
+  onTitleClick,
 }: {
   session: AgendaSession;
   dataKey: string;
   distance: number;
   isNow: boolean;
   speakers: Speaker[];
+  onTitleClick: (session: AgendaSession) => void;
 }) {
   const abs = Math.abs(distance);
 
@@ -725,9 +744,13 @@ function SessionCard({
         </span>
       </div>
 
-      <p className="mt-4 text-base font-semibold leading-tight sm:text-lg">{session.title}</p>
-
-      {session.description && <p className="mt-3 max-w-md text-sm text-paper/70">{session.description}</p>}
+      <button
+        type="button"
+        onClick={() => onTitleClick(session)}
+        className="mt-4 block text-left text-base font-semibold leading-tight underline-offset-4 hover:underline sm:text-lg"
+      >
+        {session.title}
+      </button>
 
       <div className="mt-5 flex items-center justify-between gap-3">
         {sessionSpeakers.length > 0 ? (
