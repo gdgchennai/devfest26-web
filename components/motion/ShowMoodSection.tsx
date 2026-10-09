@@ -130,15 +130,11 @@ const NARROW_TEXT_MAX_WIDTH = "92%";
  *  Sits between the Image and PanelCopy (z-index 0 vs PanelCopy's 20). */
 function TextScrim({ corner }: { corner: "top left" | "bottom right" }) {
   return (
-    <>
-      {/* Subtle black scrim overlay over the picture to lift overlay text */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/10" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ background: `radial-gradient(ellipse 75% 65% at ${corner}, rgba(0,0,0,0.75), transparent 65%)` }}
-      />
-    </>
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{ background: `radial-gradient(ellipse 75% 65% at ${corner}, rgba(0,0,0,0.75), transparent 65%)` }}
+    />
   );
 }
 

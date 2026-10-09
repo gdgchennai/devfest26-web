@@ -37,3 +37,14 @@ export async function countFavorites(userId: string): Promise<number> {
     .first<{ n: number }>();
   return row?.n ?? 0;
 }
+
+/** Everyone who has this session saved — for notifying them when it starts
+ *  or ends. Backed by idx_favorites_session (migrations/0012). */
+export async function listUserIdsForSession(sessionKey: string): Promise<string[]> {
+  const db = await getDb();
+  const { results } = await db
+    .prepare("SELECT user_id FROM favorites WHERE session_key = ?")
+    .bind(sessionKey)
+    .all<{ user_id: string }>();
+  return results.map((r) => r.user_id);
+}

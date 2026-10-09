@@ -22,7 +22,8 @@ import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { AgendaTrackTabs } from "@/components/AgendaTrackTabs";
 import { useTrackSwipe } from "@/lib/useTrackSwipe";
-import { uiCopy } from "@/site.config";
+import { floorNameForTrack } from "@/lib/agenda-floors";
+import { siteConfig, uiCopy } from "@/site.config";
 
 /**
  * The lite=0 agenda experience: a tab strip of bold track titles above a
@@ -624,7 +625,15 @@ function SessionCard({
           <span />
         )}
         <div className="flex items-center gap-3">
-          <span className="text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
+          {/* Floor first, then hall: "D block 7th floor · D7 Auditorium".
+              The floor comes from the session's track (lib/agenda-floors),
+              not the hall string — halls like "F&B" belong to no floor of
+              their own, but their sessions still run on a track that does. */}
+          <span className="text-xs uppercase tracking-wide text-paper/50">
+            {[floorNameForTrack(siteConfig.floors, session.track), session.hall]
+              .filter((part): part is string => part !== null)
+              .join(" · ")}
+          </span>
           {session.type !== "break" && <FavoriteButton session={session} />}
         </div>
       </div>

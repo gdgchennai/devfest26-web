@@ -1,11 +1,11 @@
 import type { Track } from "@/site.config";
 
 /**
- * One Google colour per track, used everywhere a track is named. There are
- * exactly four tracks and exactly four core brand colours, so the mapping is
- * 1:1 and fixed — a fifth track would need a palette decision, not another
- * entry here. Lifted out of AgendaList, which owned the only copy while the
- * homepage rendered every track in blue.
+ * One brand colour per track, used everywhere a track is named.
+ * The core Google colours go to the two stages and the three D6 competitions.
+ * Halftones cover the remaining programs so every filter pill stays distinct.
+ * Lifted out of AgendaList, which owned the only copy while the homepage
+ * rendered every track in blue.
  */
 export type TrackSlug = Track["slug"];
 
@@ -21,10 +21,29 @@ type TrackPalette = {
 };
 
 const PALETTE: Record<string, TrackPalette> = {
-  ai: { text: "text-blue", bg: "bg-blue", border: "border-blue", cssVar: "var(--blue)" },
-  cloud: { text: "text-green", bg: "bg-green", border: "border-green", cssVar: "var(--green)" },
-  mobile: { text: "text-red", bg: "bg-red", border: "border-red", cssVar: "var(--red)" },
-  web: { text: "text-yellow", bg: "bg-yellow", border: "border-yellow", cssVar: "var(--yellow)" },
+  "d7-auditorium": { text: "text-blue", bg: "bg-blue", border: "border-blue", cssVar: "var(--blue)" },
+  "d7-amphitheater": { text: "text-green", bg: "bg-green", border: "border-green", cssVar: "var(--green)" },
+  "agent-wars": { text: "text-red", bg: "bg-red", border: "border-red", cssVar: "var(--red)" },
+  lightning: { text: "text-yellow", bg: "bg-yellow", border: "border-yellow", cssVar: "var(--yellow)" },
+  "vibe-coding": { text: "text-purple", bg: "bg-purple", border: "border-purple", cssVar: "var(--purple)" },
+  pitchathon: {
+    text: "text-blue-halftone",
+    bg: "bg-blue-halftone",
+    border: "border-blue-halftone",
+    cssVar: "var(--blue-halftone)",
+  },
+  "creators-lounge": {
+    text: "text-green-halftone",
+    bg: "bg-green-halftone",
+    border: "border-green-halftone",
+    cssVar: "var(--green-halftone)",
+  },
+  "meetup-lounge": {
+    text: "text-red-halftone",
+    bg: "bg-red-halftone",
+    border: "border-red-halftone",
+    cssVar: "var(--red-halftone)",
+  },
 };
 
 const NEUTRAL: TrackPalette = {

@@ -16,6 +16,7 @@
     "preview": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "npm run md:check && opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "ci:preview": "npm run md:check && opennextjs-cloudflare build && wrangler preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "worker:ticketing:dev": "wrangler dev -c workers/ticketing/wrangler.jsonc --persist-to .wrangler/state",
     "worker:ticketing:deploy": "wrangler deploy -c workers/ticketing/wrangler.jsonc",
@@ -23,9 +24,10 @@
     "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@block65/webcrypto-web-push": "^2.0.0",
     "@gsap/react": "^2.1.2",
     "@next/third-parties": "^16.3.4",
-    "@opennextjs/cloudflare": "^1.20.3",
+    "@opennextjs/cloudflare": "^1.20.7",
     "@posthog/nextjs-config": "^1.11.1",
     "@types/three": "^0.185.1",
     "gsap": "^3.15.0",
@@ -49,7 +51,7 @@
     "fontkit": "^2.0.4",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^4.126.0"
+    "wrangler": "^4.135.0"
   },
   "allowScripts": {
     "sharp@0.34.5": true,

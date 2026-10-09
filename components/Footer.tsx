@@ -22,14 +22,14 @@ export function Footer() {
     // relative z-10: lift the footer above the fixed BracketsField backdrop
     // (z-0), which lives inside <main> and would otherwise paint its opaque
     // layer over the footer's non-positioned card, wordmark and pill.
-    <footer className="relative z-10 mt-auto px-4 py-8 sm:px-8 sm:py-9 md:py-10">
+    <footer className="relative z-10 mt-auto px-4 py-16 sm:px-8">
       <FooterLogo social={socialLinks} />
 
       {/* Utility + legal strip. Kept below the brand lock-up so the Google
           disclaimer, Code of Conduct and lite toggle stay reachable without
           crowding the mark. */}
-      <div className="mx-auto mt-6 flex w-full max-w-2xl flex-col items-center gap-2.5 text-center text-xs text-paper/70 sm:mt-7 sm:gap-3 sm:text-sm">
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
+      <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-4 text-center text-sm text-paper/70">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <a
             href={siteConfig.codeOfConduct.url}
             target="_blank"
@@ -54,7 +54,7 @@ export function Footer() {
         </div>
         {/* /50 is as muted as this may go: on the dark page it measures
             4.76:1, and 12px legal text needs 4.5:1. Anything fainter fails. */}
-        <p className="max-w-lg text-[10px] leading-relaxed text-paper/50 sm:text-[11px]">{siteConfig.brandDisclaimer}</p>
+        <p className="max-w-2xl text-xs text-paper/50">{siteConfig.brandDisclaimer}</p>
       </div>
     </footer>
   );

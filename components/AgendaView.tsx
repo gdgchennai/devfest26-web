@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AgendaSession, Speaker } from "@/lib/schemas";
-import type { Track } from "@/site.config";
+import { siteConfig, type Track } from "@/site.config";
 import { AgendaList } from "@/components/AgendaList";
 import { AgendaBoard } from "@/components/AgendaBoard";
 import { AgendaTrackTabs, type AgendaTrackTab } from "@/components/AgendaTrackTabs";
 import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
 import { useClientValue } from "@/lib/useClientValue";
 import { useTrackSwipe } from "@/lib/useTrackSwipe";
+import { floorTracks } from "@/lib/agenda-floors";
 import { uiCopy } from "@/site.config";
 
 /** The URL's name for "every track at once". The spatial board never uses
@@ -67,6 +68,18 @@ export function AgendaView({
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  // Tabs, columns and swipe order run floor by floor — D block 7th floor's
+  // stages first, then 6th — rather than in site.config's raw order, so the
+  // strip reads the way the venue is laid out. Anything not on a configured
+  // floor falls through to the end instead of vanishing.
+  const orderedTracks = useMemo(() => {
+    const listed = new Set(siteConfig.floors.flatMap((f) => f.tracks));
+    return [
+      ...siteConfig.floors.flatMap((f) => floorTracks(f, tracks)),
+      ...tracks.filter((t) => !listed.has(t.slug)),
+    ];
+  }, [tracks]);
+
   function selectTrack(slug: string) {
     setActiveTrack(slug);
     // Built from the current query, not from a hardcoded "/agenda?track=…":
@@ -88,7 +101,7 @@ export function AgendaView({
       <AgendaBoard
         sessions={sessions}
         speakers={speakers}
-        tracks={tracks}
+        tracks={orderedTracks}
         activeTrack={activeTrack}
         onSelectTrack={selectTrack}
       />
@@ -98,7 +111,7 @@ export function AgendaView({
   return (
     <AgendaTrackList
       sessions={sessions}
-      tracks={tracks}
+      tracks={orderedTracks}
       activeTrack={activeTrack}
       onSelectTrack={selectTrack}
     />

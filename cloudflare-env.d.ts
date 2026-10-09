@@ -17,6 +17,11 @@ declare global {
     /** Gemini model id for that prompt. Optional — see DEFAULT_GEMINI_MODEL in
      *  app/api/games/typing/route.ts. Set this when a model is retired. */
     GEMINI_MODEL?: string;
+    /** VAPID private key for Web Push (base64url `d` scalar). Pairs with the
+     *  public NEXT_PUBLIC_VAPID_PUBLIC_KEY build-time var. See lib/push.ts. */
+    VAPID_PRIVATE_KEY: string;
+    /** Comma-separated organizer emails allowed into /admin. See lib/admin.ts. */
+    ADMIN_EMAILS?: string;
   }
 }
 

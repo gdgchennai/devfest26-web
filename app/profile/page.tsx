@@ -16,6 +16,7 @@ import { EditTicket } from "@/components/auth/EditTicket";
 import { AddonTickets } from "@/components/auth/AddonTickets";
 import { getUserGameScores, type GameScoreRecord } from "@/lib/leaderboard";
 import { ProfileHistoryAccordion } from "@/components/games/ProfileHistoryAccordion";
+import { PushSubscribeButton } from "@/components/push/PushSubscribeButton";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -174,6 +175,16 @@ function ProfileContent({
       )}
 
       <ProfileHistoryAccordion gameScores={gameScores} />
+
+      <div className="mt-8 sm:mt-10">
+        <p className="text-lg font-medium">Notifications</p>
+        <p className="mt-1 max-w-md text-sm text-paper/60">
+          Get a push notification for schedule changes and important announcements.
+        </p>
+        <div className="mt-3">
+          <PushSubscribeButton />
+        </div>
+      </div>
 
       <div className="mt-8 sm:mt-10">
         <SignOutButton />

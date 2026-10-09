@@ -651,6 +651,16 @@ function TicketStack({
   );
 }
 
+/** Which ticket `audience` each "and I identify as ___" option maps to. The
+ *  "for women & diverse groups" tickets cover Female and Non binary; Male and
+ *  "Prefer not to say" get the general ticket. */
+const AUDIENCE_BY_IDENTITY: Record<string, Ticket["audience"]> = {
+  Female: "women-diverse",
+  "Non binary": "women-diverse",
+  Male: "all",
+  "Prefer not to say": "all",
+};
+
 export function TicketSelector() {
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
   const { profiles, identities, perks, taxNote, addOnsNote } = siteConfig.ticketSelector;
@@ -664,10 +674,7 @@ export function TicketSelector() {
   const [identity, setIdentity] = useState("");
 
   const category = profileKey as Ticket["category"] | "";
-  // Everyone gets the general ticket regardless of identity — same as what
-  // "Male" always resolved to. Identity still has to be picked before this
-  // resolves, same as before; it just no longer changes which ticket shows.
-  const audience: Ticket["audience"] | undefined = identity === "" ? undefined : "all";
+  const audience = AUDIENCE_BY_IDENTITY[identity] as Ticket["audience"] | undefined;
   const bothPicked = category !== "" && audience !== undefined;
 
   // Which tickets are on sale is a function of the clock. Snapshot it once on

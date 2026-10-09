@@ -3,6 +3,8 @@
 import type { AgendaSession } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
+import { floorNameForTrack } from "@/lib/agenda-floors";
+import { siteConfig } from "@/site.config";
 import { useNow } from "@/lib/useNow";
 import { uiCopy } from "@/site.config";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
@@ -44,7 +46,12 @@ export function AgendaList({
             </div>
 
             <span className="text-lg font-medium text-paper sm:text-right">
-              {session.hall}
+              {/* Floor first, then hall — same convention as the board's
+                  spotlight card (see AgendaBoard): the floor comes from the
+                  session's track, since halls like "F&B" name no floor. */}
+              {[floorNameForTrack(siteConfig.floors, session.track), session.hall]
+                .filter((part): part is string => part !== null)
+                .join(" · ")}
             </span>
 
             {isNow && (

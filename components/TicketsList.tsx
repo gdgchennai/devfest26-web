@@ -38,7 +38,6 @@ type EventCard = {
   key: string;
   title: string;
   date: string;
-  isPast?: boolean;
   description: string;
   cta: { label: string; href?: string; external?: boolean };
   color: string;
@@ -78,14 +77,12 @@ function satelliteCta(event: SubEvent, past: boolean): EventCard["cta"] {
     : { label: event.ctaLabel };
 }
 
-function flagshipCard(today?: string | null): EventCard {
+function flagshipCard(): EventCard {
   const ticket = ticketCta();
-  const flagshipIsPast = Boolean(today && siteConfig.date && siteConfig.date < today);
   return {
     key: FLAGSHIP_KEY,
     title: siteConfig.name,
     date: shortEventDate(siteConfig.date),
-    isPast: flagshipIsPast,
     description: `${uiCopy.ticketsList.flagshipDescriptionPrefix}${siteConfig.chapter}${uiCopy.ticketsList.flagshipDescriptionMiddle}${siteConfig.venue.name}${uiCopy.ticketsList.flagshipDescriptionSuffix}`,
     cta: ticket.available
       ? { label: ticket.label, href: FLAGSHIP_TICKET_HREF, external: false }
@@ -110,26 +107,22 @@ function flagshipCard(today?: string | null): EventCard {
  * the flagship alone, so a past event never flashes on the right.
  */
 function buildDeck(today: string | null): { events: EventCard[]; mainIndex: number } {
-  const flagship = flagshipCard(today);
+  const flagship = flagshipCard();
   if (!today) return { events: [flagship], mainIndex: 0 };
 
-  const satellites = siteConfig.subEvents.map((event: SubEvent, order) => {
-    const isPast = event.date < today;
-    return {
-      order,
-      isoDate: event.date,
-      card: {
-        key: event.slug,
-        title: event.title,
-        date: shortEventDate(event.date),
-        isPast,
-        description: event.description,
-        cta: satelliteCta(event, isPast),
-        color: event.color ?? COLORS[order % COLORS.length],
-        image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
-      } satisfies EventCard,
-    };
-  });
+  const satellites = siteConfig.subEvents.map((event: SubEvent, order) => ({
+    order,
+    isoDate: event.date,
+    card: {
+      key: event.slug,
+      title: event.title,
+      date: shortEventDate(event.date),
+      description: event.description,
+      cta: satelliteCta(event, event.date < today),
+      color: event.color ?? COLORS[order % COLORS.length],
+      image: event.image ? { src: event.image, alt: event.title } : VENUE_IMAGE,
+    } satisfies EventCard,
+  }));
   const byDate = (a: (typeof satellites)[number], b: (typeof satellites)[number]) =>
     a.isoDate.localeCompare(b.isoDate) || a.order - b.order;
   const past = satellites.filter((event) => event.isoDate < today).sort(byDate);
@@ -200,24 +193,6 @@ function EventCta({ event, plain = false }: { event: EventCard; plain?: boolean 
   );
 }
 
-function DoneStamp({ plain = false }: { plain?: boolean }) {
-  return (
-    <div className="pointer-events-none absolute right-[5cqw] top-[5cqw] z-20 -rotate-12 select-none">
-      <div
-        className={`flex items-center justify-center rounded-xl border-[0.6cqw] border-red/90 p-[0.5cqw] ${
-          plain ? "" : "shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-        }`}
-      >
-        <div className="flex items-center justify-center whitespace-nowrap rounded-lg border-[0.35cqw] border-dashed border-red/90 px-[3.5cqw] py-[1cqw]">
-          <span className="font-black uppercase tracking-[0.25em] text-red text-[clamp(1rem,6.5cqw,1.75rem)] leading-none">
-            Done
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /** `plain`: lite mode — passed straight through to EventCta, and drops the
  *  drop shadow (no motion/depth effects in lite mode, same reasoning). */
 function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean }) {
@@ -230,24 +205,18 @@ function CardFace({ event, plain = false }: { event: EventCard; plain?: boolean 
     // the card's real width lands between them (or below the smallest one,
     // which is what was clipping the flagship card's text).
     <div
-      className={`relative flex h-full w-full flex-col overflow-hidden rounded-2xl ${
+      className={`flex h-full w-full flex-col overflow-hidden rounded-2xl ${
         plain ? "" : "shadow-[0_20px_60px_rgba(0,0,0,0.55)]"
       } ${event.color}`}
       style={{ containerType: "inline-size" }}
     >
-      {event.isPast && (
-        <>
-          <div className="pointer-events-none absolute inset-0 z-10 bg-black/25" />
-          <DoneStamp plain={plain} />
-        </>
-      )}
       <div className="relative h-2/5 w-full shrink-0">
         <Image src={event.image.src} alt={event.image.alt} fill sizes="320px" decoding="async" fetchPriority="low" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-[2cqw] p-[5cqw]">
         <h3 className="text-[clamp(0.95rem,7.5cqw,1.75rem)] font-bold leading-snug text-black">{event.title}</h3>
         <p className="line-clamp-3 text-[clamp(0.75rem,4.4cqw,1.1rem)] text-black/70">{event.description}</p>
-        <div className="relative z-20 mb-[6cqw] mt-auto flex items-center justify-between gap-2 text-[clamp(0.75rem,4.2cqw,1.05rem)]">
+        <div className="mb-[6cqw] mt-auto flex items-center justify-between gap-2 text-[clamp(0.75rem,4.2cqw,1.05rem)]">
           <EventCta event={event} plain={plain} />
           <span className="shrink-0 text-black/70">{event.date}</span>
         </div>
@@ -391,13 +360,13 @@ function TicketsCarouselMotion() {
       // ±1 at 76% of card width (the readable centre three); ±2 at 152%
       // and a smaller scale — a peek that there is more deck past the trio.
       const X_TRAVEL = 380;
-      gsap.set(cardEls, { xPercent: X_TRAVEL, autoAlpha: 0, scaleX: 0.5, scaleY: 0.5, zIndex: 1 });
+      gsap.set(cardEls, { xPercent: X_TRAVEL, opacity: 0, scaleX: 0.5, scaleY: 0.5 });
 
-      // Visible window is centre ±2 (five cards). Outside this window, ease stays
-      // at 0 so cards remain autoAlpha 0 (invisible with zero pointer events/shadows)
-      // preventing card artifacts overlapping at viewport edges.
+      // Visible window is centre ±2 (five cards). Ease stays at 0 until
+      // global t≈0.25 so ±3 never appear; the remainder is power2.out so
+      // the ±2 peeks land smaller/dimmer than the neighbours.
       const packEase = (t: number) => {
-        const start = 0.45;
+        const start = 0.48;
         if (t <= start) return 0;
         const u = (t - start) / (1 - start);
         return u * (2 - u);
@@ -415,18 +384,19 @@ function TicketsCarouselMotion() {
         // props keeps them in lockstep.
         tl.fromTo(
           element,
-          { scaleX: 0.5, scaleY: 0.5, autoAlpha: 0, zIndex: 1 },
+          { scaleX: 0.5, scaleY: 0.5, opacity: 0.5 },
           {
             scaleX: 1,
             scaleY: 1,
-            autoAlpha: 1,
+            opacity: 1,
             zIndex: 100,
             duration: 0.5,
             yoyo: true,
             repeat: 1,
             ease: packEase,
+            immediateRender: false,
           },
-        ).fromTo(element, { xPercent: X_TRAVEL }, { xPercent: -X_TRAVEL, duration: 1, ease: "none" }, 0);
+        ).fromTo(element, { xPercent: X_TRAVEL }, { xPercent: -X_TRAVEL, duration: 1, ease: "none", immediateRender: false }, 0);
         return tl;
       };
 

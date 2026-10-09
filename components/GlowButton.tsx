@@ -15,7 +15,7 @@ import { forwardRef, type ForwardedRef, type ReactNode, useRef } from "react";
  * burst) is shared so box/pill/circle all get the identical effect.
  */
 type Shape = "box" | "pill" | "circle";
-type Size = "xs" | "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg";
 
 const RADIUS: Record<Shape, string> = {
   box: "rounded-2xl",
@@ -27,13 +27,11 @@ const RADIUS: Record<Shape, string> = {
 // phones, scales up smoothly on larger screens. Border/padding ratio stays consistent.
 const PADDING: Record<"box" | "pill", Record<Size, string>> = {
   box: {
-    xs: "px-2.5 py-1 sm:px-3 sm:py-1.25",
     sm: "px-3 py-1.5 sm:px-3.5 sm:py-1.75",
     md: "px-4 py-2 sm:px-5 sm:py-2.5",
     lg: "px-6 py-2.5 sm:px-7 sm:py-3",
   },
   pill: {
-    xs: "px-3 py-1 sm:px-3.5 sm:py-1.25",
     sm: "px-4 py-1.5 sm:px-4.5 sm:py-1.75",
     md: "px-5 py-2 sm:px-6 sm:py-2.5",
     lg: "px-7 py-2.5 sm:px-8 sm:py-3",
@@ -44,7 +42,6 @@ const PADDING: Record<"box" | "pill", Record<Size, string>> = {
 // good on phones, scales up smoothly on larger screens. Border stays 1.5px for
 // consistent visual weight ratio across sizes.
 const CIRCLE_SIZE: Record<Size, string> = {
-  xs: "h-7 w-7 sm:h-7.5 sm:w-7.5 md:h-8 md:w-8",
   sm: "h-10 w-10 sm:h-11 sm:w-11",
   md: "h-11 w-11 sm:h-12 sm:w-12",
   lg: "h-13 w-13 sm:h-14 sm:w-14",
