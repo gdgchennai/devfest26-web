@@ -654,6 +654,9 @@ export const uiCopy = {
 
   agendaView: {
     allTracksLabel: "All",
+    /** The name of the track tab strip itself, for screen readers — the tabs
+        are a real ARIA tablist (see components/AgendaTrackTabs.tsx). */
+    tracksAriaLabel: "Agenda tracks",
   },
 
   ticketSelector: {

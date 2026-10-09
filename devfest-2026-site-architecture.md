@@ -334,6 +334,25 @@ Non-negotiable:
 - Current-session highlighting from the device clock, with an "on now" marker. Most-used feature,
   most-often forgotten.
 - Track filter persisted in the URL so it survives reload and can be shared.
+  Switching tracks is otherwise instant and local: `AgendaView` holds the
+  selection in state and mirrors it to `?track=` with `router.replace` (see its
+  comment) — `replace` so tab switches never pile up as history entries and
+  the back button leaves the page instead of unwinding the tabs — so the
+  underline, the stage columns and the list all move on the
+  same frame. Back/forward is the one thing that can move the URL without a
+  click, and a `popstate` listener re-syncs. The track strip itself is
+  `components/AgendaTrackTabs.tsx` (bold titles, underline under the active
+  one, `role="tablist"`), shared by both agenda variants. A horizontal swipe
+  or two-finger horizontal scroll anywhere over the agenda — tabs AND cards —
+  steps between tracks via `lib/useTrackSwipe.ts`; the strip itself never
+  scrolls sideways, so the gesture means one thing everywhere, and a mouse
+  just clicks a tab. The active column's timeline is natively scrollable
+  (wheel, touch, the up/down buttons), and each card's distance from the
+  centre band is written per scroll frame as `--t` (TrackColumn's
+  applyCardDepths), so the next/previous session's smaller preview visibly
+  grows in place as it reaches the middle — transform and opacity only, both
+  composited; the blur stays stepped because animating that every frame is
+  exactly what a mid-range Android at a venue can't afford.
 - Hall/room number at the same visual weight as the title. At the venue that's the thing people
   are actually looking for.
 - Minimum 16px body, high contrast, generous tap targets.

@@ -20,13 +20,16 @@ import type { Speaker } from "@/lib/schemas";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { AgendaTrackTabs } from "@/components/AgendaTrackTabs";
+import { useTrackSwipe } from "@/lib/useTrackSwipe";
 import { uiCopy } from "@/site.config";
 
 /**
- * The lite=0 agenda experience: a track selector above a "3D" stage where the
- * chosen track's timeline sits centred and in focus while the other three
- * recede into blurred, scaled-down columns behind it — see the plan this was
- * built from (joyful-leaping-kite.md) for the reference image and reasoning.
+ * The lite=0 agenda experience: a tab strip of bold track titles above a
+ * "3D" stage where the chosen track's timeline sits centred and in focus
+ * while the other three recede into blurred, scaled-down columns behind it —
+ * see the plan this was built from (joyful-leaping-kite.md) for the reference
+ * image and reasoning.
  *
  * Deliberately CSS/DOM, not WebGL: every card is real text, the timeline is a
  * real scrollable list (scroll-snap does the centring), and the depth is
@@ -110,11 +113,13 @@ export function AgendaBoard({
   speakers,
   tracks,
   activeTrack,
+  onSelectTrack,
 }: {
   sessions: AgendaSession[];
   speakers: Speaker[];
   tracks: Track[];
   activeTrack: string;
+  onSelectTrack: (slug: string) => void;
 }) {
   const now = useNow();
   const resolvedTrack = tracks.some((t) => t.slug === activeTrack)
@@ -123,6 +128,19 @@ export function AgendaBoard({
   const activeIndex = Math.max(0, tracks.findIndex((t) => t.slug === resolvedTrack));
   const [focusedSession, setFocusedSession] = useState<AgendaSession | null>(null);
   const columnRefs = useRef<Array<TrackColumnHandle | null>>([]);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  // Swipes and horizontal trackpad scrolls step between tracks — over the tab
+  // strip OR over the cards, which is why this listens on the whole board
+  // rather than just the stage (a swipe over the tabs must switch track, not
+  // scroll the strip). Same destination as clicking a tab; the tabs stay the
+  // mouse path (see useTrackSwipe).
+  useTrackSwipe({
+    nodeRef: boardRef,
+    count: tracks.length,
+    index: activeIndex,
+    onStep: (direction) => onSelectTrack(tracks[activeIndex + direction].slug),
+  });
 
   const byTrack = useMemo(() => {
     const map = new Map<string, TimelineItem[]>();
@@ -147,27 +165,27 @@ export function AgendaBoard({
     : -1;
 
   return (
-    <div className="mt-8">
-      <div className="flex flex-wrap justify-center gap-3">
-        {tracks.map((t) => {
-          const active = t.slug === resolvedTrack;
-          return (
-            <GlowButton
-              key={t.slug}
-              href={`/agenda?track=${t.slug}`}
-              scroll={false}
-              shape="pill"
-              size="md"
-              textClassName={active ? "text-paper font-semibold" : "text-paper/60 font-medium"}
-              className={active ? "agenda-board-pill--active" : ""}
-            >
-              {t.name}
-            </GlowButton>
-          );
-        })}
-      </div>
+    <div ref={boardRef} className="agenda-track-swipe mt-8">
+      {/* No "All" tab here: the board always has exactly one track in focus
+          (resolvedTrack above), and the other three are on screen behind it
+          getting on with being context. That's also why the active tab is
+          resolvedTrack rather than the raw activeTrack prop — with no
+          ?track= in the URL, the resolved track is still the one in focus. */}
+      <AgendaTrackTabs
+        tabs={tracks}
+        activeSlug={resolvedTrack}
+        onSelect={onSelectTrack}
+        idPrefix="agenda-board"
+        panelId="agenda-board-panel"
+        align="center"
+      />
 
-      <div className="mt-10 flex items-stretch justify-center gap-2 sm:gap-6">
+      <div
+        id="agenda-board-panel"
+        role="tabpanel"
+        aria-labelledby={`agenda-board-tab-${activeIndex}`}
+        className="mt-6 flex items-stretch justify-center gap-2 sm:gap-6"
+      >
         <div className="agenda-board-ruler hidden sm:block" aria-hidden>
           <div
             className="agenda-board-ruler__track"
@@ -242,7 +260,7 @@ type TrackColumnHandle = { goTo: (delta: number) => void };
  * `.agenda-board-scroll` and `<body>` opts out the way `.agenda-board-stage`
  * deliberately does (see its own `overflow: clip` comment), so it was also
  * dragging the whole PAGE up to centre the focused card in the window,
- * shoving the "Agenda" heading and track pills off the top of the screen the
+ * shoving the "Agenda" heading and track tabs off the top of the screen the
  * moment a track was picked or the up/down nav buttons were used. Computing
  * the container's own scrollTop directly here never touches `window.scrollY`
  * at all, so the page stays put and only the track's own timeline moves.
@@ -284,6 +302,40 @@ const TrackColumn = forwardRef<
 >(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange }, ref) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const depthRafRef = useRef(0);
+
+  /**
+   * Each card's distance from the centre band, written straight onto the
+   * card as `--t` (0 in the band, ~1 a full card height away — see
+   * .agenda-board-card). This is what makes a card visibly grow and brighten
+   * AS it is scrolled towards the middle, instead of only after it crosses
+   * the focus band and swaps size class. Deliberately imperative DOM writes
+   * on a rAF, not React state: this runs at scroll frequency, and no render
+   * is needed to move a compositor property.
+   *
+   * `offsetTop` (not getBoundingClientRect) — the scroll container is the
+   * cards' offsetParent (see .agenda-board-scroll), so one subtraction gives
+   * everything in the container's own coordinate frame without forcing a
+   * layout on the whole page.
+   */
+  const applyCardDepths = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const height = container.clientHeight;
+    if (height <= 0) return;
+    const mid = container.scrollTop + height / 2;
+    const cards = container.querySelectorAll<HTMLElement>(".agenda-board-card");
+    cards.forEach((card) => {
+      const cardHeight = card.offsetHeight;
+      if (cardHeight <= 0) return;
+      const center = card.offsetTop + cardHeight / 2;
+      // Normalised so the card a full container height away already reads as
+      // fully out (matches the adjacent/far fade), but a card still mostly
+      // on screen already starts growing back towards full size.
+      const t = Math.min(1, (Math.abs(center - mid) / height) * 1.6);
+      card.style.setProperty("--t", t.toFixed(3));
+    });
+  }, []);
 
   // Read inside the activation effect below without adding syncTime to its
   // dependency array — that effect should only re-pick a target when this
@@ -338,12 +390,51 @@ const TrackColumn = forwardRef<
       requestAnimationFrame(() => {
         const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
         if (el) centerCardInContainer(container, el, "auto");
+        // The scroll nothing was pointing anywhere until the frame above, so
+        // place the depths against where it just landed — otherwise the new
+        // column paints one frame with every card at full size before the
+        // scroll listener below has anything to react to.
+        applyCardDepths();
       });
     }
 
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, items]);
+
+  // The active column is scrolled by the visitor (wheel, touch, the up/down
+  // buttons), so the card scale follows the scroll frame by frame: one rAF
+  // per scroll burst, coalescing whatever scroll events arrive between two
+  // frames. Background columns never run this — their `--t` stays unset and
+  // every card in them reads at full size, exactly as before.
+  useEffect(() => {
+    if (!active) return;
+    const container = scrollRef.current;
+    if (!container) return;
+
+    function onScroll() {
+      if (depthRafRef.current) return;
+      depthRafRef.current = requestAnimationFrame(() => {
+        depthRafRef.current = 0;
+        applyCardDepths();
+      });
+    }
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", applyCardDepths);
+    applyCardDepths();
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", applyCardDepths);
+      cancelAnimationFrame(depthRafRef.current);
+      depthRafRef.current = 0;
+      // Back to a background column: drop the depths so nothing remembers
+      // where it was being read.
+      container.querySelectorAll<HTMLElement>(".agenda-board-card").forEach((card) => {
+        card.style.removeProperty("--t");
+      });
+    };
+  }, [active, items, applyCardDepths]);
 
   // The blurred background columns aren't scrolled by the visitor, but they
   // shouldn't just sit frozen on whichever session they first loaded either —
