@@ -15,6 +15,7 @@ import { absoluteUrl } from "@/lib/seo";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import { creators } from "@/lib/creators";
 import type { Speaker } from "@/lib/schemas";
+import { findSpeakers, joinSpeakerNames } from "@/lib/find-speaker";
 
 /** Direct `/md/*` URLs must not compete with the HTML canonical in Google. */
 export function markdownResponse(body: string, canonicalPath: string, status = 200) {
@@ -75,9 +76,16 @@ export async function agendaMarkdown(): Promise<string> {
     if (!sessions?.length) return;
     lines.push(`## ${heading}`, "");
     for (const session of sessions) {
-      const speaker = session.speakerSlug ? speakers.find((s) => s.slug === session.speakerSlug) : undefined;
+      const sessionSpeakers = findSpeakers(speakers, session.speakerSlugs);
       const time = `${formatSessionTime(session.start)}–${formatSessionTime(session.end)}`;
-      const by = speaker ? ` — ${speaker.name}, ${speaker.title} at ${speaker.company}` : "";
+      // A single speaker's title/company fits on this line; more than one
+      // just lists the names, same as the agenda page does.
+      const by =
+        sessionSpeakers.length === 1
+          ? ` — ${sessionSpeakers[0].name}, ${sessionSpeakers[0].title} at ${sessionSpeakers[0].company}`
+          : sessionSpeakers.length > 1
+            ? ` — ${joinSpeakerNames(sessionSpeakers)}`
+            : "";
       lines.push(`- **${time}** (${session.hall}) ${session.title}${by}`);
     }
     lines.push("");

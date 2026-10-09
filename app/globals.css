@@ -1061,6 +1061,18 @@ html.gpu .hallway-stack {
   min-height: 400px;
 }
 
+/* Draggable/clickable: a grab cursor hints it, `touch-action: none` stops the
+   page itself from panning/scrolling under a drag that's being read as a
+   pointer gesture here instead. */
+.agenda-board-ruler--interactive {
+  cursor: grab;
+  touch-action: none;
+}
+
+.agenda-board-ruler--interactive:active {
+  cursor: grabbing;
+}
+
 .agenda-board-ruler__track {
   position: absolute;
   top: 50%;
@@ -1071,12 +1083,20 @@ html.gpu .hallway-stack {
 
 .agenda-board-ruler__mark {
   display: flex;
+  width: 100%;
   height: var(--ruler-row-h);
   align-items: center;
   justify-content: flex-end;
+  /* Reset <button> defaults — this was a plain <span> until the ruler became
+     clickable/draggable. */
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
   font-family: var(--font-google-sans), sans-serif;
   font-size: 0.875rem;
   color: color-mix(in srgb, var(--paper) 35%, transparent);
+  cursor: inherit;
   transition: color 300ms ease, font-size 300ms ease;
 }
 

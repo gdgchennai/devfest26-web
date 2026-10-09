@@ -4,557 +4,593 @@
     "start": "2026-10-17T08:00:00+05:30",
     "end": "2026-10-17T09:00:00+05:30",
     "title": "Check-in and Badge Collection",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T09:00:00+05:30",
     "end": "2026-10-17T09:15:00+05:30",
     "title": "Welcome Note",
-    "speakerSlug": null,
     "hall": "D7 Auditorium",
-    "type": "keynote"
+    "type": "keynote",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T09:15:00+05:30",
     "end": "2026-10-17T09:45:00+05:30",
     "title": "Keynote",
-    "speakerSlug": null,
     "hall": "D7 Auditorium",
-    "type": "keynote"
+    "type": "keynote",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T09:45:00+05:30",
     "end": "2026-10-17T10:15:00+05:30",
     "title": "Sponsor Talk",
-    "speakerSlug": null,
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T10:15:00+05:30",
     "end": "2026-10-17T10:25:00+05:30",
     "title": "Sponsor Talk",
-    "speakerSlug": null,
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T10:25:00+05:30",
     "end": "2026-10-17T10:35:00+05:30",
     "title": "Sponsor Talk",
-    "speakerSlug": null,
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T11:10:00+05:30",
     "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
-    "speakerSlug": "aditya-shinde",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "aditya-shinde"
+    ]
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T11:20:00+05:30",
     "title": "Can AI Help a City Breathe?",
-    "speakerSlug": "dishant-parakh",
     "hall": "D7 Amphitheater",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "dishant-parakh"
+    ]
   },
   {
     "track": "creators-lounge",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
     "title": "Creators Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": []
   },
   {
     "track": "meetup-lounge",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
     "title": "Meetup Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:10:00+05:30",
     "title": "Agent Wars: Live Tournament (Round 1)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
     "title": "Lessons from Building an AI Native Product Ground Up",
-    "speakerSlug": "rashmi-asokan",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "rashmi-asokan"
+    ]
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
     "title": "Vibe Coding Lounge",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
     "title": "Workshop: TBD",
-    "speakerSlug": null,
     "hall": "Raman Hall",
-    "type": "workshop"
+    "type": "workshop",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T11:10:00+05:30",
     "end": "2026-10-17T11:35:00+05:30",
     "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
-    "speakerSlug": "neeraj-pathak",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "neeraj-pathak"
+    ]
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:10:00+05:30",
     "end": "2026-10-17T11:20:00+05:30",
     "title": "Agent Wars: Live Tournament (Round 2)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:20:00+05:30",
     "end": "2026-10-17T11:30:00+05:30",
     "title": "Agent Wars: Live Tournament (Round 3)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T11:20:00+05:30",
     "end": "2026-10-17T11:35:00+05:30",
     "title": "Rethinking Infrastructure for Agentic Workloads",
-    "speakerSlug": "dhanush-kandhan",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "dhanush-kandhan"
+    ]
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T11:25:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
     "title": "Deep Tech Talk 2",
-    "speakerSlug": null,
     "hall": "D7 Amphitheater",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:30:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
     "title": "Agent Wars: Live Tournament (Rounds 4-6)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T11:35:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
     "title": "Developing and Using OWASP Nettacker for Security Testing",
-    "speakerSlug": "achintya-jai",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "achintya-jai"
+    ]
   },
   {
     "track": "lightning",
     "start": "2026-10-17T11:40:00+05:30",
     "end": "2026-10-17T11:55:00+05:30",
     "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
-    "speakerSlug": "aakash-dhakshnamoorthy",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "aakash-dhakshnamoorthy"
+    ]
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
     "title": "Agentic SRE with Google Cloud: Detect, Diagnose, and Remediate Faster",
-    "speakerSlug": "neel-shah",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "neel-shah"
+    ]
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:15:00+05:30",
     "title": "Lightning Talk 4",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:35:00+05:30",
     "title": "Vibe Coding Lounge",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "raman-hall",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T13:00:00+05:30",
     "title": "Hardware Lab",
-    "speakerSlug": null,
     "hall": "Raman Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T12:05:00+05:30",
     "end": "2026-10-17T12:40:00+05:30",
     "title": "Deep Tech Talk 3",
-    "speakerSlug": null,
     "hall": "D7 Amphitheater",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T12:20:00+05:30",
     "end": "2026-10-17T12:35:00+05:30",
     "title": "AI Assisted SREs Are a Thing!",
-    "speakerSlug": "imran-roshan",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "imran-roshan"
+    ]
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T12:30:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "creators-lounge",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "meetup-lounge",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T12:40:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "raman-hall",
     "start": "2026-10-17T13:00:00+05:30",
     "end": "2026-10-17T14:30:00+05:30",
     "title": "Workshop: TBD",
-    "speakerSlug": null,
     "hall": "Raman Hall",
-    "type": "workshop"
+    "type": "workshop",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:25:00+05:30",
     "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
-    "speakerSlug": "jeeththenthar-l",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "jeeththenthar-l"
+    ]
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:35:00+05:30",
     "title": "Deep Tech Talk 4",
-    "speakerSlug": null,
     "hall": "D7 Amphitheater",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:20:00+05:30",
     "title": "Agent Wars: Live Tournament (Semi-Finals)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:15:00+05:30",
     "title": "Lightning Talk 6",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:30:00+05:30",
     "title": "Vibe Coding Lounge",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "creators-lounge",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Creators Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": []
   },
   {
     "track": "meetup-lounge",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Meetup Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T14:20:00+05:30",
     "end": "2026-10-17T14:50:00+05:30",
     "title": "Agent Wars: Live Tournament (Finals)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T14:20:00+05:30",
     "end": "2026-10-17T14:35:00+05:30",
     "title": "Lightning Talk 7",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T14:25:00+05:30",
     "end": "2026-10-17T14:50:00+05:30",
     "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
-    "speakerSlug": "dinoy-raj",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "dinoy-raj"
+    ]
   },
   {
     "track": "raman-hall",
     "start": "2026-10-17T14:30:00+05:30",
     "end": "2026-10-17T15:00:00+05:30",
     "title": "Pitchathon: TBD",
-    "speakerSlug": null,
     "hall": "Raman Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": []
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T14:40:00+05:30",
     "end": "2026-10-17T16:15:00+05:30",
     "title": "Deep Tech Workshop: Machine Learning the Physical World",
-    "speakerSlug": "ayana-ghosh",
     "hall": "D7 Amphitheater",
-    "type": "workshop"
+    "type": "workshop",
+    "speakerSlugs": [
+      "ayana-ghosh"
+    ]
   },
   {
     "track": "lightning",
     "start": "2026-10-17T14:40:00+05:30",
     "end": "2026-10-17T14:55:00+05:30",
     "title": "Local AI: The Google Gemma Edition",
-    "speakerSlug": "gokulbarath",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "gokulbarath"
+    ]
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T14:50:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
-    "speakerSlug": "bhargav-patel",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "bhargav-patel"
+    ]
   },
   {
     "track": "lightning",
     "start": "2026-10-17T15:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
-    "speakerSlug": "shangeeth-sivan-adiyapatham",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "shangeeth-sivan-adiyapatham"
+    ]
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T15:15:00+05:30",
     "end": "2026-10-17T15:40:00+05:30",
     "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
-    "speakerSlug": "srushti-raybhoge",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "srushti-raybhoge"
+    ]
   },
   {
     "track": "lightning",
     "start": "2026-10-17T15:20:00+05:30",
     "end": "2026-10-17T15:35:00+05:30",
     "title": "Lightning Talk 10",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T15:40:00+05:30",
     "end": "2026-10-17T16:05:00+05:30",
     "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
-    "speakerSlug": "saurabh-mishra",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "saurabh-mishra"
+    ]
   },
   {
     "track": "lightning",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:15:00+05:30",
     "title": "Lightning Talk: TBD",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T16:05:00+05:30",
     "end": "2026-10-17T16:30:00+05:30",
     "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
-    "speakerSlug": "varun-poladiya",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "varun-poladiya"
+    ]
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Quick Break",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Quick Break",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Quick Break",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "lightning",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Quick Break",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
     "title": "Quick Break",
-    "speakerSlug": null,
     "hall": "F&B",
-    "type": "break"
+    "type": "break",
+    "speakerSlugs": []
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T17:00:00+05:30",
     "end": "2026-10-17T17:30:00+05:30",
-    "title": "Closing Ceremony",
-    "speakerSlug": null,
+    "title": "Closing Note",
     "hall": "D7 Auditorium",
-    "type": "keynote"
+    "type": "keynote",
+    "speakerSlugs": []
   }
 ]
