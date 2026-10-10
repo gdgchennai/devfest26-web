@@ -1,6 +1,15 @@
 import { z } from "zod";
 
-export const trackSlugSchema = z.enum(["tech", "deep tech", "experience", "competition"]);
+export const trackSlugSchema = z.enum([
+  "d7-auditorium",
+  "d7-amphitheater",
+  "agent-wars",
+  "lightning",
+  "vibe-coding",
+  "pitchathon",
+  "creators-lounge",
+  "meetup-lounge",
+]);
 
 export const agendaSessionSchema = z.object({
   track: trackSlugSchema,

@@ -23,3 +23,13 @@ AUTH_GOOGLE_SECRET=
 # These are read through Cloudflare's env, so they belong HERE, not in `.env.local`.
 # GEMINI_API_KEY=
 # GEMINI_MODEL=
+
+# Web Push. Private half of the VAPID key pair — pairs with
+# NEXT_PUBLIC_VAPID_PUBLIC_KEY in .env.local. Generate a pair with:
+#   node -e "crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']).then(async k=>{const pub=Buffer.from(await crypto.subtle.exportKey('raw',k.publicKey)).toString('base64url');const jwk=await crypto.subtle.exportKey('jwk',k.privateKey);console.log('PUBLIC',pub);console.log('PRIVATE',jwk.d)})"
+# Required for push notifications to send; the rest of the site works without it.
+VAPID_PRIVATE_KEY=
+
+# /admin (mark sessions started/ended) — comma-separated organizer emails.
+# Without this nobody can reach /admin; it 403s for everyone.
+# ADMIN_EMAILS=you@example.com,teammate@example.com

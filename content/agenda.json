@@ -1,209 +1,650 @@
 [
   {
-    "track": "tech",
-    "start": "2026-10-17T09:00:00+05:30",
+    "track": "d7-auditorium",
+    "start": "2026-10-17T08:00:00+05:30",
     "end": "2026-10-17T09:30:00+05:30",
-    "title": "Opening Keynote",
+    "title": "Welcome Keynote",
     "speakerSlug": null,
-    "hall": "Hall A",
+    "hall": "D7 Auditorium",
     "type": "keynote"
   },
   {
-    "track": "deep tech",
-    "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:30:00+05:30",
-    "title": "Session details to be announced",
+    "track": "d7-auditorium",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T10:00:00+05:30",
+    "title": "General Tech Talk 1",
     "speakerSlug": null,
-    "hall": "Hall C",
+    "hall": "D7 Auditorium",
     "type": "talk"
   },
   {
-    "track": "experience",
-    "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:30:00+05:30",
-    "title": "Session details to be announced",
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T10:15:00+05:30",
+    "title": "Deep Tech Talk 1",
     "speakerSlug": null,
-    "hall": "Lounge",
-    "type": "lounge"
+    "hall": "D7 Amphitheater",
+    "type": "talk"
   },
   {
-    "track": "competition",
-    "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:30:00+05:30",
-    "title": "Session details to be announced",
+    "track": "agent-wars",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T10:00:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 1)",
     "speakerSlug": null,
-    "hall": "Hall B",
+    "hall": "D6 Multi-purpose Hall",
     "type": "competition"
   },
   {
-    "track": "tech",
-    "start": "2026-10-17T10:30:00+05:30",
+    "track": "lightning",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T09:45:00+05:30",
+    "title": "Lightning Talk 1",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T09:45:00+05:30",
+    "end": "2026-10-17T10:00:00+05:30",
+    "title": "Lightning Talk 2",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T10:00:00+05:30",
+    "title": "Vibe Coding Challenge 1",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T09:30:00+05:30",
+    "end": "2026-10-17T10:00:00+05:30",
+    "title": "Creators Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T10:05:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "General Tech Talk 2",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T10:05:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 2)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T10:05:00+05:30",
+    "end": "2026-10-17T10:20:00+05:30",
+    "title": "Lightning Talk 3",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T10:20:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "Lightning Talk 4",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T10:20:00+05:30",
     "end": "2026-10-17T11:00:00+05:30",
-    "title": "Tea Break",
+    "title": "Deep Tech Talk 2",
+    "speakerSlug": null,
+    "hall": "D7 Amphitheater",
+    "type": "talk"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T10:05:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "Vibe Coding Challenge 2",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T10:05:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "Meetup Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T10:35:00+05:30",
+    "end": "2026-10-17T11:00:00+05:30",
+    "title": "General Tech Talk 3",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T10:35:00+05:30",
+    "end": "2026-10-17T11:00:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 3)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T10:35:00+05:30",
+    "end": "2026-10-17T10:50:00+05:30",
+    "title": "Lightning Talk 5",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T10:50:00+05:30",
+    "end": "2026-10-17T11:00:00+05:30",
+    "title": "Lightning Talk 6",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
   },
   {
-    "track": "deep tech",
+    "track": "d7-amphitheater",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall C",
-    "type": "talk"
-  },
-  {
-    "track": "experience",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Lounge",
-    "type": "lounge"
-  },
-  {
-    "track": "competition",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "competition"
-  },
-  {
-    "track": "tech",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall A",
-    "type": "talk"
-  },
-  {
-    "track": "deep tech",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall C",
-    "type": "talk"
-  },
-  {
-    "track": "experience",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Lounge",
-    "type": "lounge"
-  },
-  {
-    "track": "competition",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall B",
-    "type": "competition"
-  },
-  {
-    "track": "tech",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Session details to be announced",
-    "speakerSlug": null,
-    "hall": "Hall A",
-    "type": "talk"
-  },
-  {
-    "track": "tech",
-    "start": "2026-10-17T12:45:00+05:30",
-    "end": "2026-10-17T13:45:00+05:30",
-    "title": "Lunch Break",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
     "speakerSlug": null,
     "hall": "F&B",
     "type": "break"
   },
   {
-    "track": "deep tech",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "agent-wars",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
     "speakerSlug": null,
-    "hall": "Hall C",
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "pitchathon",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T11:00:00+05:30",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T11:20:00+05:30",
+    "end": "2026-10-17T11:50:00+05:30",
+    "title": "General Tech Talk 4",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
     "type": "talk"
   },
   {
-    "track": "experience",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T11:20:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Deep Tech Talk 3",
     "speakerSlug": null,
-    "hall": "Lounge",
-    "type": "lounge"
+    "hall": "D7 Amphitheater",
+    "type": "talk"
   },
   {
-    "track": "competition",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "agent-wars",
+    "start": "2026-10-17T11:20:00+05:30",
+    "end": "2026-10-17T11:50:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 4)",
     "speakerSlug": null,
-    "hall": "Hall B",
+    "hall": "D6 Multi-purpose Hall",
     "type": "competition"
   },
   {
-    "track": "tech",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "lightning",
+    "start": "2026-10-17T11:20:00+05:30",
+    "end": "2026-10-17T11:35:00+05:30",
+    "title": "Lightning Talk 7",
     "speakerSlug": null,
-    "hall": "Hall A",
+    "hall": "D6 Multi-purpose Hall",
     "type": "talk"
   },
   {
-    "track": "deep tech",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "lightning",
+    "start": "2026-10-17T11:35:00+05:30",
+    "end": "2026-10-17T11:50:00+05:30",
+    "title": "Lightning Talk 8",
     "speakerSlug": null,
-    "hall": "Hall C",
+    "hall": "D6 Multi-purpose Hall",
     "type": "talk"
   },
   {
-    "track": "experience",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "d7-auditorium",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "General Tech Talk 5",
     "speakerSlug": null,
-    "hall": "Lounge",
-    "type": "lounge"
+    "hall": "D7 Auditorium",
+    "type": "talk"
   },
   {
-    "track": "competition",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "agent-wars",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 5)",
     "speakerSlug": null,
-    "hall": "Hall B",
+    "hall": "D6 Multi-purpose Hall",
     "type": "competition"
   },
   {
-    "track": "tech",
-    "start": "2026-10-17T15:00:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Session details to be announced",
+    "track": "lightning",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:10:00+05:30",
+    "title": "Lightning Talk 9",
     "speakerSlug": null,
-    "hall": "Hall A",
+    "hall": "D6 Multi-purpose Hall",
     "type": "talk"
   },
   {
-    "track": "tech",
-    "start": "2026-10-17T16:30:00+05:30",
-    "end": "2026-10-17T17:00:00+05:30",
-    "title": "Closing Keynote",
+    "track": "lightning",
+    "start": "2026-10-17T12:10:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Lightning Talk 10",
     "speakerSlug": null,
-    "hall": "Hall A",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Vibe Coding Challenge (Quarter finals and Semis)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Creators Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T11:55:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Meetup Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T12:25:00+05:30",
+    "end": "2026-10-17T13:00:00+05:30",
+    "title": "General Tech Talk 6",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T12:05:00+05:30",
+    "end": "2026-10-17T12:45:00+05:30",
+    "title": "Deep Tech Talk 4",
+    "speakerSlug": null,
+    "hall": "D7 Amphitheater",
+    "type": "talk"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T12:25:00+05:30",
+    "end": "2026-10-17T13:00:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 6)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "pitchathon",
+    "start": "2026-10-17T12:25:00+05:30",
+    "end": "2026-10-17T13:00:00+05:30",
+    "title": "Pitchathon (Kickoff)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "pitchathon",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "General Tech Talk 7",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T14:15:00+05:30",
+    "end": "2026-10-17T15:00:00+05:30",
+    "title": "Deep Tech Talk 5",
+    "speakerSlug": null,
+    "hall": "D7 Amphitheater",
+    "type": "talk"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "Agent Wars: Live Tournament (Semi-Finals)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "General Tech Talk 8",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Agent Wars: Live Tournament (Finals)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "pitchathon",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Pitchathon (Demos & Closing)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Vibe Coding Challenge (Finals)",
+    "speakerSlug": null,
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Creators Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Meetup Lounge",
+    "speakerSlug": null,
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T15:45:00+05:30",
+    "title": "General Tech Talk 9",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "talk"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T15:05:00+05:30",
+    "end": "2026-10-17T15:45:00+05:30",
+    "title": "Deep Tech Talk 6",
+    "speakerSlug": null,
+    "hall": "D7 Amphitheater",
+    "type": "talk"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "pitchathon",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T15:45:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Break",
+    "speakerSlug": null,
+    "hall": "F&B",
+    "type": "break"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T16:00:00+05:30",
+    "end": "2026-10-17T16:30:00+05:30",
+    "title": "Panel (Creators & Product Builders)",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
+    "type": "panel"
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T17:00:00+05:30",
+    "end": "2026-10-17T17:30:00+05:30",
+    "title": "Closing Ceremony",
+    "speakerSlug": null,
+    "hall": "D7 Auditorium",
     "type": "keynote"
   }
 ]

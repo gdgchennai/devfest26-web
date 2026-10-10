@@ -1,18 +1,21 @@
-import { readdirSync } from "node:fs";
-import { join } from "node:path";
-
 /**
- * Lists the brand-shape SVGs in public/brand-shapes, as public URLs.
+ * Public URLs of the brand-shape SVGs in public/brand-shapes.
  *
- * Server-only (reads the filesystem) — call it from a Server Component and
- * pass the result down as a prop; never import this into a "use client"
- * file. Whatever's in that folder is what ships, so adding or removing an
- * SVG there is the entire authoring step, no manifest to keep in sync.
+ * This used to list the directory with `fs.readdirSync` at render time, but
+ * the Workers runtime has no real filesystem for `public/` (assets are
+ * served through the ASSETS binding), so that crashed on every ISR
+ * revalidation in production. Add or remove an SVG here when the directory
+ * changes.
  */
+const BRAND_SHAPE_FILES = [
+  "angle.svg",
+  "dot.svg",
+  "double_slash.svg",
+  "left_bracket.svg",
+  "right_bracket.svg",
+  "small_plus.svg",
+];
+
 export function getBrandShapes(): string[] {
-  const dir = join(process.cwd(), "public", "brand-shapes");
-  return readdirSync(dir)
-    .filter((file) => file.toLowerCase().endsWith(".svg"))
-    .sort()
-    .map((file) => `/brand-shapes/${file}`);
+  return BRAND_SHAPE_FILES.map((file) => `/brand-shapes/${file}`);
 }
