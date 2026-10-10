@@ -4,11 +4,12 @@
     "name": "Saurabh Mishra",
     "title": "Lead Consultant",
     "company": "Independent",
-    "bio": "",
+    "bio": "Saurabh Mishra is a Cloud Evangelist and technology enthusiast specializing in cloud architecture, DevOps, automation, and Agentic AI. Through active community engagement, he shares practical knowledge on cloud-native solutions, AI-powered workflows, security best practices, and multi-cloud ecosystems.",
     "photo": null,
     "links": {
       "twitter": null,
-      "linkedin": null,
+      "instagram": "https://instagram.com/mishra_saurabh08",
+      "linkedin": "https://linkedin.com/in/connectsaurabhmishra",
       "github": null
     },
     "talk": {
@@ -22,11 +23,12 @@
     "name": "Srushti Raybhoge",
     "title": "Software Engineer 2 (Google Developer Expert, Firebase)",
     "company": "Addepar",
-    "bio": "",
+    "bio": "Srushti is a Google Developer Expert in Firebase and a full-stack engineer who thrives on turning emerging tech trends into scalable reality. As a frequent global speaker, she loves sharing her insights on the world stage and simplifying complex problems into elegant solutions. When she is offline, Srushti is usually traveling to new corners of the world, catching up on anime, or getting lost in a good book. She is always chasing the next big shift in technology and loves sharing those discoveries with her audience.",
     "photo": null,
     "links": {
-      "twitter": null,
-      "linkedin": null,
+      "twitter": "https://x.com/SRaybhoge",
+      "instagram": "https://www.instagram.com/srush_raybhoge",
+      "linkedin": "https://linkedin.com/in/srushti-raybhoge",
       "github": null
     },
     "talk": {
@@ -40,11 +42,12 @@
     "name": "Bhargav Patel",
     "title": "AI Forward Deployed Engineer",
     "company": "Google",
-    "bio": "",
+    "bio": "Bhargav Patel is an AI Forward Deployed Engineer at Google, focused on agentic AI systems and LLM orchestration, and on the discipline of taking these systems from a working prototype to something a business can depend on in production. He has 3 peer-reviewed publications in applied machine learning and has spoken at more than 100 ML, MLOps, and AI events across India. Outside of work, he writes about AI engineering and MLOps on LinkedIn and Medium, and spends his time exploring food and anime.",
     "photo": null,
     "links": {
-      "twitter": null,
-      "linkedin": null,
+      "twitter": "https://x.com/0xbhargavpatel",
+      "instagram": "https://www.instagram.com/bhargav.p.patel",
+      "linkedin": "https://linkedin.com/in/bhargav-p-patel",
       "github": null
     },
     "talk": {
@@ -58,11 +61,12 @@
     "name": "Dinoy Raj",
     "title": "Product Engineer, Android",
     "company": "Strollby",
-    "bio": "",
+    "bio": "Dinoy Raj is a Product Engineer and Android specialist with a deep focus on building scalable, high-performance mobile experiences using Kotlin and Jetpack Compose. \n He has shared his expertise on On-Device AI, custom launchers, and modern Android architecture at Droidcon Abu Dhabi '25, Droidcon Uganda '25, DevFest Dubai '25, DevFest Mumbai '25. Dinoy will be also Speaking at FOSSASIA 2026.",
     "photo": null,
     "links": {
-      "twitter": null,
-      "linkedin": null,
+      "twitter": "https://x.com/dinoy_raj",
+      "instagram": "https://www.instagram.com/dinoy__raj",
+      "linkedin": "https://linkedin.com/in/dinoy-raj/",
       "github": null
     },
     "talk": {

@@ -525,7 +525,7 @@
     "speakerSlugs": [
       "bhargav-patel"
     ],
-    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
+    "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week."
   },
   {
     "track": "lightning",
@@ -549,7 +549,7 @@
     "speakerSlugs": [
       "srushti-raybhoge"
     ],
-    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
+    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering."
   },
   {
     "track": "lightning",
@@ -571,7 +571,7 @@
     "speakerSlugs": [
       "saurabh-mishra"
     ],
-    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
+    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
   },
   {
     "track": "lightning",
