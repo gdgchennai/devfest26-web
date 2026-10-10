@@ -5,9 +5,8 @@ import type { AgendaSession, Speaker } from "@/lib/schemas";
 import { formatSessionTime } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { findSpeakers, joinSpeakerNames } from "@/lib/find-speaker";
-import { floorNameForTrack } from "@/lib/agenda-floors";
 import { useNow } from "@/lib/useNow";
-import { siteConfig, uiCopy } from "@/site.config";
+import { uiCopy } from "@/site.config";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { SessionDescriptionModal } from "@/components/SessionDescriptionModal";
 
@@ -62,14 +61,7 @@ export function AgendaList({
                 )}
               </div>
 
-              <span className="text-lg font-medium text-paper sm:text-right">
-                {/* Floor first, then hall — same convention as the board's
-                    spotlight card (see AgendaBoard): the floor comes from the
-                    session's track, since halls like "F&B" name no floor. */}
-                {[floorNameForTrack(siteConfig.floors, session.track), session.hall]
-                  .filter((part): part is string => part !== null)
-                  .join(" · ")}
-              </span>
+              <span className="text-lg font-medium text-paper sm:text-right">{session.hall}</span>
 
               {isNow && (
                 <span className="rounded-full bg-blue px-2 py-0.5 text-xs uppercase text-paper">

@@ -294,7 +294,7 @@ export const siteConfig = {
     },
     {
       slug: "raman-hall",
-      name: "Raman Hall",
+      name: "Workshop",
       description: "Workshops, the Qualcomm hardware session, and the Pitchathon in Raman Hall.",
     },
     {

@@ -16,9 +16,8 @@ import type { Track } from "@/site.config";
 import { formatHourLabel, formatSessionTime, sessionHour } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
-import { findSpeakers, joinSpeakerNames } from "@/lib/find-speaker";
+import { findSpeakers } from "@/lib/find-speaker";
 import type { Speaker } from "@/lib/schemas";
-import { floorNameForTrack } from "@/lib/agenda-floors";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
@@ -793,10 +792,10 @@ function SessionCard({
   const color = trackColor(session.track);
   const sessionSpeakers = findSpeakers(speakers, session.speakerSlugs);
   const trackName = session.track ? (siteConfig.tracks.find((t) => t.slug === session.track)?.name ?? session.track) : null;
-  // Raman Hall's track name is just its hall name — showing both the pill and
-  // "RAMAN HALL" in the corner is the same word twice. The session's type
-  // (workshop, talk, competition) tells Raman Hall's mixed programme apart
-  // better anyway, so that's the one case the pill falls back to it.
+  // If a track's own name ever matches its hall name, showing both the pill
+  // and the hall label in the corner would be the same word twice — the
+  // session's type (workshop, talk, competition) is a more useful pill in
+  // that case, so that's the one case this falls back to it.
   const pillLabel = trackName === session.hall ? session.type : trackName;
   // Ceremonial/administrative slots (check-in, meals, breaks, the welcome
   // note, the keynote, closing) aren't really "on" a track — no pill for
@@ -842,41 +841,32 @@ function SessionCard({
 
       <div className="mt-5 flex items-center justify-between gap-3">
         {sessionSpeakers.length > 0 ? (
-          <div className="flex min-w-0 items-center gap-2">
-            {/* Overlapping stack for 2-3 co-presenters — each ring punches a
-                gap back to the card's own background through the overlap, so
-                it still reads as separate portraits instead of one blob. */}
-            <div className="flex shrink-0">
-              {sessionSpeakers.map((speaker, i) => (
-                <div
-                  key={speaker.slug}
-                  className={`h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-ink ${i > 0 ? "-ml-3" : ""}`}
-                >
-                  <Frame
-                    src={speaker.photo}
-                    alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
-                    title={speaker.name}
-                    aspectRatio="1 / 1"
-                    sizes="36px"
-                  />
-                </div>
-              ))}
-            </div>
-            <span className="truncate text-sm text-paper/80">{joinSpeakerNames(sessionSpeakers)}</span>
+          // Overlapping stack for 2-3 co-presenters — each ring punches a gap
+          // back to the card's own background through the overlap, so it
+          // still reads as separate portraits instead of one blob. Names
+          // aren't shown here — clicking the title opens the description
+          // modal, which names each speaker next to their own portrait.
+          <div className="flex shrink-0">
+            {sessionSpeakers.map((speaker, i) => (
+              <div
+                key={speaker.slug}
+                className={`h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-ink ${i > 0 ? "-ml-3" : ""}`}
+              >
+                <Frame
+                  src={speaker.photo}
+                  alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
+                  title={speaker.name}
+                  aspectRatio="1 / 1"
+                  sizes="36px"
+                />
+              </div>
+            ))}
           </div>
         ) : (
           <span />
         )}
         <div className="flex items-center gap-3">
-          {/* Floor first, then hall: "D block 7th floor · D7 Auditorium".
-              The floor comes from the session's track (lib/agenda-floors),
-              not the hall string — halls like "F&B" belong to no floor of
-              their own, but their sessions still run on a track that does. */}
-          <span className="text-xs uppercase tracking-wide text-paper/50">
-            {[floorNameForTrack(siteConfig.floors, session.track), session.hall]
-              .filter((part): part is string => part !== null)
-              .join(" · ")}
-          </span>
+          <span className="text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
           {session.type !== "break" && <FavoriteButton session={session} />}
         </div>
       </div>

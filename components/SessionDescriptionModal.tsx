@@ -55,7 +55,8 @@ export function SessionDescriptionModal({
     ? (siteConfig.tracks.find((t) => t.slug === session.track)?.name ?? session.track)
     : null;
   // Same redundancy fallback as the agenda board's own pill — see its
-  // comment: Raman Hall's track name is just its hall name.
+  // comment: falls back to the session type if a track's name ever matches
+  // its own hall name.
   const pillLabel = trackName === session.hall ? session.type : trackName;
   const sessionSpeakers = findSpeakers(speakers, session.speakerSlugs);
 

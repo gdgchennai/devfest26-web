@@ -1040,6 +1040,14 @@ html.gpu .hallway-stack {
      it). `clip` gives the identical visual crop without ever becoming a
      scroll target, so there's no scroll position for anything to disturb. */
   overflow: clip;
+  /* The adjacent/far columns otherwise end at a crisp rectangular edge right
+     where the stage clips them — this fades that edge out instead, so a
+     column reads as receding into the background rather than getting cut
+     off. Alpha-only gradient (a mask, not a colour); the build adds the
+     -webkit- prefix to backdrop-filter itself but not to mask-image, so both
+     are written here. */
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 12%, rgba(0, 0, 0, 1) 88%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 12%, rgba(0, 0, 0, 1) 88%, rgba(0, 0, 0, 0) 100%);
 }
 
 /* The left-hand hour ruler (AgendaBoard's `hours` list) — fixed-height rows
@@ -1385,7 +1393,7 @@ html.gpu .agenda-board-card {
   padding: 0;
   cursor: pointer;
   font-family: var(--font-google-sans), sans-serif;
-  font-size: 1.5rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -1394,7 +1402,7 @@ html.gpu .agenda-board-card {
 
 @media (min-width: 640px) {
   .agenda-track-tabs__tab {
-    font-size: 1.875rem;
+    font-size: 1.125rem;
   }
 }
 
