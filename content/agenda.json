@@ -1,650 +1,658 @@
 [
   {
-    "track": "d7-auditorium",
+    "track": null,
     "start": "2026-10-17T08:00:00+05:30",
-    "end": "2026-10-17T09:30:00+05:30",
-    "title": "Welcome Keynote",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "keynote"
+    "end": "2026-10-17T09:00:00+05:30",
+    "title": "Check-in and Badge Collection",
+    "hall": "D7 Pre-Function Area",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T09:30:00+05:30",
-    "end": "2026-10-17T10:00:00+05:30",
-    "title": "General Tech Talk 1",
-    "speakerSlug": null,
+    "start": "2026-10-17T09:00:00+05:30",
+    "end": "2026-10-17T09:15:00+05:30",
+    "title": "Welcome Note",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "keynote",
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T09:30:00+05:30",
-    "end": "2026-10-17T10:15:00+05:30",
-    "title": "Deep Tech Talk 1",
-    "speakerSlug": null,
-    "hall": "D7 Amphitheater",
-    "type": "talk"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T09:30:00+05:30",
-    "end": "2026-10-17T10:00:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 1)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T09:30:00+05:30",
+    "track": "d7-auditorium",
+    "start": "2026-10-17T09:15:00+05:30",
     "end": "2026-10-17T09:45:00+05:30",
-    "title": "Lightning Talk 1",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "title": "Keynote",
+    "hall": "D7 Auditorium",
+    "type": "keynote",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
-    "track": "lightning",
+    "track": "d7-auditorium",
     "start": "2026-10-17T09:45:00+05:30",
-    "end": "2026-10-17T10:00:00+05:30",
-    "title": "Lightning Talk 2",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "end": "2026-10-17T10:15:00+05:30",
+    "title": "Sponsor Talk",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
-    "track": "vibe-coding",
-    "start": "2026-10-17T09:30:00+05:30",
-    "end": "2026-10-17T10:00:00+05:30",
-    "title": "Vibe Coding Challenge 1",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "track": "d7-auditorium",
+    "start": "2026-10-17T10:15:00+05:30",
+    "end": "2026-10-17T10:25:00+05:30",
+    "title": "Sponsor Talk",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T10:25:00+05:30",
+    "end": "2026-10-17T10:35:00+05:30",
+    "title": "Sponsor Talk",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T10:45:00+05:30",
+    "end": "2026-10-17T11:10:00+05:30",
+    "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "aditya-shinde"
+    ],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T10:45:00+05:30",
+    "end": "2026-10-17T11:20:00+05:30",
+    "title": "Can AI Help a City Breathe?",
+    "hall": "D7 Amphitheater",
+    "type": "talk",
+    "speakerSlugs": [
+      "dishant-parakh"
+    ],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
     "track": "creators-lounge",
-    "start": "2026-10-17T09:30:00+05:30",
-    "end": "2026-10-17T10:00:00+05:30",
+    "start": "2026-10-17T10:45:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
     "title": "Creators Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
-  },
-  {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T10:05:00+05:30",
-    "end": "2026-10-17T10:35:00+05:30",
-    "title": "General Tech Talk 2",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "talk"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T10:05:00+05:30",
-    "end": "2026-10-17T10:35:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 2)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T10:05:00+05:30",
-    "end": "2026-10-17T10:20:00+05:30",
-    "title": "Lightning Talk 3",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T10:20:00+05:30",
-    "end": "2026-10-17T10:35:00+05:30",
-    "title": "Lightning Talk 4",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T10:20:00+05:30",
-    "end": "2026-10-17T11:00:00+05:30",
-    "title": "Deep Tech Talk 2",
-    "speakerSlug": null,
-    "hall": "D7 Amphitheater",
-    "type": "talk"
-  },
-  {
-    "track": "vibe-coding",
-    "start": "2026-10-17T10:05:00+05:30",
-    "end": "2026-10-17T10:35:00+05:30",
-    "title": "Vibe Coding Challenge 2",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "meetup-lounge",
-    "start": "2026-10-17T10:05:00+05:30",
-    "end": "2026-10-17T10:35:00+05:30",
+    "start": "2026-10-17T10:45:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
     "title": "Meetup Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
-  },
-  {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T10:35:00+05:30",
-    "end": "2026-10-17T11:00:00+05:30",
-    "title": "General Tech Talk 3",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "talk"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T10:35:00+05:30",
-    "end": "2026-10-17T11:00:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 3)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T10:35:00+05:30",
-    "end": "2026-10-17T10:50:00+05:30",
-    "title": "Lightning Talk 5",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T10:50:00+05:30",
-    "end": "2026-10-17T11:00:00+05:30",
-    "title": "Lightning Talk 6",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "end": "2026-10-17T11:10:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 1)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
     "track": "lightning",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "title": "Lessons from Building an AI Native Product Ground Up",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "rashmi-asokan"
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "vibe-coding",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Vibe Coding Lounge",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
-    "track": "pitchathon",
+    "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "creators-lounge",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "meetup-lounge",
-    "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Workshop: TBD",
+    "hall": "Raman Hall",
+    "type": "workshop",
+    "speakerSlugs": [],
+    "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T11:20:00+05:30",
-    "end": "2026-10-17T11:50:00+05:30",
-    "title": "General Tech Talk 4",
-    "speakerSlug": null,
+    "start": "2026-10-17T11:10:00+05:30",
+    "end": "2026-10-17T11:35:00+05:30",
+    "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "neeraj-pathak"
+    ],
+    "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T11:20:00+05:30",
-    "end": "2026-10-17T12:00:00+05:30",
-    "title": "Deep Tech Talk 3",
-    "speakerSlug": null,
-    "hall": "D7 Amphitheater",
-    "type": "talk"
+    "track": "agent-wars",
+    "start": "2026-10-17T11:10:00+05:30",
+    "end": "2026-10-17T11:20:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 2)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T11:20:00+05:30",
-    "end": "2026-10-17T11:50:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 4)",
-    "speakerSlug": null,
+    "end": "2026-10-17T11:30:00+05:30",
+    "title": "Agent Wars: Live Tournament (Round 3)",
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
     "track": "lightning",
     "start": "2026-10-17T11:20:00+05:30",
     "end": "2026-10-17T11:35:00+05:30",
-    "title": "Lightning Talk 7",
-    "speakerSlug": null,
+    "title": "Rethinking Infrastructure for Agentic Workloads",
     "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "dhanush-kandhan"
+    ],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
-    "track": "lightning",
-    "start": "2026-10-17T11:35:00+05:30",
-    "end": "2026-10-17T11:50:00+05:30",
-    "title": "Lightning Talk 8",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "General Tech Talk 5",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "talk"
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T11:25:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Deep Tech Talk 2",
+    "hall": "D7 Amphitheater",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "agent-wars",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 5)",
-    "speakerSlug": null,
+    "start": "2026-10-17T11:30:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Agent Wars: Live Tournament (Rounds 4-6)",
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:10:00+05:30",
-    "title": "Lightning Talk 9",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "lightning",
-    "start": "2026-10-17T12:10:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Lightning Talk 10",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk"
-  },
-  {
-    "track": "vibe-coding",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Vibe Coding Challenge (Quarter finals and Semis)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "creators-lounge",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Creators Lounge",
-    "speakerSlug": null,
-    "hall": "D7 Pre-Function Area",
-    "type": "lounge"
-  },
-  {
-    "track": "meetup-lounge",
-    "start": "2026-10-17T11:55:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Meetup Lounge",
-    "speakerSlug": null,
-    "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T12:25:00+05:30",
-    "end": "2026-10-17T13:00:00+05:30",
-    "title": "General Tech Talk 6",
-    "speakerSlug": null,
+    "start": "2026-10-17T11:35:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Developing and Using OWASP Nettacker for Security Testing",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "achintya-jai"
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T11:40:00+05:30",
+    "end": "2026-10-17T11:55:00+05:30",
+    "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "aakash-dhakshnamoorthy"
+    ],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
+    "title": "Agentic SRE with Google Cloud: Detect, Diagnose, and Remediate Faster",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "neel-shah"
+    ],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:15:00+05:30",
+    "title": "Lightning Talk 4",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:35:00+05:30",
+    "title": "Vibe Coding Lounge",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+  },
+  {
+    "track": "raman-hall",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T13:00:00+05:30",
+    "title": "Hardware Lab",
+    "hall": "Raman Hall",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
     "track": "d7-amphitheater",
     "start": "2026-10-17T12:05:00+05:30",
-    "end": "2026-10-17T12:45:00+05:30",
-    "title": "Deep Tech Talk 4",
-    "speakerSlug": null,
+    "end": "2026-10-17T12:40:00+05:30",
+    "title": "Deep Tech Talk 3",
     "hall": "D7 Amphitheater",
-    "type": "talk"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T12:25:00+05:30",
-    "end": "2026-10-17T13:00:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 6)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "pitchathon",
-    "start": "2026-10-17T12:25:00+05:30",
-    "end": "2026-10-17T13:00:00+05:30",
-    "title": "Pitchathon (Kickoff)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
     "track": "lightning",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "vibe-coding",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "pitchathon",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "creators-lounge",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "meetup-lounge",
-    "start": "2026-10-17T13:00:00+05:30",
-    "end": "2026-10-17T14:00:00+05:30",
-    "title": "Lunch",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "start": "2026-10-17T12:20:00+05:30",
+    "end": "2026-10-17T12:35:00+05:30",
+    "title": "AI Assisted SREs Are a Thing!",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "imran-roshan"
+    ],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:30:00+05:30",
-    "title": "General Tech Talk 7",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "talk"
+    "start": "2026-10-17T12:30:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T12:35:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T12:35:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
+  },
+  {
+    "track": "creators-lounge",
+    "start": "2026-10-17T12:35:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "meetup-lounge",
+    "start": "2026-10-17T12:35:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-amphitheater",
-    "start": "2026-10-17T14:15:00+05:30",
-    "end": "2026-10-17T15:00:00+05:30",
-    "title": "Deep Tech Talk 5",
-    "speakerSlug": null,
+    "start": "2026-10-17T12:40:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel."
+  },
+  {
+    "track": "raman-hall",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "Workshop: TBD",
+    "hall": "Raman Hall",
+    "type": "workshop",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:25:00+05:30",
+    "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "jeeththenthar-l"
+    ],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:35:00+05:30",
+    "title": "Deep Tech Talk 4",
     "hall": "D7 Amphitheater",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "agent-wars",
     "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T14:20:00+05:30",
     "title": "Agent Wars: Live Tournament (Semi-Finals)",
-    "speakerSlug": null,
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
-    "track": "d7-auditorium",
-    "start": "2026-10-17T14:30:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
-    "title": "General Tech Talk 8",
-    "speakerSlug": null,
-    "hall": "D7 Auditorium",
-    "type": "talk"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T14:30:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
-    "title": "Agent Wars: Live Tournament (Finals)",
-    "speakerSlug": null,
+    "track": "lightning",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:15:00+05:30",
+    "title": "Lightning Talk 6",
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
-  },
-  {
-    "track": "pitchathon",
-    "start": "2026-10-17T14:30:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
-    "title": "Pitchathon (Demos & Closing)",
-    "speakerSlug": null,
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
     "track": "vibe-coding",
-    "start": "2026-10-17T14:30:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
-    "title": "Vibe Coding Challenge (Finals)",
-    "speakerSlug": null,
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
-    "type": "competition"
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
     "track": "creators-lounge",
-    "start": "2026-10-17T14:30:00+05:30",
+    "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Creators Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
     "track": "meetup-lounge",
-    "start": "2026-10-17T14:30:00+05:30",
+    "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
     "title": "Meetup Lounge",
-    "speakerSlug": null,
     "hall": "D7 Pre-Function Area",
-    "type": "lounge"
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T14:20:00+05:30",
+    "end": "2026-10-17T14:50:00+05:30",
+    "title": "Agent Wars: Live Tournament (Finals)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T14:20:00+05:30",
+    "end": "2026-10-17T14:35:00+05:30",
+    "title": "Lightning Talk 7",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T14:25:00+05:30",
+    "end": "2026-10-17T14:50:00+05:30",
+    "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "dinoy-raj"
+    ],
+    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
+  },
+  {
+    "track": "raman-hall",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:00:00+05:30",
+    "title": "Pitchathon: TBD",
+    "hall": "Raman Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T14:40:00+05:30",
+    "end": "2026-10-17T16:15:00+05:30",
+    "title": "Deep Tech Workshop: Machine Learning the Physical World",
+    "hall": "D7 Amphitheater",
+    "type": "workshop",
+    "speakerSlugs": [
+      "ayana-ghosh"
+    ],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T14:40:00+05:30",
+    "end": "2026-10-17T14:55:00+05:30",
+    "title": "Local AI: The Google Gemma Edition",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "gokulbarath"
+    ],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T14:50:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "bhargav-patel"
+    ],
+    "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T15:00:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "shangeeth-sivan-adiyapatham"
+    ],
+    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T15:15:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "General Tech Talk 9",
-    "speakerSlug": null,
+    "end": "2026-10-17T15:40:00+05:30",
+    "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
     "hall": "D7 Auditorium",
-    "type": "talk"
+    "type": "talk",
+    "speakerSlugs": [
+      "srushti-raybhoge"
+    ],
+    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering."
   },
   {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T15:05:00+05:30",
-    "end": "2026-10-17T15:45:00+05:30",
-    "title": "Deep Tech Talk 6",
-    "speakerSlug": null,
-    "hall": "D7 Amphitheater",
-    "type": "talk"
+    "track": "lightning",
+    "start": "2026-10-17T15:20:00+05:30",
+    "end": "2026-10-17T15:35:00+05:30",
+    "title": "Lightning Talk 10",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "d7-amphitheater",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "agent-wars",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "start": "2026-10-17T15:40:00+05:30",
+    "end": "2026-10-17T16:05:00+05:30",
+    "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "speakerSlugs": [
+      "saurabh-mishra"
+    ],
+    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
   },
   {
     "track": "lightning",
     "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "vibe-coding",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "pitchathon",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "creators-lounge",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
-  },
-  {
-    "track": "meetup-lounge",
-    "start": "2026-10-17T15:45:00+05:30",
-    "end": "2026-10-17T16:00:00+05:30",
-    "title": "Break",
-    "speakerSlug": null,
-    "hall": "F&B",
-    "type": "break"
+    "end": "2026-10-17T16:15:00+05:30",
+    "title": "Lightning Talk: TBD",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [],
+    "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
     "track": "d7-auditorium",
-    "start": "2026-10-17T16:00:00+05:30",
+    "start": "2026-10-17T16:05:00+05:30",
     "end": "2026-10-17T16:30:00+05:30",
-    "title": "Panel (Creators & Product Builders)",
-    "speakerSlug": null,
+    "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
     "hall": "D7 Auditorium",
-    "type": "panel"
+    "type": "talk",
+    "speakerSlugs": [
+      "varun-poladiya"
+    ],
+    "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
+  },
+  {
+    "track": "d7-auditorium",
+    "start": "2026-10-17T16:30:00+05:30",
+    "end": "2026-10-17T17:00:00+05:30",
+    "title": "Quick Break",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel."
+  },
+  {
+    "track": "d7-amphitheater",
+    "start": "2026-10-17T16:30:00+05:30",
+    "end": "2026-10-17T17:00:00+05:30",
+    "title": "Quick Break",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
+  },
+  {
+    "track": "agent-wars",
+    "start": "2026-10-17T16:30:00+05:30",
+    "end": "2026-10-17T17:00:00+05:30",
+    "title": "Quick Break",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
+  },
+  {
+    "track": "lightning",
+    "start": "2026-10-17T16:30:00+05:30",
+    "end": "2026-10-17T17:00:00+05:30",
+    "title": "Quick Break",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+  },
+  {
+    "track": "vibe-coding",
+    "start": "2026-10-17T16:30:00+05:30",
+    "end": "2026-10-17T17:00:00+05:30",
+    "title": "Quick Break",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
     "track": "d7-auditorium",
     "start": "2026-10-17T17:00:00+05:30",
     "end": "2026-10-17T17:30:00+05:30",
-    "title": "Closing Ceremony",
-    "speakerSlug": null,
+    "title": "Closing Note",
     "hall": "D7 Auditorium",
-    "type": "keynote"
+    "type": "keynote",
+    "speakerSlugs": [],
+    "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions."
   }
 ]

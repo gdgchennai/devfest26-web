@@ -9,20 +9,21 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import type { AgendaSession } from "@/lib/schemas";
 import type { Track } from "@/site.config";
-import { formatSessionTime, sessionHour } from "@/lib/format";
+import { formatHourLabel, formatSessionTime, sessionHour } from "@/lib/format";
 import { trackColor } from "@/lib/track-color";
 import { useNow } from "@/lib/useNow";
-import { findSpeaker } from "@/lib/find-speaker";
+import { findSpeakers } from "@/lib/find-speaker";
 import type { Speaker } from "@/lib/schemas";
 import { Frame } from "@/components/Frame";
 import { GlowButton } from "@/components/GlowButton";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { SessionDescriptionModal } from "@/components/SessionDescriptionModal";
 import { AgendaTrackTabs } from "@/components/AgendaTrackTabs";
 import { useTrackSwipe } from "@/lib/useTrackSwipe";
-import { floorNameForTrack } from "@/lib/agenda-floors";
 import { siteConfig, uiCopy } from "@/site.config";
 
 /**
@@ -66,12 +67,14 @@ function buildTimeline(sessions: AgendaSession[]): TimelineItem[] {
 function defaultTrackSlug(sessions: AgendaSession[], tracks: Track[], now: Date | null): string {
   if (tracks.length === 0) return "";
   if (now) {
-    const current = sessions.find((s) => now >= new Date(s.start) && now <= new Date(s.end));
-    if (current) return current.track;
+    const current = sessions.find(
+      (s) => s.track !== null && now >= new Date(s.start) && now <= new Date(s.end),
+    );
+    if (current) return current.track!;
     const next = [...sessions]
-      .filter((s) => new Date(s.start) > now)
+      .filter((s) => s.track !== null && new Date(s.start) > now)
       .sort((a, b) => a.start.localeCompare(b.start))[0];
-    if (next) return next.track;
+    if (next) return next.track!;
   }
   return tracks[0].slug;
 }
@@ -116,6 +119,7 @@ export function AgendaBoard({
   activeTrack,
   onSelectTrack,
 }: {
+  /** `tracks` is every track, already in floor order (see AgendaView). */
   sessions: AgendaSession[];
   speakers: Speaker[];
   tracks: Track[];
@@ -127,8 +131,34 @@ export function AgendaBoard({
     ? activeTrack
     : defaultTrackSlug(sessions, tracks, now);
   const activeIndex = Math.max(0, tracks.findIndex((t) => t.slug === resolvedTrack));
+  const goToTrack = (index: number) => {
+    const target = tracks[index];
+    if (!target) return;
+    onSelectTrack(target.slug);
+  };
   const [focusedSession, setFocusedSession] = useState<AgendaSession | null>(null);
+  // The session whose title was clicked — rendered as a popup below. Separate
+  // from `focusedSession` (which tracks whatever's centred on scroll): a far
+  // or adjacent card's title can't be clicked, only the focused one's, but
+  // the modal itself should stay open on whatever it was opened for even if
+  // the board keeps scrolling behind it.
+  const [descriptionSession, setDescriptionSession] = useState<AgendaSession | null>(null);
   const columnRefs = useRef<Array<TrackColumnHandle | null>>([]);
+  // Keeps every background column moving in step with whichever column is
+  // active, instead of each catching up afterwards on its own — see the
+  // comment on TrackColumn's own scroll listener. Setting scrollTop
+  // imperatively here, outside React state, is deliberate: a column with
+  // fewer sessions just clamps at its own scroll bounds once it runs out —
+  // doing nothing more is exactly the "ok not to scroll" behaviour asked for.
+  const syncBackgroundScroll = useCallback(
+    (isoTime: string) => {
+      columnRefs.current.forEach((column, i) => {
+        if (i !== activeIndex) column?.goToTime(isoTime, "auto");
+      });
+    },
+    [activeIndex],
+  );
+
   const boardRef = useRef<HTMLDivElement>(null);
 
   // Swipes and horizontal trackpad scrolls step between tracks — over the tab
@@ -146,7 +176,9 @@ export function AgendaBoard({
   const byTrack = useMemo(() => {
     const map = new Map<string, TimelineItem[]>();
     for (const t of tracks) {
-      map.set(t.slug, buildTimeline(sessions.filter((s) => s.track === t.slug)));
+      // A null track is a venue-wide session (e.g. check-in): it has no column
+      // of its own, so it's folded into every track's timeline instead.
+      map.set(t.slug, buildTimeline(sessions.filter((s) => s.track === null || s.track === t.slug)));
     }
     return map;
   }, [sessions, tracks]);
@@ -164,6 +196,73 @@ export function AgendaBoard({
   const focusedSessionPos = focusedSession
     ? activeSessions.findIndex((it) => it.key === `${focusedSession.start}-${focusedSession.hall}`)
     : -1;
+
+  // The start time of whichever session immediately follows each hour
+  // divider — what clicking or dragging to that row on the ruler jumps to.
+  // Plain arrays/functions, not memoized: `activeItems` is itself a fresh
+  // array every render (it's a .filter() of `byTrack`, not memoized either),
+  // so memoizing off it would never actually hit a cache.
+  const hourTimes: string[] = [];
+  activeItems.forEach((it, idx) => {
+    if (it.kind !== "divider") return;
+    const next = activeItems
+      .slice(idx + 1)
+      .find((x): x is Extract<TimelineItem, { kind: "session" }> => x.kind === "session");
+    hourTimes.push(next?.session.start ?? "");
+  });
+
+  const goToHourIndex = (index: number, behavior: ScrollBehavior) => {
+    const time = hourTimes[index];
+    if (!time) return;
+    columnRefs.current[activeIndex]?.goToTime(time, behavior);
+  };
+
+  // Dragging the ruler scrubs through the active track's own hours — one row
+  // of drag per hour, same unit the ruler's own translateY already moves in.
+  // Instant ("auto") while the pointer is down so it tracks the finger/cursor
+  // directly; the background columns and the ruler's own highlighted row both
+  // follow for free, since this lands on a real session the same way the
+  // up/down nav buttons do.
+  //
+  // Pointer capture only starts once the pointer has actually moved past a
+  // small threshold, not on the raw pointerdown — capturing immediately
+  // would swallow the subsequent pointerup/click on whichever <button> mark
+  // the gesture started on, so a plain click could never land. Below the
+  // threshold this stays a no-op and the button's own click handles it.
+  const DRAG_THRESHOLD_PX = 4;
+  const rulerDrag = useRef<{
+    pointerId: number;
+    startY: number;
+    startIndex: number;
+    rowPx: number;
+    dragging: boolean;
+  } | null>(null);
+
+  const handleRulerPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (hours.length === 0) return;
+    const rowPx = e.currentTarget.querySelector(".agenda-board-ruler__mark")?.getBoundingClientRect().height;
+    if (!rowPx) return;
+    rulerDrag.current = { pointerId: e.pointerId, startY: e.clientY, startIndex: focusedHourIndex, rowPx, dragging: false };
+  };
+
+  const handleRulerPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = rulerDrag.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    if (!drag.dragging) {
+      if (Math.abs(e.clientY - drag.startY) < DRAG_THRESHOLD_PX) return;
+      drag.dragging = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    // Dragging UP moves forward in time — it pulls later rows up into the
+    // centre, the same direction the ruler's own translateY moves them.
+    const deltaIndex = Math.round((drag.startY - e.clientY) / drag.rowPx);
+    const index = Math.min(Math.max(drag.startIndex + deltaIndex, 0), hours.length - 1);
+    goToHourIndex(index, "auto");
+  };
+
+  const endRulerDrag = () => {
+    rulerDrag.current = null;
+  };
 
   return (
     <div ref={boardRef} className="agenda-track-swipe mt-8">
@@ -187,18 +286,32 @@ export function AgendaBoard({
         aria-labelledby={`agenda-board-tab-${activeIndex}`}
         className="mt-6 flex items-stretch justify-center gap-2 sm:gap-6"
       >
-        <div className="agenda-board-ruler hidden sm:block" aria-hidden>
+        <div
+          className="agenda-board-ruler agenda-board-ruler--interactive hidden sm:block"
+          onPointerDown={handleRulerPointerDown}
+          onPointerMove={handleRulerPointerMove}
+          onPointerUp={endRulerDrag}
+          onPointerCancel={endRulerDrag}
+        >
           <div
             className="agenda-board-ruler__track"
             style={{ transform: `translateY(calc(-1 * (${focusedHourIndex} + 0.5) * var(--ruler-row-h)))` }}
           >
-            {hours.map((h) => (
-              <span
+            {hours.map((h, i) => (
+              <button
                 key={h.key}
+                type="button"
+                onClick={() => goToHourIndex(i, "smooth")}
+                // Keeping focus off this button on a pointer click (keyboard
+                // activation still focuses it normally) is what stops the
+                // browser's own "scroll the newly focused element into view"
+                // from dragging the whole PAGE — see the long comment on
+                // centerCardInContainer for the same failure mode elsewhere.
+                onMouseDown={(e) => e.preventDefault()}
                 className={`agenda-board-ruler__mark ${h.hour === focusedHour ? "agenda-board-ruler__mark--active" : ""}`}
               >
-                {h.hour}:00
-              </span>
+                {formatHourLabel(h.hour)}
+              </button>
             ))}
           </div>
         </div>
@@ -217,6 +330,8 @@ export function AgendaBoard({
               syncTime={focusedSession?.start ?? null}
               speakers={speakers}
               onFocusChange={setFocusedSession}
+              onActiveScroll={syncBackgroundScroll}
+              onTitleClick={setDescriptionSession}
             />
           ))}
         </div>
@@ -242,11 +357,44 @@ export function AgendaBoard({
           </GlowButton>
         </div>
       </div>
+
+      <div className="mt-6 flex items-center justify-center gap-4">
+        <GlowButton
+          shape="circle"
+          size="sm"
+          onClick={() => goToTrack(activeIndex - 1)}
+          disabled={activeIndex <= 0}
+        >
+          <span className="sr-only">{uiCopy.agendaBoard.previousTrackSr}</span>
+          <ChevronIcon direction="left" />
+        </GlowButton>
+        <GlowButton
+          shape="circle"
+          size="sm"
+          onClick={() => goToTrack(activeIndex + 1)}
+          disabled={activeIndex >= tracks.length - 1}
+        >
+          <span className="sr-only">{uiCopy.agendaBoard.nextTrackSr}</span>
+          <ChevronIcon direction="right" />
+        </GlowButton>
+      </div>
+
+      <SessionDescriptionModal
+        session={descriptionSession}
+        speakers={speakers}
+        onClose={() => setDescriptionSession(null)}
+      />
     </div>
   );
 }
 
-type TrackColumnHandle = { goTo: (delta: number) => void };
+type TrackColumnHandle = {
+  goTo: (delta: number) => void;
+  /** Centres this column on whichever of its own sessions sits closest to
+   *  `isoTime`, in the given scroll behavior — `"auto"` (instant) for the
+   *  background sync and the ruler's live drag, `"smooth"` for a click. */
+  goToTime: (isoTime: string, behavior?: ScrollBehavior) => void;
+};
 
 /** The session in `items` whose start is closest to `targetIso` — used to
  *  keep the blurred background columns pointed at roughly "the same time" as
@@ -299,8 +447,14 @@ const TrackColumn = forwardRef<
     syncTime: string | null;
     speakers: Speaker[];
     onFocusChange: (session: AgendaSession | null) => void;
+    /** Only called while `active`: reports the start time of whichever of
+     *  this column's own sessions is nearest its centre right now, so every
+     *  other column can centre on the same moment. */
+    onActiveScroll: (isoTime: string) => void;
+    /** The focused card's title was clicked — open the description popup. */
+    onTitleClick: (session: AgendaSession) => void;
   }
->(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange }, ref) {
+>(function TrackColumn({ items, offset, active, now, syncTime, speakers, onFocusChange, onActiveScroll, onTitleClick }, ref) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const depthRafRef = useRef(0);
@@ -337,6 +491,35 @@ const TrackColumn = forwardRef<
       card.style.setProperty("--t", t.toFixed(3));
     });
   }, []);
+
+  // The session (among `items`) whose card centre sits closest to the
+  // container's own centre right now — found by measuring the DOM directly
+  // rather than waiting on the IntersectionObserver below, which only
+  // settles once scrolling stops. Querying on every scroll event is cheap
+  // enough at this list size (a few dozen cards at most).
+  const centeredSessionTime = useCallback(
+    (container: HTMLElement) => {
+      const keyed = new Map(
+        items
+          .filter((it): it is Extract<TimelineItem, { kind: "session" }> => it.kind === "session")
+          .map((it) => [it.key, it]),
+      );
+      const center = container.scrollTop + container.clientHeight / 2;
+      let best: string | null = null;
+      let bestDist = Infinity;
+      container.querySelectorAll<HTMLElement>(".agenda-board-card[data-key]").forEach((el) => {
+        const item = keyed.get(el.dataset.key ?? "");
+        if (!item) return;
+        const dist = Math.abs(el.offsetTop + el.offsetHeight / 2 - center);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = item.session.start;
+        }
+      });
+      return best;
+    },
+    [items],
+  );
 
   // Read inside the activation effect below without adding syncTime to its
   // dependency array — that effect should only re-pick a target when this
@@ -391,6 +574,10 @@ const TrackColumn = forwardRef<
       requestAnimationFrame(() => {
         const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
         if (el) centerCardInContainer(container, el, "auto");
+        // Puts every background column at roughly the same position right
+        // away, rather than leaving them wherever they last loaded until the
+        // visitor's first scroll — the live listener below takes over from here.
+        onActiveScroll(target.session.start);
         // The scroll nothing was pointing anywhere until the frame above, so
         // place the depths against where it just landed — otherwise the new
         // column paints one frame with every card at full size before the
@@ -437,21 +624,28 @@ const TrackColumn = forwardRef<
     };
   }, [active, items, applyCardDepths]);
 
-  // The blurred background columns aren't scrolled by the visitor, but they
-  // shouldn't just sit frozen on whichever session they first loaded either —
-  // as the active column's focus moves (scroll, or the up/down nav buttons),
-  // each background column scrolls its own timeline to whichever of its own
-  // sessions sits closest to that same time, so the whole stage reads as one
-  // synchronised wall of tracks rather than three independent lists.
+  // The blurred background columns aren't scrolled by the visitor, so they'd
+  // otherwise just sit frozen wherever they last landed. Instead, while this
+  // column is active, every scroll event — whether a touch/wheel drag or a
+  // `goTo` button's smooth `scrollTo`, which also fires `scroll` continuously
+  // as it animates — re-centres every other column, in the same frame, on
+  // whichever of ITS OWN sessions is closest to the same moment this column
+  // is now centred on. That's what keeps the whole stage moving as one
+  // synchronised wall of tracks instead of each one catching up afterwards on
+  // its own timing. A column with fewer sessions simply stops moving once
+  // it's already centred on its closest match — it's fine for it to settle
+  // before the others do.
   useEffect(() => {
-    if (active || !syncTime) return;
+    if (!active) return;
     const container = scrollRef.current;
     if (!container) return;
-    const target = closestSessionByTime(items, syncTime);
-    if (!target) return;
-    const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
-    if (el) centerCardInContainer(container, el, "smooth");
-  }, [active, syncTime, items]);
+    const handleScroll = () => {
+      const time = centeredSessionTime(container);
+      if (time) onActiveScroll(time);
+    };
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [active, onActiveScroll, centeredSessionTime]);
 
   const focusedIndex = items.findIndex((it) => it.key === focusedKey);
 
@@ -480,7 +674,19 @@ const TrackColumn = forwardRef<
     [focusedSessionPos, sessionItems],
   );
 
-  useImperativeHandle(ref, () => ({ goTo }), [goTo]);
+  const goToTime = useCallback(
+    (isoTime: string, behavior: ScrollBehavior = "auto") => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const target = closestSessionByTime(items, isoTime);
+      if (!target) return;
+      const el = container.querySelector<HTMLElement>(`[data-key="${target.key}"]`);
+      if (el) centerCardInContainer(container, el, behavior);
+    },
+    [items],
+  );
+
+  useImperativeHandle(ref, () => ({ goTo, goToTime }), [goTo, goToTime]);
 
   return (
     <div
@@ -494,7 +700,7 @@ const TrackColumn = forwardRef<
           if (item.kind === "divider") {
             return (
               <div key={item.key} className="agenda-board-hour">
-                {item.hour}:00
+                {formatHourLabel(item.hour)}
               </div>
             );
           }
@@ -511,6 +717,7 @@ const TrackColumn = forwardRef<
               distance={active ? distance : 0}
               isNow={isNow}
               speakers={speakers}
+              onTitleClick={onTitleClick}
             />
           );
         })}
@@ -520,11 +727,18 @@ const TrackColumn = forwardRef<
   );
 });
 
-function ChevronIcon({ direction }: { direction: "up" | "down" }) {
+const CHEVRON_PATHS = {
+  up: "M6 15l6-6 6 6",
+  down: "M6 9l6 6 6-6",
+  left: "M15 6l-6 6 6 6",
+  right: "M9 6l6 6-6 6",
+} as const;
+
+function ChevronIcon({ direction }: { direction: keyof typeof CHEVRON_PATHS }) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
       <path
-        d={direction === "up" ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6"}
+        d={CHEVRON_PATHS[direction]}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -540,12 +754,14 @@ function SessionCard({
   distance,
   isNow,
   speakers,
+  onTitleClick,
 }: {
   session: AgendaSession;
   dataKey: string;
   distance: number;
   isNow: boolean;
   speakers: Speaker[];
+  onTitleClick: (session: AgendaSession) => void;
 }) {
   const abs = Math.abs(distance);
 
@@ -574,15 +790,27 @@ function SessionCard({
   }
 
   const color = trackColor(session.track);
-  const speaker = findSpeaker(speakers, session.speakerSlug);
+  const sessionSpeakers = findSpeakers(speakers, session.speakerSlugs);
+  const trackName = session.track ? (siteConfig.tracks.find((t) => t.slug === session.track)?.name ?? session.track) : null;
+  // If a track's own name ever matches its hall name, showing both the pill
+  // and the hall label in the corner would be the same word twice — the
+  // session's type (workshop, talk, competition) is a more useful pill in
+  // that case, so that's the one case this falls back to it.
+  const pillLabel = trackName === session.hall ? session.type : trackName;
+  // Ceremonial/administrative slots (check-in, meals, breaks, the welcome
+  // note, the keynote, closing) aren't really "on" a track — no pill for
+  // those, in any hall.
+  const showPill = trackName !== null && session.type !== "break" && session.type !== "keynote";
 
   return (
     <div className="agenda-board-card agenda-board-card--focused" data-key={dataKey}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-ink ${color.bg}`}>
-            {session.type}
-          </span>
+          {showPill && (
+            <span className={`rounded-full px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-ink ${color.bg}`}>
+              {pillLabel}
+            </span>
+          )}
           {isNow && (
             <span className="flex items-center gap-1.5 text-[0.6875rem] uppercase tracking-wide text-paper/70">
               <span className="agenda-board-live-dot" aria-hidden />
@@ -603,37 +831,42 @@ function SessionCard({
         </span>
       </div>
 
-      <p className="mt-4 text-2xl font-semibold leading-tight sm:text-3xl">{session.title}</p>
-
-      {session.description && <p className="mt-3 max-w-md text-sm text-paper/70">{session.description}</p>}
+      <button
+        type="button"
+        onClick={() => onTitleClick(session)}
+        className="mt-4 block text-left text-base font-semibold leading-tight underline-offset-4 hover:underline sm:text-lg"
+      >
+        {session.title}
+      </button>
 
       <div className="mt-5 flex items-center justify-between gap-3">
-        {speaker ? (
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
-              <Frame
-                src={speaker.photo}
-                alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
-                title={speaker.name}
-                aspectRatio="1 / 1"
-                sizes="36px"
-              />
-            </div>
-            <span className="truncate text-sm text-paper/80">{speaker.name}</span>
+        {sessionSpeakers.length > 0 ? (
+          // Overlapping stack for 2-3 co-presenters — each ring punches a gap
+          // back to the card's own background through the overlap, so it
+          // still reads as separate portraits instead of one blob. Names
+          // aren't shown here — clicking the title opens the description
+          // modal, which names each speaker next to their own portrait.
+          <div className="flex shrink-0">
+            {sessionSpeakers.map((speaker, i) => (
+              <div
+                key={speaker.slug}
+                className={`h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-ink ${i > 0 ? "-ml-3" : ""}`}
+              >
+                <Frame
+                  src={speaker.photo}
+                  alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
+                  title={speaker.name}
+                  aspectRatio="1 / 1"
+                  sizes="36px"
+                />
+              </div>
+            ))}
           </div>
         ) : (
           <span />
         )}
         <div className="flex items-center gap-3">
-          {/* Floor first, then hall: "D block 7th floor · D7 Auditorium".
-              The floor comes from the session's track (lib/agenda-floors),
-              not the hall string — halls like "F&B" belong to no floor of
-              their own, but their sessions still run on a track that does. */}
-          <span className="text-xs uppercase tracking-wide text-paper/50">
-            {[floorNameForTrack(siteConfig.floors, session.track), session.hall]
-              .filter((part): part is string => part !== null)
-              .join(" · ")}
-          </span>
+          <span className="text-xs uppercase tracking-wide text-paper/50">{session.hall}</span>
           {session.type !== "break" && <FavoriteButton session={session} />}
         </div>
       </div>

@@ -111,6 +111,7 @@ export function AgendaView({
   return (
     <AgendaTrackList
       sessions={sessions}
+      speakers={speakers}
       tracks={orderedTracks}
       activeTrack={activeTrack}
       onSelectTrack={selectTrack}
@@ -124,11 +125,13 @@ export function AgendaView({
  *  listener's hook order never depends on which variant is showing. */
 function AgendaTrackList({
   sessions,
+  speakers,
   tracks,
   activeTrack,
   onSelectTrack,
 }: {
   sessions: AgendaSession[];
+  speakers: Speaker[];
   tracks: Track[];
   activeTrack: string;
   onSelectTrack: (slug: string) => void;
@@ -144,7 +147,8 @@ function AgendaTrackList({
     onStep: (direction) => onSelectTrack(tabOptions[activeIndex + direction].slug),
   });
 
-  const filtered = activeTrack === ALL_TRACKS ? sessions : sessions.filter((s) => s.track === activeTrack);
+  const filtered =
+    activeTrack === ALL_TRACKS ? sessions : sessions.filter((s) => s.track === null || s.track === activeTrack);
 
   // The swipe surface wraps the tabs AND the list: a horizontal drag over
   // either switches track (over the tabs it must not scroll the strip
@@ -167,7 +171,7 @@ function AgendaTrackList({
         aria-labelledby={`agenda-track-tab-${activeIndex}`}
         className="mt-6"
       >
-        <AgendaList sessions={filtered} showFavorite />
+        <AgendaList sessions={filtered} speakers={speakers} showFavorite />
       </div>
     </div>
   );

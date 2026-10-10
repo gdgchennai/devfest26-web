@@ -6,17 +6,23 @@ export const trackSlugSchema = z.enum([
   "agent-wars",
   "lightning",
   "vibe-coding",
+  "raman-hall",
   "pitchathon",
   "creators-lounge",
   "meetup-lounge",
 ]);
 
 export const agendaSessionSchema = z.object({
-  track: trackSlugSchema,
+  /** Null for venue-wide sessions (e.g. check-in) that belong to no single
+   *  track — shown on every track's timeline, but only once in the flat list. */
+  track: trackSlugSchema.nullable(),
   start: z.iso.datetime({ offset: true }),
   end: z.iso.datetime({ offset: true }),
   title: z.string().min(1),
-  speakerSlug: z.string().min(1).nullable(),
+  /** Usually one speaker, occasionally two or three for a co-presented talk —
+   *  always an array, empty when the session has no speaker (breaks, the
+   *  keynote before it's announced, etc.). */
+  speakerSlugs: z.array(z.string().min(1)),
   hall: z.string().min(1),
   type: z.enum(["talk", "workshop", "competition", "lounge", "keynote", "break", "panel"]),
   /** Shown as the abstract on the spatial agenda board's spotlight card.
