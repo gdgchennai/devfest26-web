@@ -32,6 +32,12 @@ const PALETTE: Record<string, TrackPalette> = {
     border: "border-blue-halftone",
     cssVar: "var(--blue-halftone)",
   },
+  pitchathon: {
+    text: "text-yellow-halftone",
+    bg: "bg-yellow-halftone",
+    border: "border-yellow-halftone",
+    cssVar: "var(--yellow-halftone)",
+  },
   "creators-lounge": {
     text: "text-green-halftone",
     bg: "bg-green-halftone",

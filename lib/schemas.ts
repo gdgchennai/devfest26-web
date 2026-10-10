@@ -7,6 +7,7 @@ export const trackSlugSchema = z.enum([
   "lightning",
   "vibe-coding",
   "raman-hall",
+  "pitchathon",
   "creators-lounge",
   "meetup-lounge",
 ]);

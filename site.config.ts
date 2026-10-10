@@ -309,13 +309,14 @@ export const siteConfig = {
     },
   ] satisfies Track[],
 
-  // Which tracks run on which floor, in display order. The agenda's floor
-  // selector reads this; every track slug above should appear exactly once.
+  // Which tracks run on which floor, in display order. The agenda reads this
+  // to order its tabs floor by floor and to label each session's floor next
+  // to its hall; every track slug above should appear exactly once.
   floors: [
     {
       slug: "d7",
       name: "D block 7th floor",
-      tracks: ["d7-auditorium", "d7-amphitheater", "creators-lounge", "meetup-lounge"],
+      tracks: ["d7-auditorium", "d7-amphitheater", "creators-lounge", "meetup-lounge", "pitchathon"],
     },
     {
       slug: "d6",
@@ -719,10 +720,9 @@ export const uiCopy = {
 
   agendaView: {
     allTracksLabel: "All",
-    allFloorsLabel: "All",
-    floorLabel: "Floor",
-    trackLabel: "Track",
-    simpleViewLabel: "Simple view",
+    /** The name of the track tab strip itself, for screen readers — the tabs
+        are a real ARIA tablist (see components/AgendaTrackTabs.tsx). */
+    tracksAriaLabel: "Agenda tracks",
   },
 
   ticketSelector: {
