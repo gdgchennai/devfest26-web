@@ -538,13 +538,38 @@ const TrackColumn = forwardRef<
     const container = scrollRef.current;
     if (!container) return;
 
+    // A short card (e.g. Lunch, wedged between two full talks) can still
+    // share the centre band with a taller neighbour once scrolled there —
+    // `entries` only reports WHICH cards' intersection state just changed,
+    // so naively taking "whichever changed last" landed focus one card off
+    // from wherever the scroll had actually settled. Tracking every
+    // currently-intersecting key and picking whichever is nearest the
+    // container's own centre (same distance check `centeredSessionTime`
+    // already uses for the background columns) is what actually matches
+    // the centred card.
+    const intersecting = new Set<string>();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setFocusedKey((entry.target as HTMLElement).dataset.key ?? null);
-          }
+          const key = (entry.target as HTMLElement).dataset.key;
+          if (!key) continue;
+          if (entry.isIntersecting) intersecting.add(key);
+          else intersecting.delete(key);
         }
+        if (intersecting.size === 0) return;
+        const mid = container.scrollTop + container.clientHeight / 2;
+        let best: string | null = null;
+        let bestDist = Infinity;
+        intersecting.forEach((key) => {
+          const el = container.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`);
+          if (!el) return;
+          const dist = Math.abs(el.offsetTop + el.offsetHeight / 2 - mid);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = key;
+          }
+        });
+        if (best) setFocusedKey(best);
       },
       { root: container, rootMargin: "-42% 0px -42% 0px", threshold: 0 },
     );

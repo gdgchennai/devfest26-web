@@ -333,7 +333,7 @@
       "linkedin": null,
       "github": null
     },
-    "talkIds": []
+    "talkIds": ["deep-tech-talk-3"]
   },
   {
     "slug": "nimeshika",
@@ -342,6 +342,48 @@
     "company": "MediSimVR",
     "bio": "",
     "photo": "/people/nimeshika.webp",
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talkIds": ["deep-tech-talk-5"]
+  },
+  {
+    "slug": "pulkit-verma",
+    "name": "Pulkit Verma",
+    "title": "Speaker",
+    "company": "TBD",
+    "bio": "",
+    "photo": "/people/pulkit-verma.webp",
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talkIds": ["deep-tech-talk-2"]
+  },
+  {
+    "slug": "natarajan",
+    "name": "Dr Natarajan",
+    "title": "Speaker",
+    "company": "TBD",
+    "bio": "",
+    "photo": "/people/natarajan.webp",
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talkIds": ["deep-tech-talk-4"]
+  },
+  {
+    "slug": "gokulakrishnan-l",
+    "name": "Gokulakrishnan L",
+    "title": "Speaker",
+    "company": "TBD",
+    "bio": "",
+    "photo": "/people/gokulakrishnan-l.webp",
     "links": {
       "twitter": null,
       "linkedin": null,
