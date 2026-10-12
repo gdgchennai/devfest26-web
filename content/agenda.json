@@ -318,7 +318,8 @@
     "title": "Building Privacy-First Edge AI with Gemma 4: Lessons from Winning a Google Build with AI Hackathon",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": ["gokulakrishnan-l"]
+    "speakerSlugs": ["gokulakrishnan-l"],
+    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations."
   },
   {
     "id": "lunch-2",
