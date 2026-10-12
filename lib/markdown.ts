@@ -14,8 +14,8 @@ import { AGENDA_READY, siteRoutes, unlistedPublicRoutes } from "@/lib/routes";
 import { absoluteUrl } from "@/lib/seo";
 import { partnership, ASSET_PENDING } from "@/lib/partnership";
 import { creators } from "@/lib/creators";
-import type { Speaker } from "@/lib/schemas";
-import { findSpeakers, joinSpeakerNames } from "@/lib/find-speaker";
+import type { AgendaSession, Speaker } from "@/lib/schemas";
+import { findSpeakers, findTalksForSpeaker, joinSpeakerNames } from "@/lib/find-speaker";
 
 /** Direct `/md/*` URLs must not compete with the HTML canonical in Google. */
 export function markdownResponse(body: string, canonicalPath: string, status = 200) {
@@ -102,13 +102,14 @@ export async function agendaMarkdown(): Promise<string> {
   return lines.join("\n").trimEnd() + "\n";
 }
 
-function speakerSummary(speaker: Speaker): string {
-  const talk = speaker.talk ? ` — speaking on "${speaker.talk.title}"` : "";
+function speakerSummary(speaker: Speaker, agenda: AgendaSession[]): string {
+  const firstTalk = findTalksForSpeaker(agenda, speaker)[0];
+  const talk = firstTalk ? ` — speaking on "${firstTalk.title}"` : "";
   return `- [${speaker.name}](${siteConfig.url}/speakers/${speaker.slug}), ${speaker.title} at ${speaker.company}${talk}`;
 }
 
 export async function speakersMarkdown(): Promise<string> {
-  const speakers = await getSpeakers();
+  const [speakers, agenda] = await Promise.all([getSpeakers(), getAgenda()]);
   const lines = [frontMatter(`Speakers — ${siteConfig.name}`)];
   if (!AGENDA_READY || speakers.length === 0) {
     lines.push(
@@ -117,7 +118,7 @@ export async function speakersMarkdown(): Promise<string> {
       `Call for proposals: ${siteConfig.cfp.formUrl}`,
     );
   } else {
-    lines.push(...speakers.map(speakerSummary));
+    lines.push(...speakers.map((speaker) => speakerSummary(speaker, agenda)));
   }
   return lines.join("\n") + "\n";
 }
@@ -125,6 +126,8 @@ export async function speakersMarkdown(): Promise<string> {
 export async function speakerMarkdown(slug: string): Promise<string | undefined> {
   const speaker = await getSpeaker(slug);
   if (!speaker) return undefined;
+  const agenda = await getAgenda();
+  const talks = findTalksForSpeaker(agenda, speaker);
 
   const lines = [
     frontMatter(speaker.name),
@@ -133,8 +136,8 @@ export async function speakerMarkdown(slug: string): Promise<string | undefined>
     speaker.bio,
   ];
 
-  if (speaker.talk) {
-    lines.push("", `## Talk: ${speaker.talk.title}`, "", speaker.talk.abstract, "", `Track: ${speaker.talk.track}`);
+  for (const talk of talks) {
+    lines.push("", `## Talk: ${talk.title}`, "", talk.description ?? "", "", `Track: ${talk.track}`);
   }
 
   const links = Object.entries(speaker.links).filter(([, url]) => url);

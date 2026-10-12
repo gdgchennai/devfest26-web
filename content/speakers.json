@@ -1,5 +1,35 @@
 [
   {
+    "slug": "swaathi-kakarla",
+    "name": "Swaathi Kakarla",
+    "title": "Founder & CTO",
+    "company": "Skcript",
+    "bio": "Swaathi Kakarla is a tech founder, expert software architect, and Board Member & Fellow at Skcript. A prolific programmer who began coding at the age of 15, Swaathi co-founded Skcript and spent a decade serving as its Chief Technology Officer (CTO), fundamentally shaping the studio's engineering excellence and technical foundation.\nAs a Fellow at Skcript, she helps drive the strategic evolution of the company's complex technology infrastructure, focusing heavily on applied AI systems, advanced developer tools, and open-source contributions. Beyond her work at Skcript, she has lent her technical leadership as a co-founder and CTO to platforms like UnderstandBetter. Swaathi is highly regarded for her deep domain expertise in scalable backend architectures, machine learning workflows, and language constructs.",
+    "photo": "/people/swaathi-kakarla.webp",
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talkIds": ["keynote"]
+  },
+  {
+    "slug": "karthik-kamalakannan",
+    "name": "Karthik Kamalakannan",
+    "title": "Founder & CEO",
+    "company": "Skcript",
+    "bio": "Karthik Kamalakannan is the Founder and CEO of Skcript, a premier global product and software development studio headquartered in Chennai, India. A designer at heart and an engineer by trade, Karthik has spent over a decade leading Skcript to become a benchmark for high-performance enterprise software and human-centric design.\nUnder his leadership, Skcript has successfully launched globally recognized products, including FeatureOS (formerly Hellonext), a leading customer feedback and product roadmap platform used by fast-growing teams worldwide. Known for his philosophy of \"design-led engineering,\" Karthik bridges the gap between complex artificial intelligence infrastructure and seamless user experiences.\nAs a thought leader in the technology space, Karthik frequently writes and speaks about building bootstrapped businesses, scaling product design, and the real-world application of applied AI. He is deeply passionate about cultivating an exceptional engineering culture and mentoring the next generation of tech builders.",
+    "photo": "/people/karthik-kamalakannan.webp",
+    "links": {
+      "twitter": null,
+      "linkedin": null,
+      "github": null
+    },
+    "talkIds": [
+      "keynote"
+    ]
+  },
+  {
     "slug": "saurabh-mishra",
     "name": "Saurabh Mishra",
     "title": "Lead Consultant",
@@ -12,11 +42,9 @@
       "linkedin": "https://linkedin.com/in/connectsaurabhmishra",
       "github": null
     },
-    "talk": {
-      "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "beyond-the-happy-path-production-grade-agent-guardrails-huma"
+    ]
   },
   {
     "slug": "srushti-raybhoge",
@@ -31,11 +59,9 @@
       "linkedin": "https://linkedin.com/in/srushti-raybhoge",
       "github": null
     },
-    "talk": {
-      "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "secure-frontend-ai-building-smart-web-apps-with-firebase-ai-"
+    ]
   },
   {
     "slug": "bhargav-patel",
@@ -50,11 +76,9 @@
       "linkedin": "https://linkedin.com/in/bhargav-p-patel",
       "github": null
     },
-    "talk": {
-      "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems"
+    ]
   },
   {
     "slug": "dinoy-raj",
@@ -69,11 +93,9 @@
       "linkedin": "https://linkedin.com/in/dinoy-raj/",
       "github": null
     },
-    "talk": {
-      "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "from-receipts-to-smart-search-productionizing-gemini-nano-on"
+    ]
   },
   {
     "slug": "jeeththenthar-l",
@@ -87,11 +109,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "don-t-let-ai-agents-push-your-buttons-building-the-agentic-w"
+    ]
   },
   {
     "slug": "varun-poladiya",
@@ -105,11 +125,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "using-gemini-and-ai-studio-to-build-a-lead-gen-engine-for-b2"
+    ]
   },
   {
     "slug": "neel-shah",
@@ -123,11 +141,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Agentic SRE with Google Cloud: Detect, Diagnose, and Remediate Faster",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "agentic-sre-with-google-cloud-detect-diagnose-and-remediate-"
+    ]
   },
   {
     "slug": "aditya-shinde",
@@ -141,11 +157,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "kotlin-over-the-air-reimagining-android-kmp-app-delivery"
+    ]
   },
   {
     "slug": "achintya-jai",
@@ -159,11 +173,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Developing and Using OWASP Nettacker for Security Testing",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "developing-and-using-owasp-nettacker-for-security-testing"
+    ]
   },
   {
     "slug": "neeraj-pathak",
@@ -177,11 +189,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
-      "track": "d7-auditorium",
-      "abstract": ""
-    }
+    "talkIds": [
+      "gemma-101-fine-tuning-open-models-with-lora-transformers-and"
+    ]
   },
   {
     "slug": "rashmi-asokan",
@@ -195,11 +205,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Lessons from Building an AI Native Product Ground Up",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "lessons-from-building-an-ai-native-product-ground-up"
+    ]
   },
   {
     "slug": "dhanush-kandhan",
@@ -213,11 +221,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Rethinking Infrastructure for Agentic Workloads",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "rethinking-infrastructure-for-agentic-workloads"
+    ]
   },
   {
     "slug": "aakash-dhakshnamoorthy",
@@ -231,11 +237,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "running-ai-where-it-matters-open-source-on-device-inference-"
+    ]
   },
   {
     "slug": "imran-roshan",
@@ -249,11 +253,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "AI Assisted SREs Are a Thing!",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "ai-assisted-sres-are-a-thing"
+    ]
   },
   {
     "slug": "gokulbarath",
@@ -267,11 +269,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Local AI: The Google Gemma Edition",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "local-ai-the-google-gemma-edition"
+    ]
   },
   {
     "slug": "shangeeth-sivan-adiyapatham",
@@ -285,11 +285,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
-      "track": "lightning",
-      "abstract": ""
-    }
+    "talkIds": [
+      "simplified-performance-debugging-for-native-cross-platform-a"
+    ]
   },
   {
     "slug": "dishant-parakh",
@@ -303,11 +301,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Can AI Help a City Breathe?",
-      "track": "d7-amphitheater",
-      "abstract": ""
-    }
+    "talkIds": [
+      "can-ai-help-a-city-breathe"
+    ]
   },
   {
     "slug": "ayana-ghosh",
@@ -321,11 +317,9 @@
       "linkedin": null,
       "github": null
     },
-    "talk": {
-      "title": "Deep Tech Workshop: Machine Learning the Physical World",
-      "track": "d7-amphitheater",
-      "abstract": ""
-    }
+    "talkIds": [
+      "deep-tech-workshop-machine-learning-the-physical-world"
+    ]
   },
   {
     "slug": "moumita-mukherjee",
@@ -339,7 +333,7 @@
       "linkedin": null,
       "github": null
     },
-    "talk": null
+    "talkIds": []
   },
   {
     "slug": "nimeshika",
@@ -347,13 +341,13 @@
     "title": "Speaker",
     "company": "MediSimVR",
     "bio": "",
-    "photo": null,
+    "photo": "/people/nimeshika.webp",
     "links": {
       "twitter": null,
       "linkedin": null,
       "github": null
     },
-    "talk": null
+    "talkIds": []
   },
   {
     "slug": "gopalakrishnan-srinivasan",
@@ -367,6 +361,6 @@
       "linkedin": null,
       "github": null
     },
-    "talk": null
+    "talkIds": []
   }
 ]

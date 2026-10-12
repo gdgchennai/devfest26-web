@@ -841,17 +841,13 @@ function SessionCard({
 
       <div className="mt-5 flex items-center justify-between gap-3">
         {sessionSpeakers.length > 0 ? (
-          // Overlapping stack for 2-3 co-presenters — each ring punches a gap
-          // back to the card's own background through the overlap, so it
-          // still reads as separate portraits instead of one blob. Names
-          // aren't shown here — clicking the title opens the description
-          // modal, which names each speaker next to their own portrait.
-          <div className="flex shrink-0">
-            {sessionSpeakers.map((speaker, i) => (
-              <div
-                key={speaker.slug}
-                className={`h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-ink ${i > 0 ? "-ml-3" : ""}`}
-              >
+          // One portrait per co-presenter, spaced apart (not overlapping) —
+          // names aren't shown here — clicking the title opens the
+          // description modal, which names each speaker next to their own
+          // portrait.
+          <div className="flex shrink-0 gap-2">
+            {sessionSpeakers.map((speaker) => (
+              <div key={speaker.slug} className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-ink">
                 <Frame
                   src={speaker.photo}
                   alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}

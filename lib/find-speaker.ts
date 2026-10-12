@@ -1,4 +1,4 @@
-import type { Speaker } from "@/lib/schemas";
+import type { AgendaSession, Speaker } from "@/lib/schemas";
 
 /** Client-safe lookup — speakers arrive as props from the content API / D1. */
 export function findSpeaker(speakers: Speaker[], slug: string | null | undefined): Speaker | undefined {
@@ -19,4 +19,12 @@ export function joinSpeakerNames(speakers: Speaker[]): string {
   const names = speakers.map((s) => s.name);
   if (names.length <= 1) return names[0] ?? "";
   return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+}
+
+/** The sessions a speaker's `talkIds` reference, in agenda order (not
+ *  `talkIds` order) — so a speaker's talk list reads chronologically, same as
+ *  everywhere else a set of sessions is shown. Silently drops any id that
+ *  doesn't resolve, same convention as `findSpeakers`. */
+export function findTalksForSpeaker(agenda: AgendaSession[], speaker: Speaker): AgendaSession[] {
+  return agenda.filter((session) => speaker.talkIds.includes(session.id));
 }

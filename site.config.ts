@@ -696,8 +696,7 @@ export const uiCopy = {
   },
 
   speakerWall: {
-    inviteLabel: "This could be you",
-    inviteSrLabel: "submit a talk to the call for proposals",
+    talksHeading: "Talks",
   },
 
   agendaBoard: {

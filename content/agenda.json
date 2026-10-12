@@ -1,5 +1,6 @@
 [
   {
+    "id": "check-in-and-badge-collection",
     "track": null,
     "start": "2026-10-17T08:00:00+05:30",
     "end": "2026-10-17T09:00:00+05:30",
@@ -7,9 +8,10 @@
     "hall": "D7 Pre-Function Area",
     "type": "break",
     "speakerSlugs": [],
-    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+    "description": "This is where you land. You get your badge, goodies and your entry to DevFest."
   },
   {
+    "id": "welcome-note",
     "track": "d7-auditorium",
     "start": "2026-10-17T09:00:00+05:30",
     "end": "2026-10-17T09:15:00+05:30",
@@ -17,49 +19,57 @@
     "hall": "D7 Auditorium",
     "type": "keynote",
     "speakerSlugs": [],
-    "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
+    "description": "First time to DevFest? Long time community member? Heard our stories already? Nevermind. We are here to provide you all the info you need to enjoy DevFest. So bring your highest energy, recharge your social battery and stay prepared for the day."
   },
   {
+    "id": "keynote",
     "track": "d7-auditorium",
     "start": "2026-10-17T09:15:00+05:30",
     "end": "2026-10-17T09:45:00+05:30",
     "title": "Keynote",
     "hall": "D7 Auditorium",
     "type": "keynote",
-    "speakerSlugs": [],
-    "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
+    "speakerSlugs": [
+      "swaathi-kakarla",
+      "karthik-kamalakannan"
+    ],
+    "description": "Not the keynote you expect to see. Come join in to listen to our iconic OG duo take the main stage. That \"Naan vanthuten nu solu, thirumbi vandhuten nu solu\" moment!"
   },
   {
+    "id": "sponsor-talk",
     "track": "d7-auditorium",
     "start": "2026-10-17T09:45:00+05:30",
     "end": "2026-10-17T10:15:00+05:30",
-    "title": "Sponsor Talk",
+    "title": "Sponsor Talk: AGI, Inc.",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [],
-    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+    "description": "Sponsored talk"
   },
   {
+    "id": "sponsor-talk-2",
     "track": "d7-auditorium",
     "start": "2026-10-17T10:15:00+05:30",
     "end": "2026-10-17T10:25:00+05:30",
-    "title": "Sponsor Talk",
+    "title": "Sponsor Talk: Qualcomm",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [],
-    "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
+    "description": "Sponsored talk"
   },
   {
+    "id": "sponsor-talk-3",
     "track": "d7-auditorium",
     "start": "2026-10-17T10:25:00+05:30",
     "end": "2026-10-17T10:35:00+05:30",
-    "title": "Sponsor Talk",
+    "title": "Sponsor Talk: Poshmark",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [],
-    "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
+    "description": "Sponsored talk"
   },
   {
+    "id": "kotlin-over-the-air-reimagining-android-kmp-app-delivery",
     "track": "d7-auditorium",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T11:10:00+05:30",
@@ -69,9 +79,10 @@
     "speakerSlugs": [
       "aditya-shinde"
     ],
-    "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
+    "description": "Talk details will be updated soon."
   },
   {
+    "id": "can-ai-help-a-city-breathe",
     "track": "d7-amphitheater",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T11:20:00+05:30",
@@ -84,6 +95,7 @@
     "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
+    "id": "creators-lounge",
     "track": "creators-lounge",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
@@ -94,6 +106,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "meetup-lounge",
     "track": "meetup-lounge",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
@@ -104,6 +117,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "agent-wars-live-tournament-round-1",
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:10:00+05:30",
@@ -114,6 +128,7 @@
     "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
+    "id": "lessons-from-building-an-ai-native-product-ground-up",
     "track": "lightning",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T11:15:00+05:30",
@@ -126,6 +141,7 @@
     "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "vibe-coding-lounge",
     "track": "vibe-coding",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
@@ -136,6 +152,7 @@
     "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
+    "id": "workshop-tbd",
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
@@ -146,6 +163,7 @@
     "description": "The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
+    "id": "gemma-101-fine-tuning-open-models-with-lora-transformers-and",
     "track": "d7-auditorium",
     "start": "2026-10-17T11:10:00+05:30",
     "end": "2026-10-17T11:35:00+05:30",
@@ -158,6 +176,7 @@
     "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "agent-wars-live-tournament-round-2",
     "track": "agent-wars",
     "start": "2026-10-17T11:10:00+05:30",
     "end": "2026-10-17T11:20:00+05:30",
@@ -168,6 +187,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
+    "id": "agent-wars-live-tournament-round-3",
     "track": "agent-wars",
     "start": "2026-10-17T11:20:00+05:30",
     "end": "2026-10-17T11:30:00+05:30",
@@ -178,6 +198,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
+    "id": "rethinking-infrastructure-for-agentic-workloads",
     "track": "lightning",
     "start": "2026-10-17T11:20:00+05:30",
     "end": "2026-10-17T11:35:00+05:30",
@@ -190,6 +211,7 @@
     "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "deep-tech-talk-2",
     "track": "d7-amphitheater",
     "start": "2026-10-17T11:25:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
@@ -200,6 +222,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
+    "id": "agent-wars-live-tournament-rounds-4-6",
     "track": "agent-wars",
     "start": "2026-10-17T11:30:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
@@ -210,6 +233,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
+    "id": "developing-and-using-owasp-nettacker-for-security-testing",
     "track": "d7-auditorium",
     "start": "2026-10-17T11:35:00+05:30",
     "end": "2026-10-17T12:00:00+05:30",
@@ -222,6 +246,7 @@
     "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
+    "id": "running-ai-where-it-matters-open-source-on-device-inference-",
     "track": "lightning",
     "start": "2026-10-17T11:40:00+05:30",
     "end": "2026-10-17T11:55:00+05:30",
@@ -234,6 +259,7 @@
     "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "agentic-sre-with-google-cloud-detect-diagnose-and-remediate-",
     "track": "d7-auditorium",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:25:00+05:30",
@@ -246,6 +272,7 @@
     "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
+    "id": "lunch",
     "track": "agent-wars",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -256,6 +283,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
+    "id": "lightning-talk-4",
     "track": "lightning",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:15:00+05:30",
@@ -266,6 +294,7 @@
     "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
+    "id": "vibe-coding-lounge-2",
     "track": "vibe-coding",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T12:35:00+05:30",
@@ -276,6 +305,7 @@
     "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
+    "id": "hardware-lab",
     "track": "raman-hall",
     "start": "2026-10-17T12:00:00+05:30",
     "end": "2026-10-17T13:00:00+05:30",
@@ -286,6 +316,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "deep-tech-talk-3",
     "track": "d7-amphitheater",
     "start": "2026-10-17T12:05:00+05:30",
     "end": "2026-10-17T12:40:00+05:30",
@@ -296,6 +327,7 @@
     "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This session walks through the real engineering decisions behind the work, not just the highlight reel. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools."
   },
   {
+    "id": "ai-assisted-sres-are-a-thing",
     "track": "lightning",
     "start": "2026-10-17T12:20:00+05:30",
     "end": "2026-10-17T12:35:00+05:30",
@@ -308,6 +340,7 @@
     "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
+    "id": "lunch-2",
     "track": "d7-auditorium",
     "start": "2026-10-17T12:30:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -318,6 +351,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here."
   },
   {
+    "id": "lunch-3",
     "track": "lightning",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -328,6 +362,7 @@
     "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
+    "id": "lunch-4",
     "track": "vibe-coding",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -338,6 +373,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
+    "id": "lunch-5",
     "track": "creators-lounge",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -348,6 +384,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "lunch-6",
     "track": "meetup-lounge",
     "start": "2026-10-17T12:35:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -358,6 +395,7 @@
     "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "lunch-7",
     "track": "d7-amphitheater",
     "start": "2026-10-17T12:40:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
@@ -368,6 +406,7 @@
     "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
+    "id": "workshop-tbd-2",
     "track": "raman-hall",
     "start": "2026-10-17T13:00:00+05:30",
     "end": "2026-10-17T14:30:00+05:30",
@@ -378,6 +417,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week."
   },
   {
+    "id": "don-t-let-ai-agents-push-your-buttons-building-the-agentic-w",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:25:00+05:30",
@@ -390,6 +430,7 @@
     "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "deep-tech-talk-4",
     "track": "d7-amphitheater",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:35:00+05:30",
@@ -400,6 +441,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "agent-wars-live-tournament-semi-finals",
     "track": "agent-wars",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:20:00+05:30",
@@ -410,6 +452,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
+    "id": "lightning-talk-6",
     "track": "lightning",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:15:00+05:30",
@@ -420,6 +463,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "vibe-coding-lounge-3",
     "track": "vibe-coding",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T14:30:00+05:30",
@@ -430,6 +474,7 @@
     "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Attendees are encouraged to bring questions from their own projects for the discussion at the end. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
+    "id": "creators-lounge-2",
     "track": "creators-lounge",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
@@ -440,6 +485,7 @@
     "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
+    "id": "meetup-lounge-2",
     "track": "meetup-lounge",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
@@ -450,6 +496,7 @@
     "description": "Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "agent-wars-live-tournament-finals",
     "track": "agent-wars",
     "start": "2026-10-17T14:20:00+05:30",
     "end": "2026-10-17T14:50:00+05:30",
@@ -460,6 +507,7 @@
     "description": "Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. There is a short live demonstration midway through, followed by time set aside for audience questions. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "lightning-talk-7",
     "track": "lightning",
     "start": "2026-10-17T14:20:00+05:30",
     "end": "2026-10-17T14:35:00+05:30",
@@ -470,6 +518,7 @@
     "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
+    "id": "from-receipts-to-smart-search-productionizing-gemini-nano-on",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:25:00+05:30",
     "end": "2026-10-17T14:50:00+05:30",
@@ -482,6 +531,7 @@
     "description": "There is a short live demonstration midway through, followed by time set aside for audience questions. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
+    "id": "pitchathon-tbd",
     "track": "raman-hall",
     "start": "2026-10-17T14:30:00+05:30",
     "end": "2026-10-17T15:00:00+05:30",
@@ -492,6 +542,7 @@
     "description": "This session walks through the real engineering decisions behind the work, not just the highlight reel. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The session closes with a short recap and pointers to the tools, repos and further reading mentioned."
   },
   {
+    "id": "deep-tech-workshop-machine-learning-the-physical-world",
     "track": "d7-amphitheater",
     "start": "2026-10-17T14:40:00+05:30",
     "end": "2026-10-17T16:15:00+05:30",
@@ -504,6 +555,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. There is a short live demonstration midway through, followed by time set aside for audience questions. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Expect a practical, demo-heavy look at what actually shipped and why it was built that way."
   },
   {
+    "id": "local-ai-the-google-gemma-edition",
     "track": "lightning",
     "start": "2026-10-17T14:40:00+05:30",
     "end": "2026-10-17T14:55:00+05:30",
@@ -516,6 +568,7 @@
     "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
+    "id": "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:50:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
@@ -528,6 +581,7 @@
     "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week."
   },
   {
+    "id": "simplified-performance-debugging-for-native-cross-platform-a",
     "track": "lightning",
     "start": "2026-10-17T15:00:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
@@ -540,6 +594,7 @@
     "description": "The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "secure-frontend-ai-building-smart-web-apps-with-firebase-ai-",
     "track": "d7-auditorium",
     "start": "2026-10-17T15:15:00+05:30",
     "end": "2026-10-17T15:40:00+05:30",
@@ -552,6 +607,7 @@
     "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering."
   },
   {
+    "id": "lightning-talk-10",
     "track": "lightning",
     "start": "2026-10-17T15:20:00+05:30",
     "end": "2026-10-17T15:35:00+05:30",
@@ -562,6 +618,7 @@
     "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. There is a short live demonstration midway through, followed by time set aside for audience questions. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "beyond-the-happy-path-production-grade-agent-guardrails-huma",
     "track": "d7-auditorium",
     "start": "2026-10-17T15:40:00+05:30",
     "end": "2026-10-17T16:05:00+05:30",
@@ -574,6 +631,7 @@
     "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
   },
   {
+    "id": "lightning-talk-tbd",
     "track": "lightning",
     "start": "2026-10-17T15:45:00+05:30",
     "end": "2026-10-17T16:15:00+05:30",
@@ -584,6 +642,7 @@
     "description": "This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Attendees are encouraged to bring questions from their own projects for the discussion at the end. You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted."
   },
   {
+    "id": "using-gemini-and-ai-studio-to-build-a-lead-gen-engine-for-b2",
     "track": "d7-auditorium",
     "start": "2026-10-17T16:05:00+05:30",
     "end": "2026-10-17T16:30:00+05:30",
@@ -596,6 +655,7 @@
     "description": "Attendees are encouraged to bring questions from their own projects for the discussion at the end. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. There is a short live demonstration midway through, followed by time set aside for audience questions."
   },
   {
+    "id": "quick-break",
     "track": "d7-auditorium",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
@@ -606,6 +666,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This session walks through the real engineering decisions behind the work, not just the highlight reel."
   },
   {
+    "id": "quick-break-2",
     "track": "d7-amphitheater",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
@@ -616,6 +677,7 @@
     "description": "Expect a practical, demo-heavy look at what actually shipped and why it was built that way. This session walks through the real engineering decisions behind the work, not just the highlight reel. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later. There is a short live demonstration midway through, followed by time set aside for audience questions. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines."
   },
   {
+    "id": "quick-break-3",
     "track": "agent-wars",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
@@ -626,6 +688,7 @@
     "description": "Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. Expect a practical, demo-heavy look at what actually shipped and why it was built that way. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. Attendees are encouraged to bring questions from their own projects for the discussion at the end."
   },
   {
+    "id": "quick-break-4",
     "track": "lightning",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
@@ -636,6 +699,7 @@
     "description": "The talk balances the underlying theory with concrete, copy-pasteable patterns you can try the same week. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. The session closes with a short recap and pointers to the tools, repos and further reading mentioned. Whether you are new to the topic or have shipped something similar, there is a concrete takeaway here. This is a vendor-neutral take, grounded in what held up under real traffic and real deadlines. The focus stays on lessons learned in production, including the mistakes that were quietly fixed later."
   },
   {
+    "id": "quick-break-5",
     "track": "vibe-coding",
     "start": "2026-10-17T16:30:00+05:30",
     "end": "2026-10-17T17:00:00+05:30",
@@ -646,6 +710,7 @@
     "description": "You will leave with a clearer mental model of the tradeoffs involved, not just a list of tools. This session walks through the real engineering decisions behind the work, not just the highlight reel. There is a short live demonstration midway through, followed by time set aside for audience questions. Attendees are encouraged to bring questions from their own projects for the discussion at the end. Along the way, the speaker shares what worked, what quietly broke, and how the team adapted. Code samples and diagrams are kept front and centre so the ideas stay grounded and testable."
   },
   {
+    "id": "closing-note",
     "track": "d7-auditorium",
     "start": "2026-10-17T17:00:00+05:30",
     "end": "2026-10-17T17:30:00+05:30",
