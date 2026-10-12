@@ -380,8 +380,8 @@
   {
     "slug": "gokulakrishnan-l",
     "name": "Gokulakrishnan L",
-    "title": "Speaker",
-    "company": "TBD",
+    "title": "Student",
+    "company": "IIITDM Kancheepuram",
     "bio": "",
     "photo": "/people/gokulakrishnan-l.webp",
     "links": {
@@ -389,7 +389,7 @@
       "linkedin": null,
       "github": null
     },
-    "talkIds": []
+    "talkIds": ["building-privacy-first-edge-ai-with-gemma-4"]
   },
   {
     "slug": "gopalakrishnan-srinivasan",
