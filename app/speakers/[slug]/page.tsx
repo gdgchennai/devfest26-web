@@ -130,7 +130,7 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <div>
-          {speaker.bio ? <p className="text-paper/85">{speaker.bio}</p> : null}
+          {speaker.bio ? <p className="whitespace-pre-line text-paper/85">{speaker.bio}</p> : null}
           <SpeakerTalks
             talks={talks}
             speakers={speakers}
