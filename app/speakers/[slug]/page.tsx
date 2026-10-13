@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSpeaker, getSpeakers } from "@/lib/content";
+import { getAgenda, getSpeaker, getSpeakers } from "@/lib/content";
+import { ArrowGlyph } from "@/components/ArrowGlyph";
 import { Frame } from "@/components/Frame";
-import { HeaderTitle } from "@/components/HeaderTitleContext";
+import { GlowButton } from "@/components/GlowButton";
+import { SocialIcon } from "@/components/SocialIcon";
+import { SpeakerTalks } from "@/components/SpeakerTalks";
 import { JsonLd } from "@/components/JsonLd";
+import { findTalksForSpeaker } from "@/lib/find-speaker";
 import { siteConfig, uiCopy } from "@/site.config";
 import { AGENDA_READY } from "@/lib/routes";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
@@ -27,7 +32,9 @@ export async function generateMetadata({
     return pageMetadata({ title: "Speaker", description: `Speaker at ${siteConfig.name}.`, path: `/speakers/${slug}`, index: false });
   }
   const role = [speaker.title, speaker.company].filter(Boolean).join(" at ");
-  const talk = speaker.talk?.title ? ` Speaking on “${speaker.talk.title}”.` : "";
+  const agenda = await getAgenda();
+  const firstTalk = findTalksForSpeaker(agenda, speaker)[0];
+  const talk = firstTalk ? ` Speaking on “${firstTalk.title}”.` : "";
   return pageMetadata({
     title: speaker.name,
     description: `${speaker.name}, ${role}, at ${siteConfig.name}.${talk}`,
@@ -35,20 +42,28 @@ export async function generateMetadata({
   });
 }
 
+/** `links` key -> the label `SocialIcon` and `uiCopy.socialLabels` key off. */
+const SOCIAL_ORDER = [
+  { key: "twitter", icon: "X", label: uiCopy.socialLabels.x },
+  { key: "instagram", icon: "Instagram", label: uiCopy.socialLabels.instagram },
+  { key: "linkedin", icon: "LinkedIn", label: uiCopy.socialLabels.linkedin },
+  { key: "github", icon: "GitHub", label: uiCopy.socialLabels.github },
+] as const;
+
 export default async function SpeakerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const speaker = await getSpeaker(slug);
+  const [speaker, speakers, agenda] = await Promise.all([getSpeaker(slug), getSpeakers(), getAgenda()]);
   if (!AGENDA_READY || !speaker) notFound();
 
-  const sameAs = [speaker.links.twitter, speaker.links.linkedin, speaker.links.github].filter(
+  const sameAs = [speaker.links.twitter, speaker.links.instagram, speaker.links.linkedin, speaker.links.github].filter(
     (href): href is string => Boolean(href),
   );
-
   const role = [speaker.title, speaker.company].filter(Boolean).join(" · ");
+  const talks = findTalksForSpeaker(agenda, speaker);
+  const socials = SOCIAL_ORDER.filter((s) => speaker.links[s.key]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-      <HeaderTitle title={speaker.name} />
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -74,62 +89,55 @@ export default async function SpeakerPage({ params }: { params: Promise<{ slug: 
           ],
         }}
       />
-      {role ? (
-        <p className="mb-8 text-center text-base text-paper/70 sm:text-lg">
-          {role}
-        </p>
-      ) : null}
-      <div className="flex justify-center">
-        <Frame
-          src={speaker.photo}
-          alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
-          title={speaker.name}
-          aspectRatio="1 / 1"
-          sizes="(max-width: 640px) 100vw, 20rem"
-          className="max-w-xs"
-        />
-      </div>
-      <p className="mt-8 text-paper/85">{speaker.bio}</p>
 
-      {speaker.talk && (
-        <div className="mt-8 rounded-lg border border-paper/10 p-5">
-          <p className="text-xs uppercase tracking-wide text-blue">{speaker.talk.track}</p>
-          <h2 className="mt-1 text-xl font-semibold">{speaker.talk.title}</h2>
-          <p className="mt-2 text-sm text-paper/70">{speaker.talk.abstract}</p>
+      <Link
+        href="/speakers"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-paper/70 transition-colors hover:text-paper"
+      >
+        <ArrowGlyph direction="left" />
+        {uiCopy.speakersPage.heading}
+      </Link>
+
+      <div className="grid gap-10 sm:grid-cols-[18rem_1fr]">
+        <div className="mx-auto w-full max-w-xs sm:mx-0">
+          <Frame
+            src={speaker.photo}
+            alt={`${uiCopy.common.portraitAltPrefix}${speaker.name}`}
+            title={speaker.name}
+            aspectRatio="1 / 1"
+            sizes="(max-width: 640px) 100vw, 18rem"
+          />
+          <h1 className="mt-5 text-2xl font-semibold">{speaker.name}</h1>
+          {role ? <p className="mt-1 text-base text-paper/70">{role}</p> : null}
+
+          {socials.length > 0 && (
+            <div className="mt-5 flex gap-3">
+              {socials.map((s) => (
+                <GlowButton
+                  key={s.key}
+                  href={speaker.links[s.key]!}
+                  target="_blank"
+                  rel="noreferrer"
+                  shape="circle"
+                  size="sm"
+                >
+                  <span className="sr-only">{s.label}</span>
+                  <SocialIcon name={s.icon} className="relative h-5 w-5 fill-paper" />
+                </GlowButton>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      <div className="mt-6 flex gap-4 text-sm">
-        {speaker.links.twitter && (
-          <a
-            href={speaker.links.twitter}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue underline underline-offset-4 hover:decoration-2"
-          >
-            {uiCopy.socialLabels.x}
-          </a>
-        )}
-        {speaker.links.linkedin && (
-          <a
-            href={speaker.links.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue underline underline-offset-4 hover:decoration-2"
-          >
-            {uiCopy.socialLabels.linkedin}
-          </a>
-        )}
-        {speaker.links.github && (
-          <a
-            href={speaker.links.github}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue underline underline-offset-4 hover:decoration-2"
-          >
-            {uiCopy.socialLabels.github}
-          </a>
-        )}
+        <div>
+          {speaker.bio ? <p className="whitespace-pre-line text-paper/85">{speaker.bio}</p> : null}
+          <SpeakerTalks
+            talks={talks}
+            speakers={speakers}
+            speakerSlug={speaker.slug}
+            heading={uiCopy.speakerWall.talksHeading}
+          />
+        </div>
       </div>
     </div>
   );

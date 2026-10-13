@@ -1,18 +1,10 @@
 import type { Speaker } from "@/lib/schemas";
 import { Frame } from "@/components/Frame";
 import { SlotGrid, type FilledSlot } from "@/components/SlotGrid";
-import { speakerCta } from "@/lib/cta";
 import { uiCopy } from "@/site.config";
 
 /**
- * The speaker lineup as a roster with open places.
- *
- * `speakers` is empty until the lineup is published, and both the homepage
- * (which had no speaker section at all) and /speakers were handling that with
- * apology. Showing the empty places instead turns the gap into the CFP pitch —
- * the invitation sits in the lineup, where someone browsing for speakers is
- * already looking. Destination comes from `speakerCta()`, so setting
- * `siteConfig.cfp.formUrl` points these straight at Sessionize.
+ * The speaker lineup as a roster.
  *
  * Portraits go through <Frame>: these are photographs, which is exactly what
  * its object-cover crop and halftone fallback are for.
@@ -23,7 +15,6 @@ const SLOTS = 6;
 
 export function SpeakerWall({ speakers, limit = SLOTS }: { speakers: Speaker[]; limit?: number }) {
   const shown = speakers.slice(0, limit);
-  const cta = speakerCta();
 
   const filled: FilledSlot[] = shown.map((speaker) => ({
     key: speaker.slug,
@@ -37,8 +28,8 @@ export function SpeakerWall({ speakers, limit = SLOTS }: { speakers: Speaker[]; 
           aspectRatio="1 / 1"
           sizes="(max-width: 640px) 50vw, 33vw"
         />
-        <span className="mt-3 block truncate font-semibold">{speaker.name}</span>
-        <span className="block truncate text-xs text-paper/70">
+        <span className="mt-3 block truncate text-center font-semibold">{speaker.name}</span>
+        <span className="block truncate text-center text-xs text-paper/70">
           {speaker.title} · {speaker.company}
         </span>
       </span>
@@ -49,27 +40,8 @@ export function SpeakerWall({ speakers, limit = SLOTS }: { speakers: Speaker[]; 
     <SlotGrid
       cols="grid-cols-2 sm:grid-cols-3"
       slotClassName="aspect-[3/4]"
-      slots={Math.max(limit, shown.length + 1)}
+      slots={shown.length}
       filled={filled}
-      invite={{
-        href: cta.href,
-        external: cta.external,
-        label: uiCopy.speakerWall.inviteLabel,
-        srLabel: uiCopy.speakerWall.inviteSrLabel,
-        ornament: <SpeakerSilhouette />,
-      }}
     />
-  );
-}
-
-/** Echoes the square portrait a filled slot would show, so the row reads as one set. */
-function SpeakerSilhouette() {
-  return (
-    <span
-      aria-hidden
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-blue/50"
-    >
-      <span className="h-3.5 w-3.5 rounded-full bg-blue/40" />
-    </span>
   );
 }

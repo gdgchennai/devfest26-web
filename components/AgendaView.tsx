@@ -39,6 +39,14 @@ export function AgendaView({
   // lite-gated component (see MotionProvider.tsx and its siblings).
   const staticBaseline = useClientValue(shouldUseStaticBaseline, true);
 
+  // A visitor can still want the plain list with motion fully available
+  // (e.g. the spatial board's depth/scroll read as fiddly on a laptop
+  // trackpad) — this is a separate, page-local override on top of that
+  // baseline, not a replacement for it. Plain component state: nothing here
+  // needs to survive a reload or be shareable the way ?lite= does.
+  const [simpleMode, setSimpleMode] = useState(false);
+  const useSimpleView = staticBaseline || simpleMode;
+
   // Local state, mirrored to the URL rather than read from it: switching
   // tracks has to move the underline, the columns and the list on the same
   // frame as the tap/swipe, and a router round trip between "intent" and
@@ -96,26 +104,69 @@ export function AgendaView({
     router.replace(query ? `/agenda?${query}` : "/agenda", { scroll: false });
   }
 
-  if (!staticBaseline) {
+  // Only shown once the spatial board is actually on offer — reduced-motion/
+  // ?lite=1 visitors are already on the simple list via the global lite
+  // toggle, and a second switch that can't do anything for them would just
+  // be confusing.
+  const toggle = !staticBaseline ? (
+    <div className="mb-4 flex justify-center">
+      <SimpleModeToggle value={simpleMode} onChange={setSimpleMode} />
+    </div>
+  ) : null;
+
+  if (!useSimpleView) {
     return (
-      <AgendaBoard
+      <>
+        {toggle}
+        <AgendaBoard
+          sessions={sessions}
+          speakers={speakers}
+          tracks={orderedTracks}
+          activeTrack={activeTrack}
+          onSelectTrack={selectTrack}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      {toggle}
+      <AgendaTrackList
         sessions={sessions}
         speakers={speakers}
         tracks={orderedTracks}
         activeTrack={activeTrack}
         onSelectTrack={selectTrack}
       />
-    );
-  }
+    </>
+  );
+}
 
+/** A toggle button (`aria-pressed`), same idiom as the footer's `LiteToggle` —
+ *  pressed state for assistive tech, the word on/off for everyone, and a
+ *  brand dot as the at-a-glance cue. */
+function SimpleModeToggle({ value, onChange }: { value: boolean; onChange: (next: boolean) => void }) {
   return (
-    <AgendaTrackList
-      sessions={sessions}
-      speakers={speakers}
-      tracks={orderedTracks}
-      activeTrack={activeTrack}
-      onSelectTrack={selectTrack}
-    />
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      role="switch"
+      aria-checked={value}
+      className="inline-flex items-center gap-2 text-sm text-paper/70 hover:text-paper"
+    >
+      {uiCopy.agendaView.simpleModeLabel}
+      <span
+        aria-hidden
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${value ? "bg-green" : "bg-paper/20"}`}
+      >
+        <span
+          className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-paper transition-transform ${
+            value ? "translate-x-4" : "translate-x-0"
+          }`}
+        />
+      </span>
+    </button>
   );
 }
 

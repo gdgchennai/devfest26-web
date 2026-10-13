@@ -35,13 +35,15 @@ export function SlotGrid({
   cols: string;
   /** Applied to every slot, filled or not. Sizes the row. */
   slotClassName: string;
-  /** Total places in this row, including the ones already taken. */
+  /** Total places in this row, including the ones already taken. Ignored
+   *  when `invite` is omitted — the grid then shows exactly `filled`. */
   slots: number;
   filled: FilledSlot[];
-  invite: InviteSlot;
+  /** One invite always shows while there is room; the rest of the gap is
+   *  quiet. Omit entirely to render only the filled slots, no gap filler. */
+  invite?: InviteSlot;
 }) {
-  // One invite always shows while there is room; the rest of the gap is quiet.
-  const remaining = Math.max(0, slots - filled.length);
+  const remaining = invite ? Math.max(0, slots - filled.length) : 0;
   const ghosts = Math.max(0, remaining - 1);
 
   return (
@@ -52,7 +54,7 @@ export function SlotGrid({
         </li>
       ))}
 
-      {remaining > 0 && (
+      {remaining > 0 && invite && (
         <li>
           <Invite invite={invite} slotClassName={slotClassName} />
         </li>
@@ -76,14 +78,13 @@ export function SlotGrid({
  * shell owns the footprint and the border; the caller owns the arrangement
  * inside it.
  */
-const FILLED_BASE =
-  "relative block overflow-hidden rounded-lg border border-paper/10 bg-surface transition-colors";
+const FILLED_BASE = "relative block transition-colors";
 
 function Filled({ slot, slotClassName }: { slot: FilledSlot; slotClassName: string }) {
   const classes = `${FILLED_BASE} ${slotClassName}`;
   if (!slot.href) return <div className={classes}>{slot.content}</div>;
 
-  const interactive = `${classes} hover:border-paper/25`;
+  const interactive = classes;
   if (slot.external) {
     return (
       <a href={slot.href} target="_blank" rel="noreferrer" className={interactive}>

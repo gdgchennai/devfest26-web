@@ -13,6 +13,11 @@ export const trackSlugSchema = z.enum([
 ]);
 
 export const agendaSessionSchema = z.object({
+  /** Stable per-session identifier (slugified from the title, de-duplicated
+   *  where titles repeat, e.g. "lunch-2"). What a speaker's `talkIds`
+   *  references — the one way to point at a specific session without
+   *  duplicating its title/track/abstract elsewhere. */
+  id: z.string().min(1),
   /** Null for venue-wide sessions (e.g. check-in) that belong to no single
    *  track — shown on every track's timeline, but only once in the flat list. */
   track: trackSlugSchema.nullable(),
@@ -44,16 +49,16 @@ export const speakerSchema = z.object({
   photo: z.string().nullable(),
   links: z.object({
     twitter: z.string().nullable(),
+    instagram: z.string().nullable().default(null),
     linkedin: z.string().nullable(),
     github: z.string().nullable(),
   }),
-  talk: z
-    .object({
-      title: z.string(),
-      track: trackSlugSchema,
-      abstract: z.string(),
-    })
-    .nullable(),
+  /** References into agenda.json's `id`s rather than duplicating title/track/
+   *  abstract here — a speaker can be credited on more than one session, and
+   *  the agenda entry stays the one source of truth for what it's actually
+   *  called, which track it's on and its description. Resolved via
+   *  `findTalksForSpeaker` (lib/find-speaker.ts). */
+  talkIds: z.array(z.string().min(1)).default([]),
 });
 
 export type Speaker = z.infer<typeof speakerSchema>;

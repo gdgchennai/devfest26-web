@@ -128,7 +128,7 @@ export function SessionDescriptionModal({
           )}
 
           {session.description && (
-            <p className="mt-5 text-sm leading-relaxed text-paper/80">{session.description}</p>
+            <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-paper/80">{session.description}</p>
           )}
 
           <p className="mt-5 text-xs uppercase tracking-wide text-paper/50">{session.hall}</p>

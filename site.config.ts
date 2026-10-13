@@ -696,8 +696,7 @@ export const uiCopy = {
   },
 
   speakerWall: {
-    inviteLabel: "This could be you",
-    inviteSrLabel: "submit a talk to the call for proposals",
+    talksHeading: "Talks",
   },
 
   agendaBoard: {
@@ -723,6 +722,10 @@ export const uiCopy = {
     /** The name of the track tab strip itself, for screen readers — the tabs
         are a real ARIA tablist (see components/AgendaTrackTabs.tsx). */
     tracksAriaLabel: "Agenda tracks",
+    /** Manual override to the plain chronological list, in front of the
+     *  spatial 3D board — independent of (and in addition to) the global
+     *  lite toggle, which already forces this list for reduced-motion. */
+    simpleModeLabel: "Simple view",
   },
 
   ticketSelector: {
