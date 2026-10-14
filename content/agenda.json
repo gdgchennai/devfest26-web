@@ -69,7 +69,10 @@
     "title": "From Models to Decisions: How AI Is Reshaping Poshmark and Fashion Marketplace",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "manu-vishwakarma",
+      "shreya-sevelar"
+    ],
     "description": "Sponsored talk"
   },
   {
