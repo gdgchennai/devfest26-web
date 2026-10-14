@@ -7,7 +7,7 @@ sitemap for ordinary visitors).
 | Page | What it does |
 | --- | --- |
 | `/admin` | Mark agenda sessions Upcoming/Started/Ended. Started/Ended notifies everyone who favorited that session and has push on — see [`docs/push-notifications.md`](./push-notifications.md). |
-| `/admin/users` | Every account, with its ticket name resolved the same way the profile page shows it, and a toggle to grant/revoke admin access. |
+| `/admin/users` | Every account, with its ticket name resolved the same way the profile page shows it, and a toggle to grant/revoke admin access. Searchable (`?q=`, matches name, email and ticket name) and paginated 25 per page (`?page=`) — both are plain GET params, filtered server-side. |
 
 ## Access control
 

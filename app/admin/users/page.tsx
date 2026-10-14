@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { currentAdminUser, isAdminEmail } from "@/lib/admin";
@@ -16,7 +17,27 @@ export const metadata: Metadata = pageMetadata({
 });
 export const dynamic = "force-dynamic";
 
-export default async function AdminUsersPage() {
+const PAGE_SIZE = 25;
+
+function first(value: string | string[] | undefined): string {
+  return (Array.isArray(value) ? value[0] : value) ?? "";
+}
+
+function hrefFor(q: string, page: number): string {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (page > 1) params.set("page", String(page));
+  const qs = params.toString();
+  return qs ? `/admin/users?${qs}` : "/admin/users";
+}
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const q = first(sp.q).trim();
   const session = await auth();
   if (!session?.user?.uid) {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/admin/users")}`);
@@ -26,7 +47,16 @@ export default async function AdminUsersPage() {
     redirect("/");
   }
 
-  const users = await listUsersWithTicketNames();
+  const all = await listUsersWithTicketNames();
+  const needle = q.toLowerCase();
+  const matches = needle
+    ? all.filter((u) =>
+        [u.display_name, u.name, u.email, u.ticket_name].some((v) => v?.toLowerCase().includes(needle)),
+      )
+    : all;
+  const pageCount = Math.max(1, Math.ceil(matches.length / PAGE_SIZE));
+  const page = Math.min(Math.max(1, Number.parseInt(first(sp.page), 10) || 1), pageCount);
+  const users = matches.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <>
@@ -40,7 +70,38 @@ export default async function AdminUsersPage() {
           that&apos;s the ticket name KonfHub gave them). Grant admin access from here.
         </p>
 
-        <div className="mt-6">
+        <form action="/admin/users" method="get" role="search" className="mt-6 flex gap-2">
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Search name, email or ticket"
+            aria-label="Search people"
+            className="min-w-0 flex-1 rounded-full border border-paper/20 bg-transparent px-4 py-2 text-sm text-paper placeholder:text-paper/40 focus:border-paper/50 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="shrink-0 rounded-full bg-paper px-4 py-2 text-xs font-medium text-ink transition-opacity hover:opacity-90"
+          >
+            Search
+          </button>
+        </form>
+        <p className="mt-3 text-xs text-paper/50">
+          {matches.length === all.length
+            ? `${all.length} people`
+            : `${matches.length} of ${all.length} people`}
+          {q && (
+            <>
+              {" · "}
+              <Link href="/admin/users" className="underline hover:text-paper">
+                Clear search
+              </Link>
+            </>
+          )}
+        </p>
+
+        <div className="mt-2">
+          {users.length === 0 && <p className="py-6 text-sm text-paper/60">No one matches that search.</p>}
           {await Promise.all(
             users.map(async (user) => (
               <AdminUserRow
@@ -56,6 +117,28 @@ export default async function AdminUsersPage() {
             )),
           )}
         </div>
+
+        {pageCount > 1 && (
+          <nav aria-label="Pagination" className="mt-6 flex items-center justify-between text-sm text-paper">
+            {page > 1 ? (
+              <Link href={hrefFor(q, page - 1)} className="rounded-full border border-paper/20 px-4 py-1.5 hover:border-paper/40">
+                ← Previous
+              </Link>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            <span className="text-xs text-paper/50">
+              Page {page} of {pageCount}
+            </span>
+            {page < pageCount ? (
+              <Link href={hrefFor(q, page + 1)} className="rounded-full border border-paper/20 px-4 py-1.5 hover:border-paper/40">
+                Next →
+              </Link>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+          </nav>
+        )}
       </div>
     </>
   );
