@@ -294,7 +294,7 @@
     "name": "Dr Ayana Ghosh",
     "title": "Assistant Professor, Department of Physics",
     "company": "Indian Institute of Technology Madras",
-    "bio": "",
+    "bio": "Dr Ayana Ghosh is an Assistant Professor in the Department of Physics at IIT Madras. Prior to joining IIT Madras, she was a Staff Scientist at Oak Ridge National Laboratory (ORNL), following her postdoctoral research there. She received her PhD in Materials Science and Engineering from the University of Connecticut in 2020 and her BS in Physics and Abstract Mathematics from the University of Michigan in 2015.\nHer research lies at the intersection of materials physics, computational physics, and machine learning, with a focus on understanding emergent phenomena by connecting microscopic theory with experimental observations. Her work spans complex oxides, two-dimensional systems, and hybrid materials, with an emphasis on developing data-driven approaches for scientific discovery and understanding.\nShe has authored more than 50 peer-reviewed publications and delivered invited talks at international conferences in physics and materials science. Her honors include the ORNL Director’s Award (2024), the ORNL Early Career Research Accomplishment Award (2024), the Early Discovery Award (2024) from the American Ceramic Society, and recognition as a Rising Star in Computational and Data Sciences (2022) at Sandia National Laboratories.",
     "photo": "/people/ayana-ghosh.webp",
     "links": {
       "twitter": null,
@@ -349,10 +349,10 @@
   },
   {
     "slug": "natarajan",
-    "name": "Dr Natarajan",
-    "title": "Speaker",
-    "company": "TBD",
-    "bio": "",
+    "name": "Dr Lakshmanan Nataraj",
+    "title": "Independent AI Researcher, Consultant & Advisor",
+    "company": "Independent",
+    "bio": "Lakshmanan Nataraj is an independent AI researcher, consultant, and advisor with 15+ years of experience in signal processing, cybersecurity, computer vision, and artificial intelligence. He is known for his pioneering malware visualization research and contributions to GAN-generated image detection, media forensics, and satellite image authentication. His work spans 25+ research papers, 8 US patents, and 5,000+ citations.\nHe has served as PI/Co-PI on research programs funded by DARPA, ONR, and NGA, contributed to the DARPA MediFor initiative, and was recognized as a Dagstuhl Scholar in 2022. He currently advises organizations on AI research, adoption, AI for Science, and AI safety, including the Institute of Financial Management and Research (IFMR) and Krea University as a Visiting Associate Professor. He is also involved in the Anusandhan National Research Foundation (ANRF) initiatives, including Saral AI and the MAHA AI for Science and Engineering program.",
     "photo": "/people/natarajan.webp",
     "links": {
       "twitter": null,
