@@ -418,5 +418,20 @@
       "github": null
     },
     "talkIds": ["sponsor-talk"]
+  },
+  {
+    "slug": "kartikey-rawat",
+    "name": "Kartikey Rawat",
+    "title": "Senior AI/ML Engineer and Developer Advocate",
+    "company": "Qualcomm",
+    "bio": "Kartikey Rawat is passionate about Machine Learning, Edge AI and open-source innovation, and has contributed to TensorFlow through the TF.js project, enabling ML in the browser and beyond. A Google Developer Expert (GDE) in ML specialising in Computer Vision, Kartikey enjoys exploring cutting-edge frameworks like Keras, Gemma and on-device AI solutions.\nKartikey thrives on building impactful developer experiences, sharing knowledge through community initiatives, and pushing the boundaries of AI on mobile and embedded platforms.",
+    "photo": "/people/kartikey-rawat.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/carrycooldude/",
+      "github": null
+    },
+    "talkIds": ["building-ai-at-the-edge-developing-intelligent-applications-"]
   }
 ]
