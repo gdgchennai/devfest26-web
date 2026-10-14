@@ -9,6 +9,7 @@ import { siteConfig } from "@/site.config";
 import { HeaderTitle } from "@/components/HeaderTitleContext";
 import { AdminSessionRow } from "@/components/admin/AdminSessionRow";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminTrackTabs } from "@/components/admin/AdminTrackTabs";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -32,6 +33,16 @@ export default async function AdminPage() {
   const [allSessions, statuses] = await Promise.all([getAgenda(), getSessionStatuses()]);
   // Each person only sees (and can change) the tracks they hold a role on.
   const agenda = allSessions.filter((s) => canManageSession(access, s.track));
+  const groups = [
+    { slug: "general", name: "General (no track)", track: null as string | null },
+    ...siteConfig.tracks.map((t) => ({ slug: t.slug, name: t.name, track: t.slug as string | null })),
+  ]
+    .map(({ slug, name, track }) => ({
+      slug,
+      name,
+      sessions: agenda.filter((s) => s.track === track).sort((a, b) => a.start.localeCompare(b.start)),
+    }))
+    .filter((g) => g.sessions.length > 0);
 
   return (
     <>
@@ -44,38 +55,28 @@ export default async function AdminPage() {
           notifications on.
         </p>
 
-        {[
-          { slug: "general", name: "General (no track)", sessions: agenda.filter((s) => s.track === null) },
-          ...siteConfig.tracks.map((track) => ({
-            slug: track.slug,
-            name: track.name,
-            sessions: agenda.filter((s) => s.track === track.slug),
-          })),
-        ].map(({ slug, name, sessions: trackSessions }) => {
-          const sessions = [...trackSessions].sort((a, b) => a.start.localeCompare(b.start));
-          if (sessions.length === 0) return null;
-          return (
-            <section key={slug} className="mt-8 sm:mt-10">
-              <h2 className="text-lg font-medium text-paper">{name}</h2>
-              <div className="mt-2">
-                {sessions.map((s) => {
-                  const key = sessionKey(s);
-                  return (
-                    <AdminSessionRow
-                      key={key}
-                      sessionKey={key}
-                      title={s.title}
-                      hall={s.hall}
-                      start={s.start}
-                      end={s.end}
-                      initialStatus={statuses[key] ?? "upcoming"}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
+        <AdminTrackTabs
+          tabs={groups.map(({ slug, name }) => ({ slug, name }))}
+          panels={Object.fromEntries(
+            groups.map(({ slug, sessions }) => [
+              slug,
+              sessions.map((s) => {
+                const key = sessionKey(s);
+                return (
+                  <AdminSessionRow
+                    key={key}
+                    sessionKey={key}
+                    title={s.title}
+                    hall={s.hall}
+                    start={s.start}
+                    end={s.end}
+                    initialStatus={statuses[key] ?? "upcoming"}
+                  />
+                );
+              }),
+            ]),
+          )}
+        />
       </div>
     </>
   );
