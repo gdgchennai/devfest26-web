@@ -62,9 +62,27 @@ Wrangler `deploy --dry-run` only (no upload):
 
 No runtime dependency added. The isolated app omits production analytics/auth side effects, so these measurements do not replace a full production integration bundle check.
 
-## Still unverified
+## Browser verification completed
 
-Browser navigation to `http://127.0.0.1:8787` was repeatedly rejected by the browser tool's saved user permission policy, including after user approval and permission-change attempts. No alternative browser/CDP path was used to bypass it. Thus **desktop and 320/375/390px visual QA, lite=0/lite=1 rendered behavior, keyboard/focus restoration, touch dragging, screen-reader output and watched transitions remain unverified**. The markup and regression tests are not substitutes for those checks.
+Browser permission was subsequently accepted and the isolated runtime was restarted. Actual rendered QA then passed on 15 October 2026 in the in-app browser; no feature code changes were required by this pass.
+
+- Public page inspected at **1280px desktop and 320/375/390 CSS-pixel phone widths**, in both `lite=0` and `lite=1`. DOM viewport dimensions and document scroll widths were checked: no horizontal overflow. Below 360px next previews stack; larger phone widths retain the 3:1 split and readable wrapping of real long titles. Desktop rows align in four columns. Organizer controls were also inspected at phone and desktop widths (eight forms, two desktop columns).
+- Full-mode menu was watched open and close, including the restrained Live dot; lite disclosure opened instantly and included the same Live destination. The stored lite choice persisted across navigation.
+- Shared D6 schedule showed all three simultaneous current tracks. F&B schedule showed relocated breaks without inventing an occupancy zone. Session descriptions replaced the schedule dialog; only one dialog was visible. Shift+Tab wrapped inside details, Back focused the exact original schedule entry, and Escape restored the hall opener.
+- Organizer saved 100% occupancy: public progress value became 100, with Full and 0% remaining. A subsequent 25% save appeared immediately in the public view. Recommended alone did not sort ahead of that lower occupancy; pin changes did. Keyboard Up ordering and actual pointer dragging at phone width both changed the saved list and public order.
+- While keyboard focus stayed in a card, removing its pin updated the badge immediately but preserved physical row position. Moving focus out allowed occupancy ordering to resume.
+- Native datetime keyboard editing advanced the shared clock exactly to 11:10 IST. Tech switched from Kotlin to Gemma, its expired session pin disappeared, the 25% measurement persisted, and age became Stale · 10 min ago. Browser locator filling of the native datetime widget did not commit the React edit on this host; native keyboard editing did.
+- Public identity showed Sign in required; each assigned lead saw exactly its own form and no promotion controls; unassigned identity showed assignment guidance. Organizer restored all eight controls.
+- Intentional runtime shutdown showed Offline / reconnecting while retaining measurements. Restart automatically reconnected and resnapshotted without a page reload.
+- Accessibility-tree inspection confirmed named progress values, dialogs, buttons, headings, assignment guidance and status text. This does not claim spoken screen-reader or physical touch-device testing.
+
+Screenshots: [desktop live](hall-live-qa/desktop-lite.jpg), [desktop controls](hall-live-qa/admin-desktop.jpg), [320px full-mode cards](hall-live-qa/mobile-320-full.jpg), [390px lite cards](hall-live-qa/mobile-390-lite.jpg). Additional viewport captures were saved under `/tmp/hall-visual-qa/` on the implementation host. Temporary viewport overrides were cleared; the public preview was kept open.
+
+QA changed only isolated fixture data after the recorded load run; its historical revision 1519 and benchmark metrics remain unchanged. The post-QA audit has **1529 contiguous revisions**, no stranded outbox or partial guard, and valid measurements. The clock was restored to frozen 11:00 IST for review.
+
+## Remaining verification limits
+
+Physical touchscreen gestures, spoken screen-reader output and a separate OS-level reduced-motion preference were not exercised; phone-width pointer interaction, keyboard behavior, accessibility-tree semantics and the lite baseline were checked. Existing navigation prefetches of non-feature ISR pages logged a missing dummy revalidation queue in this isolated preview; the hall pages/APIs passed, and full-site cache integration remains outside this test feature.
 
 There was no eight-hour soak, forced hosted hibernation eviction, hosted slow-reader test, production OAuth test or hosted Free-tier CPU verification. Hibernation-compatible APIs and durable reconstruction are implemented; local restart persistence and outbox recovery were tested. Workers does not expose bufferedAmount, so strict application-side slow-reader buffer accounting is a remaining limitation; send failures close clients for resnapshot.
 
