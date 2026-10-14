@@ -1799,3 +1799,42 @@ html.gpu .agenda-board-card {
     animation: glow-rotate 6s linear infinite;
   }
 }
+
+/*
+ * Partner logo marquee (components/PartnersMarquee.tsx). The track holds two
+ * identical halves, so sliding it left by exactly 50% loops seamlessly. Lite
+ * mode (and reduced-motion, which is lite by default) drops the animation and
+ * lets the first half wrap as a static, centred row; the second half is hidden.
+ */
+@keyframes partners-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.partners-marquee {
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+html.lite .partners-marquee {
+  mask-image: none;
+}
+.partners-track {
+  animation: partners-marquee 40s linear infinite;
+}
+.partners-marquee:hover .partners-track {
+  animation-play-state: paused;
+}
+html.lite .partners-track {
+  animation: none;
+  width: 100%;
+  justify-content: center;
+}
+html.lite .partners-track > ul {
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem 3rem;
+  padding: 0 1.5rem;
+}
+html.lite .partners-dupe {
+  display: none;
+}

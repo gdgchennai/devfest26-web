@@ -101,7 +101,7 @@ export function SeeYouThereSection() {
   return (
     <section
       ref={wrapRef}
-      className="relative flex min-h-[55vh] flex-col items-center justify-center gap-10 px-6 pb-16 pt-32 text-center sm:min-h-[70vh] sm:px-10 sm:pt-48"
+      className="relative flex flex-col items-center justify-center gap-10 px-6 pb-16 pt-12 text-center sm:px-10 sm:pt-16"
     >
       <h2
         ref={headingRef}

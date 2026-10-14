@@ -813,6 +813,64 @@ export const uiCopy = {
     heading: "What's your DevFest vibe?",
   },
 
+  sponsorsSection: {
+    heading: "Our sponsors",
+    // Add a sponsor by dropping its logo in public/sponsors/ (SVG or PNG, white/light
+    // on transparent — the section sits on black) and listing it under its tier.
+    // Tiers render in this order; a tier with no sponsors is skipped, and with no
+    // sponsors at all the whole section is hidden. `size` picks the logo height.
+    tiers: [
+      {
+        label: "Platinum",
+        size: "lg",
+        sponsors: [
+          {
+            name: "AGI Inc",
+            logo: "/sponsors/agi-inc.svg",
+            href: "https://theagi.company/?utm_source=gdgchennai&utm_medium=devfest",
+          },
+        ],
+      },
+      {
+        label: "Gold",
+        size: "md",
+        sponsors: [
+          {
+            name: "Qualcomm Developer",
+            logo: "/sponsors/qualcomm-developer.svg",
+            href: "https://www.qualcomm.com/developer?utm_medium=devfest&utm_source=gdgchennai",
+          },
+          {
+            name: "Poshmark",
+            logo: "/sponsors/poshmark.svg",
+            href: "https://poshmark.com/?utm_source=gdgchennai&utm_medium=devfest",
+          },
+        ],
+      },
+    ] as readonly {
+      label: string;
+      size: "lg" | "md" | "sm";
+      sponsors: readonly { name: string; logo: string; href?: string }[];
+    }[],
+  },
+
+  partnersMarquee: {
+    // Partner logos for the marquee above "See you there!". Drop white/light-on-
+    // transparent logos in public/partners/ and list them here; no entries = no
+    // marquee.
+    heading: "Community Partners",
+    items: [
+      { name: "AI for Science", logo: "/partners/ai-for-science.svg" },
+      { name: "AI Geeks", logo: "/partners/ai-geeks.svg" },
+      { name: "Chennai React", logo: "/partners/chennai-react.svg" },
+      { name: "GDG Cloud", logo: "/partners/gdg-cloud.svg" },
+      { name: "Grafana", logo: "/partners/grafana.svg" },
+      { name: "Kubernetes User Group", logo: "/partners/kug.svg" },
+      { name: "MongoDB", logo: "/partners/mongo.svg" },
+      { name: "UAI", logo: "/partners/uai.svg" },
+    ] as readonly { name: string; logo: string; href?: string }[],
+  },
+
   seeYouThereSection: {
     heading: "See you there!",
     // `href` optional: a link without one stays an unwired placeholder (a no-op

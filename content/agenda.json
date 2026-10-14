@@ -44,9 +44,13 @@
     "hall": "D7 Auditorium",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "sanju-sivalingam"
+      "sanju-sivalingam"
     ],
+    "description": "Sponsored talk",
+    "prerequisites": []
     "description": "Sponsored talk",
     "prerequisites": []
   },
@@ -59,9 +63,12 @@
     "hall": "D7 Auditorium",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "kartikey-rawat"
     ],
+    "description": "Sponsored talk",
+    "prerequisites": []
     "description": "Sponsored talk",
     "prerequisites": []
   },
@@ -136,7 +143,10 @@
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [],
+    "description": "Come and see what the community is doing.",
+    "prerequisites": []
     "description": "Come and see what the community is doing.",
     "prerequisites": []
   },
@@ -149,7 +159,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -166,11 +183,15 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [],
+    "description": "Come vibe your way",
+    "prerequisites": []
     "description": "Come vibe your way",
     "prerequisites": []
   },
   {
+    "id": "workshop-agi",
     "id": "workshop-agi",
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
@@ -178,6 +199,7 @@
     "title": "Offload Testing to Agents",
     "hall": "Raman Hall",
     "type": "workshop",
+    "level": "Beginner",
     "level": "Beginner",
     "speakerSlugs": [
       "somasundaram-mahesh"
@@ -231,7 +253,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -248,7 +277,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -264,6 +300,7 @@
     "title": "When AI Leaves the Lab: Building Physical AI People Can Trust",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "level": "Intermediate",
     "speakerSlugs": [
       "pulkit-verma"
@@ -300,7 +337,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -316,6 +360,7 @@
     "title": "Developing and Using OWASP Nettacker for Security Testing",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "level": "Beginner",
     "speakerSlugs": [
       "achintya-jai"
@@ -334,6 +379,7 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "gokulbarath"
     ],
@@ -348,6 +394,7 @@
     "title": "Automatic Defect Detection of Water / Sewer Pipeline",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "level": "Intermediate",
     "speakerSlugs": [
       "moumita-mukherjee"
@@ -366,7 +413,10 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [],
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
     "description": "Talk details will be updated soon.",
     "prerequisites": []
   },
@@ -397,7 +447,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -520,6 +577,7 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "rashmi-asokan"
     ],
@@ -534,6 +592,7 @@
     "title": "Building Physical AI: An Arduino UNO Q Workshop for Edge AI and Sensors (Group activity, Limited seats only)",
     "hall": "Raman Hall",
     "type": "workshop",
+    "level": "Intermediate",
     "level": "Intermediate",
     "speakerSlugs": [
       "salman-faris"
@@ -571,6 +630,7 @@
     "hall": "D7 Amphitheater",
     "type": "talk",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [
       "natarajan"
     ],
@@ -588,7 +648,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The best agent duels",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The best agent duels",
     "prerequisites": [
       "Antigravity",
@@ -605,7 +672,10 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [],
+    "description": "Come vibe your way",
+    "prerequisites": []
     "description": "Come vibe your way",
     "prerequisites": []
   },
@@ -629,7 +699,10 @@
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [],
+    "description": "Come and see what the community is doing.",
+    "prerequisites": []
     "description": "Come and see what the community is doing.",
     "prerequisites": []
   },
@@ -642,7 +715,14 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [],
+    "description": "The epic battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
     "description": "The epic battle of the agents",
     "prerequisites": [
       "Antigravity",
@@ -709,6 +789,7 @@
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "gokulakrishnan-l"
     ],
@@ -741,6 +822,7 @@
     "hall": "D7 Amphitheater",
     "type": "talk",
     "level": "Intermediate",
+    "level": "Intermediate",
     "speakerSlugs": [
       "ayana-ghosh"
     ],
@@ -757,6 +839,7 @@
     "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "level": "Beginner",
     "speakerSlugs": [
       "srushti-raybhoge"
@@ -794,9 +877,12 @@
     "hall": "D7 Auditorium",
     "type": "talk",
     "level": "Beginner",
+    "level": "Beginner",
     "speakerSlugs": [
       "hariprasad-sudharshan"
     ],
+    "description": "Frequently driving across the Bay Area, Hari discovers the talk of the town just from the billboards full of AI startups. It is undoubtedly the Mecca of tech: every room you enter is trying to build the next 100-million-dollar company, and they go after hard problems. Hari lives in the US and works in AI, and his upbringing in Chennai gives him a vantage point. This talk shares what that culture looks like, and where and how he thinks Chennai should compete in AI.",
+    "prerequisites": []
     "description": "Frequently driving across the Bay Area, Hari discovers the talk of the town just from the billboards full of AI startups. It is undoubtedly the Mecca of tech: every room you enter is trying to build the next 100-million-dollar company, and they go after hard problems. Hari lives in the US and works in AI, and his upbringing in Chennai gives him a vantage point. This talk shares what that culture looks like, and where and how he thinks Chennai should compete in AI.",
     "prerequisites": []
   },
@@ -808,6 +894,7 @@
     "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "level": "Beginner",
     "speakerSlugs": [
       "varun-poladiya"
