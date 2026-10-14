@@ -779,7 +779,7 @@
     "speakerSlugs": [
       "kartikey-rawat"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "This talk covers:\n• The Age of Inference\n• Why On-Device AI and Edge Compute\n• Preparing models for the Edge\n• Quantization\n• Android Integration and JNI Design\n• Performance lifecycle and production considerations",
     "prerequisites": []
   },
   {
