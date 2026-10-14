@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { currentAdminUser, isAdminEmail } from "@/lib/admin";
+import { getAccess, canViewPeople, grantableTracks, isAdminEmail } from "@/lib/admin";
+import { listAllRoles } from "@/lib/track-roles";
+import { siteConfig } from "@/site.config";
 import { listUsersWithTicketNames } from "@/lib/users";
 import { HeaderTitle } from "@/components/HeaderTitleContext";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -42,10 +44,17 @@ export default async function AdminUsersPage({
   if (!session?.user?.uid) {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/admin/users")}`);
   }
-  const me = await currentAdminUser(session.user.uid);
+  const me = await getAccess(session.user.uid);
   if (!me) {
     redirect("/");
   }
+  // Track leads can mark sessions but never see people.
+  if (!canViewPeople(me)) {
+    redirect("/admin");
+  }
+  const rolesByUser = await listAllRoles();
+  const trackNames = Object.fromEntries(siteConfig.tracks.map((t) => [t.slug, t.name]));
+  const editableTracks = [...grantableTracks(me)];
 
   const all = await listUsersWithTicketNames();
   const needle = q.toLowerCase();
@@ -62,12 +71,12 @@ export default async function AdminUsersPage({
     <>
       <HeaderTitle title="Admin — People" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <AdminNav active="/admin/users" />
+        <AdminNav active="/admin/users" showPeople />
         <h1 className="mt-4 text-xl font-bold text-paper sm:text-2xl">People</h1>
         <p className="mt-1 max-w-md text-sm text-paper/60">
           Every signed-in account, with the ticket name resolved the same way the profile
           page shows it (so &quot;Volunteer&quot; or &quot;Core Team&quot; shows up here if
-          that&apos;s the ticket name KonfHub gave them). Grant admin access from here.
+          that&apos;s the ticket name KonfHub gave them). Grant roles from here, for the tracks you run.
         </p>
 
         <form action="/admin/users" method="get" role="search" className="mt-6 flex gap-2">
@@ -110,9 +119,11 @@ export default async function AdminUsersPage({
                 name={user.display_name ?? user.name}
                 email={user.email}
                 ticketName={user.ticket_name}
-                initialIsAdmin={user.is_admin === 1}
-                envManaged={await isAdminEmail(user.email)}
-                isSelf={user.id === me.id}
+                initialRoles={rolesByUser.get(user.id) ?? []}
+                trackNames={trackNames}
+                editableTracks={editableTracks}
+                isSuperAdmin={await isAdminEmail(user.email)}
+                isSelf={user.id === me.user.id}
               />
             )),
           )}

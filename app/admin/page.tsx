@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { currentAdminUser } from "@/lib/admin";
+import { getAccess, canManageSession, canViewPeople } from "@/lib/admin";
 import { getAgenda } from "@/lib/content";
 import { getSessionStatuses } from "@/lib/session-status";
 import { sessionKey } from "@/lib/session-key";
@@ -24,17 +24,20 @@ export default async function AdminPage() {
   if (!session?.user?.uid) {
     redirect(`/signin?callbackUrl=${encodeURIComponent("/admin")}`);
   }
-  if (!(await currentAdminUser(session.user.uid))) {
+  const access = await getAccess(session.user.uid);
+  if (!access) {
     redirect("/");
   }
 
-  const [agenda, statuses] = await Promise.all([getAgenda(), getSessionStatuses()]);
+  const [allSessions, statuses] = await Promise.all([getAgenda(), getSessionStatuses()]);
+  // Each person only sees (and can change) the tracks they hold a role on.
+  const agenda = allSessions.filter((s) => canManageSession(access, s.track));
 
   return (
     <>
       <HeaderTitle title="Admin" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 pb-16 pt-24 sm:px-8 sm:pt-28">
-        <AdminNav active="/admin" />
+        <AdminNav active="/admin" showPeople={canViewPeople(access)} />
         <h1 className="mt-4 text-xl font-bold text-paper sm:text-2xl">Session status</h1>
         <p className="mt-1 max-w-md text-sm text-paper/60">
           Marking a session started or ended notifies everyone who saved it and has push

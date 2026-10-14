@@ -5,10 +5,10 @@ const TABS = [
   { href: "/admin/users", label: "People" },
 ] as const;
 
-export function AdminNav({ active }: { active: "/admin" | "/admin/users" }) {
+export function AdminNav({ active, showPeople }: { active: "/admin" | "/admin/users"; showPeople: boolean }) {
   return (
     <nav className="flex gap-2">
-      {TABS.map((tab) => (
+      {TABS.filter((tab) => showPeople || tab.href === "/admin").map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}
