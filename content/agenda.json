@@ -40,10 +40,12 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T09:45:00+05:30",
     "end": "2026-10-17T10:15:00+05:30",
-    "title": "Sponsor Talk: AGI, Inc.",
+    "title": "The Next Billion Users Won't Be Human",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "sanju"
+    ],
     "description": "Sponsored talk"
   },
   {
@@ -51,10 +53,12 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T10:15:00+05:30",
     "end": "2026-10-17T10:25:00+05:30",
-    "title": "Sponsor Talk: Qualcomm",
+    "title": "Qualcomm as a Dev-AI Native Company",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "kartikey-rawat"
+    ],
     "description": "Sponsored talk"
   },
   {
@@ -62,10 +66,13 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T10:25:00+05:30",
     "end": "2026-10-17T10:35:00+05:30",
-    "title": "Sponsor Talk: Poshmark",
+    "title": "From Models to Decisions: How AI Is Reshaping Poshmark and Fashion Marketplace",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "manu-vishwakarma",
+      "shreya-sevelar"
+    ],
     "description": "Sponsored talk"
   },
   {
@@ -143,17 +150,19 @@
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:30:00+05:30",
-    "title": "Workshop by AGI",
+    "title": "Offload Testing to Agents",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "somasundaram-mahesh"
+    ],
     "description": "Sponsored workshop"
   },
   {
     "id": "simplified-performance-debugging-for-native-cross-platform-a",
     "track": "lightning",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:15:00+05:30",
+    "end": "2026-10-17T11:20:00+05:30",
     "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
@@ -213,8 +222,8 @@
   {
     "id": "ai-assisted-sres-are-a-thing",
     "track": "lightning",
-    "start": "2026-10-17T11:20:00+05:30",
-    "end": "2026-10-17T11:35:00+05:30",
+    "start": "2026-10-17T11:25:00+05:30",
+    "end": "2026-10-17T11:45:00+05:30",
     "title": "AI Assisted SREs Are a Thing!",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
@@ -250,8 +259,8 @@
   {
     "id": "local-ai-the-google-gemma-edition",
     "track": "lightning",
-    "start": "2026-10-17T11:40:00+05:30",
-    "end": "2026-10-17T11:55:00+05:30",
+    "start": "2026-10-17T11:50:00+05:30",
+    "end": "2026-10-17T12:10:00+05:30",
     "title": "Local AI: The Google Gemma Edition",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
@@ -270,19 +279,6 @@
     "type": "talk",
     "speakerSlugs": [
       "moumita-mukherjee"
-    ],
-    "description": "Talk details will be updated soon."
-  },
-  {
-    "id": "rethinking-infrastructure-for-agentic-workloads",
-    "track": "lightning",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:15:00+05:30",
-    "title": "Rethinking Infrastructure for Agentic Workloads",
-    "hall": "D6 Multi-purpose Hall",
-    "type": "talk",
-    "speakerSlugs": [
-      "dhanush-kandhan"
     ],
     "description": "Talk details will be updated soon."
   },
@@ -311,15 +307,28 @@
     "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
   },
   {
-    "id": "building-privacy-first-edge-ai-with-gemma-4",
+    "id": "agent-wars-live-tournament-qualifiers-extended",
+    "track": "agent-wars",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:30:00+05:30",
+    "title": "Agent Wars: Live Tournament (Qualifiers Extended)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "The battle of the agents"
+  },
+  {
+    "id": "rethinking-infrastructure-for-agentic-workloads",
     "track": "lightning",
-    "start": "2026-10-17T12:20:00+05:30",
+    "start": "2026-10-17T12:15:00+05:30",
     "end": "2026-10-17T12:35:00+05:30",
-    "title": "Building Privacy-First Edge AI with Gemma 4: Lessons from Winning a Google Build with AI Hackathon",
+    "title": "Rethinking Infrastructure for Agentic Workloads",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "speakerSlugs": ["gokulakrishnan-l"],
-    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations."
+    "speakerSlugs": [
+      "dhanush-kandhan"
+    ],
+    "description": "Talk details will be updated soon."
   },
   {
     "id": "lunch-2",
@@ -335,6 +344,17 @@
   {
     "id": "lunch-7",
     "track": "d7-amphitheater",
+    "start": "2026-10-17T12:30:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Fuel for mind, heart and tummy!"
+  },
+  {
+    "id": "lunch-8",
+    "track": "raman-hall",
     "start": "2026-10-17T12:30:00+05:30",
     "end": "2026-10-17T13:45:00+05:30",
     "title": "Lunch",
@@ -402,7 +422,7 @@
     "id": "lessons-from-building-an-ai-native-product-ground-up",
     "track": "lightning",
     "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T14:15:00+05:30",
+    "end": "2026-10-17T14:20:00+05:30",
     "title": "Lessons from Building an AI Native Product Ground Up",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
@@ -416,10 +436,12 @@
     "track": "raman-hall",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T16:45:00+05:30",
-    "title": "Hardware Lab (Group activity, Limited seats only)",
+    "title": "Building Physical AI: An Arduino UNO Q Workshop for Edge AI and Sensors (Group activity, Limited seats only)",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "salman-faris"
+    ],
     "description": "Play and build with Arduino UNO Q kits"
   },
   {
@@ -474,7 +496,7 @@
     "id": "creators-lounge-2",
     "track": "creators-lounge",
     "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T16:15:00+05:30",
     "title": "Creators Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
@@ -485,7 +507,7 @@
     "id": "meetup-lounge-2",
     "track": "meetup-lounge",
     "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T16:15:00+05:30",
     "title": "Meetup Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
@@ -493,10 +515,21 @@
     "description": "Come and see what the community is doing."
   },
   {
+    "id": "agent-wars-live-tournament-finals",
+    "track": "agent-wars",
+    "start": "2026-10-17T14:20:00+05:30",
+    "end": "2026-10-17T16:30:00+05:30",
+    "title": "Agent Wars: Live Tournament (Finals)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "The epic battle of the agents"
+  },
+  {
     "id": "running-ai-where-it-matters-open-source-on-device-inference-",
     "track": "lightning",
-    "start": "2026-10-17T14:20:00+05:30",
-    "end": "2026-10-17T14:35:00+05:30",
+    "start": "2026-10-17T14:25:00+05:30",
+    "end": "2026-10-17T14:45:00+05:30",
     "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
@@ -504,17 +537,6 @@
       "aakash-dhakshnamoorthy"
     ],
     "description": "Talk details will be updated soon."
-  },
-  {
-    "id": "agent-wars-live-tournament-finals",
-    "track": "agent-wars",
-    "start": "2026-10-17T14:20:00+05:30",
-    "end": "2026-10-17T14:50:00+05:30",
-    "title": "Agent Wars: Live Tournament (Finals)",
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition",
-    "speakerSlugs": [],
-    "description": "The epic battle of the agents"
   },
   {
     "id": "from-receipts-to-smart-search-productionizing-gemini-nano-on",
@@ -542,6 +564,19 @@
     ]
   },
   {
+    "id": "building-privacy-first-edge-ai-with-gemma-4",
+    "track": "lightning",
+    "start": "2026-10-17T14:50:00+05:30",
+    "end": "2026-10-17T15:10:00+05:30",
+    "title": "Building Privacy-First Edge AI with Gemma 4: Lessons from Winning a Google Build with AI Hackathon",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "gokulakrishnan-l"
+    ],
+    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations."
+  },
+  {
     "id": "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:50:00+05:30",
@@ -558,7 +593,7 @@
     "id": "deep-tech-workshop-machine-learning-the-physical-world",
     "track": "d7-amphitheater",
     "start": "2026-10-17T15:10:00+05:30",
-    "end": "2026-10-17T16:10:00+05:30",
+    "end": "2026-10-17T16:30:00+05:30",
     "title": "Machine Learning the Physical World",
     "hall": "D7 Amphitheater",
     "type": "talk",
@@ -581,17 +616,30 @@
     "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering."
   },
   {
-    "id": "agentic-sre-with-google-cloud-detect-diagnose-and-remediate-",
+    "id": "building-ai-at-the-edge-developing-intelligent-applications-",
+    "track": "lightning",
+    "start": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T15:35:00+05:30",
+    "title": "Building AI at the Edge: Developing Intelligent Applications with Qualcomm AI Stack and On-Device AI",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "talk",
+    "speakerSlugs": [
+      "kartikey-rawat"
+    ],
+    "description": "Talk details will be updated soon."
+  },
+  {
+    "id": "opportunities-in-ai-personal-observations-on-culture-of-gold",
     "track": "d7-auditorium",
     "start": "2026-10-17T15:40:00+05:30",
     "end": "2026-10-17T16:05:00+05:30",
-    "title": "Agentic SRE with Google Cloud: Detect, Diagnose, and Remediate Faster",
+    "title": "Opportunities in AI: Personal Observations on Culture of Goldrush in California",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [
-      "neel-shah"
+      "hariprasad-sudharshan"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Frequently driving across the Bay Area, Hari discovers the talk of the town just from the billboards full of AI startups. It is undoubtedly the Mecca of tech: every room you enter is trying to build the next 100-million-dollar company, and they go after hard problems. Hari lives in the US and works in AI, and his upbringing in Chennai gives him a vantage point. This talk shares what that culture looks like, and where and how he thinks Chennai should compete in AI."
   },
   {
     "id": "using-gemini-and-ai-studio-to-build-a-lead-gen-engine-for-b2",
@@ -664,7 +712,7 @@
   {
     "id": "closing-note",
     "track": "d7-auditorium",
-    "start": "2026-10-17T17:15:00+05:30",
+    "start": "2026-10-17T17:00:00+05:30",
     "end": "2026-10-17T17:30:00+05:30",
     "title": "Closing Note",
     "hall": "D7 Auditorium",
