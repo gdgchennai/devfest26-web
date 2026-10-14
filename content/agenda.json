@@ -657,6 +657,7 @@
     "speakerSlugs": [
       "nimeshika"
     ],
+    "description": "This talk is about the use of AI and VR in healthcare. For AI, I will focus on how it is currently being used in healthcare settings (e.g. precision medicine). For VR, I will focus on how VR is being integrated into healthcare education to train the clinicians of tomorrow. I will also touch upon ‘patient care’ modules, which are how VR is being implemented in hospitals across the world to educate patients and also help ease their pain in certain clinical instances. This will cover the work we are doing at MediSim VR.",
     "prerequisites": []
   },
   {
