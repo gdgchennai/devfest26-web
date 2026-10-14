@@ -43,7 +43,9 @@
     "title": "Sponsor Talk: AGI, Inc.",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "sanju"
+    ],
     "description": "Sponsored talk"
   },
   {

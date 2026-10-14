@@ -130,22 +130,6 @@
     ]
   },
   {
-    "slug": "neel-shah",
-    "name": "Neel Shah",
-    "title": "Developer Advocate (GDE, Cloud)",
-    "company": "StackGen",
-    "bio": "",
-    "photo": "/people/neel-shah.webp",
-    "links": {
-      "twitter": null,
-      "linkedin": null,
-      "github": null
-    },
-    "talkIds": [
-      "agentic-sre-with-google-cloud-detect-diagnose-and-remediate-"
-    ]
-  },
-  {
     "slug": "aditya-shinde",
     "name": "Aditya Shinde",
     "title": "Founder",
@@ -419,5 +403,20 @@
       "github": null
     },
     "talkIds": ["opportunities-in-ai-personal-observations-on-culture-of-gold"]
+  },
+  {
+    "slug": "sanju",
+    "name": "Sanju",
+    "title": "Founding Engineer",
+    "company": "AGI, Inc.",
+    "bio": "Sanju is the founder of THISUX, leading a team of developers and designers who build software users want to use. The team specialises in user-centric UX/UI design, modern web and mobile engineering, launching profitable MVPs and AI apps, working directly with startups and SMBs to design, develop and scale software within budget.",
+    "photo": "/people/sanju.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/imsanju/",
+      "github": null
+    },
+    "talkIds": ["sponsor-talk"]
   }
 ]
