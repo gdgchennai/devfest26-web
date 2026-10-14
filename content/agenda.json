@@ -44,9 +44,10 @@
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [
-      "sanju"
+      "sanju-sivalingam"
     ],
-    "description": "Sponsored talk"
+    "description": "Sponsored talk",
+    "prerequisites": []
   },
   {
     "id": "sponsor-talk-2",
@@ -59,7 +60,8 @@
     "speakerSlugs": [
       "kartikey-rawat"
     ],
-    "description": "Sponsored talk"
+    "description": "Sponsored talk",
+    "prerequisites": []
   },
   {
     "id": "sponsor-talk-3",
@@ -73,7 +75,8 @@
       "manu-vishwakarma",
       "shreya-sevelar"
     ],
-    "description": "Sponsored talk"
+    "description": "Sponsored talk",
+    "prerequisites": []
   },
   {
     "id": "kotlin-over-the-air-reimagining-android-kmp-app-delivery",
@@ -86,7 +89,8 @@
     "speakerSlugs": [
       "aditya-shinde"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "can-ai-help-a-city-breathe",
@@ -99,7 +103,8 @@
     "speakerSlugs": [
       "dishant-parakh"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "creators-lounge",
@@ -156,7 +161,8 @@
     "speakerSlugs": [
       "somasundaram-mahesh"
     ],
-    "description": "Sponsored workshop"
+    "description": "Sponsored workshop",
+    "prerequisites": []
   },
   {
     "id": "simplified-performance-debugging-for-native-cross-platform-a",
@@ -169,7 +175,8 @@
     "speakerSlugs": [
       "shangeeth-sivan-adiyapatham"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "gemma-101-fine-tuning-open-models-with-lora-transformers-and",
@@ -182,7 +189,8 @@
     "speakerSlugs": [
       "neeraj-pathak"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-round-2",
@@ -217,7 +225,8 @@
     "speakerSlugs": [
       "pulkit-verma"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "ai-assisted-sres-are-a-thing",
@@ -230,7 +239,8 @@
     "speakerSlugs": [
       "imran-roshan"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-rounds-4-6",
@@ -254,7 +264,8 @@
     "speakerSlugs": [
       "achintya-jai"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "local-ai-the-google-gemma-edition",
@@ -267,7 +278,8 @@
     "speakerSlugs": [
       "gokulbarath"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "deep-tech-talk-3",
@@ -280,7 +292,8 @@
     "speakerSlugs": [
       "moumita-mukherjee"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "vibe-coding-lounge-2",
@@ -304,7 +317,8 @@
     "speakerSlugs": [
       "saurabh-mishra"
     ],
-    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
+    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-qualifiers-extended",
@@ -328,7 +342,8 @@
     "speakerSlugs": [
       "dhanush-kandhan"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "lunch-2",
@@ -429,7 +444,8 @@
     "speakerSlugs": [
       "rashmi-asokan"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "hardware-lab",
@@ -442,7 +458,8 @@
     "speakerSlugs": [
       "salman-faris"
     ],
-    "description": "Play and build with Arduino UNO Q kits"
+    "description": "Play and build with Arduino UNO Q kits",
+    "prerequisites": []
   },
   {
     "id": "don-t-let-ai-agents-push-your-buttons-building-the-agentic-w",
@@ -455,7 +472,8 @@
     "speakerSlugs": [
       "jeeththenthar-l"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "deep-tech-talk-4",
@@ -468,7 +486,8 @@
     "speakerSlugs": [
       "natarajan"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-semi-finals",
@@ -536,7 +555,8 @@
     "speakerSlugs": [
       "aakash-dhakshnamoorthy"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "from-receipts-to-smart-search-productionizing-gemini-nano-on",
@@ -549,7 +569,8 @@
     "speakerSlugs": [
       "dinoy-raj"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "deep-tech-talk-5",
@@ -561,7 +582,8 @@
     "type": "talk",
     "speakerSlugs": [
       "nimeshika"
-    ]
+    ],
+    "prerequisites": []
   },
   {
     "id": "building-privacy-first-edge-ai-with-gemma-4",
@@ -574,7 +596,8 @@
     "speakerSlugs": [
       "gokulakrishnan-l"
     ],
-    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations."
+    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations.",
+    "prerequisites": []
   },
   {
     "id": "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems",
@@ -587,7 +610,8 @@
     "speakerSlugs": [
       "bhargav-patel"
     ],
-    "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week."
+    "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week.",
+    "prerequisites": []
   },
   {
     "id": "deep-tech-workshop-machine-learning-the-physical-world",
@@ -600,7 +624,8 @@
     "speakerSlugs": [
       "ayana-ghosh"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "secure-frontend-ai-building-smart-web-apps-with-firebase-ai-",
@@ -613,7 +638,8 @@
     "speakerSlugs": [
       "srushti-raybhoge"
     ],
-    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering."
+    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering.",
+    "prerequisites": []
   },
   {
     "id": "building-ai-at-the-edge-developing-intelligent-applications-",
@@ -626,7 +652,8 @@
     "speakerSlugs": [
       "kartikey-rawat"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "opportunities-in-ai-personal-observations-on-culture-of-gold",
@@ -639,7 +666,8 @@
     "speakerSlugs": [
       "hariprasad-sudharshan"
     ],
-    "description": "Frequently driving across the Bay Area, Hari discovers the talk of the town just from the billboards full of AI startups. It is undoubtedly the Mecca of tech: every room you enter is trying to build the next 100-million-dollar company, and they go after hard problems. Hari lives in the US and works in AI, and his upbringing in Chennai gives him a vantage point. This talk shares what that culture looks like, and where and how he thinks Chennai should compete in AI."
+    "description": "Frequently driving across the Bay Area, Hari discovers the talk of the town just from the billboards full of AI startups. It is undoubtedly the Mecca of tech: every room you enter is trying to build the next 100-million-dollar company, and they go after hard problems. Hari lives in the US and works in AI, and his upbringing in Chennai gives him a vantage point. This talk shares what that culture looks like, and where and how he thinks Chennai should compete in AI.",
+    "prerequisites": []
   },
   {
     "id": "using-gemini-and-ai-studio-to-build-a-lead-gen-engine-for-b2",
@@ -652,7 +680,8 @@
     "speakerSlugs": [
       "varun-poladiya"
     ],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "quick-break",

@@ -131,6 +131,19 @@ export function SessionDescriptionModal({
             <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-paper/80">{session.description}</p>
           )}
 
+          {(session.type === "talk" || session.type === "workshop") && (
+            <div className="mt-5">
+              <h3 className="text-xs uppercase tracking-wide text-paper/50">Pre Requisites</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-paper/80">
+                {session.prerequisites.length > 0 ? (
+                  session.prerequisites.map((item) => <li key={item}>{item}</li>)
+                ) : (
+                  <li>None</li>
+                )}
+              </ul>
+            </div>
+          )}
+
           <p className="mt-5 text-xs uppercase tracking-wide text-paper/50">{session.hall}</p>
         </div>
       </div>
