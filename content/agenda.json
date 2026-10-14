@@ -393,7 +393,7 @@
     "speakerSlugs": [
       "dhanush-kandhan"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "A case study on designing Google Cloud infrastructure, memory, authorization, isolation, execution, and observability for scalable MCP-based agentic workloads.\nSoftware was designed for human-paced traffic. Agentic workloads change that. A user can drive multiple agents making concurrent tool calls across systems, turning modest workloads into thousands of operations.\nMy team at letRetro faced this while building B2B agentic workflows. We built and operate our own MCP infrastructure on Google Cloud, rethinking execution, traffic, data and state.\nThis case study covers MCP traffic management, concurrent execution, tenant isolation, tool authorization, low-latency execution, failures, retries and observability.\nI’ll also cover how we built our own agent memory infrastructure instead of expanding system prompts or relying entirely on RAG. We redesigned application objects, relationships, workflow state, and interactions so agents retain durable context across tasks for B2B use cases.\nThe talk is for people building MCP servers and agent-enabled products, focusing on the architecture & trade-offs required to operate agentic workloads.",
     "prerequisites": []
   },
   {
@@ -627,7 +627,7 @@
     "speakerSlugs": [
       "aakash-dhakshnamoorthy"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "The talk covers Google LiteRT’s open-source stack for converting, quantizing, and deploying cloud-trained models to edge devices with offline and NPU-accelerated inference.\nCloud native architectures solved distributed computing. Now the frontier is the last mile: the device itself. Google LiteRT (formerly TensorFlow Lite, open sourced under Apache 2.0) is Google's production-grade runtime powering on-device AI across 2.7 billion devices. In this talk, we'll explore how LiteRT bridges the edge–cloud continuum: how models trained in the cloud (PyTorch, TensorFlow, JAX) are converted, quantized, and deployed to Android, iOS, web, and IoT with NPU acceleration and no cloud call at every inference. We'll cover the open source stack (LiteRT + LiteRT-LM + Gemma 4), real-world production patterns, and how cloud native teams can build privacy-first, offline-capable AI pipelines for the edge.",
     "prerequisites": []
   },
   {
