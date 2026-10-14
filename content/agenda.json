@@ -541,7 +541,7 @@
     "speakerSlugs": [
       "natarajan"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "This talk examines how unconventional problem representations and data-driven insights can lead to significant advances in applied research. Drawing on two case studies, Lakshmanan Nataraj discusses malware visualization, which transforms binary executables into images for malware classification, and GAN-generated image detection, which exploits subtle statistical and co-occurrence patterns to identify synthetic content.\nThe talk explores the technical ideas behind these contributions and their progression from research publications to patents, operational systems, and real-world applications. It also discusses strategies for identifying novel research directions, translating scientific insights into intellectual property, and bridging the gap between laboratory research and deployment. The talk concludes with perspectives from his recent involvement in AI for Science initiatives.",
     "prerequisites": []
   },
   {
