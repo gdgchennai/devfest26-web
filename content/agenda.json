@@ -93,7 +93,7 @@
     "speakerSlugs": [
       "aditya-shinde"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Every Android team has asked this question:\n\"Why do we need a Play Store release for a small UI change?\"\nServer-driven UI promised faster iterations, but most solutions still hit the same limit: they can change screens, not behavior.\nIn this talk, I'll show how we built a system that delivers native Jetpack Compose experiences over the air without shipping a new app version. Using Kotlin compiler plugins, a lightweight on-device VM, and modern Android tooling, it runs code that never existed in the APK.\nYou'll learn:\n• Why JSON-based approaches eventually become limiting.\n• How native Compose can be delivered dynamically.\n• How the system stays secure, Play Store compliant, and maintainable.\n• How AI can generate features that are ready to run instantly.\nWhether you're into Compose, Android tooling, or simply shipping features faster, this talk will change how you think about app updates.",
     "prerequisites": []
   },
   {
@@ -271,7 +271,7 @@
     "speakerSlugs": [
       "imran-roshan"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "This talk walks through what changes when AI moves from suggesting to acting. Gemini Cloud Assist correlates logs, metrics, and traces into a ranked list of hypotheses instead of three open tabs. Active Assist flags waste and risk before you go looking for it. And on the agentic end, an SRE agent can triage an alert, propose a fix, run it inside a Cloud Run Sandbox, and hand it to a human for approval, all with its own cryptographic identity, policy checks in plain English, and a full audit trail through Cloud Logging and Trace.\nWe'll look at real configs, real CLI commands, and where the guardrails actually live, so you leave knowing what's shippable today versus what's still a research preview.",
     "prerequisites": []
   },
   {
@@ -496,7 +496,7 @@
     "speakerSlugs": [
       "rashmi-asokan"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "If you are building an AI Native Product, you have more challenges than ever before.\nUnderstanding the capabilities and constraints of an LLM, making decisions on behalf of the user, taking hallucinations into account, helping users onboard, guardrails and more: all of these should be reflected in the interface, helping users adopt and use the product.\nBuilding is easy, but establishing trust and adoption is the differentiator.\nThis session will deep dive into the challenges of building an AI Native Product ground up: quick wins, what worked and what didn't. There are a good number of features we decided not to ship, taking the stakes into account, and product decisions that helped us ship.",
     "prerequisites": []
   },
   {
@@ -526,7 +526,7 @@
     "speakerSlugs": [
       "jeeththenthar-l"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "This talk introduces WebMCP, an emerging, open W3C standard spearheaded by Google and Microsoft to make websites natively \"agent-ready\" without heavy backend middleware.\nWhile traditional backend Model Context Protocol (MCP) implementations connect LLMs directly to server-side environments via JSON-RPC, standard MCP runs headless and requires separate hosting, OAuth setups, and credentials. WebMCP moves this paradigm entirely to the client-side browser context. Operating over a browser-mediated message transport, the browser acts as a secure translation layer. Because the execution happens directly within the user's active browser tab, WebMCP automatically inherits the user’s live cookies, active login state, and security session.\nWe will explore the technical 5-step lifecycle of a WebMCP transaction. Attendees will learn how to implement WebMCP using its two primary pathways: the Declarative HTML API and the Imperative JavaScript API.",
     "prerequisites": []
   },
   {
