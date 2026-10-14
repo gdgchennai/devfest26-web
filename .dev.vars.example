@@ -33,3 +33,8 @@ VAPID_PRIVATE_KEY=
 # /admin (mark sessions started/ended) — comma-separated organizer emails.
 # Without this nobody can reach /admin; it 403s for everyone.
 # ADMIN_EMAILS=you@example.com,teammate@example.com
+
+# Hall preview runtime ONLY; supplied by wrangler.hall-local.jsonc, not production.
+# HALL_LOCAL_TEST=1
+# Coordinator load allowance ONLY; wrangler.load.jsonc raises actor writes to 2000/min.
+# HALL_LOAD_TEST=1

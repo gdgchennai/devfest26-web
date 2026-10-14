@@ -19,7 +19,7 @@ const key =
   siteConfig.analytics.posthogKey;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || siteConfig.analytics.posthogHost;
 
-if (key) {
+if (key && process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1") {
   posthog.init(key, {
     api_host: host,
     // Pinned config snapshot — autocapture, SPA pageviews, exception

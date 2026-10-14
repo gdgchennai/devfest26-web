@@ -52,7 +52,7 @@ export function Header() {
             active ? "bg-paper/10 text-paper" : "text-paper/70 hover:bg-paper/5 hover:text-paper"
           }`}
         >
-          {route.label}
+          {route.href === "/live" && <span aria-hidden="true" className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-red" />}{route.label}
         </Link>
       </li>
     );

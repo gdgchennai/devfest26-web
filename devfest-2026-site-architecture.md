@@ -742,3 +742,7 @@ still sitting in the repo, unread by any code; revisit it only if the FAQ sectio
 - **`public/venue-lines.svg` is 586 KB**, fetched client-side on every homepage visit for a
   decorative draw-in the reduced-motion path never uses. An SVGO pass over its 2203 path segments
   would likely halve it.
+
+## Track occupancy / hall live
+
+`/live` renders one card per track from compiled agenda/speaker JSON. `/admin/halls` uses Next Node route handlers with existing auth/admin checks and explicit D1 lead assignments. A private service binding delegates atomic measurement/promotion writes to one hibernating event DO; D1 remains authoritative with revision/audit/outbox batches. Public sockets are read-only, revisioned snapshots, with event-driven boundary alarms and no browser polling. Local coordinated Workers configs isolate identities, clock, storage and analytics. See [hall availability](docs/hall-availability.md) for policy, commands and pending production wiring.

@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-14T22:59:50.021Z",
+  "clients": 1400,
+  "acceptedConnections": 1700,
+  "authorizedChanges": 500,
+  "setupClockWrites": 1,
+  "healthyBroadcastGaps": 0,
+  "updatesSequential": true,
+  "finalRevision": 1519,
+  "missed": 0,
+  "unexpectedDisconnects": 0,
+  "disconnectEvents": 300,
+  "reconnects": 300,
+  "conflicts": 0,
+  "unauthorizedRejected": 3,
+  "transportRetries": 1,
+  "duplicates": 300,
+  "outOfOrder": 0,
+  "propagationMs": {
+    "p50": 74.36,
+    "p95": 121.55,
+    "p99": 149.56
+  },
+  "samples": 701700,
+  "elapsedSeconds": 222.631,
+  "soakSeconds": 120,
+  "loadGeneratorRSS": 371347456,
+  "loadGeneratorCPUms": 48714.172
+}

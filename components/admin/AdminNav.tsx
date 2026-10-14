@@ -3,9 +3,10 @@ import Link from "next/link";
 const TABS = [
   { href: "/admin", label: "Sessions" },
   { href: "/admin/users", label: "People" },
+  { href: "/admin/halls", label: "Live halls" },
 ] as const;
 
-export function AdminNav({ active }: { active: "/admin" | "/admin/users" }) {
+export function AdminNav({ active }: { active: "/admin" | "/admin/users" | "/admin/halls" }) {
   return (
     <nav className="flex gap-2">
       {TABS.map((tab) => (

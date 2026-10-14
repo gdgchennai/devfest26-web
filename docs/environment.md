@@ -192,3 +192,11 @@ npm run dev
 pages fall back to `content/*.json` when D1 is empty (including `next build`).
 After applying migrations, run `npm run content:sync` so local/prod D1 match
 the JSON files.
+
+## Isolated hall preview
+
+`NEXT_PUBLIC_HALL_ISOLATED=1` is build-time only (`.env.example`); the `hall:build` script supplies it. It disables production analytics and unrelated auth/push/game effects while preserving the visual shell. Do not use it for a full-site deployment.
+
+`HALL_LOCAL_TEST=1` is a Cloudflare runtime flag (`.dev.vars.example`), supplied only by the separate local hall configs. Together with the isolated build and loopback Host it enables fixture identity cookies and an organizer-controlled simulated IST clock. Production configs must omit it. `HALL_LOAD_TEST=1` is a coordinator runtime flag supplied only by `workers/hall-live/wrangler.load.jsonc`; with local opt-in it raises the actor limiter for the reproducible 500-write load run. Neither flag should be set on a remote Worker.
+
+`HALL_CONTROL` and `HALL_PUBLIC` are service bindings, not secrets: private authenticated control and read-only public realtime service respectively. See [hall availability](hall-availability.md).

@@ -354,7 +354,7 @@ export function HamburgerMenu() {
           .map((route) => (
             <div key={route.href} data-menu-item>
               <Link href={route.href} onClick={close} className="text-paper/90 hover:text-paper">
-                <RollingText>{route.label}</RollingText> →
+                {route.href === "/live" && <span aria-hidden="true" className="mr-2 inline-block h-2 w-2 rounded-full bg-red" />}<RollingText>{route.label}</RollingText> →
               </Link>
             </div>
           ))}

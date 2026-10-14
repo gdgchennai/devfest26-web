@@ -50,3 +50,7 @@ edited in the agenda content after people have favorited it or an organizer
 has marked it started, those rows silently orphan. This is the same
 tradeoff `favorites` already had; nothing here makes it worse, but editing
 agenda times near showtime is worth double-checking against this.
+
+## Hall live controls
+
+`/admin/halls` reports per-track occupied percentages. Existing organizers may edit every track and independently pin/order/recommend individual sessions; leads may only edit zones assigned to their Auth.js UID in `hall_leads`. A value of 100% means Full/closed for entry. Promotion/order edits use revision conflicts and expire at session end. See [hall availability](hall-availability.md) for isolated local identities, simulated clock, persistence, tests and production binding integration.

@@ -21,7 +21,7 @@ export type AnalyticsParams = Record<string, string | number>;
  * properties on the opaque `usr_…` distinct id.
  */
 export function track(name: string, params?: AnalyticsParams) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || process.env.NEXT_PUBLIC_HALL_ISOLATED === "1") return;
   const w = window as Window & { dataLayer?: unknown[] };
   w.dataLayer = w.dataLayer ?? [];
   // gtag.js replays queued items as command tuples and expects the Arguments

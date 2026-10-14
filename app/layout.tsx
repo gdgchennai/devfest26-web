@@ -187,8 +187,8 @@ export default function RootLayout({
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
         <AuthProvider>
-          <PostHogIdentify />
-          <PushPrompt />
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PostHogIdentify />}
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PushPrompt />}
           <FavoritesProvider>
             <HeaderTitleProvider>
               <MotionProvider>
@@ -197,7 +197,7 @@ export default function RootLayout({
               route-transition interceptor — see CtaTracker. */}
           <CtaTracker />
           {/* Silently caches the daily crossword puzzle in localStorage for 24 hours */}
-          <CrosswordPreloader />
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <CrosswordPreloader />}
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets
@@ -218,7 +218,7 @@ export default function RootLayout({
           </FavoritesProvider>
         </AuthProvider>
       </body>
-      <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />
+      {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />}
     </html>
   );
 }

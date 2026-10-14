@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
   // because they gate rendering in client components too — see HeroCopy.tsx.
   env: {
     AGENDA_READY: process.env.AGENDA_READY,
+    NEXT_PUBLIC_HALL_ISOLATED: process.env.NEXT_PUBLIC_HALL_ISOLATED,
     HERO_BUTTONS: process.env.HERO_BUTTONS,
   },
   // cacheComponents (PPR / `use cache`) needs the Node.js runtime and is not
@@ -105,4 +106,6 @@ function withOptionalPostHog(config: NextConfig): NextConfig {
 
 export default withOptionalPostHog(nextConfig);
 
-import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());
+if (process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1") {
+  import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());
+}
