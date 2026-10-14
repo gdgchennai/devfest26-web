@@ -1175,11 +1175,11 @@ html.gpu .hallway-stack {
   display: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .agenda-board-scroll {
-    scroll-snap-type: y proximity;
-  }
-}
+/* No scroll-snap-type on purpose. Proximity snapping pulls the list back
+   toward a snap point mid-scroll, and every card that swaps size class as it
+   reaches the centre moves those points under the finger — that read as the
+   list fighting the scroll. AgendaBoard centres the nearest card itself once
+   scrolling has settled (see settleOnNearestCard). */
 
 .agenda-board-spacer {
   height: 50%;
@@ -1216,7 +1216,6 @@ html.gpu .hallway-stack {
   margin-block: 0.625rem;
   border-radius: 1.75rem;
   background: color-mix(in srgb, var(--ink) 55%, transparent);
-  backdrop-filter: blur(20px);
   border: 1px solid color-mix(in srgb, var(--paper) 12%, transparent);
   transform: scale(calc(1 - 0.13 * var(--t)));
   opacity: calc(1 - 0.5 * var(--t));
@@ -1226,7 +1225,10 @@ html.gpu .hallway-stack {
      visible card, which is exactly the cost this board cannot afford on a
      mid-range Android at a venue. Scale and opacity are continuous instead,
      and they are what reads as "growing towards the centre". */
-  transition: filter 350ms ease, transform 150ms linear, opacity 150ms linear;
+  /* transform/opacity are rewritten every frame from --t, so they must not
+     also transition: a 150ms ease on top of a per-frame write is a lag that
+     makes the card trail the scroll. */
+  transition: filter 350ms ease;
 }
 
 /* Only with a hardware GPU compositing (see lib/gpu.ts) — a scroll-driven
@@ -1246,6 +1248,10 @@ html.gpu .agenda-board-card {
  * "this one" signal, not decoration to spread across the whole list. */
 .agenda-board-card--focused {
   border-color: transparent;
+  /* Only the focused card samples what is behind it. The neighbours are
+     blurred with `filter` already, and stacking backdrop-filter on a filtered
+     layer is the expensive, flickery combination. */
+  backdrop-filter: blur(20px);
   padding: 1.5rem;
   box-shadow: 0 20px 60px color-mix(in srgb, var(--ink) 45%, transparent);
   --glow-angle: 0deg;

@@ -625,7 +625,41 @@ const TrackColumn = forwardRef<
     const container = scrollRef.current;
     if (!container) return;
 
+    // Once the scroll has been quiet for a moment (and no finger is down),
+    // glide the nearest card to the centre. This replaces CSS scroll-snap,
+    // which fought the scroll while cards changed size under it.
+    let settleTimer = 0;
+    let touching = false;
+    function settleOnNearestCard() {
+      if (touching || !container) return;
+      const mid = container.scrollTop + container.clientHeight / 2;
+      let best: HTMLElement | null = null;
+      let bestDist = Infinity;
+      container.querySelectorAll<HTMLElement>(".agenda-board-card[data-key]").forEach((el) => {
+        const dist = Math.abs(el.offsetTop + el.offsetHeight / 2 - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = el;
+        }
+      });
+      if (best && bestDist > 2) {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        centerCardInContainer(container, best, reduce ? "auto" : "smooth");
+      }
+    }
+    const onTouchStart = () => {
+      touching = true;
+      window.clearTimeout(settleTimer);
+    };
+    const onTouchEnd = () => {
+      touching = false;
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settleOnNearestCard, 160);
+    };
+
     function onScroll() {
+      window.clearTimeout(settleTimer);
+      if (!touching) settleTimer = window.setTimeout(settleOnNearestCard, 140);
       if (depthRafRef.current) return;
       depthRafRef.current = requestAnimationFrame(() => {
         depthRafRef.current = 0;
@@ -634,10 +668,17 @@ const TrackColumn = forwardRef<
     }
 
     container.addEventListener("scroll", onScroll, { passive: true });
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+    container.addEventListener("touchcancel", onTouchEnd, { passive: true });
     window.addEventListener("resize", applyCardDepths);
     applyCardDepths();
     return () => {
+      window.clearTimeout(settleTimer);
       container.removeEventListener("scroll", onScroll);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchend", onTouchEnd);
+      container.removeEventListener("touchcancel", onTouchEnd);
       window.removeEventListener("resize", applyCardDepths);
       cancelAnimationFrame(depthRafRef.current);
       depthRafRef.current = 0;
