@@ -34,6 +34,12 @@ export const agendaSessionSchema = z.object({
    *  Optional — most sessions don't have one yet, and "TBA" placeholder copy
    *  reads worse than just omitting the paragraph. */
   description: z.string().optional(),
+  /** Difficulty pill shown beside the track pill. Optional — sessions that
+   *  aren't talks or workshops have none. */
+  level: z.enum(["Beginner", "Intermediate", "Expert"]).optional(),
+  /** Short phrases for what attendees should know or bring beforehand. Empty
+   *  means none — the popup then shows a single "None" bullet. */
+  prerequisites: z.array(z.string().min(1)).default([]),
 });
 
 export type AgendaSession = z.infer<typeof agendaSessionSchema>;

@@ -877,6 +877,11 @@ function SessionCard({
               {pillLabel}
             </span>
           )}
+          {session.level && (
+            <span className="rounded-full border border-paper/30 px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-paper/80">
+              {session.level}
+            </span>
+          )}
           {isNow && (
             <span className="flex items-center gap-1.5 text-[0.6875rem] uppercase tracking-wide text-paper/70">
               <span className="agenda-board-live-dot" aria-hidden />
