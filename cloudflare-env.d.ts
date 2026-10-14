@@ -5,6 +5,8 @@
 // full picture any time with `npm run cf-typegen`.
 declare global {
   interface CloudflareEnv {
+    HALL_CONTROL?: Fetcher;
+    HALL_LOCAL_TEST?: string;
     /** D1 database — accounts + saved sessions. See wrangler.jsonc + migrations/. */
     DB: D1Database;
     /** Auth.js signing secret (`openssl rand -base64 32`). */
