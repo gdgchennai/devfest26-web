@@ -7,14 +7,14 @@ import { uiCopy } from "@/site.config";
 
 // Route-level boundary: catches errors in a page subtree that a SectionBoundary
 // didn't contain. The root layout (Header, Footer, nav) stays mounted around
-// this, so the visitor is never stranded. `unstable_retry` is this Next
+// this, so the visitor is never stranded. `retry` is this Next
 // version's recovery prop (not the standard `reset`).
 export default function Error({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -27,7 +27,7 @@ export default function Error({
       </Eyebrow>
       <p className="mt-3 max-w-xl text-paper/70">{uiCopy.errorPage.body}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button onClick={() => unstable_retry()}>{uiCopy.errorPage.retryLabel}</Button>
+        <Button onClick={() => retry()}>{uiCopy.errorPage.retryLabel}</Button>
         <Button href="/" variant="secondary">
           {uiCopy.errorPage.homeLabel}
         </Button>

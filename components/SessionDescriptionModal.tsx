@@ -92,6 +92,11 @@ export function SessionDescriptionModal({
                 {pillLabel}
               </span>
             )}
+            {session.level && (
+              <span className="rounded-full border border-paper/30 px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-paper/80">
+                {session.level}
+              </span>
+            )}
             <span className="text-sm tabular-nums text-paper/70">
               {formatSessionTime(session.start)} - {formatSessionTime(session.end)}
             </span>
@@ -131,7 +136,7 @@ export function SessionDescriptionModal({
             <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-paper/80">{session.description}</p>
           )}
 
-          {(session.type === "talk" || session.type === "workshop") && (
+          {session.level && (
             <div className="mt-5">
               <h3 className="text-xs uppercase tracking-wide text-paper/50">Pre Requisites</h3>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-paper/80">

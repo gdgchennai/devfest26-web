@@ -9,10 +9,10 @@ import { uiCopy } from "@/site.config";
 // and it must ship its own <html>/<body>. Colours mirror --ink / --blue.
 export default function GlobalError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -53,7 +53,7 @@ export default function GlobalError({
           </p>
           <button
             type="button"
-            onClick={() => unstable_retry()}
+            onClick={() => retry()}
             style={{
               marginTop: "1.5rem",
               border: "none",

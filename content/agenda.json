@@ -43,6 +43,7 @@
     "title": "The Next Billion Users Won't Be Human",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "sanju-sivalingam"
     ],
@@ -57,6 +58,7 @@
     "title": "Qualcomm as a Dev-AI Native Company",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "kartikey-rawat"
     ],
@@ -71,6 +73,7 @@
     "title": "From Models to Decisions: How AI Is Reshaping Poshmark and Fashion Marketplace",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "manu-vishwakarma",
       "shreya-sevelar"
@@ -86,6 +89,7 @@
     "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "aditya-shinde"
     ],
@@ -100,6 +104,7 @@
     "title": "Can AI Help a City Breathe?",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "dishant-parakh"
     ],
@@ -125,8 +130,10 @@
     "title": "Meetup Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
+    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Come and see what the community is doing."
+    "description": "Come and see what the community is doing.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-round-1",
@@ -136,8 +143,14 @@
     "title": "Agent Wars: Live Tournament (Round 1)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents"
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "vibe-coding-lounge",
@@ -147,17 +160,20 @@
     "title": "Vibe Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Come vibe your way"
+    "description": "Come vibe your way",
+    "prerequisites": []
   },
   {
-    "id": "workshop-tbd",
+    "id": "workshop-agi",
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:30:00+05:30",
     "title": "Offload Testing to Agents",
     "hall": "Raman Hall",
     "type": "workshop",
+    "level": "Beginner",
     "speakerSlugs": [
       "somasundaram-mahesh"
     ],
@@ -172,6 +188,7 @@
     "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "shangeeth-sivan-adiyapatham"
     ],
@@ -186,6 +203,7 @@
     "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "neeraj-pathak"
     ],
@@ -200,8 +218,14 @@
     "title": "Agent Wars: Live Tournament (Round 2)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents"
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "agent-wars-live-tournament-round-3",
@@ -211,8 +235,14 @@
     "title": "Agent Wars: Live Tournament (Round 3)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents"
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "deep-tech-talk-2",
@@ -222,6 +252,7 @@
     "title": "When AI Leaves the Lab: Building Physical AI People Can Trust",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "pulkit-verma"
     ],
@@ -236,6 +267,7 @@
     "title": "AI Assisted SREs Are a Thing!",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "imran-roshan"
     ],
@@ -250,8 +282,14 @@
     "title": "Agent Wars: Live Tournament (Qualifiers)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents"
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "developing-and-using-owasp-nettacker-for-security-testing",
@@ -261,6 +299,7 @@
     "title": "Developing and Using OWASP Nettacker for Security Testing",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "achintya-jai"
     ],
@@ -275,6 +314,7 @@
     "title": "Local AI: The Google Gemma Edition",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "gokulbarath"
     ],
@@ -289,6 +329,7 @@
     "title": "Automatic Defect Detection of Water / Sewer Pipeline",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "moumita-mukherjee"
     ],
@@ -303,8 +344,10 @@
     "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Talk details will be updated soon."
+    "description": "Talk details will be updated soon.",
+    "prerequisites": []
   },
   {
     "id": "beyond-the-happy-path-production-grade-agent-guardrails-huma",
@@ -314,6 +357,7 @@
     "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "saurabh-mishra"
     ],
@@ -328,8 +372,14 @@
     "title": "Agent Wars: Live Tournament (Qualifiers Extended)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents"
+    "description": "The battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "rethinking-infrastructure-for-agentic-workloads",
@@ -339,6 +389,7 @@
     "title": "Rethinking Infrastructure for Agentic Workloads",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "dhanush-kandhan"
     ],
@@ -441,6 +492,7 @@
     "title": "Lessons from Building an AI Native Product Ground Up",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "rashmi-asokan"
     ],
@@ -455,6 +507,7 @@
     "title": "Building Physical AI: An Arduino UNO Q Workshop for Edge AI and Sensors (Group activity, Limited seats only)",
     "hall": "Raman Hall",
     "type": "workshop",
+    "level": "Intermediate",
     "speakerSlugs": [
       "salman-faris"
     ],
@@ -469,6 +522,7 @@
     "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "jeeththenthar-l"
     ],
@@ -483,6 +537,7 @@
     "title": "From Malware Images to Deepfake Detection: Unconventional Approaches in Applied AI",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "natarajan"
     ],
@@ -497,8 +552,14 @@
     "title": "Agent Wars: Live Tournament (Semi-Finals)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The best agent duels"
+    "description": "The best agent duels",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "vibe-coding-lounge-3",
@@ -508,8 +569,10 @@
     "title": "Vibe Coding Lounge",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Come vibe your way"
+    "description": "Come vibe your way",
+    "prerequisites": []
   },
   {
     "id": "creators-lounge-2",
@@ -530,8 +593,10 @@
     "title": "Meetup Lounge",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
+    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Come and see what the community is doing."
+    "description": "Come and see what the community is doing.",
+    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-finals",
@@ -541,8 +606,14 @@
     "title": "Agent Wars: Live Tournament (Finals)",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
+    "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The epic battle of the agents"
+    "description": "The epic battle of the agents",
+    "prerequisites": [
+      "Antigravity",
+      "Google ADK",
+      "Google AI Studio"
+    ]
   },
   {
     "id": "running-ai-where-it-matters-open-source-on-device-inference-",
@@ -552,6 +623,7 @@
     "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "aakash-dhakshnamoorthy"
     ],
@@ -566,6 +638,7 @@
     "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "dinoy-raj"
     ],
@@ -580,6 +653,7 @@
     "title": "AI & VR for Healthcare",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "nimeshika"
     ],
@@ -593,6 +667,7 @@
     "title": "Building Privacy-First Edge AI with Gemma 4: Lessons from Winning a Google Build with AI Hackathon",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "gokulakrishnan-l"
     ],
@@ -607,6 +682,7 @@
     "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "bhargav-patel"
     ],
@@ -621,6 +697,7 @@
     "title": "Machine Learning the Physical World",
     "hall": "D7 Amphitheater",
     "type": "talk",
+    "level": "Intermediate",
     "speakerSlugs": [
       "ayana-ghosh"
     ],
@@ -635,6 +712,7 @@
     "title": "Secure Frontend AI: Building Smart Web Apps with Firebase AI Logic & Gemini",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "srushti-raybhoge"
     ],
@@ -649,6 +727,7 @@
     "title": "Building AI at the Edge: Developing Intelligent Applications with Qualcomm AI Stack and On-Device AI",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "kartikey-rawat"
     ],
@@ -663,6 +742,7 @@
     "title": "Opportunities in AI: Personal Observations on Culture of Goldrush in California",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "hariprasad-sudharshan"
     ],
@@ -677,6 +757,7 @@
     "title": "Using Gemini & AI Studio to Build a Lead Gen Engine for B2B Tech Businesses",
     "hall": "D7 Auditorium",
     "type": "talk",
+    "level": "Beginner",
     "speakerSlugs": [
       "varun-poladiya"
     ],
