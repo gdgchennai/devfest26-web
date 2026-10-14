@@ -303,7 +303,7 @@
     "speakerSlugs": [
       "achintya-jai"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "A demonstration of OWASP Nettacker for network and vulnerability scanning, brute-force testing, bug hunting, enterprise use, and Python-based development.\nNettacker can simultaneously scan an entire network for multiple vulnerabilities and run brute-force attacks on them, in a matter of minutes. I talk about how to use it for bug hunting and network scanning, its primary features, its advantages over other available tools, how easily enterprises can adopt it, and finally its development and upcoming advancements. The tool is written entirely in Python and invites people to develop it along with us!",
     "prerequisites": []
   },
   {
@@ -716,7 +716,7 @@
     "speakerSlugs": [
       "srushti-raybhoge"
     ],
-    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering.",
+    "description": "Build a context-aware planner with Firebase AI Logic and Gemini while securing client-side requests and enforcing structured JSON responses.\nIntegrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend.\nTogether, we will build a highly interactive, context-aware planner app. We will cover:\n• Securing client-side AI requests without leaking API credentials.\n• Enforcing structured JSON data replies for seamless web UI rendering.",
     "prerequisites": []
   },
   {
