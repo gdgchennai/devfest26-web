@@ -78,7 +78,7 @@
       "manu-vishwakarma",
       "shreya-sevelar"
     ],
-    "description": "Sponsored talk",
+    "description": "How is AI changing a fashion marketplace? We’ll walk through Poshmark’s AI strategy and real-world use cases, and how shipping ML has moved from months of taxonomy design, labeling, training and active learning to agentic multimodal LLMs and decision models. LLMs are built as slow, deliberate System 2 tools, yet they’re often used for fast System 1 work like spam, intent and moderation classification, where confidence scores can’t be trusted. Meet JEV, a classifier that returns a deterministic answer with a calibrated probability you can act on. We’ll close with where the landscape is heading.",
     "prerequisites": []
   },
   {
@@ -761,7 +761,7 @@
     "speakerSlugs": [
       "varun-poladiya"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "1. What are intent signals?\n2. Why are intent signals important in B2B marketing and lead generation?\n3. How lead gen used to happen before AI vs. now, with the use of AI.\n4. Hands-on: Building a motion on Gemini to get in-market, intent-driven B2B leads for each business on a recurring basis.\n5. Hands-on: Using Google AI Studio to build an application that finds and lists intent-driven B2B leads for each business, which internal marketing/business development teams can use every day.\nIdeal audience: B2B business founders of startups, SMEs and marketing leaders of large enterprises.\nNo coding required!",
     "prerequisites": []
   },
   {
