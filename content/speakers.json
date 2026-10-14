@@ -130,22 +130,6 @@
     ]
   },
   {
-    "slug": "neel-shah",
-    "name": "Neel Shah",
-    "title": "Developer Advocate (GDE, Cloud)",
-    "company": "StackGen",
-    "bio": "",
-    "photo": "/people/neel-shah.webp",
-    "links": {
-      "twitter": null,
-      "linkedin": null,
-      "github": null
-    },
-    "talkIds": [
-      "agentic-sre-with-google-cloud-detect-diagnose-and-remediate-"
-    ]
-  },
-  {
     "slug": "aditya-shinde",
     "name": "Aditya Shinde",
     "title": "Founder",
@@ -404,5 +388,110 @@
       "github": null
     },
     "talkIds": []
+  },
+  {
+    "slug": "hariprasad-sudharshan",
+    "name": "Hariprasad Sudharshan",
+    "title": "Product Manager, AI & API",
+    "company": "1Finity (a Fujitsu company)",
+    "bio": "16 years at Fujitsu, multiple U.S. patents and research papers, Global MIT Hackathon winner, and LlamaIndex contributor.",
+    "photo": "/people/hariprasad-sudharshan.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://linkedin.com/in/haripm4ai",
+      "github": null
+    },
+    "talkIds": ["opportunities-in-ai-personal-observations-on-culture-of-gold"]
+  },
+  {
+    "slug": "sanju-sivalingam",
+    "name": "Sanju Sivalingam",
+    "title": "Founding Engineer",
+    "company": "AGI, Inc.",
+    "bio": "Sanju is the founder of THISUX, leading a team of developers and designers who build software users want to use. The team specialises in user-centric UX/UI design, modern web and mobile engineering, launching profitable MVPs and AI apps, working directly with startups and SMBs to design, develop and scale software within budget.",
+    "photo": "/people/sanju-sivalingam.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/imsanju/",
+      "github": null
+    },
+    "talkIds": ["sponsor-talk"]
+  },
+  {
+    "slug": "kartikey-rawat",
+    "name": "Kartikey Rawat",
+    "title": "Senior AI/ML Engineer and Developer Advocate",
+    "company": "Qualcomm",
+    "bio": "Kartikey Rawat is passionate about Machine Learning, Edge AI and open-source innovation, and has contributed to TensorFlow through the TF.js project, enabling ML in the browser and beyond. A Google Developer Expert (GDE) in ML specialising in Computer Vision, Kartikey enjoys exploring cutting-edge frameworks like Keras, Gemma and on-device AI solutions.\nKartikey thrives on building impactful developer experiences, sharing knowledge through community initiatives, and pushing the boundaries of AI on mobile and embedded platforms.",
+    "photo": "/people/kartikey-rawat.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/carrycooldude/",
+      "github": null
+    },
+    "talkIds": ["sponsor-talk-2", "building-ai-at-the-edge-developing-intelligent-applications-"]
+  },
+  {
+    "slug": "salman-faris",
+    "name": "Salman Faris",
+    "title": "Community",
+    "company": "Screenly",
+    "bio": "Experience in hardware product development and prototyping across various development platforms.\nCurrently working with Screenly, focusing on digital signage solutions, Raspberry Pi-based deployments, and Edge App development. Involved in technical support, troubleshooting, and enabling secure digital signage infrastructures.\nActive in maker communities and a passionate technology enthusiast, always interested in exploring and experimenting with new technologies.",
+    "photo": "/people/salman-faris.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/salmanfarisvp/",
+      "github": null
+    },
+    "talkIds": ["hardware-lab"]
+  },
+  {
+    "slug": "manu-vishwakarma",
+    "name": "Manu Vishwakarma",
+    "title": "Lead Data Scientist",
+    "company": "Poshmark",
+    "bio": "Applied data scientist with ~9 years of experience building and scaling Machine / Deep learning models that power personalization, ranking, trust & safety, and user engagement across large-scale consumer platforms.\nExpertise spans recommendation systems, retrieval and ranking, Learning to rank (LTR), Large Language Models (LLMs), Computer vision, Natural Language Processing, Deep Learning and Machine Learning.",
+    "photo": "/people/manu-vishwakarma.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/manu-vishwakarma-9040a2b4/",
+      "github": null
+    },
+    "talkIds": ["sponsor-talk-3"]
+  },
+  {
+    "slug": "shreya-sevelar",
+    "name": "Shreya Sevelar",
+    "title": "AI/ML Engineer I",
+    "company": "Poshmark",
+    "bio": "Entering the software engineering world with an inquisitive mind and a thirst for knowledge, Shreya is looking forward to exploring a career in AI and Machine Learning, and believes in harnessing the power of AI to drive change and build a sustainable future.",
+    "photo": "/people/shreya-sevelar.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/shreya-sevelar-07a762259/",
+      "github": null
+    },
+    "talkIds": ["sponsor-talk-3"]
+  },
+  {
+    "slug": "somasundaram-mahesh",
+    "name": "Somasundaram Mahesh",
+    "title": "Founding AI Engineer",
+    "company": "AGI, Inc.",
+    "bio": "Somasundaram builds things that ship, with 10+ years in Android, most recently on apps that scale to 100M+ users, and years spent making video streaming fast, reliable and smooth at scale.\nLately the focus has shifted to AI. Somasundaram co-founded UnitedBy.AI, a Chennai community for engineers, designers and product minds who believe the best way to learn AI is to build with it: 120+ builders, in-person meetups, hackathons and demo days. No networking fluff, just people who make things.\nOn the technical side, Somasundaram is deep into AI agents, Claude Code workflows, and what it looks like when LLMs actively operate on Android devices. The stack is Kotlin, Jetpack Compose and KMP, with curiosity firmly at the Android + AI intersection.",
+    "photo": "/people/somasundaram-mahesh.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/msomu/",
+      "github": null
+    },
+    "talkIds": ["workshop-tbd"]
   }
 ]
