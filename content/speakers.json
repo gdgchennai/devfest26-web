@@ -478,5 +478,20 @@
       "github": null
     },
     "talkIds": ["sponsor-talk-3"]
+  },
+  {
+    "slug": "somasundaram-mahesh",
+    "name": "Somasundaram Mahesh",
+    "title": "Founding AI Engineer",
+    "company": "AGI, Inc.",
+    "bio": "Somasundaram builds things that ship, with 10+ years in Android, most recently on apps that scale to 100M+ users, and years spent making video streaming fast, reliable and smooth at scale.\nLately the focus has shifted to AI. Somasundaram co-founded UnitedBy.AI, a Chennai community for engineers, designers and product minds who believe the best way to learn AI is to build with it: 120+ builders, in-person meetups, hackathons and demo days. No networking fluff, just people who make things.\nOn the technical side, Somasundaram is deep into AI agents, Claude Code workflows, and what it looks like when LLMs actively operate on Android devices. The stack is Kotlin, Jetpack Compose and KMP, with curiosity firmly at the Android + AI intersection.",
+    "photo": null,
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/msomu/",
+      "github": null
+    },
+    "talkIds": ["workshop-tbd"]
   }
 ]

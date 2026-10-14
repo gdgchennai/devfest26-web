@@ -150,10 +150,12 @@
     "track": "raman-hall",
     "start": "2026-10-17T11:00:00+05:30",
     "end": "2026-10-17T12:30:00+05:30",
-    "title": "Workshop by AGI",
+    "title": "Offload Testing to Agents",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "somasundaram-mahesh"
+    ],
     "description": "Sponsored workshop"
   },
   {
