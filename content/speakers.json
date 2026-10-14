@@ -310,7 +310,7 @@
     "name": "Dr Moumita Mukherjee",
     "title": "AI Team Lead",
     "company": "Solinas Integrity",
-    "bio": "",
+    "bio": "Dr Moumita Mukherjee is the AI Team Lead at Solinas Integrity, a startup developing robotic and AI solutions for pipeline diagnostics and septic tank cleaning to help reduce water losses and eliminate manual scavenging. At Solinas, Dr Mukherjee has led the development of several AI-based models for automatic pipeline condition assessment. Before this role, Dr Mukherjee completed a Ph.D. in Computer Vision, working extensively on various computer vision algorithms, and has over four years of professional experience since.",
     "photo": "/people/moumita-mukherjee.webp",
     "links": {
       "twitter": null,
@@ -321,10 +321,10 @@
   },
   {
     "slug": "nimeshika",
-    "name": "Dr Nimeshika",
+    "name": "Dr Nimeshika Jayachandran",
     "title": "Speaker",
     "company": "MediSimVR",
-    "bio": "",
+    "bio": "Dr. Nimeshika Jayachandran is a physician and health & science journalist turned medtech strategist. She began her reporting career at The Times of India in Bengaluru and went on to head the health desk at The News Minute, where she was part of the team covering the 2018 Nipah virus outbreak and reported extensively on the COVID-19 pandemic. Today she leads strategic partnerships at MediSim VR, building the ecosystem for AI and VR simulation in healthcare training and competency assessment.",
     "photo": "/people/nimeshika.webp",
     "links": {
       "twitter": null,
@@ -336,9 +336,9 @@
   {
     "slug": "pulkit-verma",
     "name": "Pulkit Verma",
-    "title": "Speaker",
-    "company": "TBD",
-    "bio": "",
+    "title": "Assistant Professor, Department of Computer Science and Engineering",
+    "company": "Indian Institute of Technology Madras",
+    "bio": "Pulkit Verma is an Assistant Professor of Computer Science and Engineering at IIT Madras, where he is a Principal Investigator at the Centre for Responsible AI (CeRAI). He is also an affiliate of the Center for Human-Compatible AI at UC Berkeley. Previously, he was a Postdoctoral Associate in the Interactive Robotics Group at MIT CSAIL. He received his Ph.D. from Arizona State University and his M.Tech. from IIT Guwahati. His research spans AI safety, lifelong learning with humans in the loop, and human-robot collaboration, with the goal of building AI agents that remain reliable and adaptable as they work with people. His work has been recognized with the ICAPS 2025 Outstanding Dissertation Award, the 2025 AAAI/ACM SIGAI Innovative AI Education Award, and the AAMAS 2022 Best Demo Award.",
     "photo": "/people/pulkit-verma.webp",
     "links": {
       "twitter": null,
