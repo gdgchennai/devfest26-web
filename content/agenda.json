@@ -302,6 +302,17 @@
     "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability."
   },
   {
+    "id": "agent-wars-live-tournament-qualifiers-extended",
+    "track": "agent-wars",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:30:00+05:30",
+    "title": "Agent Wars: Live Tournament (Qualifiers Extended)",
+    "hall": "D6 Multi-purpose Hall",
+    "type": "competition",
+    "speakerSlugs": [],
+    "description": "The battle of the agents"
+  },
+  {
     "id": "rethinking-infrastructure-for-agentic-workloads",
     "track": "lightning",
     "start": "2026-10-17T12:15:00+05:30",
