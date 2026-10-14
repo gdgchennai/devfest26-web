@@ -40,7 +40,7 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T09:45:00+05:30",
     "end": "2026-10-17T10:15:00+05:30",
-    "title": "Sponsor Talk: AGI, Inc.",
+    "title": "The Next Billion Users Won't Be Human",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [
@@ -53,10 +53,12 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T10:15:00+05:30",
     "end": "2026-10-17T10:25:00+05:30",
-    "title": "Sponsor Talk: Qualcomm",
+    "title": "Qualcomm as a Dev-AI Native Company",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "kartikey-rawat"
+    ],
     "description": "Sponsored talk"
   },
   {
@@ -64,7 +66,7 @@
     "track": "d7-auditorium",
     "start": "2026-10-17T10:25:00+05:30",
     "end": "2026-10-17T10:35:00+05:30",
-    "title": "Sponsor Talk: Poshmark",
+    "title": "From Models to Decisions: How AI Is Reshaping Poshmark and Fashion Marketplace",
     "hall": "D7 Auditorium",
     "type": "talk",
     "speakerSlugs": [],
