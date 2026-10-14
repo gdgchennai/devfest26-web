@@ -256,7 +256,7 @@
     "speakerSlugs": [
       "pulkit-verma"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "AI agents and robots are moving out of controlled labs into homes, labs, and workplaces, where they meet users with goals, constraints, and safety expectations their developers never anticipated. Benchmarks tell us how a system performs on someone else’s task, but they rarely tell a user what this system can safely do for them. This talk argues that assessment must become user-aligned. We need ways to discover, in interpretable terms, what a black-box agent can and cannot do, and to check it against the specific person and setting it will serve. Drawing on research in learning interpretable capability models, LLM-based planning, and safety in personal robotics, I’ll show how developers and scientists can probe their systems, express capabilities in human terms, and decide who should model safety when robots come home. The goal is physical AI that is not just capable, but human-compatible.",
     "prerequisites": []
   },
   {
