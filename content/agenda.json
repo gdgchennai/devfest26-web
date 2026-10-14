@@ -108,7 +108,7 @@
     "speakerSlugs": [
       "dishant-parakh"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Air pollution is often framed as a measurement problem: AQI dashboards, monitors, satellite imagery, emission inventories and increasingly sophisticated prediction models. But cities like Chennai do not suffer from air pollution simply because they lack data. The harder question is what happens when pollution becomes visible.\nCan we identify its source? Distinguish construction dust from transport, industry, waste burning or pollution travelling from outside the city? Can the government intervene fast enough? Can enforcement isolate persistent polluters from background pollution? And can we tell whether an intervention actually improved air quality? “Can AI Help a City Breathe?” explores this gap between environmental intelligence and environmental action.\nThe session begins with the fundamentals: what air pollution is, why it matters, its health and economic impacts, how pollutants differ, how exposure occurs, and what measures such as the Air Quality Index (AQI) can and cannot tell us.\nTwo AI and tech applications will be examined in depth:\n1. Dust, construction and dispersed pollution: utilising data-driven tracking, digital tools, and localized mapping to help municipal corporations identify exact spots needing cleanup or repair.\n2. Vehicular and tailpipe emissions: remote sensing, automated detection, surveillance and data-enabled enforcement for transport emissions.\nThe session ultimately asks developers to think beyond building another dashboard or prediction model, towards action-oriented tools and models for the public.",
     "prerequisites": []
   },
   {
