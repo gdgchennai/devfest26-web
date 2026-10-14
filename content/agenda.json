@@ -702,7 +702,7 @@
     "speakerSlugs": [
       "ayana-ghosh"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Applying AI and machine learning to the physical sciences presents challenges that are often different from those encountered in conventional data-driven applications. Scientific datasets are strongly shaped by what researchers choose to measure or calculate. As a result, even large databases of computed results may cover only a narrow region of the possible space. Physical laws impose constraints that data alone does not capture. In addition, the systems we want to understand often behave quite differently from the examples on which a model was trained.\nThis talk will introduce these challenges through examples spanning prediction of structure-property relationships, and the search for novel materials. A brief tour of current approaches will be presented, from random forests and neural networks to graph neural networks, physics-informed models, and large language models, highlighting how different methods incorporate different forms of scientific knowledge. The distinction between prediction and mechanistic understanding will then be explored, highlighting approaches that move beyond predicting what happens toward understanding why.",
     "prerequisites": []
   },
   {
