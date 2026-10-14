@@ -404,5 +404,20 @@
       "github": null
     },
     "talkIds": []
+  },
+  {
+    "slug": "hariprasad-sudharshan",
+    "name": "Hariprasad Sudharshan",
+    "title": "Product Manager, AI & API",
+    "company": "1Finity (a Fujitsu company)",
+    "bio": "16 years at Fujitsu, multiple U.S. patents and research papers, Global MIT Hackathon winner, and LlamaIndex contributor.",
+    "photo": "/people/hariprasad-sudharshan.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://linkedin.com/in/haripm4ai",
+      "github": null
+    },
+    "talkIds": ["opportunities-in-ai-personal-observations-on-culture-of-gold"]
   }
 ]
