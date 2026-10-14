@@ -376,20 +376,6 @@
     "talkIds": ["building-privacy-first-edge-ai-with-gemma-4"]
   },
   {
-    "slug": "gopalakrishnan-srinivasan",
-    "name": "Dr Gopalakrishnan Srinivasan",
-    "title": "Assistant Professor",
-    "company": "IIT Madras",
-    "bio": "",
-    "photo": "/people/gopalakrishnan-srinivasan.webp",
-    "links": {
-      "twitter": null,
-      "linkedin": null,
-      "github": null
-    },
-    "talkIds": []
-  },
-  {
     "slug": "hariprasad-sudharshan",
     "name": "Hariprasad Sudharshan",
     "title": "Product Manager, AI & API",
