@@ -5,6 +5,10 @@ import { track } from "@/lib/analytics";
 
 export type PushStatus = "unsupported" | "ios-not-installed" | "loading" | "subscribed" | "unsubscribed";
 
+/** Subscribe-state changes made by one hook instance (e.g. the /profile button)
+ *  are broadcast so every other instance (the auto-prompt) agrees at once. */
+const CHANGE_EVENT = "devfest-push-change";
+
 function isIosNotInstalled(): boolean {
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const standalone = window.matchMedia("(display-mode: standalone)").matches;
@@ -31,10 +35,24 @@ async function existingSubscription(): Promise<PushSubscription | null> {
  *  Keeping one copy means both always agree on current status. */
 export function usePushSubscription(): {
   status: PushStatus;
-  subscribe: () => Promise<void>;
+  /** Resolves true only when the subscription was stored on the server. */
+  subscribe: () => Promise<boolean>;
   unsubscribe: () => Promise<void>;
 } {
-  const [status, setStatus] = useState<PushStatus>("loading");
+  const [status, setStatusState] = useState<PushStatus>("loading");
+
+  function setStatus(next: PushStatus) {
+    setStatusState(next);
+    if (next === "subscribed" || next === "unsubscribed") {
+      window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: next }));
+    }
+  }
+
+  useEffect(() => {
+    const onChange = (e: Event) => setStatusState((e as CustomEvent<PushStatus>).detail);
+    window.addEventListener(CHANGE_EVENT, onChange);
+    return () => window.removeEventListener(CHANGE_EVENT, onChange);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -54,21 +72,31 @@ export function usePushSubscription(): {
       }
       try {
         const sub = await existingSubscription();
-        setStatus(sub ? "subscribed" : "unsubscribed");
+        setStatusState(sub ? "subscribed" : "unsubscribed");
+        // Re-send it so the row belongs to whoever is signed in now (the
+        // browser keeps the subscription across sign-outs). Idempotent upsert;
+        // 401 when signed out is fine.
+        if (sub) {
+          fetch("/api/push/subscribe", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(sub.toJSON()),
+          }).catch(() => {});
+        }
       } catch {
-        setStatus("unsubscribed");
+        setStatusState("unsubscribed");
       }
     })();
   }, []);
 
-  async function subscribe() {
+  async function subscribe(): Promise<boolean> {
     setStatus("loading");
     try {
       const registration = await navigator.serviceWorker.register("/sw.js");
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
         setStatus("unsubscribed");
-        return;
+        return false;
       }
       const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!publicKey) throw new Error("push not configured");
@@ -76,15 +104,23 @@ export function usePushSubscription(): {
         userVisibleOnly: true,
         applicationServerKey: base64UrlToUint8Array(publicKey),
       });
-      await fetch("/api/push/subscribe", {
+      const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(sub.toJSON()),
       });
+      if (!res.ok) {
+        // Not stored server-side, so nothing could ever be sent to it.
+        await sub.unsubscribe().catch(() => {});
+        throw new Error(`subscribe failed: ${res.status}`);
+      }
       track("push_subscribe", { subscribed: 1 });
       setStatus("subscribed");
-    } catch {
+      return true;
+    } catch (err) {
+      console.error("[push] subscribe failed", err);
       setStatus("unsubscribed");
+      return false;
     }
   }
 
