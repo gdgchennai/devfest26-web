@@ -333,7 +333,7 @@
     "speakerSlugs": [
       "moumita-mukherjee"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "I will briefly introduce our company vision and explain how Artificial Intelligence and Computer Vision are helping us address challenges in water and sewer pipeline inspection. The talk will then provide a deeper technical overview of our automated defect detection approach, including using object detection models to identify and classify pipeline defects from inspection videos.\nI will cover the overall AI pipeline, from video acquisition and preprocessing to model training, inference, defect classification, and generating inspection outputs. The session will also discuss the challenges involved in working with real-world pipeline inspection data, such as variations in lighting and video quality, different defect appearances, class imbalance, and the need for reliable detection across diverse pipeline conditions.\nI will further explain the model development and optimization process, including dataset preparation, training strategies, evaluation metrics, and approaches used to improve model performance. Finally, I will discuss how the AI system can integrate into a practical pipeline inspection workflow and how automated defect detection can support faster, more consistent, and data-driven infrastructure assessment.",
     "prerequisites": []
   },
   {
