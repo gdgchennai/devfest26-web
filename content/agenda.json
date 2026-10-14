@@ -337,6 +337,17 @@
     "description": "Fuel for mind, heart and tummy!"
   },
   {
+    "id": "lunch-8",
+    "track": "raman-hall",
+    "start": "2026-10-17T12:30:00+05:30",
+    "end": "2026-10-17T13:45:00+05:30",
+    "title": "Lunch",
+    "hall": "F&B",
+    "type": "break",
+    "speakerSlugs": [],
+    "description": "Fuel for mind, heart and tummy!"
+  },
+  {
     "id": "lunch-5",
     "track": "creators-lounge",
     "start": "2026-10-17T12:35:00+05:30",
@@ -409,10 +420,12 @@
     "track": "raman-hall",
     "start": "2026-10-17T14:00:00+05:30",
     "end": "2026-10-17T16:45:00+05:30",
-    "title": "Hardware Lab (Group activity, Limited seats only)",
+    "title": "Building Physical AI: An Arduino UNO Q Workshop for Edge AI and Sensors (Group activity, Limited seats only)",
     "hall": "Raman Hall",
     "type": "workshop",
-    "speakerSlugs": [],
+    "speakerSlugs": [
+      "salman-faris"
+    ],
     "description": "Play and build with Arduino UNO Q kits"
   },
   {

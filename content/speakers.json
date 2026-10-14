@@ -433,5 +433,20 @@
       "github": null
     },
     "talkIds": ["sponsor-talk-2", "building-ai-at-the-edge-developing-intelligent-applications-"]
+  },
+  {
+    "slug": "salman-faris",
+    "name": "Salman Faris",
+    "title": "Community",
+    "company": "Screenly",
+    "bio": "Experience in hardware product development and prototyping across various development platforms.\nCurrently working with Screenly, focusing on digital signage solutions, Raspberry Pi-based deployments, and Edge App development. Involved in technical support, troubleshooting, and enabling secure digital signage infrastructures.\nActive in maker communities and a passionate technology enthusiast, always interested in exploring and experimenting with new technologies.",
+    "photo": "/people/salman-faris.webp",
+    "links": {
+      "twitter": null,
+      "instagram": null,
+      "linkedin": "https://www.linkedin.com/in/salmanfarisvp/",
+      "github": null
+    },
+    "talkIds": ["hardware-lab"]
   }
 ]
