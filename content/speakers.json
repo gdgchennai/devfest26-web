@@ -85,7 +85,7 @@
     "name": "Dinoy Raj",
     "title": "Product Engineer, Android",
     "company": "Strollby",
-    "bio": "Dinoy Raj is a Product Engineer and Android specialist with a deep focus on building scalable, high-performance mobile experiences using Kotlin and Jetpack Compose. \n He has shared his expertise on On-Device AI, custom launchers, and modern Android architecture at Droidcon Abu Dhabi '25, Droidcon Uganda '25, DevFest Dubai '25, DevFest Mumbai '25. Dinoy will be also Speaking at FOSSASIA 2026.",
+    "bio": "Dinoy Raj is a Product Engineer and Android specialist with a deep focus on building scalable, high-performance mobile experiences using Kotlin and Jetpack Compose.\nHe has shared his expertise on On-Device AI, custom launchers, and modern Android architecture at Droidcon Abu Dhabi '25, Droidcon Uganda '25, DevFest Dubai '25 and DevFest Mumbai '25. Dinoy will also be speaking at FOSSASIA 2026.",
     "photo": "/people/dinoy-raj.webp",
     "links": {
       "twitter": "https://x.com/dinoy_raj",
@@ -102,7 +102,7 @@
     "name": "Jeeththenthar L",
     "title": "AI Engineer",
     "company": "Kovanlabs",
-    "bio": "",
+    "bio": "Jeeththenthar is an AI Engineer at Kovanlabs with 3 years of industry experience, and an active product builder working on multiple SaaS products such as AnalyzeDB, LearnVisually and PromptPilot. Jeeththenthar is passionate about turning ideas into real-world products and exploring how AI can solve practical problems.\nBeyond work, Jeeththenthar actively participates in the tech community around Coimbatore through communities and events like GDG, TiE Kovai and AI Weekends, and also mentors students.",
     "photo": "/people/jeeththenthar-l.webp",
     "links": {
       "twitter": null,
@@ -118,7 +118,7 @@
     "name": "Varun Poladiya",
     "title": "B2B Marketing Leader (12+ years, AdTech/EdTech/IT/AI)",
     "company": "Independent",
-    "bio": "",
+    "bio": "Varun Poladiya is a tech marketer with 12+ years of experience across AdTech, EdTech, IT, and AI. He began his career at Google, then drove publisher ad revenue at Media.net for clients like Reuters and MSN. As co-founder of EduTronics, he taught coding and robotics to 4,000+ students and educators globally. Later, at navan.ai, he led marketing for AI products while training 1,500+ developers in vision AI across India, Malaysia, and Singapore.",
     "photo": "/people/varun-poladia.webp",
     "links": {
       "twitter": null,
@@ -134,7 +134,7 @@
     "name": "Aditya Shinde",
     "title": "Founder",
     "company": "Ketoy",
-    "bio": "",
+    "bio": "Aditya Shinde is the Founder of Ketoy and an Android developer with over 5 years of experience specializing in Android and Kotlin Multiplatform.\nDeeply involved in the Android community, Aditya has delivered 20+ speaker sessions and workshops across Android, FlutterFlow and Kotlin Multiplatform to over 3,000 attendees.\nAditya also runs the Android-focused YouTube channel @DeveloperChunk (1,000+ subscribers) and publishes technical deep dives on Medium under the same handle.",
     "photo": "/people/aditya-shinde.webp",
     "links": {
       "twitter": null,
@@ -150,7 +150,7 @@
     "name": "Achintya Jai",
     "title": "Researcher, Privacy Tech",
     "company": "OWASP",
-    "bio": "",
+    "bio": "Achintya Jai is a researcher from IIT Madras in India, hacking at the intersection of cybersecurity and AI. He spoke about multi-agent frameworks at UC Berkeley's AI summit as an invited speaker after winning their hackathon, and about privacy and automated privacy-breaking systems at PyCon. He is currently working on AI security products, especially in the field of OSINT. In his free time, he likes to read books and work on his solar race car as an electrical engineer.",
     "photo": "/people/achintya-jai.webp",
     "links": {
       "twitter": null,
@@ -166,7 +166,7 @@
     "name": "Neeraj Pathak",
     "title": "Summer Intern",
     "company": "Deloitte",
-    "bio": "",
+    "bio": "Neeraj Pathak is a core developer & maintainer of stdlib, a JS library for numerical and scientific computing. He has also worked on JAX-Privacy, a research and ML open-source project at Google DeepMind, and received a Letter of Recommendation from a Research Scientist at Google. Neeraj was previously invited by Y Combinator to attend their first Startup School talk in India, and was ranked 5th out of 3,000+ participants in Google Cloud's AI Hackathon.",
     "photo": "/people/neeraj-pathak.webp",
     "links": {
       "twitter": null,
@@ -180,9 +180,9 @@
   {
     "slug": "rashmi-asokan",
     "name": "Rashmi Asokan",
-    "title": "Lightning Talk Speaker",
+    "title": "AI Native Product Strategist",
     "company": "Independent",
-    "bio": "",
+    "bio": "Rashmi is an AI Native Product Strategist. She sits at the intersection of LLMs, business, and users. When she is not shipping, she is mostly yapping about tech on Instagram.",
     "photo": "/people/rashmi-ashokan.webp",
     "links": {
       "twitter": null,
@@ -198,7 +198,7 @@
     "name": "Dhanush Kandhan",
     "title": "Engineering, Climate Activist",
     "company": "letRetro",
-    "bio": "",
+    "bio": "Dhanush Kandhan is a Product Engineer and builder at letRetro, working across AI, developer tools and B2B software. He focuses on building and scaling AI-powered engineering workflows and infrastructure. He is an active open-source contributor and works with startups on AI and technology. He hosts “Idu Namma Tech-u,” a Tamil technology podcast featuring engineers and builders. He is also a climate activist and contributes to technology and developer communities.",
     "photo": "/people/dhanush-kandhan.webp",
     "links": {
       "twitter": null,
@@ -214,7 +214,7 @@
     "name": "Aakash Dhakshnamoorthy",
     "title": "AI/ML Engineer & Strategist",
     "company": "Zenardy Technologies India",
-    "bio": "",
+    "bio": "Aakash Dhakshnamoorthy is an AI/ML Engineer & Strategist at Zenardy Technologies, and an Oracle Certified GenAI Professional & Data Scientist. A Smart India Hackathon winner and mentor, Aakash has spoken at Global AI Bootcamp, Dev Summit, and Microsoft and Google AI sessions, conducts AI/ML, Cloud & Agentic AI workshops, and mentors hackathons. An open-source enthusiast, Aakash is a core member of Elasticsearch Chennai, contributes to FOSS United and volunteers at GDG Chennai.",
     "photo": "/people/aakash-dhakshnamoorthy.webp",
     "links": {
       "twitter": null,
@@ -228,9 +228,9 @@
   {
     "slug": "imran-roshan",
     "name": "Imran Roshan",
-    "title": "Making Information Security Fun!",
+    "title": "Google Developer Expert, Google Cloud Security and Operations",
     "company": "Independent",
-    "bio": "",
+    "bio": "Imran Roshan is a Google Developer Expert in Google Cloud Security and Operations, on a mission to make information security fun. Imran is trying to enable AI-assisted security and helping make security easier for teams to adopt.",
     "photo": "/people/imran-roshan.webp",
     "links": {
       "twitter": null,
@@ -246,7 +246,7 @@
     "name": "Gokulbarath N",
     "title": "AI & Robotics Engineer, Founder",
     "company": "BGO Apps",
-    "bio": "",
+    "bio": "Gokulbarath N is an AI & Robotics Engineer and final-year Mechatronics student at Sathyabama Institute of Science & Technology, working at the intersection of AI and robotics, spanning LLM agents, computer vision, and full-stack ROS2 systems. Gokulbarath is also the founder of BGO Apps, a mobile studio building apps paired with AI systems.",
     "photo": "/people/gokulbarath-n.webp",
     "links": {
       "twitter": null,
@@ -262,7 +262,7 @@
     "name": "Shangeeth Sivan Adiyapatham",
     "title": "Android Engineer",
     "company": "Poshmark",
-    "bio": "",
+    "bio": "Shangeeth Sivan Adiyapatham is an Android developer, tech enthusiast and public speaker focused on building seamless experiences. With 9+ years of hands-on experience in Android application development, Shangeeth is passionate about crafting intuitive, high-performance mobile apps that solve real-world problems.\nShangeeth is constantly exploring the evolving tech landscape, from Kotlin Multiplatform and Flutter to web development (Node.js/Express), iOS, MongoDB, and even game dev, VR and IoT.",
     "photo": "/people/shangeeth-sivan-adiyapatham.webp",
     "links": {
       "twitter": null,
@@ -278,7 +278,7 @@
     "name": "Dishant Parakh",
     "title": "Program Associate, India Team",
     "company": "Ocean Energy Pathway (OEP)",
-    "bio": "",
+    "bio": "Dishant Parakh is a climate and energy policy professional working at the intersection of technology, data and public policy.\nAn analyst trained at the Indian Statistical Institute (ISI) and the Urban Fellows Programme at IIHS, Dishant has worked across the Water-Energy-Food-Ecosystem (WEFE) nexus and pollution mitigation strategies. He has collaborated with organisations such as A-PAG, ATREE, Auroville Consulting, Quality Council of India, and The Peninsula Foundation. Alongside his practitioner work, he has contributed to multiple peer-reviewed, Scopus-indexed research publications and has presented his work at academic and professional forums.\nAcross these different areas, a common question runs throughout his work: how do we turn data and tech into decisions that actually work in the real world?",
     "photo": "/people/dishant-parakh.webp",
     "links": {
       "twitter": null,
@@ -294,7 +294,7 @@
     "name": "Dr Ayana Ghosh",
     "title": "Assistant Professor, Department of Physics",
     "company": "Indian Institute of Technology Madras",
-    "bio": "",
+    "bio": "Dr Ayana Ghosh is an Assistant Professor in the Department of Physics at IIT Madras. Prior to joining IIT Madras, she was a Staff Scientist at Oak Ridge National Laboratory (ORNL), following her postdoctoral research there. She received her PhD in Materials Science and Engineering from the University of Connecticut in 2020 and her BS in Physics and Abstract Mathematics from the University of Michigan in 2015.\nHer research lies at the intersection of materials physics, computational physics, and machine learning, with a focus on understanding emergent phenomena by connecting microscopic theory with experimental observations. Her work spans complex oxides, two-dimensional systems, and hybrid materials, with an emphasis on developing data-driven approaches for scientific discovery and understanding.\nShe has authored more than 50 peer-reviewed publications and delivered invited talks at international conferences in physics and materials science. Her honors include the ORNL Director’s Award (2024), the ORNL Early Career Research Accomplishment Award (2024), the Early Discovery Award (2024) from the American Ceramic Society, and recognition as a Rising Star in Computational and Data Sciences (2022) at Sandia National Laboratories.",
     "photo": "/people/ayana-ghosh.webp",
     "links": {
       "twitter": null,
@@ -310,7 +310,7 @@
     "name": "Dr Moumita Mukherjee",
     "title": "AI Team Lead",
     "company": "Solinas Integrity",
-    "bio": "",
+    "bio": "Dr Moumita Mukherjee is the AI Team Lead at Solinas Integrity, a startup developing robotic and AI solutions for pipeline diagnostics and septic tank cleaning to help reduce water losses and eliminate manual scavenging. At Solinas, Dr Mukherjee has led the development of several AI-based models for automatic pipeline condition assessment. Before this role, Dr Mukherjee completed a Ph.D. in Computer Vision, working extensively on various computer vision algorithms, and has over four years of professional experience since.",
     "photo": "/people/moumita-mukherjee.webp",
     "links": {
       "twitter": null,
@@ -321,10 +321,10 @@
   },
   {
     "slug": "nimeshika",
-    "name": "Dr Nimeshika",
-    "title": "Speaker",
+    "name": "Dr Nimeshika Jayachandran",
+    "title": "Strategic Partnerships Manager",
     "company": "MediSimVR",
-    "bio": "",
+    "bio": "Dr. Nimeshika Jayachandran is a physician and health & science journalist turned medtech strategist. She began her reporting career at The Times of India in Bengaluru and went on to head the health desk at The News Minute, where she was part of the team covering the 2018 Nipah virus outbreak and reported extensively on the COVID-19 pandemic. Today she leads strategic partnerships at MediSim VR, building the ecosystem for AI and VR simulation in healthcare training and competency assessment.",
     "photo": "/people/nimeshika.webp",
     "links": {
       "twitter": null,
@@ -336,9 +336,9 @@
   {
     "slug": "pulkit-verma",
     "name": "Pulkit Verma",
-    "title": "Speaker",
-    "company": "TBD",
-    "bio": "",
+    "title": "Assistant Professor, Department of Computer Science and Engineering",
+    "company": "Indian Institute of Technology Madras",
+    "bio": "Pulkit Verma is an Assistant Professor of Computer Science and Engineering at IIT Madras, where he is a Principal Investigator at the Centre for Responsible AI (CeRAI). He is also an affiliate of the Center for Human-Compatible AI at UC Berkeley. Previously, he was a Postdoctoral Associate in the Interactive Robotics Group at MIT CSAIL. He received his Ph.D. from Arizona State University and his M.Tech. from IIT Guwahati. His research spans AI safety, lifelong learning with humans in the loop, and human-robot collaboration, with the goal of building AI agents that remain reliable and adaptable as they work with people. His work has been recognized with the ICAPS 2025 Outstanding Dissertation Award, the 2025 AAAI/ACM SIGAI Innovative AI Education Award, and the AAMAS 2022 Best Demo Award.",
     "photo": "/people/pulkit-verma.webp",
     "links": {
       "twitter": null,
@@ -349,10 +349,10 @@
   },
   {
     "slug": "natarajan",
-    "name": "Dr Natarajan",
-    "title": "Speaker",
-    "company": "TBD",
-    "bio": "",
+    "name": "Dr Lakshmanan Nataraj",
+    "title": "Independent AI Researcher, Consultant & Advisor",
+    "company": "Independent",
+    "bio": "Lakshmanan Nataraj is an independent AI researcher, consultant, and advisor with 15+ years of experience in signal processing, cybersecurity, computer vision, and artificial intelligence. He is known for his pioneering malware visualization research and contributions to GAN-generated image detection, media forensics, and satellite image authentication. His work spans 25+ research papers, 8 US patents, and 5,000+ citations.\nHe has served as PI/Co-PI on research programs funded by DARPA, ONR, and NGA, contributed to the DARPA MediFor initiative, and was recognized as a Dagstuhl Scholar in 2022. He currently advises organizations on AI research, adoption, AI for Science, and AI safety, including the Institute of Financial Management and Research (IFMR) and Krea University as a Visiting Associate Professor. He is also involved in the Anusandhan National Research Foundation (ANRF) initiatives, including Saral AI and the MAHA AI for Science and Engineering program.",
     "photo": "/people/natarajan.webp",
     "links": {
       "twitter": null,
@@ -366,7 +366,7 @@
     "name": "Gokulakrishnan L",
     "title": "Student",
     "company": "IIITDM Kancheepuram",
-    "bio": "",
+    "bio": "Gokulakrishnan L is a 2nd-year undergraduate student at IIITDM Kancheepuram exploring cybersecurity, local systems, and privacy-first software development. An active participant in hackathons and tech workshops, he co-built \"Gemma Monsters\", securing 1st place at the GDG Windsor \"Build with AI\" Hackathon, and has competed in events like the ISRO and Build with AI hackathons. His practical projects include developing Flutter-based AI apps and exploring local, zero-telemetry LLM architectures.",
     "photo": "/people/gokulakrishnan-l.webp",
     "links": {
       "twitter": null,
@@ -374,20 +374,6 @@
       "github": null
     },
     "talkIds": ["building-privacy-first-edge-ai-with-gemma-4"]
-  },
-  {
-    "slug": "gopalakrishnan-srinivasan",
-    "name": "Dr Gopalakrishnan Srinivasan",
-    "title": "Assistant Professor",
-    "company": "IIT Madras",
-    "bio": "",
-    "photo": "/people/gopalakrishnan-srinivasan.webp",
-    "links": {
-      "twitter": null,
-      "linkedin": null,
-      "github": null
-    },
-    "talkIds": []
   },
   {
     "slug": "hariprasad-sudharshan",
