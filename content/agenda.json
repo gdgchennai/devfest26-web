@@ -192,7 +192,7 @@
     "speakerSlugs": [
       "shangeeth-sivan-adiyapatham"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "In this talk, we’ll build just enough understanding of what happens beneath your app — from CPUs, system calls, threads, and scheduling — to make sense of real performance problems.\nWe’ll then connect that mental model to Perfetto: how to record traces, relate trace slices back to your code, and identify where time is actually being spent.\nFinally, we’ll explore how AI can simplify and automate parts of this workflow, from capturing traces to analyzing them and helping you investigate bottlenecks faster.\nWhether your app is built with native Android, Flutter, React Native, or another framework running on Android, the same underlying system is doing the work.\nYou’ll leave with a practical approach to understanding, debugging, and eventually automating app performance investigations without needing to become an operating systems expert.",
     "prerequisites": []
   },
   {
@@ -318,7 +318,7 @@
     "speakerSlugs": [
       "gokulbarath"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Most AI today depends on the cloud — but it doesn't have to. This talk breaks down what local AI actually means and why it matters, then builds up from the fundamentals of how large language models work to Google's Gemma model family. From there, it covers how to select and run a Gemma model on constrained hardware like a Raspberry Pi 5, turning it into a private, always-available AI assistant with no cloud dependency. The talk closes by walking through a real deployment: connecting a locally hosted Gemma model to a Telegram bot, so the audience can see exactly what a fully offline, self-hosted AI system looks like end to end — from model choice to a working interface.",
     "prerequisites": []
   },
   {
@@ -361,7 +361,7 @@
     "speakerSlugs": [
       "saurabh-mishra"
     ],
-    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability.",
+    "description": "Practical patterns for securing, verifying, observing, auditing, and safely scaling AI agents on Google Cloud with Gemini and Vertex AI.\nThe goal is simple: build agents that don’t just work in a demo, but can be trusted in production.\nThis session explores how to move beyond the “happy path” and build AI agents that are secure, observable, and safe to operate at scale on Google Cloud.\nWe’ll look at practical patterns for implementing agent guardrails, least-privilege identity, human-in-the-loop verification, policy enforcement, and runtime protection using services & capabilities across GCP, Gemini and Vertex AI.\nGoogle Cloud provides built-in observability for agent metrics and supports tracing through OpenTelemetry, making it possible to understand agent behavior across models, tools & execution steps.\nWe’ll explore when an agent should act autonomously, when it should pause for human approval, and how to design a “fail safely” architecture when something goes wrong.",
     "prerequisites": []
   },
   {
