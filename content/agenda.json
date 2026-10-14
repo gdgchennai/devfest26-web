@@ -141,21 +141,17 @@
     "prerequisites": []
   },
   {
-    "id": "agent-wars-live-tournament-round-1",
+    "id": "agent-wars-signup-qualifier",
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:10:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 1)",
+    "end": "2026-10-17T12:30:00+05:30",
+    "title": "Agent Wars: Signup & Qualifier",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents",
-    "prerequisites": [
-      "Antigravity",
-      "Google ADK",
-      "Google AI Studio"
-    ]
+    "description": "Come, signup, pickup your qualifier challenge.\nChallenges involve you building agents. The agent execution will be benchmarked on parameters which will be revealed at the event.\nUse Antigravity or AI Studio or your hard core dev skills to build agents using Google ADK (Agent Development Kit)",
+    "prerequisites": []
   },
   {
     "id": "vibe-coding-lounge",
@@ -223,33 +219,16 @@
     ]
   },
   {
-    "id": "agent-wars-live-tournament-round-2",
+    "id": "agent-wars-elimination",
     "track": "agent-wars",
-    "start": "2026-10-17T11:10:00+05:30",
-    "end": "2026-10-17T11:20:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 2)",
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition",
-    "level": "Intermediate",
-    "speakerSlugs": [],
-    "description": "The battle of the agents",
-    "prerequisites": [
-      "Antigravity",
-      "Google ADK",
-      "Google AI Studio"
-    ]
-  },
-  {
-    "id": "agent-wars-live-tournament-round-3",
-    "track": "agent-wars",
-    "start": "2026-10-17T11:20:00+05:30",
+    "start": "2026-10-17T02:00:00+05:30",
     "end": "2026-10-17T11:30:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 3)",
+    "title": "Agent Wars: Elimination",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents",
+    "description": "The battle of the agents.\nTime trialed, feature and parameter efficiency benchmarked.\nTop 20 teams from Qualifier enter this round.",
     "prerequisites": [
       "Antigravity",
       "Google ADK",

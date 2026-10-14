@@ -34,10 +34,11 @@ function sessionHtml(s: AgendaSession, speakers: Speaker[]): string {
   const title = extra
     ? `<details><summary>${esc(s.title)}</summary>${extra}</details>`
     : `<span class="t">${esc(s.title)}</span>`;
-  return `<li class="s" data-s="${esc(s.start)}" data-e="${esc(s.end)}">
+  const isBreak = s.type === "break";
+  return `<li class="s${isBreak ? " brk" : ""}" data-s="${esc(s.start)}" data-e="${esc(s.end)}">
 <time>${formatSessionTime(s.start)}–${formatSessionTime(s.end)}</time>
 <div class="b">${title}<small>${esc([names, s.hall, meta].filter(Boolean).join(" · "))}</small></div>
-<button type="button" class="star" data-k="${esc(sessionKey(s))}" aria-pressed="false" aria-label="Save ${esc(s.title)}">☆</button>
+${isBreak ? "" : `<button type="button" class="star" data-k="${esc(sessionKey(s))}" aria-pressed="false" aria-label="Save ${esc(s.title)}">☆</button>`}
 </li>`;
 }
 
@@ -70,6 +71,7 @@ time{flex:0 0 6.5rem;font-size:.8125rem;color:var(--mute);font-variant-numeric:t
 summary{cursor:pointer}
 details p{margin:.4rem 0 0;font-size:.875rem;color:var(--mute)}
 small{display:block;color:var(--mute);margin-top:.15rem}
+.brk .t,.brk summary{font-weight:400;color:var(--mute)}
 .star{flex:none;width:2.5rem;height:2.5rem;border:1px solid var(--line);border-radius:50%;background:none;font-size:1.25rem;line-height:1}
 .star[aria-pressed=true]{color:var(--yellow);border-color:var(--yellow)}
 .live{display:block;width:fit-content;margin-top:.25rem;font-size:.6875rem;text-transform:uppercase;background:var(--blue);color:#fff;border-radius:99px;padding:.1rem .5rem}
@@ -131,13 +133,13 @@ export async function GET(): Promise<Response> {
     ...siteConfig.tracks.filter((t) => !siteConfig.floors.some((f) => f.tracks.includes(t.slug))),
   ];
 
-  // Only sessions you can star: lunch, quick breaks and check-in are all `break`.
-  const starable = agenda
-    .filter((s) => s.type !== "break")
-    .sort((a, b) => a.start.localeCompare(b.start));
+  // Breaks (lunch, quick breaks, check-in) are shown, without a star. A track
+  // gets a tab only if it has a real session; venue-wide ones (track null)
+  // appear in every tab, same as the agenda's simple list.
+  const sorted = [...agenda].sort((a, b) => a.start.localeCompare(b.start));
   const groups = tracks
-    .map((track) => ({ track, sessions: starable.filter((s) => s.track === track.slug) }))
-    .filter((g) => g.sessions.length > 0);
+    .filter((track) => sorted.some((s) => s.type !== "break" && s.track === track.slug))
+    .map((track) => ({ track, sessions: sorted.filter((s) => s.track === track.slug || s.track === null) }));
 
   const tabs = groups
     .map(

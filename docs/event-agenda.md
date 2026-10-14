@@ -1,15 +1,15 @@
 # `/event-agenda` — the lightweight event-day agenda
 
 One small HTML document for weak venue wifi and mobile data. Same schedule as
-`/agenda`'s simple list (per-track tabs, no "All", breaks/lunch/check-in
-hidden), but none of the site's JS.
+`/agenda`'s simple list (per-track tabs, no "All"; lunch, breaks and check-in
+shown, without a star), but none of the site's JS.
 
 ## Why a route handler
 
 [`app/event-agenda/route.ts`](../app/event-agenda/route.ts) returns a plain
 `Response` with HTML, so it **bypasses `app/layout.tsx`** — no React hydration,
 GSAP, Lenis, three.js, `next-auth/react`, fonts or images. It's about 56 KB of
-HTML (about 16 KB gzipped), including all 46 sessions, and makes **no
+HTML (about 16 KB gzipped), including every session, and makes **no
 requests until you act** other than `/api/auth/session`.
 
 Cached with `public, max-age=60, s-maxage=300, stale-while-revalidate=86400`

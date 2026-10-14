@@ -31,8 +31,10 @@ export default async function AdminPage() {
   }
 
   const [allSessions, statuses] = await Promise.all([getAgenda(), getSessionStatuses()]);
-  // Each person only sees (and can change) the tracks they hold a role on.
-  const agenda = allSessions.filter((s) => canManageSession(access, s.track));
+  // Each person only sees (and can change) the tracks they hold a role on, and
+  // never the lunch / quick break / check-in rows (all type "break") — nobody
+  // has saved those, so marking them started would notify no one.
+  const agenda = allSessions.filter((s) => s.type !== "break" && canManageSession(access, s.track));
   const groups = [
     { slug: "general", name: "General (no track)", track: null as string | null },
     ...siteConfig.tracks.map((t) => ({ slug: t.slug, name: t.name, track: t.slug as string | null })),
