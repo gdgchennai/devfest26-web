@@ -150,6 +150,7 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
     let instance: Lenis | null = null;
     let tick: ((time: number) => void) | null = null;
     let onRefresh: (() => void) | null = null;
+    let bodyObserver: ResizeObserver | null = null;
 
     void import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
@@ -178,6 +179,21 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
       // Lenis's limit in step continuously rather than once at load.
       onRefresh = () => instance?.resize();
       ScrollTrigger.addEventListener("refresh", onRefresh);
+      // Content that grows or shrinks without a ScrollTrigger refresh —
+      // /agenda swapping its ~1.3k px board for the ~6k px simple list, or a
+      // track filter changing the list's length — leaves that limit stale too.
+      // Lenis's own observer watches <html>, which is `h-full`, so its box
+      // never changes when the document does; <body> (min-h-full) is what
+      // actually grows. Coalesced to one resize() per frame.
+      let resizeFrame = 0;
+      bodyObserver = new ResizeObserver(() => {
+        if (resizeFrame) return;
+        resizeFrame = window.requestAnimationFrame(() => {
+          resizeFrame = 0;
+          instance?.resize();
+        });
+      });
+      bodyObserver.observe(document.body);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
       lenisRef.current = instance;
@@ -188,6 +204,7 @@ function MotionProviderInner({ children }: { children: React.ReactNode }) {
       window.clearTimeout(handBack);
       if ("scrollRestoration" in history) history.scrollRestoration = "auto";
       if (onRefresh) ScrollTrigger.removeEventListener("refresh", onRefresh);
+      bodyObserver?.disconnect();
       if (tick) gsap.ticker.remove(tick);
       instance?.destroy();
       lenisRef.current = null;

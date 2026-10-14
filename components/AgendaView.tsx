@@ -170,6 +170,32 @@ function SimpleModeToggle({ value, onChange }: { value: boolean; onChange: (next
   );
 }
 
+/** In the "All" list every track's own Lunch / Quick Break would repeat once
+ *  per hall at nearly the same time. Fold the per-track breaks that share a
+ *  title and place into one row (at the first one's position) spanning the
+ *  earliest start to the latest end. Breaks with no track are left as is. */
+function mergeTrackBreaks(sessions: AgendaSession[]): AgendaSession[] {
+  const merged = new Map<string, AgendaSession>();
+  const out: AgendaSession[] = [];
+  for (const s of sessions) {
+    if (s.type !== "break" || s.track === null) {
+      out.push(s);
+      continue;
+    }
+    const key = `${s.title}|${s.hall}`;
+    const first = merged.get(key);
+    if (!first) {
+      const copy = { ...s, track: null };
+      merged.set(key, copy);
+      out.push(copy);
+      continue;
+    }
+    if (new Date(s.start) < new Date(first.start)) first.start = s.start;
+    if (new Date(s.end) > new Date(first.end)) first.end = s.end;
+  }
+  return out;
+}
+
 /** The lite / reduced-motion agenda: the same track tabs, then the plain
  *  chronological list filtered to the chosen track. Kept as its own
  *  component (rather than a branch inside AgendaView) so its own swipe
@@ -199,7 +225,9 @@ function AgendaTrackList({
   });
 
   const filtered =
-    activeTrack === ALL_TRACKS ? sessions : sessions.filter((s) => s.track === null || s.track === activeTrack);
+    activeTrack === ALL_TRACKS
+      ? mergeTrackBreaks(sessions)
+      : sessions.filter((s) => s.track === null || s.track === activeTrack);
 
   // The swipe surface wraps the tabs AND the list: a horizontal drag over
   // either switches track (over the tabs it must not scroll the strip
