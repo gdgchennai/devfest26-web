@@ -207,7 +207,7 @@
     "speakerSlugs": [
       "neeraj-pathak"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "This talk examines DeepMind's Gemma evaluations and the integration of differential privacy into LoRA and Transformer fine-tuning pipelines.\nHow does DeepMind evaluate Gemma across IMDB, CIFAR-10 & Tiny Shakespeare, and what does differential privacy actually look like inside LoRA and Transformer fine-tuning pipelines? Drawing on firsthand experience building these systems at JAX-Privacy, this talk covers honest model evaluation, GPU architecture for AI workloads, scaling agents on cloud infrastructure, and the open source best practices developers can steal from one of the world's best AI labs.",
     "prerequisites": []
   },
   {
@@ -642,7 +642,7 @@
     "speakerSlugs": [
       "dinoy-raj"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "A real-world case study on productionizing Gemini Nano in Android, covering structured outputs, OCR hallucination detection, local-to-cloud failover, and cross-app search.\nWhile on-device AI demos abound, running LLMs locally in Android apps reveals harsh realities: tight RAM limits, missing NPUs, and zero cloud safety nets.\nThis talk breaks down a real-world case study using Gemini Nano and AICore Prompt API in an enterprise travel app. We’ll cover:\n• Mapping GraphQL schemas to local structured outputs\n• Catching OCR hallucinations on receipt scans\n• Building hybrid local-to-cloud failovers\n• Cross-app entity search\nGet a hype-free blueprint for edge AI.",
     "prerequisites": []
   },
   {
@@ -671,7 +671,7 @@
     "speakerSlugs": [
       "gokulakrishnan-l"
     ],
-    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations.",
+    "description": "Privacy-first Edge AI with Gemma 4: local Ollama models, Cloudflare Tunnels exposure, guardrails, and lessons from the GDG Windsor Hackathon.\nDiscover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations.",
     "prerequisites": []
   },
   {
