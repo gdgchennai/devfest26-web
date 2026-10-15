@@ -24,7 +24,7 @@ Preflight performed on 2026-10-15. Production deployment is authorized by the us
 
 ## Remaining gates
 
-- Confirm the account's Workers plan in the Cloudflare console; the authenticated API cannot read billing. Do not enable or upgrade a paid service without authorization. Validate the final site's compressed Worker size against the actual plan.
+- Billing visibility is unavailable and is not a deployment prerequisite. Keep the existing subscription and validate against Workers Free constraints. The SQLite-backed Durable Object is supported on Free and Paid, and the measured site bundle fits the published bundle limit as well as this repository's conservative gzip budget. Hosted CPU, startup and quota checks remain necessary; if Cloudflare rejects deployment, report the exact restriction rather than changing the plan. Do not enable or upgrade a paid service without authorization. References: [DO plan availability](https://developers.cloudflare.com/durable-objects/platform/pricing/), [Workers limits](https://developers.cloudflare.com/workers/platform/limits/).
 - Complete hosted sign-in, real-role and two-browser update verification after deployment. No stress tests are authorized for this rollout.
 - Production configurations must never set `NEXT_PUBLIC_HALL_ISOLATED`, `HALL_LOCAL_TEST` or `HALL_LOAD_TEST`. The dedicated local test configurations are separate. Never deploy a previously generated isolated bundle.
 - Record the active production deployment/version immediately before cutover for rollback. Roll back application code if necessary; do not drop new tables or overwrite the shared database to undo this additive feature.
