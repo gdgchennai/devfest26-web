@@ -1,12 +1,13 @@
 # Admin portal (`/admin`)
 
-Two pages, gated by the same check, not listed in `lib/routes.ts` (same
+Three pages, gated by the same check, not listed in `lib/routes.ts` (same
 precedent as `/signin` — not meant to surface on the 404 rescue grid or
 sitemap for ordinary visitors).
 
 | Page | What it does |
 | --- | --- |
 | `/admin` | Only the tracks you hold a role on. Mark agenda sessions Upcoming/Started/Ended. Started/Ended notifies everyone who favorited that session and has push on — see [`docs/push-notifications.md`](./push-notifications.md). |
+| `/hall-status-update` | Only the tracks you hold a role on. Update hall occupancy status (Available, Filling fast, Houseful) and broadcast in-hall announcements (max 80 chars) to the `/live` bento grid. |
 | `/admin/users` | Every account, with its ticket name resolved the same way the profile page shows it, and per-track role controls (None / Track lead / Admin) limited to the tracks you administer. Searchable (`?q=`, matches name, email and ticket name) and paginated 25 per page (`?page=`) — both are plain GET params, filtered server-side. |
 
 ## Access control
