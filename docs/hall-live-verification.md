@@ -1,5 +1,7 @@
 # Hall live verification — 15 October 2026
 
+Historical verification of the initial clock-driven implementation. Manual lifecycle and current RBAC supersede its scheduling/UI assertions; see [manual event verification](hall-manual-verification.md).
+
 Implemented on `codex/hall-availability-test`. Local verification only; nothing pushed or deployed, no remote migrations or paid services enabled. See [startup and test commands](hall-availability.md) and [raw load metrics](hall-live-load-report.json).
 
 ## Passed
