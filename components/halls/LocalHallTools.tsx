@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { hallTestIdentities } from "@/lib/hall-test-identities";
 import type { HallSnapshot } from "@/lib/hall-model";
 export function LocalHallTools({
   snapshot,
@@ -56,15 +57,10 @@ export function LocalHallTools({
             <option value="" disabled>
               Switch identity
             </option>
-            {[
-              "public",
-              "organizer",
-              "lead-tech",
-              "lead-deep",
-              "admin-tech",
-              "unassigned",
-            ].map((r) => (
-              <option key={r}>{r}</option>
+            {hallTestIdentities.map((identity) => (
+              <option key={identity.value} value={identity.value}>
+                {identity.label}
+              </option>
             ))}
           </select>
         </label>

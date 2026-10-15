@@ -27,3 +27,9 @@ Screenshots: [320px overview](hall-live-qa/overview/mobile-320.png), [desktop ov
 ## Scope
 
 No backend/schema, dependencies, remote deployment or production binding changes. The existing isolated preview setup and pending production integration requirements remain documented in [hall availability](hall-availability.md). Existing user changes to `AGENTS.md` and the handoff are preserved. Commits are local only.
+
+## Live-page copy and local role follow-up
+
+Fetched `origin/main` again at `93f64cc`; its RBAC files already match this branch. Removed the two public helper messages about occupancy age and sorting. Updated the shared fixture catalog/selector to Super admin, Admin (organizer) for both test tracks, Track lead for both tracks, User without grants, and Signed out. The legacy super-admin fixture ID and permissions are unchanged. Admins retain current-main track scope. Ordinary authenticated users resolve to an actor with no control grants; unauthenticated users remain null.
+
+Production access-adapter tests, targeted local identity-selector/API checks (`node scripts/hall-live/identity-tests.mjs`), typechecks and the isolated build pass. Full lint remains 10 errors / 4 warnings. Browser inspection confirmed both messages absent, all identity labels present, and the User fixture showing assignment guidance without hall controls. Rendered 320px lite and 1280px full-mode frames had no internal horizontal overflow. No stress or load tests ran.

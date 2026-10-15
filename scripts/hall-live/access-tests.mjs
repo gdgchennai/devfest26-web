@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import ts from "typescript";
+import path from "node:path";
+import { moduleUrl } from "./model-tests.mjs";
 const dataModule = (code) =>
   `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`;
 const imports = {
@@ -21,12 +23,14 @@ const compiled = ts
   .outputText.replace(/(?:from\s+|import\s+)["']([^"']+)["']/g, (match, id) =>
     match.replace(
       id,
-      dataModule(
-        imports[id] ??
-          (() => {
-            throw Error(id);
-          })(),
-      ),
+      id === "@/lib/hall-test-identities"
+        ? moduleUrl(path.resolve("lib/hall-test-identities.ts"))
+        : dataModule(
+            imports[id] ??
+              (() => {
+                throw Error(id);
+              })(),
+          ),
     ),
   );
 const previous = process.env.NEXT_PUBLIC_HALL_ISOLATED;
@@ -41,11 +45,18 @@ try {
   const req = new Request("https://event.example/api/admin/halls", {
     headers: { cookie: "hall-dev=organizer", "x-role": "organizer" },
   });
+  assert.deepEqual(
+    await hallActor(req),
+    { id: "real-user", organizer: false, zones: [], adminZones: [] },
+    "fixture cookie cannot grant a user production access",
+  );
+  globalThis.__hallAccess.session = null;
   assert.equal(
     await hallActor(req),
     null,
-    "fixture cookie cannot grant production access",
+    "signed-out users remain unauthenticated",
   );
+  globalThis.__hallAccess.session = { user: { uid: "real-user" } };
   for (const role of ["admin", "track_lead"]) {
     globalThis.__hallAccess.access = {
       isSuper: false,

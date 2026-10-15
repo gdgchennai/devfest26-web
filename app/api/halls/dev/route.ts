@@ -1,3 +1,4 @@
+import { hallTestIdentities } from "@/lib/hall-test-identities";
 import {
   hallEnvironment,
   localHallRequest,
@@ -11,14 +12,8 @@ export async function POST(request: Request) {
   if (!(await sameOrigin(request))) return new Response(null, { status: 403 });
   const { role } = (await request.json()) as { role?: string };
   if (
-    ![
-      "organizer",
-      "lead-tech",
-      "lead-deep",
-      "admin-tech",
-      "unassigned",
-      "public",
-    ].includes(role ?? "")
+    !hallTestIdentities.some((identity) => identity.value === role) &&
+    role !== "unassigned"
   )
     return new Response(null, { status: 400 });
   return Response.json(

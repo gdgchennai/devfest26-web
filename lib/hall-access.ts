@@ -1,4 +1,5 @@
 import "server-only";
+import { hallTestIdentities } from "@/lib/hall-test-identities";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { auth } from "@/auth";
 import { getAccess, manageableTracks, grantableTracks } from "@/lib/admin";
@@ -25,20 +26,24 @@ export async function hallActor(request: Request): Promise<HallActor | null> {
     const role = request.headers
       .get("cookie")
       ?.match(/(?:^|;\s*)hall-dev=([^;]+)/)?.[1];
-    const roles = [
-      "organizer",
-      "lead-tech",
-      "lead-deep",
-      "admin-tech",
-      "unassigned",
-    ];
-    if (role && roles.includes(role))
+    const identity = hallTestIdentities.find(
+      (identity) => identity.value === role,
+    );
+    if (identity && role !== "public")
       return {
         id: `dev:${role}`,
         organizer: role === "organizer",
-        ...(role === "admin-tech"
-          ? { zones: ["d7-auditorium"], adminZones: ["d7-auditorium"] }
-          : {}),
+        ...(identity.zones === null
+          ? {}
+          : { zones: identity.zones, adminZones: identity.adminZones }),
+      };
+    // Retain the unassigned fixture used by existing denial/throttle tests.
+    if (role === "unassigned")
+      return {
+        id: "dev:unassigned",
+        organizer: false,
+        zones: [],
+        adminZones: [],
       };
     return null;
   }
@@ -47,7 +52,13 @@ export async function hallActor(request: Request): Promise<HallActor | null> {
   const session = await auth();
   if (!session?.user?.uid) return null;
   const access = await getAccess(session.user.uid);
-  if (!access) return null;
+  if (!access)
+    return {
+      id: session.user.uid,
+      organizer: false,
+      zones: [],
+      adminZones: [],
+    };
   return {
     id: session.user.uid,
     organizer: access.isSuper,
