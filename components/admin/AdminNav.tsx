@@ -2,13 +2,20 @@ import Link from "next/link";
 
 const TABS = [
   { href: "/admin", label: "Sessions" },
+  { href: "/hall-status-update", label: "Live" },
   { href: "/admin/users", label: "People" },
 ] as const;
 
-export function AdminNav({ active, showPeople }: { active: "/admin" | "/admin/users"; showPeople: boolean }) {
+export function AdminNav({
+  active,
+  showPeople,
+}: {
+  active: "/admin" | "/admin/users" | "/hall-status-update";
+  showPeople: boolean;
+}) {
   return (
     <nav className="flex gap-2">
-      {TABS.filter((tab) => showPeople || tab.href === "/admin").map((tab) => (
+      {TABS.filter((tab) => showPeople || tab.href !== "/admin/users").map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}
