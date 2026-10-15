@@ -12,16 +12,16 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Admin — Live Hall",
   description: "Update live hall occupancy, headcount, and in-hall announcements.",
-  path: "/hall-status-update",
+  path: "/admin/halls",
   index: false,
 });
 
 export const dynamic = "force-dynamic";
 
-export default async function HallStatusUpdatePage() {
+export default async function AdminHallsPage() {
   const session = await auth();
   if (!session?.user?.uid) {
-    redirect(`/signin?callbackUrl=${encodeURIComponent("/hall-status-update")}`);
+    redirect(`/signin?callbackUrl=${encodeURIComponent("/admin/halls")}`);
   }
 
   const access = await getAccess(session.user.uid);
@@ -41,7 +41,7 @@ export default async function HallStatusUpdatePage() {
     <>
       <HeaderTitle title="Admin — Live Hall" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 pb-20 pt-24 sm:px-8 sm:pt-28">
-        <AdminNav active="/hall-status-update" showPeople={canViewPeople(access)} />
+        <AdminNav active="/admin/halls" showPeople={canViewPeople(access)} />
 
         <div className="mt-4 flex flex-wrap items-baseline justify-between gap-2">
           <div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const TABS = [
   { href: "/admin", label: "Sessions" },
-  { href: "/hall-status-update", label: "Live" },
+  { href: "/admin/halls", label: "Live" },
   { href: "/admin/users", label: "People" },
 ] as const;
 
@@ -10,7 +10,7 @@ export function AdminNav({
   active,
   showPeople,
 }: {
-  active: "/admin" | "/admin/users" | "/hall-status-update";
+  active: "/admin" | "/admin/users" | "/admin/halls";
   showPeople: boolean;
 }) {
   return (
