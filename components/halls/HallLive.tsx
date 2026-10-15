@@ -80,8 +80,7 @@ export function HallLive({
             Live at DevFest
           </h1>
           <p className="mt-3 text-paper/70">
-            Find your next session. Live events are started and ended by the
-            track team.
+            Find your next session.
           </p>
         </div>
         <p role="status" className={connected ? "text-green" : "text-yellow"}>
