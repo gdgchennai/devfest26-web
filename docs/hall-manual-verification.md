@@ -1,5 +1,7 @@
 # Manual hall events verification — 15 October 2026
 
+The compact overview and popup editor now supersede the full-card super-admin layout described below; see [overview verification](hall-overview-verification.md). This report records the earlier manual lifecycle release and its historical load run.
+
 Implemented on `codex/hall-availability-test` after fetching and merging `main` at `93f64cc`. Existing user edits to `AGENTS.md` and the handoff were preserved. No push, remote deployment, migration, or paid-service change.
 
 ## Behavior and authorization

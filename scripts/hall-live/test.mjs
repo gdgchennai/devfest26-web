@@ -1,5 +1,6 @@
 import "./hook-tests.mjs";
 import "./access-tests.mjs";
+import "./admin-model-tests.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
