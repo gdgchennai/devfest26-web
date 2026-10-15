@@ -41,9 +41,11 @@ export function LiveHallBoard({ initialHalls }: { initialHalls: LiveHallData[] }
 
   // Auto-poll every 3 minutes, only when tab is actively visible to save battery & Cloudflare resources
   useEffect(() => {
+    void refreshData();
+
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
-        refreshData();
+        void refreshData();
       }
     }
 

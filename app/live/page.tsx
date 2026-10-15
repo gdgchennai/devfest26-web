@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/live",
 });
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default async function LivePage() {
   const halls = await getAllLiveHalls();
