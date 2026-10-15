@@ -160,7 +160,7 @@ export function AdminHallControl({
               In-Hall Announcement (Max 80 chars)
             </label>
             <span
-              className={`text-xs font-mono ${
+              className={`text-xs tabular-nums ${
                 announcementText.length >= 75
                   ? "text-red"
                   : announcementText.length >= 60
