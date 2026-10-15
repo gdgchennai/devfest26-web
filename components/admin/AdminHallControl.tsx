@@ -143,12 +143,22 @@ export function AdminHallControl({
       const targetSession = sessions.find((s) => s.sessionKey === targetKey);
       const label =
         newStatus === "started"
-          ? "Started (Push alert sent!)"
+          ? "Started · Occupancy reset to Available"
           : newStatus === "ended"
-            ? "Ended"
+            ? "Ended · Occupancy reset to Available"
             : "Reset to Upcoming";
       setSessionMessage(`"${targetSession?.title ?? "Session"}" ${label}`);
-      setTimeout(() => setSessionMessage(null), 3000);
+      setTimeout(() => setSessionMessage(null), 3500);
+
+      // Automatically reset hall occupancy to "available" so lead can update for the new session
+      if (newStatus === "started" || newStatus === "ended") {
+        setHall((prev) => ({ ...prev, occupancyStatus: "available" }));
+        fetch(hallApiEndpoint(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ track: hall.track, occupancyStatus: "available" }),
+        }).catch(() => {});
+      }
 
       // Auto-advance pickers
       if (newStatus === "started") {
