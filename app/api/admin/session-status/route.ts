@@ -1,4 +1,4 @@
-import { requireAdminApi } from "@/lib/admin";
+import { requireAccessApi, canManageSession } from "@/lib/admin";
 import { getAgenda } from "@/lib/content";
 import { sessionKey as keyFor } from "@/lib/session-key";
 import { setSessionStatus, type SessionStatus } from "@/lib/session-status";
@@ -10,8 +10,8 @@ export const runtime = "nodejs";
 const STATUSES: readonly SessionStatus[] = ["upcoming", "started", "ended"];
 
 export async function POST(req: Request) {
-  const admin = await requireAdminApi();
-  if (admin instanceof Response) return admin;
+  const access = await requireAccessApi();
+  if (access instanceof Response) return access;
 
   const body = (await req.json().catch(() => null)) as { sessionKey?: unknown; status?: unknown } | null;
   const key = body?.sessionKey;
@@ -23,6 +23,11 @@ export async function POST(req: Request) {
   const agenda = await getAgenda();
   const session = agenda.find((s) => keyFor(s) === key);
   if (!session) return Response.json({ error: "unknown session" }, { status: 400 });
+
+  // Admins and track leads only act on their own tracks' sessions.
+  if (!canManageSession(access, session.track)) {
+    return Response.json({ error: "not your track" }, { status: 403 });
+  }
 
   await setSessionStatus(key, status as SessionStatus);
 

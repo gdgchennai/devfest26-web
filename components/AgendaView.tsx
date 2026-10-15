@@ -13,9 +13,9 @@ import { useTrackSwipe } from "@/lib/useTrackSwipe";
 import { floorTracks } from "@/lib/agenda-floors";
 import { uiCopy } from "@/site.config";
 
-/** The URL's name for "every track at once". The spatial board never uses
- *  it — it always has one track in focus, and picks that track itself
- *  (AgendaBoard's defaultTrackSlug) — but the static list filters by it. */
+/** What an absent or unknown ?track= resolves to. Neither view has an "all
+ *  tracks" tab: each picks a real track itself (AgendaBoard's
+ *  defaultTrackSlug, the static list's first tab). */
 const ALL_TRACKS = "all";
 
 function resolveTrackSlug(param: string | null, tracks: Track[]): string {
@@ -170,32 +170,6 @@ function SimpleModeToggle({ value, onChange }: { value: boolean; onChange: (next
   );
 }
 
-/** In the "All" list every track's own Lunch / Quick Break would repeat once
- *  per hall at nearly the same time. Fold the per-track breaks that share a
- *  title and place into one row (at the first one's position) spanning the
- *  earliest start to the latest end. Breaks with no track are left as is. */
-function mergeTrackBreaks(sessions: AgendaSession[]): AgendaSession[] {
-  const merged = new Map<string, AgendaSession>();
-  const out: AgendaSession[] = [];
-  for (const s of sessions) {
-    if (s.type !== "break" || s.track === null) {
-      out.push(s);
-      continue;
-    }
-    const key = `${s.title}|${s.hall}`;
-    const first = merged.get(key);
-    if (!first) {
-      const copy = { ...s, track: null };
-      merged.set(key, copy);
-      out.push(copy);
-      continue;
-    }
-    if (new Date(s.start) < new Date(first.start)) first.start = s.start;
-    if (new Date(s.end) > new Date(first.end)) first.end = s.end;
-  }
-  return out;
-}
-
 /** The lite / reduced-motion agenda: the same track tabs, then the plain
  *  chronological list filtered to the chosen track. Kept as its own
  *  component (rather than a branch inside AgendaView) so its own swipe
@@ -214,8 +188,10 @@ function AgendaTrackList({
   onSelectTrack: (slug: string) => void;
 }) {
   const swipeRef = useRef<HTMLDivElement>(null);
-  const tabOptions: AgendaTrackTab[] = [{ slug: ALL_TRACKS, name: uiCopy.agendaView.allTracksLabel }, ...tracks];
+  const tabOptions: AgendaTrackTab[] = tracks;
+  // No "All" tab, so an absent ?track= falls on the first track.
   const activeIndex = Math.max(0, tabOptions.findIndex((t) => t.slug === activeTrack));
+  const currentTrack = tabOptions[activeIndex]?.slug;
 
   useTrackSwipe({
     nodeRef: swipeRef,
@@ -224,10 +200,11 @@ function AgendaTrackList({
     onStep: (direction) => onSelectTrack(tabOptions[activeIndex + direction].slug),
   });
 
-  const filtered =
-    activeTrack === ALL_TRACKS
-      ? mergeTrackBreaks(sessions)
-      : sessions.filter((s) => s.track === null || s.track === activeTrack);
+  // Only sessions you can star: lunch, quick breaks and check-in are all
+  // type "break", the same test FavoriteButton's callers use.
+  const filtered = sessions.filter(
+    (s) => s.type !== "break" && (s.track === null || s.track === currentTrack),
+  );
 
   // The swipe surface wraps the tabs AND the list: a horizontal drag over
   // either switches track (over the tabs it must not scroll the strip
@@ -238,7 +215,7 @@ function AgendaTrackList({
     <div ref={swipeRef} className="agenda-track-swipe mt-6">
       <AgendaTrackTabs
         tabs={tabOptions}
-        activeSlug={activeTrack}
+        activeSlug={currentTrack}
         onSelect={onSelectTrack}
         idPrefix="agenda-track"
         panelId="agenda-track-panel"

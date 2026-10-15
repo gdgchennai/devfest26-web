@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { HeroSection } from "@/components/motion/HeroSection";
 import { StaticHero } from "@/components/motion/StaticHero";
+import { PartnersMarquee } from "@/components/PartnersMarquee";
+import { SponsorsSection } from "@/components/SponsorsSection";
 import type { ArchivePhoto } from "@/lib/schemas";
 
 /**
@@ -71,6 +73,10 @@ export function HomeBody({ brandShapes, archivePhotos }: { brandShapes: string[]
         <div data-scroll-cue-section>
           <ShowMoodSection />
         </div>
+
+        <SponsorsSection />
+
+        <PartnersMarquee />
 
         <div data-scroll-cue-section>
           <SeeYouThereSection />

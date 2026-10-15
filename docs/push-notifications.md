@@ -54,7 +54,7 @@ which:
    request (no confirm step, no queue).
 
 **Access:** see [`docs/admin.md`](./admin.md) for the full `/admin` access
-model (`ADMIN_EMAILS` + the DB `is_admin` flag, managed from `/admin/users`).
+model (super admin via `ADMIN_EMAILS`, plus per-track admin / track-lead roles managed from `/admin/users`).
 
 Nothing else calls `sendPushToUser`/`sendPushToUsers` yet, but they're
 generic — call them from any other server-side event that should notify

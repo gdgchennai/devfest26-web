@@ -58,8 +58,8 @@ export function PushPrompt() {
 
   async function enable() {
     track("push_prompt_accept");
-    await subscribe();
-    dismiss();
+    // Only retire the nudge once it worked; a failed attempt can be retried.
+    if (await subscribe()) dismiss();
   }
 
   if (!visible) return null;

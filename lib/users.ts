@@ -10,8 +10,8 @@ export type UserRecord = {
   image: string | null;
   display_name: string | null;
   created_at: number;
-  /** DB-granted admin role, set from /admin/users. See lib/admin.ts — the
-   *  ADMIN_EMAILS env allow-list is a separate, always-wins bootstrap. */
+  /** Legacy (migration 0013), no longer read. Roles live in `user_track_roles`
+   *  — see lib/track-roles.ts and lib/admin.ts. */
   is_admin: number;
 };
 
@@ -70,14 +70,6 @@ export async function upsertUserByGoogle(profile: {
 export async function getUserById(id: string): Promise<UserRecord | null> {
   const db = await getDb();
   return db.prepare("SELECT * FROM users WHERE id = ?").bind(id).first<UserRecord>();
-}
-
-export async function setUserAdmin(userId: string, isAdmin: boolean): Promise<void> {
-  const db = await getDb();
-  await db
-    .prepare("UPDATE users SET is_admin = ? WHERE id = ?")
-    .bind(isAdmin ? 1 : 0, userId)
-    .run();
 }
 
 /**

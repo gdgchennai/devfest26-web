@@ -6,10 +6,10 @@ const TABS = [
   { href: "/admin/halls", label: "Live halls" },
 ] as const;
 
-export function AdminNav({ active }: { active: "/admin" | "/admin/users" | "/admin/halls" }) {
+export function AdminNav({ active, showPeople = false }: { active: "/admin" | "/admin/users" | "/admin/halls"; showPeople?: boolean }) {
   return (
     <nav className="flex gap-2">
-      {TABS.map((tab) => (
+      {TABS.filter((tab) => showPeople || tab.href !== "/admin/users").map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}

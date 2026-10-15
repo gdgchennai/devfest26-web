@@ -120,13 +120,12 @@ Full deploy walkthrough: [`deployment.md`](./deployment.md).
 - **Type:** runtime variable (not really a secret, but not public either —
   belongs in `.dev.vars`/`wrangler secret put` like the others in this table)
 - **Used by:** [`lib/admin.ts`](../lib/admin.ts) — the bootstrap half of the
-  `/admin` access model (see [`docs/admin.md`](./admin.md); the other half is
-  the `users.is_admin` DB flag, granted from `/admin/users`)
-- **Required:** no, but without it nobody can reach `/admin` until the first
-  admin grants themselves `is_admin` some other way (there isn't one — this
-  is genuinely the only way in on a fresh deploy). Comma-separated,
+  `/admin` access model (see [`docs/admin.md`](./admin.md)). These accounts
+  are the **super admins**: every track, and the only way to grant the first
+  track roles from `/admin/users`.
+- **Required:** no, but without it nobody can reach `/admin` on a fresh
+  deploy (there's no other way to grant the first role). Comma-separated,
   case-insensitive, matched against the signed-in Google account's email.
-  Always wins over the DB flag, so it can't be locked out by a mistake there.
 - **Example:** `ADMIN_EMAILS=you@example.com,teammate@example.com`
 
 ### `NODE_ENV`

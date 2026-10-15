@@ -73,13 +73,15 @@
     "title": "From Models to Decisions: How AI Is Reshaping Poshmark and Fashion Marketplace",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "manu-vishwakarma",
       "shreya-sevelar"
     ],
-    "description": "Sponsored talk",
-    "prerequisites": []
+    "description": "How is AI changing a fashion marketplace? We’ll walk through Poshmark’s AI strategy and real-world use cases, and how shipping ML has moved from months of taxonomy design, labeling, training and active learning to agentic multimodal LLMs and decision models. LLMs are built as slow, deliberate System 2 tools, yet they’re often used for fast System 1 work like spam, intent and moderation classification, where confidence scores can’t be trusted. Meet JEV, a classifier that returns a deterministic answer with a calibrated probability you can act on. We’ll close with where the landscape is heading.",
+    "prerequisites": [
+      "Basic ML concepts (classification, model confidence)"
+    ]
   },
   {
     "id": "kotlin-over-the-air-reimagining-android-kmp-app-delivery",
@@ -89,12 +91,15 @@
     "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "aditya-shinde"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "Every Android team has asked this question:\n\"Why do we need a Play Store release for a small UI change?\"\nServer-driven UI promised faster iterations, but most solutions still hit the same limit: they can change screens, not behavior.\nIn this talk, I'll show how we built a system that delivers native Jetpack Compose experiences over the air without shipping a new app version. Using Kotlin compiler plugins, a lightweight on-device VM, and modern Android tooling, it runs code that never existed in the APK.\nYou'll learn:\n• Why JSON-based approaches eventually become limiting.\n• How native Compose can be delivered dynamically.\n• How the system stays secure, Play Store compliant, and maintainable.\n• How AI can generate features that are ready to run instantly.\nWhether you're into Compose, Android tooling, or simply shipping features faster, this talk will change how you think about app updates.",
+    "prerequisites": [
+      "Android development with Kotlin",
+      "Familiarity with Jetpack Compose"
+    ]
   },
   {
     "id": "can-ai-help-a-city-breathe",
@@ -104,11 +109,11 @@
     "title": "Can AI Help a City Breathe?",
     "hall": "D7 Amphitheater",
     "type": "talk",
-    "level": "Intermediate",
+    "level": "Beginner",
     "speakerSlugs": [
       "dishant-parakh"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Air pollution is often framed as a measurement problem: AQI dashboards, monitors, satellite imagery, emission inventories and increasingly sophisticated prediction models. But cities like Chennai do not suffer from air pollution simply because they lack data. The harder question is what happens when pollution becomes visible.\nCan we identify its source? Distinguish construction dust from transport, industry, waste burning or pollution travelling from outside the city? Can the government intervene fast enough? Can enforcement isolate persistent polluters from background pollution? And can we tell whether an intervention actually improved air quality? “Can AI Help a City Breathe?” explores this gap between environmental intelligence and environmental action.\nThe session begins with the fundamentals: what air pollution is, why it matters, its health and economic impacts, how pollutants differ, how exposure occurs, and what measures such as the Air Quality Index (AQI) can and cannot tell us.\nTwo AI and tech applications will be examined in depth:\n1. Dust, construction and dispersed pollution: utilising data-driven tracking, digital tools, and localized mapping to help municipal corporations identify exact spots needing cleanup or repair.\n2. Vehicular and tailpipe emissions: remote sensing, automated detection, surveillance and data-enabled enforcement for transport emissions.\nThe session ultimately asks developers to think beyond building another dashboard or prediction model, towards action-oriented tools and models for the public.",
     "prerequisites": []
   },
   {
@@ -136,21 +141,17 @@
     "prerequisites": []
   },
   {
-    "id": "agent-wars-live-tournament-round-1",
+    "id": "agent-wars-signup-qualifier",
     "track": "agent-wars",
     "start": "2026-10-17T11:00:00+05:30",
-    "end": "2026-10-17T11:10:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 1)",
+    "end": "2026-10-17T12:30:00+05:30",
+    "title": "Agent Wars: Signup & Qualifier",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents",
-    "prerequisites": [
-      "Antigravity",
-      "Google ADK",
-      "Google AI Studio"
-    ]
+    "description": "Come, signup, pickup your qualifier challenge.\nChallenges involve you building agents. The agent execution will be benchmarked on parameters which will be revealed at the event.\nUse Antigravity or AI Studio or your hard core dev skills to build agents using Google ADK (Agent Development Kit)",
+    "prerequisites": []
   },
   {
     "id": "vibe-coding-lounge",
@@ -178,7 +179,9 @@
       "somasundaram-mahesh"
     ],
     "description": "Sponsored workshop",
-    "prerequisites": []
+    "prerequisites": [
+      "Laptop"
+    ]
   },
   {
     "id": "simplified-performance-debugging-for-native-cross-platform-a",
@@ -188,12 +191,14 @@
     "title": "Simplified Performance Debugging for Native / Cross-Platform Apps Running on Android",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "shangeeth-sivan-adiyapatham"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "In this talk, we’ll build just enough understanding of what happens beneath your app — from CPUs, system calls, threads, and scheduling — to make sense of real performance problems.\nWe’ll then connect that mental model to Perfetto: how to record traces, relate trace slices back to your code, and identify where time is actually being spent.\nFinally, we’ll explore how AI can simplify and automate parts of this workflow, from capturing traces to analyzing them and helping you investigate bottlenecks faster.\nWhether your app is built with native Android, Flutter, React Native, or another framework running on Android, the same underlying system is doing the work.\nYou’ll leave with a practical approach to understanding, debugging, and eventually automating app performance investigations without needing to become an operating systems expert.",
+    "prerequisites": [
+      "Android app development (any framework)"
+    ]
   },
   {
     "id": "gemma-101-fine-tuning-open-models-with-lora-transformers-and",
@@ -203,41 +208,27 @@
     "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Expert",
     "speakerSlugs": [
       "neeraj-pathak"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
-  },
-  {
-    "id": "agent-wars-live-tournament-round-2",
-    "track": "agent-wars",
-    "start": "2026-10-17T11:10:00+05:30",
-    "end": "2026-10-17T11:20:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 2)",
-    "hall": "D6 Multi-purpose Hall",
-    "type": "competition",
-    "level": "Intermediate",
-    "speakerSlugs": [],
-    "description": "The battle of the agents",
+    "description": "This talk examines DeepMind's Gemma evaluations and the integration of differential privacy into LoRA and Transformer fine-tuning pipelines.\nHow does DeepMind evaluate Gemma across IMDB, CIFAR-10 & Tiny Shakespeare, and what does differential privacy actually look like inside LoRA and Transformer fine-tuning pipelines? Drawing on firsthand experience building these systems at JAX-Privacy, this talk covers honest model evaluation, GPU architecture for AI workloads, scaling agents on cloud infrastructure, and the open source best practices developers can steal from one of the world's best AI labs.",
     "prerequisites": [
-      "Antigravity",
-      "Google ADK",
-      "Google AI Studio"
+      "Fine-tuning basics (LoRA, Transformers)",
+      "Python ML frameworks (JAX or PyTorch)"
     ]
   },
   {
-    "id": "agent-wars-live-tournament-round-3",
+    "id": "agent-wars-elimination",
     "track": "agent-wars",
-    "start": "2026-10-17T11:20:00+05:30",
+    "start": "2026-10-17T02:00:00+05:30",
     "end": "2026-10-17T11:30:00+05:30",
-    "title": "Agent Wars: Live Tournament (Round 3)",
+    "title": "Agent Wars: Elimination",
     "hall": "D6 Multi-purpose Hall",
     "type": "competition",
     "level": "Intermediate",
     "speakerSlugs": [],
-    "description": "The battle of the agents",
+    "description": "The battle of the agents.\nTime trialed, feature and parameter efficiency benchmarked.\nTop 20 teams from Qualifier enter this round.",
     "prerequisites": [
       "Antigravity",
       "Google ADK",
@@ -256,8 +247,10 @@
     "speakerSlugs": [
       "pulkit-verma"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "AI agents and robots are moving out of controlled labs into homes and workplaces, where they meet users with goals, constraints, and safety expectations their developers never anticipated. Benchmarks tell us how a system performs on someone else’s task, but they rarely tell a user what this system can safely do for them. This talk argues that assessment must become user-aligned. We need ways to discover, in interpretable terms, what a black-box agent can and cannot do, and to check it against the specific person and setting it will serve. Drawing on research in learning interpretable capability models, LLM-based planning, and safety in personal robotics, I’ll show how developers and scientists can probe their systems, express capabilities in human terms, and decide who should model safety when robots come home. The goal is physical AI that is not just capable, but human-compatible.",
+    "prerequisites": [
+      "Basic familiarity with AI agents or robotics"
+    ]
   },
   {
     "id": "ai-assisted-sres-are-a-thing",
@@ -267,12 +260,15 @@
     "title": "AI Assisted SREs Are a Thing!",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "imran-roshan"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "This talk walks through what changes when AI moves from suggesting to acting. Gemini Cloud Assist correlates logs, metrics, and traces into a ranked list of hypotheses instead of three open tabs. Active Assist flags waste and risk before you go looking for it. And on the agentic end, an SRE agent can triage an alert, propose a fix, run it inside a Cloud Run Sandbox, and hand it to a human for approval, all with its own cryptographic identity, policy checks in plain English, and a full audit trail through Cloud Logging and Trace.\nWe'll look at real configs, real CLI commands, and where the guardrails actually live, so you leave knowing what's shippable today versus what's still a research preview.",
+    "prerequisites": [
+      "Basic SRE / incident response concepts",
+      "Google Cloud familiarity (helpful)"
+    ]
   },
   {
     "id": "agent-wars-live-tournament-rounds-4-6",
@@ -303,8 +299,10 @@
     "speakerSlugs": [
       "achintya-jai"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "A demonstration of OWASP Nettacker for network and vulnerability scanning, brute-force testing, bug hunting, enterprise use, and Python-based development.\nNettacker can simultaneously scan an entire network for multiple vulnerabilities and run brute-force attacks on them, in a matter of minutes. I talk about how to use it for bug hunting and network scanning, its primary features, its advantages over other available tools, how easily enterprises can adopt it, and finally its development and upcoming advancements. The tool is written entirely in Python and invites people to develop it along with us!",
+    "prerequisites": [
+      "Basic networking and security concepts"
+    ]
   },
   {
     "id": "local-ai-the-google-gemma-edition",
@@ -318,7 +316,7 @@
     "speakerSlugs": [
       "gokulbarath"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "Most AI today depends on the cloud — but it doesn't have to. This talk breaks down what local AI actually means and why it matters, then builds up from the fundamentals of how large language models work to Google's Gemma model family. From there, it covers how to select and run a Gemma model on constrained hardware like a Raspberry Pi 5, turning it into a private, always-available AI assistant with no cloud dependency. The talk closes by walking through a real deployment: connecting a locally hosted Gemma model to a Telegram bot, so the audience can see exactly what a fully offline, self-hosted AI system looks like end to end — from model choice to a working interface.",
     "prerequisites": []
   },
   {
@@ -333,8 +331,10 @@
     "speakerSlugs": [
       "moumita-mukherjee"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "I will briefly introduce our company vision and explain how Artificial Intelligence and Computer Vision are helping us address challenges in water and sewer pipeline inspection. The talk will then provide a deeper technical overview of our automated defect detection approach, including using object detection models to identify and classify pipeline defects from inspection videos.\nI will cover the overall AI pipeline, from video acquisition and preprocessing to model training, inference, defect classification, and generating inspection outputs. The session will also discuss the challenges involved in working with real-world pipeline inspection data, such as variations in lighting and video quality, different defect appearances, class imbalance, and the need for reliable detection across diverse pipeline conditions.\nI will further explain the model development and optimization process, including dataset preparation, training strategies, evaluation metrics, and approaches used to improve model performance. Finally, I will discuss how the AI system can integrate into a practical pipeline inspection workflow and how automated defect detection can support faster, more consistent, and data-driven infrastructure assessment.",
+    "prerequisites": [
+      "Basic computer vision / object detection concepts"
+    ]
   },
   {
     "id": "vibe-coding-lounge-2",
@@ -357,12 +357,15 @@
     "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "saurabh-mishra"
     ],
-    "description": "Move beyond the demo and learn to build secure, production-ready AI agents on Google Cloud. This session explores practical patterns for scaling trustworthy agents using Gemini and Vertex AI, focusing on robust guardrails, least-privilege identity, and runtime protection. We will dive into deep observability with OpenTelemetry to track behavior across tools, and design 'fail-safely' architectures that balance autonomous execution with human-in-the-loop verification and continuous feedback loops for enterprise reliability.",
-    "prerequisites": []
+    "description": "Practical patterns for securing, verifying, observing, auditing, and safely scaling AI agents on Google Cloud with Gemini and Vertex AI.\nThe goal is simple: build agents that don’t just work in a demo, but can be trusted in production.\nThis session explores how to move beyond the “happy path” and build AI agents that are secure, observable, and safe to operate at scale on Google Cloud.\nWe’ll look at practical patterns for implementing agent guardrails, least-privilege identity, human-in-the-loop verification, policy enforcement, and runtime protection using services & capabilities across GCP, Gemini and Vertex AI.\nGoogle Cloud provides built-in observability for agent metrics and supports tracing through OpenTelemetry, making it possible to understand agent behavior across models, tools & execution steps.\nWe’ll explore when an agent should act autonomously, when it should pause for human approval, and how to design a “fail safely” architecture when something goes wrong.",
+    "prerequisites": [
+      "Experience building AI agents",
+      "Basic Google Cloud familiarity"
+    ]
   },
   {
     "id": "agent-wars-live-tournament-qualifiers-extended",
@@ -389,12 +392,15 @@
     "title": "Rethinking Infrastructure for Agentic Workloads",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Expert",
     "speakerSlugs": [
       "dhanush-kandhan"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "A case study on designing Google Cloud infrastructure, memory, authorization, isolation, execution, and observability for scalable MCP-based agentic workloads.\nSoftware was designed for human-paced traffic. Agentic workloads change that. A user can drive multiple agents making concurrent tool calls across systems, turning modest workloads into thousands of operations.\nMy team at letRetro faced this while building B2B agentic workflows. We built and operate our own MCP infrastructure on Google Cloud, rethinking execution, traffic, data and state.\nThis case study covers MCP traffic management, concurrent execution, tenant isolation, tool authorization, low-latency execution, failures, retries and observability.\nI’ll also cover how we built our own agent memory infrastructure instead of expanding system prompts or relying entirely on RAG. We redesigned application objects, relationships, workflow state, and interactions so agents retain durable context across tasks for B2B use cases.\nThe talk is for people building MCP servers and agent-enabled products, focusing on the architecture & trade-offs required to operate agentic workloads.",
+    "prerequisites": [
+      "Experience building MCP servers or agent-enabled products",
+      "Cloud infrastructure basics"
+    ]
   },
   {
     "id": "lunch-2",
@@ -496,7 +502,7 @@
     "speakerSlugs": [
       "rashmi-asokan"
     ],
-    "description": "Talk details will be updated soon.",
+    "description": "If you are building an AI Native Product, you have more challenges than ever before.\nUnderstanding the capabilities and constraints of an LLM, making decisions on behalf of the user, taking hallucinations into account, helping users onboard, guardrails and more: all of these should be reflected in the interface, helping users adopt and use the product.\nBuilding is easy, but establishing trust and adoption is the differentiator.\nThis session will deep dive into the challenges of building an AI Native Product ground up: quick wins, what worked and what didn't. There are a good number of features we decided not to ship, taking the stakes into account, and product decisions that helped us ship.",
     "prerequisites": []
   },
   {
@@ -512,7 +518,10 @@
       "salman-faris"
     ],
     "description": "Play and build with Arduino UNO Q kits",
-    "prerequisites": []
+    "prerequisites": [
+      "Laptop",
+      "Basic Python or Arduino programming"
+    ]
   },
   {
     "id": "don-t-let-ai-agents-push-your-buttons-building-the-agentic-w",
@@ -522,12 +531,15 @@
     "title": "Don't Let AI Agents Push Your Buttons: Building the Agentic Web with WebMCP",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "jeeththenthar-l"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "This talk introduces WebMCP, an emerging, open W3C standard spearheaded by Google and Microsoft to make websites natively \"agent-ready\" without heavy backend middleware.\nWhile traditional backend Model Context Protocol (MCP) implementations connect LLMs directly to server-side environments via JSON-RPC, standard MCP runs headless and requires separate hosting, OAuth setups, and credentials. WebMCP moves this paradigm entirely to the client-side browser context. Operating over a browser-mediated message transport, the browser acts as a secure translation layer. Because the execution happens directly within the user's active browser tab, WebMCP automatically inherits the user’s live cookies, active login state, and security session.\nWe will explore the technical 5-step lifecycle of a WebMCP transaction. Attendees will learn how to implement WebMCP using its two primary pathways: the Declarative HTML API and the Imperative JavaScript API.",
+    "prerequisites": [
+      "Web development (HTML, JavaScript)",
+      "Basic understanding of MCP / AI agents"
+    ]
   },
   {
     "id": "deep-tech-talk-4",
@@ -541,8 +553,10 @@
     "speakerSlugs": [
       "natarajan"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "This talk examines how unconventional problem representations and data-driven insights can lead to significant advances in applied research. Drawing on two case studies, Lakshmanan Nataraj discusses malware visualization, which transforms binary executables into images for malware classification, and GAN-generated image detection, which exploits subtle statistical and co-occurrence patterns to identify synthetic content.\nThe talk explores the technical ideas behind these contributions and their progression from research publications to patents, operational systems, and real-world applications. It also discusses strategies for identifying novel research directions, translating scientific insights into intellectual property, and bridging the gap between laboratory research and deployment. The talk concludes with perspectives from his recent involvement in AI for Science initiatives.",
+    "prerequisites": [
+      "Basic machine learning concepts"
+    ]
   },
   {
     "id": "agent-wars-live-tournament-semi-finals",
@@ -623,12 +637,14 @@
     "title": "Running AI Where It Matters: Open Source On-Device Inference Across the Edge Cloud Continuum",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "aakash-dhakshnamoorthy"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "The talk covers Google LiteRT’s open-source stack for converting, quantizing, and deploying cloud-trained models to edge devices with offline and NPU-accelerated inference.\nCloud native architectures solved distributed computing. Now the frontier is the last mile: the device itself. Google LiteRT (formerly TensorFlow Lite, open sourced under Apache 2.0) is Google's production-grade runtime powering on-device AI across 2.7 billion devices. In this talk, we'll explore how LiteRT bridges the edge–cloud continuum: how models trained in the cloud (PyTorch, TensorFlow, JAX) are converted, quantized, and deployed to Android, iOS, web, and IoT with NPU acceleration and no cloud call at every inference. We'll cover the open source stack (LiteRT + LiteRT-LM + Gemma 4), real-world production patterns, and how cloud native teams can build privacy-first, offline-capable AI pipelines for the edge.",
+    "prerequisites": [
+      "Basic ML model training and deployment concepts"
+    ]
   },
   {
     "id": "from-receipts-to-smart-search-productionizing-gemini-nano-on",
@@ -638,12 +654,15 @@
     "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "dinoy-raj"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "A real-world case study on productionizing Gemini Nano in Android, covering structured outputs, OCR hallucination detection, local-to-cloud failover, and cross-app search.\nWhile on-device AI demos abound, running LLMs locally in Android apps reveals harsh realities: tight RAM limits, missing NPUs, and zero cloud safety nets.\nThis talk breaks down a real-world case study using Gemini Nano and AICore Prompt API in an enterprise travel app. We’ll cover:\n• Mapping GraphQL schemas to local structured outputs\n• Catching OCR hallucinations on receipt scans\n• Building hybrid local-to-cloud failovers\n• Cross-app entity search\nGet a hype-free blueprint for edge AI.",
+    "prerequisites": [
+      "Android development",
+      "Basic understanding of LLMs"
+    ]
   },
   {
     "id": "deep-tech-talk-5",
@@ -653,10 +672,11 @@
     "title": "AI & VR for Healthcare",
     "hall": "D7 Amphitheater",
     "type": "talk",
-    "level": "Intermediate",
+    "level": "Beginner",
     "speakerSlugs": [
       "nimeshika"
     ],
+    "description": "This talk is about the use of AI and VR in healthcare. For AI, I will focus on how it is currently being used in healthcare settings (e.g. precision medicine). For VR, I will focus on how VR is being integrated into healthcare education to train the clinicians of tomorrow. I will also touch upon ‘patient care’ modules, which are how VR is being implemented in hospitals across the world to educate patients and also help ease their pain in certain clinical instances. This will cover the work we are doing at MediSim VR.",
     "prerequisites": []
   },
   {
@@ -671,7 +691,7 @@
     "speakerSlugs": [
       "gokulakrishnan-l"
     ],
-    "description": "Discover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations.",
+    "description": "Privacy-first Edge AI with Gemma 4: local Ollama models, Cloudflare Tunnels exposure, guardrails, and lessons from the GDG Windsor Hackathon.\nDiscover how to build local, privacy-first Edge AI using Google’s Gemma 4. In this talk, I will share engineering insights from Gemma Monsters—1st place winner in the GDG Windsor Hackathon. Learn how we built a system running on local models via Ollama, safely exposed it via Cloudflare Tunnels, moved off Kaggle Notebooks, and implemented strict code guardrails to stop math hallucinations.",
     "prerequisites": []
   },
   {
@@ -682,12 +702,14 @@
     "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "bhargav-patel"
     ],
     "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week.",
-    "prerequisites": []
+    "prerequisites": [
+      "Familiarity with LLM agents or multi-agent systems"
+    ]
   },
   {
     "id": "deep-tech-workshop-machine-learning-the-physical-world",
@@ -701,8 +723,10 @@
     "speakerSlugs": [
       "ayana-ghosh"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "Applying AI and machine learning to the physical sciences presents challenges that are often different from those encountered in conventional data-driven applications. Scientific datasets are strongly shaped by what researchers choose to measure or calculate. As a result, even large databases of computed results may cover only a narrow region of the possible space. Physical laws impose constraints that data alone does not capture. In addition, the systems we want to understand often behave quite differently from the examples on which a model was trained.\nThis talk will introduce these challenges through examples spanning prediction of structure-property relationships, and the search for novel materials. A brief tour of current approaches will be presented, from random forests and neural networks to graph neural networks, physics-informed models, and large language models, highlighting how different methods incorporate different forms of scientific knowledge. The distinction between prediction and mechanistic understanding will then be explored, highlighting approaches that move beyond predicting what happens toward understanding why.",
+    "prerequisites": [
+      "Basic machine learning concepts"
+    ]
   },
   {
     "id": "secure-frontend-ai-building-smart-web-apps-with-firebase-ai-",
@@ -716,8 +740,11 @@
     "speakerSlugs": [
       "srushti-raybhoge"
     ],
-    "description": "Integrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend. Together, we will build a highly interactive, context-aware planner app while learning how to secure client-side AI requests without leaking API credentials and enforce structured JSON data replies for seamless web UI rendering.",
-    "prerequisites": []
+    "description": "Build a context-aware planner with Firebase AI Logic and Gemini while securing client-side requests and enforcing structured JSON responses.\nIntegrating Large Language Models into client-side web apps has historically been a security nightmare—until now. This workshop introduces Firebase AI Logic, Google's secure proxy architecture for bringing Gemini models straight to the frontend.\nTogether, we will build a highly interactive, context-aware planner app. We will cover:\n• Securing client-side AI requests without leaking API credentials.\n• Enforcing structured JSON data replies for seamless web UI rendering.",
+    "prerequisites": [
+      "Basic JavaScript / web development",
+      "Firebase basics (helpful)"
+    ]
   },
   {
     "id": "building-ai-at-the-edge-developing-intelligent-applications-",
@@ -727,12 +754,15 @@
     "title": "Building AI at the Edge: Developing Intelligent Applications with Qualcomm AI Stack and On-Device AI",
     "hall": "D6 Multi-purpose Hall",
     "type": "talk",
-    "level": "Beginner",
+    "level": "Intermediate",
     "speakerSlugs": [
       "kartikey-rawat"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "This talk covers:\n• The Age of Inference\n• Why On-Device AI and Edge Compute\n• Preparing models for the Edge\n• Quantization\n• Android Integration and JNI Design\n• Performance lifecycle and production considerations",
+    "prerequisites": [
+      "Android development",
+      "Basic ML model concepts"
+    ]
   },
   {
     "id": "opportunities-in-ai-personal-observations-on-culture-of-gold",
@@ -761,8 +791,10 @@
     "speakerSlugs": [
       "varun-poladiya"
     ],
-    "description": "Talk details will be updated soon.",
-    "prerequisites": []
+    "description": "1. What are intent signals?\n2. Why are intent signals important in B2B marketing and lead generation?\n3. How lead gen used to happen before AI vs. now, with the use of AI.\n4. Hands-on: Building a motion on Gemini to get in-market, intent-driven B2B leads for each business on a recurring basis.\n5. Hands-on: Using Google AI Studio to build an application that finds and lists intent-driven B2B leads for each business, which internal marketing/business development teams can use every day.\nIdeal audience: B2B business founders of startups, SMEs and marketing leaders of large enterprises.\nNo coding required!",
+    "prerequisites": [
+      "Laptop with a Google account (to follow along)"
+    ]
   },
   {
     "id": "quick-break",
