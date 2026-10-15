@@ -45,7 +45,7 @@ export function LiveHallCard({
   featured?: boolean;
 }) {
   const palette = trackColor(hall.track);
-  const { currentSession } = hall;
+  const { currentSession, nextSession } = hall;
 
   return (
     <div
@@ -117,35 +117,76 @@ export function LiveHallCard({
           </div>
         </div>
 
-        {/* Now Happening Section */}
-        <div className="mt-4 rounded-2xl border border-paper/10 bg-ink/60 p-3.5">
-          <div className="flex items-center gap-2">
-            {currentSession?.isHappeningNow ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-green">
-                <span className="h-2 w-2 rounded-full bg-green animate-ping" />
-                Now Happening
-              </span>
-            ) : (
-              <span className="text-[11px] font-bold uppercase tracking-wider text-paper/50">
-                {currentSession ? "Up Next" : "Session Schedule"}
-              </span>
-            )}
-            {currentSession && (
-              <span className="text-[11px] text-paper/40">
-                {formatSessionTime(currentSession.start)} – {formatSessionTime(currentSession.end)}
-              </span>
-            )}
-          </div>
+        {/* Live Sessions (Now Happening & Up Next) */}
+        <div className="mt-4 space-y-2.5">
+          {currentSession?.isHappeningNow ? (
+            <>
+              {/* 1. Live Now Happening */}
+              <div className="rounded-2xl border border-green/25 bg-green/10 p-3.5 shadow-sm shadow-green/5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-green">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+                    </span>
+                    Now Happening
+                  </span>
+                  <span className="text-[11px] font-medium text-paper/70">
+                    {formatSessionTime(currentSession.start)} – {formatSessionTime(currentSession.end)}
+                  </span>
+                </div>
+                <div className="mt-1.5">
+                  <p className="line-clamp-2 text-sm font-semibold text-paper">{currentSession.title}</p>
+                  {currentSession.speakerNames && (
+                    <p className="mt-0.5 truncate text-xs text-paper/60">{currentSession.speakerNames}</p>
+                  )}
+                </div>
+              </div>
 
-          {currentSession ? (
-            <div className="mt-1.5">
-              <p className="line-clamp-2 text-sm font-semibold text-paper">{currentSession.title}</p>
-              {currentSession.speakerNames && (
-                <p className="mt-0.5 truncate text-xs text-paper/60">{currentSession.speakerNames}</p>
+              {/* 2. Up Next */}
+              {nextSession && (
+                <div className="rounded-2xl border border-paper/10 bg-ink/60 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-paper/60">
+                      <span className="h-1.5 w-1.5 rounded-full bg-paper/40" />
+                      Up Next
+                    </span>
+                    <span className="text-[11px] font-medium text-paper/50">
+                      {formatSessionTime(nextSession.start)} – {formatSessionTime(nextSession.end)}
+                    </span>
+                  </div>
+                  <div className="mt-1">
+                    <p className="line-clamp-1 text-xs font-semibold text-paper/90">{nextSession.title}</p>
+                    {nextSession.speakerNames && (
+                      <p className="mt-0.5 truncate text-[11px] text-paper/50">{nextSession.speakerNames}</p>
+                    )}
+                  </div>
+                </div>
               )}
+            </>
+          ) : nextSession ? (
+            /* When no session is running right now, display Up Next prominently */
+            <div className="rounded-2xl border border-paper/10 bg-ink/60 p-3.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-yellow">
+                  <span className="h-2 w-2 rounded-full bg-yellow" />
+                  Up Next
+                </span>
+                <span className="text-[11px] font-medium text-paper/60">
+                  {formatSessionTime(nextSession.start)} – {formatSessionTime(nextSession.end)}
+                </span>
+              </div>
+              <div className="mt-1.5">
+                <p className="line-clamp-2 text-sm font-semibold text-paper">{nextSession.title}</p>
+                {nextSession.speakerNames && (
+                  <p className="mt-0.5 truncate text-xs text-paper/60">{nextSession.speakerNames}</p>
+                )}
+              </div>
             </div>
           ) : (
-            <p className="mt-1 text-xs text-paper/50 italic">No scheduled session at this moment.</p>
+            <div className="rounded-2xl border border-dashed border-paper/10 p-3.5 text-center">
+              <p className="text-xs text-paper/40 italic">No scheduled session at this moment.</p>
+            </div>
           )}
         </div>
       </div>

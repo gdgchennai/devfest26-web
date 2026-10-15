@@ -98,6 +98,7 @@ export type LiveHallData = {
   announcement: string | null;
   updatedAt: number;
   currentSession: CurrentSessionInfo | null;
+  nextSession: CurrentSessionInfo | null;
 };
 
 export type HallStatusRow = {
@@ -132,83 +133,78 @@ export async function getHallStatusRows(): Promise<Map<string, HallStatusRow>> {
   return map;
 }
 
+function toSessionInfo(
+  session: AgendaSession,
+  isHappeningNow: boolean,
+  speakersList: Awaited<ReturnType<typeof getSpeakers>>,
+): CurrentSessionInfo {
+  const matchedSpeakers = findSpeakers(speakersList, session.speakerSlugs);
+  return {
+    id: session.id,
+    title: session.title,
+    start: session.start,
+    end: session.end,
+    speakerNames: joinSpeakerNames(matchedSpeakers),
+    type: session.type,
+    isHappeningNow,
+  };
+}
+
 /**
- * Resolves the currently active or upcoming session for a track.
+ * Resolves both the currently active session and the upcoming session for a track.
  */
-function resolveCurrentSession(
+function resolveTrackSessions(
   trackSessions: AgendaSession[],
   statuses: Record<string, string>,
   nowMs: number,
   speakersList: Awaited<ReturnType<typeof getSpeakers>>,
-): CurrentSessionInfo | null {
-  if (trackSessions.length === 0) return null;
-
-  // 1. Explicit organizer override: check if any session has been marked 'started'
-  const explicitlyStarted = trackSessions.find((s) => statuses[sessionKey(s)] === "started");
-  if (explicitlyStarted) {
-    const matchedSpeakers = findSpeakers(speakersList, explicitlyStarted.speakerSlugs);
-    return {
-      id: explicitlyStarted.id,
-      title: explicitlyStarted.title,
-      start: explicitlyStarted.start,
-      end: explicitlyStarted.end,
-      speakerNames: joinSpeakerNames(matchedSpeakers),
-      type: explicitlyStarted.type,
-      isHappeningNow: true,
-    };
+): {
+  currentSession: CurrentSessionInfo | null;
+  nextSession: CurrentSessionInfo | null;
+} {
+  if (trackSessions.length === 0) {
+    return { currentSession: null, nextSession: null };
   }
 
-  // 2. Real-time chronological match: is there a session whose interval includes now?
-  const running = trackSessions.find((s) => {
+  // 1. Explicit organizer override: check if any session has been marked 'started'
+  const explicitlyStartedIdx = trackSessions.findIndex((s) => statuses[sessionKey(s)] === "started");
+  if (explicitlyStartedIdx !== -1) {
+    const current = toSessionInfo(trackSessions[explicitlyStartedIdx], true, speakersList);
+    const nextSessionObj = trackSessions
+      .slice(explicitlyStartedIdx + 1)
+      .find((s) => statuses[sessionKey(s)] !== "ended");
+    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList) : null;
+    return { currentSession: current, nextSession: next };
+  }
+
+  // 2. Real-time chronological match: is there a session whose interval includes now and is not 'ended'?
+  const runningIdx = trackSessions.findIndex((s) => {
+    if (statuses[sessionKey(s)] === "ended") return false;
     const startMs = Date.parse(s.start);
     const endMs = Date.parse(s.end);
     return nowMs >= startMs && nowMs <= endMs;
   });
 
-  if (running) {
-    const matchedSpeakers = findSpeakers(speakersList, running.speakerSlugs);
+  if (runningIdx !== -1) {
+    const current = toSessionInfo(trackSessions[runningIdx], true, speakersList);
+    const nextSessionObj = trackSessions
+      .slice(runningIdx + 1)
+      .find((s) => statuses[sessionKey(s)] !== "ended");
+    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList) : null;
+    return { currentSession: current, nextSession: next };
+  }
+
+  // 3. No session is actively running: find upcoming non-ended sessions
+  const remaining = trackSessions.filter((s) => statuses[sessionKey(s)] !== "ended");
+  if (remaining.length > 0) {
+    const next = toSessionInfo(remaining[0], false, speakersList);
     return {
-      id: running.id,
-      title: running.title,
-      start: running.start,
-      end: running.end,
-      speakerNames: joinSpeakerNames(matchedSpeakers),
-      type: running.type,
-      isHappeningNow: true,
+      currentSession: null,
+      nextSession: next,
     };
   }
 
-  // 3. Look for the next upcoming session
-  const upcoming = trackSessions.find((s) => Date.parse(s.start) > nowMs);
-  if (upcoming) {
-    const matchedSpeakers = findSpeakers(speakersList, upcoming.speakerSlugs);
-    return {
-      id: upcoming.id,
-      title: upcoming.title,
-      start: upcoming.start,
-      end: upcoming.end,
-      speakerNames: joinSpeakerNames(matchedSpeakers),
-      type: upcoming.type,
-      isHappeningNow: false,
-    };
-  }
-
-  // 4. Fallback to the first non-break session if before event, or last session if past
-  const firstReal = trackSessions.find((s) => s.type !== "break") ?? trackSessions[0];
-  if (firstReal) {
-    const matchedSpeakers = findSpeakers(speakersList, firstReal.speakerSlugs);
-    return {
-      id: firstReal.id,
-      title: firstReal.title,
-      start: firstReal.start,
-      end: firstReal.end,
-      speakerNames: joinSpeakerNames(matchedSpeakers),
-      type: firstReal.type,
-      isHappeningNow: false,
-    };
-  }
-
-  return null;
+  return { currentSession: null, nextSession: null };
 }
 
 /**
@@ -256,7 +252,7 @@ export async function getAllLiveHalls(nowMs: number = Date.now()): Promise<LiveH
       .filter((s) => s.track === trackSlug && s.type !== "break")
       .sort((a, b) => a.start.localeCompare(b.start));
 
-    const currentSession = resolveCurrentSession(trackSessions, statuses, nowMs, speakersList);
+    const { currentSession, nextSession } = resolveTrackSessions(trackSessions, statuses, nowMs, speakersList);
 
     return {
       track: trackSlug,
@@ -270,6 +266,7 @@ export async function getAllLiveHalls(nowMs: number = Date.now()): Promise<LiveH
       announcement,
       updatedAt,
       currentSession,
+      nextSession,
     };
   });
 }
