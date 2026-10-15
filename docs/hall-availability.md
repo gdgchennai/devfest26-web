@@ -21,6 +21,8 @@ The yellow local toolbar selects Super admin, Admin (organizer) for Tech or Deep
 
 Two Workers run in ONE Wrangler process with private service bindings; only the coordinator owns the isolated D1. `.wrangler/hall-state` is distinct from normal site state. Stop this runtime before migration/seed commands or before starting another preview. No OAuth, tickets, push, Gemini, production secrets, paid service activation, or remote database is used. R2 and Images are locally emulated. Local build uses webpack because Turbopack's CSS subprocess listener was blocked on the implementation host. Normal build defaults are preserved.
 
+The isolated build sets `AGENDA_READY=true` so the original Agenda and Speakers destinations remain visible and routable. Navigation order is Home → Live → Agenda → Speakers, followed by the original remaining items. Normal production builds retain their existing `AGENDA_READY` configuration.
+
 `NEXT_PUBLIC_HALL_ISOLATED=1` is set by the build command. It disables GA/PostHog, auth session fetching, push prompt and crossword preload; the normal header, dropdown, footer and motion preference shell remain. Local identities additionally require `HALL_LOCAL_TEST=1` at runtime and a loopback Host. The role cookie is only a local fixture selector. Production auth ignores it; an isolated bundle with the runtime opt-in disabled is anonymous. Never deploy the local config or isolated bundle to production.
 
 ## Behavior

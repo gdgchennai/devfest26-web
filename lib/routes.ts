@@ -29,6 +29,7 @@ export const AGENDA_READY = process.env.AGENDA_READY === "true";
 
 export const siteRoutes: SiteRoute[] = [
   { href: "/", label: "Home", description: "Tracks, schedule preview and the lineup.", inNav: true },
+  { href: "/live", label: "Live", description: "Live track occupancy and current sessions.", inNav: true },
   ...(AGENDA_READY
     ? [
         { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },
@@ -42,7 +43,6 @@ export const siteRoutes: SiteRoute[] = [
         },
       ]
     : []),
-  { href: "/live", label: "Live", description: "Live track occupancy and current sessions.", inNav: true },
   { href: "/tickets", label: "Tickets", description: "Pick an event and get on the list.", inNav: true },
   { href: "/memories", label: "Memories", description: "The 2024 and 2025 photo archive.", inNav: true },
   { href: "/games", label: "Games", description: "Tech mini-games (jigsaw, crossword, memory, typing) and leaderboards.", inNav: true },
