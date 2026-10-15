@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import type { LiveHallData } from "@/lib/hall-status";
 import { LiveHallCard } from "@/components/live/LiveHallCard";
+import { RecommendedSessionBanner } from "@/components/live/RecommendedSessionBanner";
 import { SessionFinderBanner } from "@/components/live/SessionFinderBanner";
 
 type FloorFilter = {
@@ -72,7 +73,10 @@ export function LiveHallBoard({ initialHalls }: { initialHalls: LiveHallData[] }
 
   return (
     <div>
-      {/* Interactive Session Finder Banner */}
+      {/* 1. Recommended Spotlight Banner (Only visible if any session is recommended) */}
+      <RecommendedSessionBanner halls={halls} />
+
+      {/* 2. Interactive Session Finder Banner ("Find me a session") */}
       <SessionFinderBanner halls={halls} />
 
       {/* Controls Bar: Floor Pills + Live Polling Indicator & Manual Refresh */}

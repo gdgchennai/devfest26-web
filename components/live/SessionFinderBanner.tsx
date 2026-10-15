@@ -32,6 +32,11 @@ export function getRankedSessions(halls: LiveHallData[]): ScoredSession[] {
       if (hall.occupancyStatus === "available") score += 50;
       if (hall.occupancyStatus === "filling_fast") score += 20;
 
+      // Organizer recommendation priority boost
+      if (hall.currentSession.isRecommended) {
+        score += 500;
+      }
+
       // Seat availability bonus: lower percentage occupancy = higher score
       score += Math.max(0, 100 - hall.percentage) * 0.25;
 
@@ -41,8 +46,9 @@ export function getRankedSessions(halls: LiveHallData[]): ScoredSession[] {
         session: hall.currentSession,
         isHappeningNow: true,
         score,
-        reason:
-          hall.occupancyStatus === "available"
+        reason: hall.currentSession.isRecommended
+          ? "⭐ Recommended · Great session with open seats!"
+          : hall.occupancyStatus === "available"
             ? "Happening live right now with plenty of open seats!"
             : "Running live right now — seats filling, head over soon!",
       });
@@ -57,6 +63,11 @@ export function getRankedSessions(halls: LiveHallData[]): ScoredSession[] {
       if (hall.occupancyStatus === "available") score += 35;
       if (hall.occupancyStatus === "filling_fast") score += 10;
 
+      // Organizer recommendation priority boost
+      if (hall.nextSession.isRecommended) {
+        score += 500;
+      }
+
       // Higher score if starting soon (within 25 mins or just starting)
       if (minsUntilStart >= -5 && minsUntilStart <= 25) {
         score += 25;
@@ -65,8 +76,9 @@ export function getRankedSessions(halls: LiveHallData[]): ScoredSession[] {
       // Bonus for open capacity
       score += Math.max(0, 100 - hall.percentage) * 0.2;
 
-      const reason =
-        minsUntilStart > 0 && minsUntilStart <= 30
+      const reason = hall.nextSession.isRecommended
+        ? "⭐ Recommended · Great session starting soon!"
+        : minsUntilStart > 0 && minsUntilStart <= 30
           ? `Starting in ~${minsUntilStart} minutes with available seating.`
           : "Up next in this hall with open seats.";
 
@@ -172,10 +184,17 @@ export function SessionFinderBanner({ halls }: { halls: LiveHallData[] }) {
       {/* Header bar: Badge, counter, and actions */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-paper/10 pb-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue/40 bg-blue/10 px-2.5 py-0.5 text-xs font-bold text-blue">
-            <span>✨</span>
-            Best Match Right Now
-          </span>
+          {activeCandidate?.session.isRecommended ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow/50 bg-yellow/15 px-2.5 py-0.5 text-xs font-bold text-yellow shadow-sm shadow-yellow/10">
+              <span>⭐</span>
+              Recommended
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue/40 bg-blue/10 px-2.5 py-0.5 text-xs font-bold text-blue">
+              <span>✨</span>
+              Best Match Right Now
+            </span>
+          )}
 
           {palette && activeCandidate && (
             <span
@@ -249,6 +268,13 @@ export function SessionFinderBanner({ halls }: { halls: LiveHallData[] }) {
 
             {/* Status Pills */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {activeCandidate.session.isRecommended && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-yellow/50 bg-yellow/15 px-3 py-1 text-xs font-bold text-yellow shadow-sm shadow-yellow/10">
+                  <span>⭐</span>
+                  Recommended
+                </span>
+              )}
+
               {/* Timing Badge */}
               {activeCandidate.isHappeningNow ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green/40 bg-green/10 px-3 py-1 text-xs font-bold text-green">

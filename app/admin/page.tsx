@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { getAccess, canManageSession, canViewPeople } from "@/lib/admin";
 import { getAgenda } from "@/lib/content";
 import { getSessionStatuses } from "@/lib/session-status";
+import { getRecommendedSessionKeys } from "@/lib/recommendations";
 import { sessionKey } from "@/lib/session-key";
 import { siteConfig } from "@/site.config";
 import { HeaderTitle } from "@/components/HeaderTitleContext";
@@ -30,7 +31,11 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const [allSessions, statuses] = await Promise.all([getAgenda(), getSessionStatuses()]);
+  const [allSessions, statuses, recommendedKeys] = await Promise.all([
+    getAgenda(),
+    getSessionStatuses(),
+    getRecommendedSessionKeys(),
+  ]);
   // Each person only sees (and can change) the tracks they hold a role on, and
   // never the lunch / quick break / check-in rows (all type "break") — nobody
   // has saved those, so marking them started would notify no one.
@@ -73,6 +78,7 @@ export default async function AdminPage() {
                     start={s.start}
                     end={s.end}
                     initialStatus={statuses[key] ?? "upcoming"}
+                    initialRecommended={recommendedKeys.has(key)}
                   />
                 );
               }),

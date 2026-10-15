@@ -125,14 +125,21 @@ export function LiveHallCard({
               {/* 1. Live Now Happening */}
               <div className="rounded-2xl border border-green/25 bg-green/10 p-3.5 shadow-sm shadow-green/5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-green">
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-green">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+                      </span>
+                      Now Happening
                     </span>
-                    Now Happening
-                  </span>
-                  <span className="text-[11px] font-medium text-paper/70">
+                    {currentSession.isRecommended && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full border border-yellow/40 bg-yellow/15 px-2 py-0.5 text-[10px] font-bold text-yellow">
+                        ⭐ Recommended
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px] font-medium text-paper/70 shrink-0">
                     {formatSessionTime(currentSession.start)} – {formatSessionTime(currentSession.end)}
                   </span>
                 </div>
@@ -148,11 +155,18 @@ export function LiveHallCard({
               {nextSession && (
                 <div className="rounded-2xl border border-paper/10 bg-ink/60 p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-paper/60">
-                      <span className="h-1.5 w-1.5 rounded-full bg-paper/40" />
-                      Up Next
-                    </span>
-                    <span className="text-[11px] font-medium text-paper/50">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-paper/60">
+                        <span className="h-1.5 w-1.5 rounded-full bg-paper/40" />
+                        Up Next
+                      </span>
+                      {nextSession.isRecommended && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full border border-yellow/40 bg-yellow/15 px-2 py-0.5 text-[10px] font-bold text-yellow">
+                          ⭐ Recommended
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] font-medium text-paper/50 shrink-0">
                       {formatSessionTime(nextSession.start)} – {formatSessionTime(nextSession.end)}
                     </span>
                   </div>
@@ -169,11 +183,18 @@ export function LiveHallCard({
             /* When no session is running right now, display Up Next prominently */
             <div className="rounded-2xl border border-paper/10 bg-ink/60 p-3.5">
               <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-yellow">
-                  <span className="h-2 w-2 rounded-full bg-yellow" />
-                  Up Next
-                </span>
-                <span className="text-[11px] font-medium text-paper/60">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-yellow">
+                    <span className="h-2 w-2 rounded-full bg-yellow" />
+                    Up Next
+                  </span>
+                  {nextSession.isRecommended && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full border border-yellow/40 bg-yellow/15 px-2 py-0.5 text-[10px] font-bold text-yellow">
+                      ⭐ Recommended
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] font-medium text-paper/60 shrink-0">
                   {formatSessionTime(nextSession.start)} – {formatSessionTime(nextSession.end)}
                 </span>
               </div>

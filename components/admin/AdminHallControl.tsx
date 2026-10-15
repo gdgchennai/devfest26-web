@@ -15,6 +15,7 @@ export type AdminHallSessionItem = {
   hall: string;
   speakerNames: string;
   status: SessionStatus;
+  isRecommended?: boolean;
 };
 
 export function AdminHallControl({
@@ -79,6 +80,44 @@ export function AdminHallControl({
       return "/api/admin/session-status?dev_admin=true";
     }
     return "/api/admin/session-status";
+  }
+
+  function recommendApiEndpoint() {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
+    ) {
+      return "/api/admin/session-recommend?dev_admin=true";
+    }
+    return "/api/admin/session-recommend";
+  }
+
+  async function toggleSessionRecommend(sessionKey: string) {
+    const target = sessions.find((s) => s.sessionKey === sessionKey);
+    if (!target) return;
+    const nextVal = !target.isRecommended;
+
+    // Optimistically update
+    setSessions((prev) =>
+      prev.map((s) => (s.sessionKey === sessionKey ? { ...s, isRecommended: nextVal } : s)),
+    );
+    setSessionMessage(nextVal ? "⭐ Session marked as Recommended on Live Board!" : "Removed recommendation");
+    setTimeout(() => setSessionMessage(null), 2500);
+
+    try {
+      const res = await fetch(recommendApiEndpoint(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionKey, recommended: nextVal }),
+      });
+      if (!res.ok) throw new Error("Failed to update recommendation");
+    } catch {
+      // Rollback on failure
+      setSessions((prev) =>
+        prev.map((s) => (s.sessionKey === sessionKey ? { ...s, isRecommended: !nextVal } : s)),
+      );
+      setSessionMessage("Failed to update recommendation");
+    }
   }
 
   async function updateOccupancyStatus(newStatus: OccupancyStatus) {
@@ -371,9 +410,10 @@ export function AdminHallControl({
                           : s.status === "ended"
                             ? "⬛ Ended"
                             : "⚪ Upcoming";
+                      const recTag = s.isRecommended ? " ⭐ Rec" : "";
                       return (
                         <option key={s.sessionKey} value={s.sessionKey}>
-                          [{formatSessionTime(s.start)} – {formatSessionTime(s.end)}] {s.title} ({tag})
+                          [{formatSessionTime(s.start)} – {formatSessionTime(s.end)}] {s.title} ({tag}){recTag}
                         </option>
                       );
                     })}
@@ -384,9 +424,16 @@ export function AdminHallControl({
                 {currentSessionObj && (
                   <div className="mt-3 flex flex-col gap-3 rounded-xl border border-paper/10 bg-paper/5 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-sm font-semibold text-paper">
-                        {currentSessionObj.title}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="line-clamp-1 text-sm font-semibold text-paper">
+                          {currentSessionObj.title}
+                        </p>
+                        {currentSessionObj.isRecommended && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-yellow/40 bg-yellow/15 px-2 py-0.5 text-[10px] font-bold text-yellow">
+                            ⭐ Rec
+                          </span>
+                        )}
+                      </div>
                       <p className="mt-0.5 text-xs text-paper/50">
                         {formatSessionTime(currentSessionObj.start)} – {formatSessionTime(currentSessionObj.end)}
                         {currentSessionObj.speakerNames ? ` · ${currentSessionObj.speakerNames}` : ""}
@@ -394,6 +441,24 @@ export function AdminHallControl({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleSessionRecommend(currentSessionObj.sessionKey)}
+                        title={
+                          currentSessionObj.isRecommended
+                            ? "Remove organizer recommendation"
+                            : "Recommend this session on live board"
+                        }
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all active:scale-95 ${
+                          currentSessionObj.isRecommended
+                            ? "border-yellow bg-yellow text-ink shadow-sm shadow-yellow/20 font-bold"
+                            : "border-paper/20 text-paper/70 hover:border-yellow/50 hover:bg-yellow/10 hover:text-paper"
+                        }`}
+                      >
+                        <span>⭐</span>
+                        <span>{currentSessionObj.isRecommended ? "Recommended" : "Recommend"}</span>
+                      </button>
+
                       <button
                         type="button"
                         disabled={sessionPendingKey === currentSessionObj.sessionKey}
@@ -459,6 +524,7 @@ export function AdminHallControl({
                         <option key={s.sessionKey} value={s.sessionKey}>
                           [{formatSessionTime(s.start)} – {formatSessionTime(s.end)}] {s.title}
                           {s.status === "ended" ? " (Ended)" : s.status === "started" ? " (Started)" : ""}
+                          {s.isRecommended ? " ⭐ Rec" : ""}
                         </option>
                       ))}
                   </select>
@@ -468,16 +534,41 @@ export function AdminHallControl({
                 {upcomingSessionObj && (
                   <div className="mt-3 flex flex-col gap-3 rounded-xl border border-paper/10 bg-paper/5 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-sm font-semibold text-paper">
-                        {upcomingSessionObj.title}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="line-clamp-1 text-sm font-semibold text-paper">
+                          {upcomingSessionObj.title}
+                        </p>
+                        {upcomingSessionObj.isRecommended && (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-yellow/40 bg-yellow/15 px-2 py-0.5 text-[10px] font-bold text-yellow">
+                            ⭐ Rec
+                          </span>
+                        )}
+                      </div>
                       <p className="mt-0.5 text-xs text-paper/50">
                         {formatSessionTime(upcomingSessionObj.start)} – {formatSessionTime(upcomingSessionObj.end)}
                         {upcomingSessionObj.speakerNames ? ` · ${upcomingSessionObj.speakerNames}` : ""}
                       </p>
                     </div>
 
-                    <div className="shrink-0">
+                    <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleSessionRecommend(upcomingSessionObj.sessionKey)}
+                        title={
+                          upcomingSessionObj.isRecommended
+                            ? "Remove organizer recommendation"
+                            : "Recommend this session on live board"
+                        }
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all active:scale-95 ${
+                          upcomingSessionObj.isRecommended
+                            ? "border-yellow bg-yellow text-ink shadow-sm shadow-yellow/20 font-bold"
+                            : "border-paper/20 text-paper/70 hover:border-yellow/50 hover:bg-yellow/10 hover:text-paper"
+                        }`}
+                      >
+                        <span>⭐</span>
+                        <span>{upcomingSessionObj.isRecommended ? "Recommended" : "Recommend"}</span>
+                      </button>
+
                       <button
                         type="button"
                         disabled={sessionPendingKey === upcomingSessionObj.sessionKey || upcomingSessionObj.status === "started"}

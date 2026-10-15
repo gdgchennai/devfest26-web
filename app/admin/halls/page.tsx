@@ -8,6 +8,7 @@ import { getSessionStatuses, type SessionStatus } from "@/lib/session-status";
 import { sessionKey } from "@/lib/session-key";
 import { findSpeakers, joinSpeakerNames } from "@/lib/find-speaker";
 import { getAllLiveHalls } from "@/lib/hall-status";
+import { getRecommendedSessionKeys } from "@/lib/recommendations";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminHallControl, type AdminHallSessionItem } from "@/components/admin/AdminHallControl";
 import { HeaderTitle } from "@/components/HeaderTitleContext";
@@ -18,7 +19,7 @@ export const metadata: Metadata = pageMetadata({
   description: "Update live hall occupancy, headcount, and in-hall announcements.",
   path: "/admin/halls",
   index: false,
-});
+  });
 
 export const dynamic = "force-dynamic";
 
@@ -53,11 +54,12 @@ export default async function AdminHallsPage(props: {
     redirect("/");
   }
 
-  const [allHalls, allSessions, statuses, speakers] = await Promise.all([
+  const [allHalls, allSessions, statuses, speakers, recommendedKeys] = await Promise.all([
     getAllLiveHalls(),
     getAgenda(),
     getSessionStatuses(),
     getSpeakers(),
+    getRecommendedSessionKeys(),
   ]);
   const myHalls = allHalls.filter((h) => allowedTracks.includes(h.track));
 
@@ -101,6 +103,7 @@ export default async function AdminHallsPage(props: {
                   hall: s.hall,
                   speakerNames: joinSpeakerNames(matchedSpeakers),
                   status: (statuses[key] ?? "upcoming") as SessionStatus,
+                  isRecommended: recommendedKeys.has(key),
                 };
               });
 

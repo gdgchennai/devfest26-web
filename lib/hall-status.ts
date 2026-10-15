@@ -5,6 +5,7 @@ import { getAgenda, getSpeakers } from "@/lib/content";
 import { getSessionStatuses } from "@/lib/session-status";
 import { sessionKey } from "@/lib/session-key";
 import { joinSpeakerNames, findSpeakers } from "@/lib/find-speaker";
+import { getRecommendedSessionKeys } from "@/lib/recommendations";
 import type { AgendaSession } from "@/lib/schemas";
 
 export type OccupancyStatus = "available" | "filling_fast" | "houseful";
@@ -84,6 +85,7 @@ export type CurrentSessionInfo = {
   speakerNames: string;
   type: string;
   isHappeningNow: boolean;
+  isRecommended?: boolean;
 };
 
 export type LiveHallData = {
@@ -137,8 +139,10 @@ function toSessionInfo(
   session: AgendaSession,
   isHappeningNow: boolean,
   speakersList: Awaited<ReturnType<typeof getSpeakers>>,
+  recommendedKeys?: Set<string>,
 ): CurrentSessionInfo {
   const matchedSpeakers = findSpeakers(speakersList, session.speakerSlugs);
+  const key = sessionKey(session);
   return {
     id: session.id,
     title: session.title,
@@ -147,6 +151,7 @@ function toSessionInfo(
     speakerNames: joinSpeakerNames(matchedSpeakers),
     type: session.type,
     isHappeningNow,
+    isRecommended: recommendedKeys ? recommendedKeys.has(key) : false,
   };
 }
 
@@ -158,6 +163,7 @@ function resolveTrackSessions(
   statuses: Record<string, string>,
   nowMs: number,
   speakersList: Awaited<ReturnType<typeof getSpeakers>>,
+  recommendedKeys?: Set<string>,
 ): {
   currentSession: CurrentSessionInfo | null;
   nextSession: CurrentSessionInfo | null;
@@ -169,11 +175,11 @@ function resolveTrackSessions(
   // 1. Explicit organizer override: check if any session has been marked 'started'
   const explicitlyStartedIdx = trackSessions.findIndex((s) => statuses[sessionKey(s)] === "started");
   if (explicitlyStartedIdx !== -1) {
-    const current = toSessionInfo(trackSessions[explicitlyStartedIdx], true, speakersList);
+    const current = toSessionInfo(trackSessions[explicitlyStartedIdx], true, speakersList, recommendedKeys);
     const nextSessionObj = trackSessions
       .slice(explicitlyStartedIdx + 1)
       .find((s) => statuses[sessionKey(s)] !== "ended");
-    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList) : null;
+    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList, recommendedKeys) : null;
     return { currentSession: current, nextSession: next };
   }
 
@@ -186,18 +192,18 @@ function resolveTrackSessions(
   });
 
   if (runningIdx !== -1) {
-    const current = toSessionInfo(trackSessions[runningIdx], true, speakersList);
+    const current = toSessionInfo(trackSessions[runningIdx], true, speakersList, recommendedKeys);
     const nextSessionObj = trackSessions
       .slice(runningIdx + 1)
       .find((s) => statuses[sessionKey(s)] !== "ended");
-    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList) : null;
+    const next = nextSessionObj ? toSessionInfo(nextSessionObj, false, speakersList, recommendedKeys) : null;
     return { currentSession: current, nextSession: next };
   }
 
   // 3. No session is actively running: find upcoming non-ended sessions
   const remaining = trackSessions.filter((s) => statuses[sessionKey(s)] !== "ended");
   if (remaining.length > 0) {
-    const next = toSessionInfo(remaining[0], false, speakersList);
+    const next = toSessionInfo(remaining[0], false, speakersList, recommendedKeys);
     return {
       currentSession: null,
       nextSession: next,
@@ -211,11 +217,12 @@ function resolveTrackSessions(
  * Returns comprehensive live hall state for all tracks, sorted in floor order.
  */
 export async function getAllLiveHalls(nowMs: number = Date.now()): Promise<LiveHallData[]> {
-  const [statusRows, allSessions, statuses, speakersList] = await Promise.all([
+  const [statusRows, allSessions, statuses, speakersList, recommendedKeys] = await Promise.all([
     getHallStatusRows(),
     getAgenda(),
     getSessionStatuses(),
     getSpeakers(),
+    getRecommendedSessionKeys(),
   ]);
 
   // Order tracks by siteConfig.floors sequence
@@ -252,7 +259,13 @@ export async function getAllLiveHalls(nowMs: number = Date.now()): Promise<LiveH
       .filter((s) => s.track === trackSlug && s.type !== "break")
       .sort((a, b) => a.start.localeCompare(b.start));
 
-    const { currentSession, nextSession } = resolveTrackSessions(trackSessions, statuses, nowMs, speakersList);
+    const { currentSession, nextSession } = resolveTrackSessions(
+      trackSessions,
+      statuses,
+      nowMs,
+      speakersList,
+      recommendedKeys,
+    );
 
     return {
       track: trackSlug,
