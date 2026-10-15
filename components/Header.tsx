@@ -41,6 +41,7 @@ export function Header() {
 
   const routeItems = navRoutes.map((route) => {
     const active = pathname === route.href;
+    const isLive = route.href === "/live";
     return (
       <li key={route.href}>
         <Link
@@ -48,11 +49,27 @@ export function Header() {
           // aria-current is what actually announces the active page; the colour
           // change is the sighted equivalent, not a replacement for it.
           aria-current={active ? "page" : undefined}
-          className={`block rounded-full px-3 py-1.5 text-sm transition-colors ${
-            active ? "bg-paper/10 text-paper" : "text-paper/70 hover:bg-paper/5 hover:text-paper"
+          className={`block rounded-full px-3 py-1.5 text-sm transition-all ${
+            isLive
+              ? active
+                ? "border border-green/50 bg-green/20 text-paper font-medium shadow-sm shadow-green/20"
+                : "border border-green/25 bg-green/5 text-paper/90 hover:border-green/45 hover:bg-green/15 hover:text-paper"
+              : active
+                ? "bg-paper/10 text-paper"
+                : "text-paper/70 hover:bg-paper/5 hover:text-paper"
           }`}
         >
-          {route.label}
+          {isLive ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+              </span>
+              <span>{route.label}</span>
+            </span>
+          ) : (
+            route.label
+          )}
         </Link>
       </li>
     );

@@ -64,5 +64,7 @@ export function resolveHeaderTitle(pathname: string, customTitle: string | null)
   if (pathname === "/contact") return uiCopy.contactPage.heading;
   if (pathname === "/tickets") return uiCopy.ticketsList.heading;
   if (pathname === "/tickets/select") return "Get Tickets";
+  if (pathname === "/live") return "Live";
+  if (pathname === "/hall-status-update") return "Admin — Live";
   return "";
 }

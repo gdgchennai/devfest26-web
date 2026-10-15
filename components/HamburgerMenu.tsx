@@ -351,13 +351,26 @@ export function HamburgerMenu() {
       >
         {navRoutes
           .filter((route) => route.href !== "/")
-          .map((route) => (
-            <div key={route.href} data-menu-item>
-              <Link href={route.href} onClick={close} className="text-paper/90 hover:text-paper">
-                <RollingText>{route.label}</RollingText> →
-              </Link>
-            </div>
-          ))}
+          .map((route) => {
+            const isLive = route.href === "/live";
+            return (
+              <div key={route.href} data-menu-item>
+                <Link
+                  href={route.href}
+                  onClick={close}
+                  className="inline-flex items-center gap-3 text-paper/90 hover:text-paper"
+                >
+                  {isLive && (
+                    <span className="relative flex h-3 w-3 sm:h-4 sm:w-4">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+                      <span className="relative inline-flex h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-green" />
+                    </span>
+                  )}
+                  <RollingText>{route.label}</RollingText> →
+                </Link>
+              </div>
+            );
+          })}
         <div data-menu-item>
           <a
             href={speaker.href}
