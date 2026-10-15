@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import type { LiveHallData } from "@/lib/hall-status";
 import { LiveHallCard } from "@/components/live/LiveHallCard";
+import { SessionFinderBanner } from "@/components/live/SessionFinderBanner";
 
 type FloorFilter = {
   id: string;
@@ -71,6 +72,9 @@ export function LiveHallBoard({ initialHalls }: { initialHalls: LiveHallData[] }
 
   return (
     <div>
+      {/* Interactive Session Finder Banner */}
+      <SessionFinderBanner halls={halls} />
+
       {/* Controls Bar: Floor Pills + Live Polling Indicator & Manual Refresh */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Floor selector pills */}

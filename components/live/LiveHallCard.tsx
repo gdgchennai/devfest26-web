@@ -49,6 +49,7 @@ export function LiveHallCard({
 
   return (
     <div
+      id={`hall-${hall.track}`}
       className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-paper/15 bg-ink/80 p-5 sm:p-6 backdrop-blur-md transition-all duration-300 hover:border-paper/30 ${
         featured ? "md:col-span-2" : ""
       }`}
