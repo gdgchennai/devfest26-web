@@ -1,7 +1,7 @@
 import "server-only";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { auth } from "@/auth";
-import { currentAdminUser } from "@/lib/admin";
+import { getAccess, manageableTracks, grantableTracks } from "@/lib/admin";
 import type { HallActor } from "@/lib/hall-model";
 
 export async function hallEnvironment() {
@@ -25,18 +25,34 @@ export async function hallActor(request: Request): Promise<HallActor | null> {
     const role = request.headers
       .get("cookie")
       ?.match(/(?:^|;\s*)hall-dev=([^;]+)/)?.[1];
-    const roles = ["organizer", "lead-tech", "lead-deep", "unassigned"];
+    const roles = [
+      "organizer",
+      "lead-tech",
+      "lead-deep",
+      "admin-tech",
+      "unassigned",
+    ];
     if (role && roles.includes(role))
-      return { id: `dev:${role}`, organizer: role === "organizer" };
+      return {
+        id: `dev:${role}`,
+        organizer: role === "organizer",
+        ...(role === "admin-tech"
+          ? { zones: ["d7-auditorium"], adminZones: ["d7-auditorium"] }
+          : {}),
+      };
     return null;
   }
   // An isolated bundle without the runtime opt-in is deliberately anonymous.
   if (process.env.NEXT_PUBLIC_HALL_ISOLATED === "1") return null;
   const session = await auth();
   if (!session?.user?.uid) return null;
+  const access = await getAccess(session.user.uid);
+  if (!access) return null;
   return {
     id: session.user.uid,
-    organizer: !!(await currentAdminUser(session.user.uid)),
+    organizer: access.isSuper,
+    zones: [...manageableTracks(access)],
+    adminZones: [...grantableTracks(access)],
   };
 }
 export async function hallService(path: string, data?: unknown) {

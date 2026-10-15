@@ -4,19 +4,23 @@ import { createPortal } from "react-dom";
 import { useDialog } from "@/components/games/useDialog";
 import { formatSessionTime } from "@/lib/format";
 import type { AgendaSession } from "@/lib/schemas";
-import { hallZones, sessionsForHall } from "@/lib/hall-model";
+import {
+  hallZones,
+  sessionsForHall,
+  type HallSnapshot,
+} from "@/lib/hall-model";
 
 export function HallSchedule({
   hall,
   agenda,
-  now,
+  snapshot,
   onClose,
   onSession,
   restoreId,
 }: {
   hall: string;
   agenda: AgendaSession[];
-  now: number;
+  snapshot: HallSnapshot | null;
   onClose: () => void;
   onSession: (s: AgendaSession) => void;
   restoreId?: string;
@@ -65,9 +69,12 @@ export function HallSchedule({
         </div>
         <ol className="mt-5 divide-y divide-paper/10">
           {sessions.map((s) => {
-            const current =
-                Date.parse(s.start) <= now && now < Date.parse(s.end),
-              past = Date.parse(s.end) <= now;
+            const current = snapshot?.sessions.some(
+                (e) => e.session === s.id && e.status === "started",
+              ),
+              past = snapshot?.sessions.some(
+                (e) => e.session === s.id && e.status === "ended",
+              );
             return (
               <li key={s.id} className={past ? "text-paper/60" : ""}>
                 <button

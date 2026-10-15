@@ -35,7 +35,7 @@ export function LocalHallTools({
   return (
     <aside className="mb-6 rounded-xl border border-yellow/50 bg-yellow/5 p-4 text-sm">
       <p className="font-semibold text-yellow">
-        Local test environment · simulated clock
+        Local test environment · clock affects measurement age only
       </p>
       <p className="my-2">
         {snapshot?.clock != null
@@ -61,6 +61,7 @@ export function LocalHallTools({
               "organizer",
               "lead-tech",
               "lead-deep",
+              "admin-tech",
               "unassigned",
             ].map((r) => (
               <option key={r}>{r}</option>
@@ -81,7 +82,7 @@ export function LocalHallTools({
           onClick={() => clock(Date.parse(`${time}:00+05:30`))}
           className="min-h-11 rounded border border-paper/20 px-3"
         >
-          Set clock (organizer)
+          Set clock (super admin)
         </button>
         <button onClick={() => clock(null)} className="min-h-11 px-3">
           Real time

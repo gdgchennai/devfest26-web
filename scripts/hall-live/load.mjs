@@ -38,7 +38,10 @@ async function connect(client) {
       if (before > state.revision) outOfOrder++;
       if (before == null || state.revision >= before) client.state = state;
       const t = timings.get(state.revision);
-      if (t) {latencies.push(performance.now() - t); client.received.add(state.revision);}
+      if (t) {
+        latencies.push(performance.now() - t);
+        client.received.add(state.revision);
+      }
       clearTimeout(timeout);
       resolve();
     };
@@ -82,9 +85,34 @@ await write({
 const agenda = JSON.parse(fs.readFileSync("content/agenda.json", "utf8"));
 const promoted = agenda
   .filter(
-    (s) => s.track && s.type !== "break" && Date.parse(s.end) > state.serverNow,
+    (s) =>
+      s.track &&
+      s.type !== "break" &&
+      !state.sessions.some((e) => e.session === s.id && e.status === "ended"),
   )
   .slice(0, 2);
+const lifecycleSession = agenda.find(
+  (s) =>
+    s.track &&
+    s.type !== "break" &&
+    !state.sessions.some((e) => e.session === s.id) &&
+    !state.sessions.some(
+      (e) =>
+        e.status === "started" &&
+        agenda.find((a) => a.id === e.session)?.track === s.track,
+    ),
+);
+assert.ok(
+  lifecycleSession,
+  "An unplayed event is required for lifecycle load verification",
+);
+await write({
+  kind: "session",
+  zone: lifecycleSession.track,
+  session: lifecycleSession.id,
+  status: "started",
+  expected: state.revision,
+});
 async function eventChange(i) {
   if (i % 5 === 0)
     await write({
@@ -110,7 +138,7 @@ async function eventChange(i) {
   }
   if (i % 100 === 0) console.log(`Changes ${i}/${changes}`);
 }
-for(let i=0;i<changes-1;i++) await eventChange(i);
+for (let i = 0; i < changes - 1; i++) await eventChange(i);
 // Same-IP reconnect surge, with the final change racing resubscription.
 const surge = clients.slice(0, Math.min(300, count));
 for (const c of surge) c.socket.close(1000, "Surge test");
@@ -121,29 +149,41 @@ const rejoining = Promise.all(
     return connect(c);
   }),
 );
-await eventChange(changes-1);
+await eventChange(changes - 1);
 await rejoining;
+await write({
+  kind: "session",
+  zone: lifecycleSession.track,
+  session: lifecycleSession.id,
+  status: "ended",
+  expected: state.revision,
+});
 for (const role of ["public", "unassigned", "lead-deep"]) {
   let r;
-  for(let attempt=0;attempt<4;attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     r = await fetch(base + "/api/admin/halls", {
-    method: "POST",
-    headers: {
-      origin: base,
-      cookie: `hall-dev=${role}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      kind: "occupancy",
-      zone: "d7-auditorium",
-      occupied: 0,
-      expected: 0,
-    }),
-  });
-    if(![500,502,503,504].includes(r.status) || attempt===3) break;
-    await r.text();transportRetries++;await delay(200*2**attempt);
+      method: "POST",
+      headers: {
+        origin: base,
+        cookie: `hall-dev=${role}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        kind: "occupancy",
+        zone: "d7-auditorium",
+        occupied: 0,
+        expected: 0,
+      }),
+    });
+    if (![500, 502, 503, 504].includes(r.status) || attempt === 3) break;
+    await r.text();
+    transportRetries++;
+    await delay(200 * 2 ** attempt);
   }
-  assert.ok([401, 403].includes(r.status),`${role} denial returned ${r.status}: ${await r.text()}`);
+  assert.ok(
+    [401, 403].includes(r.status),
+    `${role} denial returned ${r.status}: ${await r.text()}`,
+  );
   unauthorized++;
 }
 const convergenceDeadline = Date.now() + 30000;
@@ -157,12 +197,25 @@ const missed = clients.filter(
 ).length;
 assert.equal(missed, 0);
 for (const c of clients) {
-  assert.deepEqual(c.state.occupancy,state.occupancy);
-  assert.deepEqual(c.state.promotions,state.promotions);
-  assert.equal(c.state.clock,state.clock);
+  assert.deepEqual(c.state.occupancy, state.occupancy);
+  assert.deepEqual(c.state.promotions, state.promotions);
+  assert.deepEqual(c.state.sessions, state.sessions);
+  assert.equal(c.state.clock, state.clock);
 }
-const healthyBroadcastGaps=clients.slice(surge.length).reduce((sum,c)=>sum+[...timings.keys()].filter(revision=>!c.received.has(revision)).length,0);
-assert.equal(healthyBroadcastGaps,0,'continuously connected clients missed a committed broadcast');
+const healthyBroadcastGaps = clients
+  .slice(surge.length)
+  .reduce(
+    (sum, c) =>
+      sum +
+      [...timings.keys()].filter((revision) => !c.received.has(revision))
+        .length,
+    0,
+  );
+assert.equal(
+  healthyBroadcastGaps,
+  0,
+  "continuously connected clients missed a committed broadcast",
+);
 console.log(
   `Converged ${count} clients at revision ${state.revision}. Soaking ${soak}s…`,
 );
@@ -178,9 +231,10 @@ const cpu = process.cpuUsage(cpuStart);
 const report = {
   date: new Date().toISOString(),
   clients: count,
-  acceptedConnections: count+reconnects,
+  acceptedConnections: count + reconnects,
   authorizedChanges: changes,
   setupClockWrites: 1,
+  lifecycleWrites: 2,
   healthyBroadcastGaps,
   updatesSequential: true,
   finalRevision: state.revision,

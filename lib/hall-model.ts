@@ -23,22 +23,35 @@ export type HallSnapshot = {
   clock: number | null;
   occupancy: Occupancy[];
   promotions: Promotion[];
+  sessions: {
+    session: string;
+    status: "started" | "ended";
+    updated_at?: number;
+  }[];
 };
-export type HallActor = { id: string; organizer: boolean };
+export type HallActor = {
+  id: string;
+  organizer: boolean;
+  zones?: string[];
+  adminZones?: string[];
+};
 export type HallMutation =
   | { kind: "occupancy"; zone: string; occupied: number; expected: number }
   | { kind: "promotions"; promotions: Promotion[]; expected: number }
+  | {
+      kind: "session";
+      zone: string;
+      session: string;
+      status: "started" | "ended";
+      expected: number;
+    }
   | { kind: "clock"; now: number | null; expected: number };
 
 export function occupancyColor(n: number) {
   return n < 50 ? "bg-green" : n < 80 ? "bg-yellow" : "bg-red";
 }
 // Breaks stay in physical-hall schedules, never claim a track's occupancy in F&B.
-export function trackCards(
-  agenda: AgendaSession[],
-  state: HallSnapshot,
-  now: number,
-) {
+export function trackCards(agenda: AgendaSession[], state: HallSnapshot) {
   return hallZones
     .map((zone, order) => {
       const sessions = agenda
@@ -48,24 +61,47 @@ export function trackCards(
             Date.parse(a.start) - Date.parse(b.start) ||
             a.id.localeCompare(b.id),
         );
+      const status = (id: string) =>
+        state.sessions?.find((s) => s.session === id)?.status;
+      const lastEnded = [...(state.sessions ?? [])]
+        .filter(
+          (s) =>
+            s.status === "ended" && sessions.some((a) => a.id === s.session),
+        )
+        .sort((a, b) => (b.updated_at ?? 0) - (a.updated_at ?? 0))[0];
+      const previous = sessions.find((s) => s.id === lastEnded?.session);
       const primary =
-        sessions.find(
-          (s) => Date.parse(s.start) <= now && now < Date.parse(s.end),
-        ) ?? sessions.find((s) => Date.parse(s.start) > now);
+        sessions.find((s) => status(s.id) === "started") ??
+        (previous &&
+          sessions.find(
+            (s) =>
+              !status(s.id) && Date.parse(s.start) > Date.parse(previous.start),
+          )) ??
+        sessions.find((s) => !status(s.id));
       const next =
         primary &&
-        sessions.find(
+        (sessions.find(
           (s) =>
-            Date.parse(s.start) >= Date.parse(primary.end) &&
-            s.id !== primary.id,
-        );
+            !status(s.id) && Date.parse(s.start) > Date.parse(primary.start),
+        ) ??
+          sessions.find((s) => !status(s.id) && s.id !== primary.id));
       const occupancy = state.occupancy.find((o) => o.zone === zone.id);
       const promotion =
         primary &&
         state.promotions.find(
-          (p) => p.session === primary.id && Date.parse(primary.end) > now,
+          (p) => p.session === primary.id && status(primary.id) !== "ended",
         );
-      const phase = !primary ? "finished" : Date.parse(primary.start) <= now ? "current" : sessions.some(s => Date.parse(s.end) <= now) ? "gap" : "not-started";
+      const phase = !primary
+        ? "finished"
+        : status(primary.id) === "started"
+          ? "current"
+          : state.sessions?.some(
+                (s) =>
+                  s.status === "ended" &&
+                  sessions.some((a) => a.id === s.session),
+              )
+            ? "gap"
+            : "not-started";
       return { zone, order, primary, next, occupancy, promotion, phase };
     })
     .sort((a, b) => {

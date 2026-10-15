@@ -26,6 +26,7 @@ const base = {
   clock: null,
   occupancy: [],
   promotions: [],
+  sessions: [],
 };
 const event = (id, track, start, end, extra = {}) => ({
   id,
@@ -45,28 +46,49 @@ const sessions = [
   event("parallel", "d7-amphitheater", 1000, 2500),
   event("food", "d7-auditorium", 2000, 3000, { type: "break", hall: "F&B" }),
 ];
-const cards = (now, state = base) => trackCards(sessions, state, now);
-assert.equal(cards(999).find(c=>c.zone.id==='d7-auditorium').phase,'not-started');
-assert.equal(cards(2000).find(c=>c.zone.id==='d7-auditorium').phase,'gap');
-assert.equal(cards(4000).find(c=>c.zone.id==='d7-auditorium').phase,'finished');
+const cards = (now, state = base) => trackCards(sessions, { ...state, serverNow: now });
 assert.equal(
-  cards(1000).find((c) => c.zone.id === "d7-auditorium").primary.id,
-  "first",
+  cards(999).find((c) => c.zone.id === "d7-auditorium").phase,
+  "not-started",
 );
 assert.equal(
-  cards(2000).find((c) => c.zone.id === "d7-auditorium").primary.id,
+  cards(999999).find((c) => c.zone.id === "d7-auditorium").primary.id,
+  "first",
+  "clock does not advance events",
+);
+const running = {
+  ...base,
+  sessions: [{ session: "first", status: "started" }],
+};
+assert.equal(
+  cards(999999, running).find((c) => c.zone.id === "d7-auditorium").phase,
+  "current",
+);
+const ended = { ...base, sessions: [{ session: "first", status: "ended" }] };
+assert.equal(
+  cards(0, ended).find((c) => c.zone.id === "d7-auditorium").phase,
+  "gap",
+);
+assert.equal(
+  cards(0, ended).find((c) => c.zone.id === "d7-auditorium").primary.id,
   "second",
 );
 assert.equal(
-  cards(4000).find((c) => c.zone.id === "d7-auditorium").primary,
-  undefined,
+  cards(0, {
+    ...base,
+    sessions: [
+      { session: "first", status: "ended" },
+      { session: "second", status: "ended" },
+    ],
+  }).find((c) => c.zone.id === "d7-auditorium").phase,
+  "finished",
 );
 assert.equal(
   cards(1000).find((c) => c.zone.id === "d7-amphitheater").primary.id,
   "parallel",
 );
 assert.equal(
-  trackCards([], base, 1000).every((c) => !c.primary),
+  trackCards([], base).every((c) => !c.primary),
   true,
 );
 const state = {
@@ -90,14 +112,41 @@ assert.equal(
   "pin is independent",
 );
 assert.equal(
-  cards(2000, state).find((c) => c.zone.id === "d7-auditorium").promotion,
+  cards(2000, {
+    ...state,
+    sessions: [{ session: "first", status: "ended" }],
+  }).find((c) => c.zone.id === "d7-auditorium").promotion,
   undefined,
-  "expired pin cannot transfer",
+  "manually ended pin cannot transfer",
 );
 assert.equal(
   cards(1000, state).at(-1).occupancy,
   undefined,
   "unknown sorts last",
+);
+const jumped = {
+  ...base,
+  sessions: [{ session: "later", status: "ended", updated_at: 20 }],
+  occupancy: state.occupancy,
+};
+const reorderedAgenda = [
+  ...sessions,
+  event("later", "d7-auditorium", 5000, 6000),
+  event("after-later", "d7-auditorium", 7000, 8000),
+];
+const suggestion = trackCards(reorderedAgenda, jumped).find(
+  (c) => c.zone.id === "d7-auditorium",
+);
+assert.equal(
+  suggestion.primary.id,
+  "after-later",
+  "follow the last ended event before returning to skipped earlier choices",
+);
+assert.equal(suggestion.next.id, "first", "skipped events remain available");
+assert.deepEqual(
+  suggestion.occupancy,
+  state.occupancy[0],
+  "selection cannot reset occupancy",
 );
 assert.equal(acceptSnapshot(base, { ...base, revision: 1 }), base);
 assert.equal(
@@ -139,7 +188,7 @@ const unusual = [
     speakerSlugs: ["missing"],
   }),
 ];
-assert.equal(trackCards(unusual, base, 1000)[0].primary.id, "long");
+assert.equal(trackCards(unusual, base)[0].primary.id, "long");
 console.log(
-  "Model: boundaries, gaps, breaks, parallel tracks, empty day, ties, unknown, promotion independence/noninheritance, revisions and thresholds passed.",
+  "Model: manual lifecycle independent of clock, gaps, breaks, parallel tracks, empty day, ties, unknown, promotion independence/noninheritance, revisions and thresholds passed.",
 );

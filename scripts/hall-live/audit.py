@@ -12,6 +12,7 @@ with sqlite3.connect(f'file:{databases[0]}?mode=ro', uri=True) as db:
     assert db.execute('SELECT count(*) FROM hall_write_guard').fetchone()[0] == 0
     assert db.execute('SELECT count(*) FROM hall_outbox').fetchone()[0] == 0
     assert db.execute('SELECT count(*) FROM hall_occupancy WHERE occupied NOT BETWEEN 0 AND 100 OR typeof(occupied) != "integer"').fetchone()[0] == 0
+    assert db.execute("SELECT count(*) FROM hall_sessions WHERE status NOT IN ('started','ended')").fetchone()[0] == 0
     print(f'D1 audit: {count} contiguous committed revisions; no partial guard or stranded outbox; all occupancy constraints valid.')
 
 # Check database constraints independently of the route's validation.

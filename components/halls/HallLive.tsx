@@ -22,9 +22,7 @@ export function HallLive({
   const [restoreId, setRestoreId] = useState<string>();
   const [busy, setBusy] = useState(false),
     [order, setOrder] = useState<string[]>([]);
-  const cards = snapshot
-    ? trackCards(agenda, snapshot, now || snapshot.serverNow)
-    : [];
+  const cards = snapshot ? trackCards(agenda, snapshot) : [];
   const desired = cards.map((c) => c.zone.id).join(",");
   useEffect(() => {
     // Synchronize physical ordering only after pointer/focus leaves the card region.
@@ -63,7 +61,7 @@ export function HallLive({
               .join(", ")}
           </p>
           <p className="mt-1 text-xs text-paper/60">
-            {formatSessionTime(s.start)}–{formatSessionTime(s.end)}
+            Planned: {formatSessionTime(s.start)}–{formatSessionTime(s.end)}
           </p>
         </>
       ) : (
@@ -82,7 +80,8 @@ export function HallLive({
             Live at DevFest
           </h1>
           <p className="mt-3 text-paper/70">
-            Find your next session. Check how busy each track is.
+            Find your next session. Live events are started and ended by the
+            track team.
           </p>
         </div>
         <p role="status" className={connected ? "text-green" : "text-yellow"}>
@@ -93,6 +92,10 @@ export function HallLive({
         </p>
       </div>
       <LocalHallTools snapshot={snapshot} />
+      <p className="mb-4 text-sm text-paper/60">
+        Most available first · pinned events take priority · recommendations add
+        a badge.
+      </p>
       <nav
         aria-label="Browse physical hall schedules"
         className="mb-6 flex flex-wrap gap-2"
@@ -140,7 +143,6 @@ export function HallLive({
         {displayed.map((c) => {
           const s = c.primary,
             o = c.occupancy,
-            
             age = o ? Math.max(0, now - o.updated_at) : 0,
             stale = age > STALE_MS;
           return (
@@ -190,7 +192,9 @@ export function HallLive({
                   s
                     ? c.phase === "current"
                       ? "On now"
-                      : c.phase === "gap" ? "Coming up · between sessions" : "Not started · coming up"
+                      : c.phase === "gap"
+                        ? "Coming up · between sessions"
+                        : "Not started · coming up"
                     : "Track finished",
                 )}
               </div>
@@ -243,7 +247,7 @@ export function HallLive({
         <HallSchedule
           hall={hall}
           agenda={agenda}
-          now={now}
+          snapshot={snapshot}
           onClose={() => setHall(null)}
           onSession={(s) => {
             setRestoreId(s.id);

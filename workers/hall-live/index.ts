@@ -59,17 +59,7 @@ export class HallCoordinator extends DurableObject<Env> {
         }
         if (request.method === "POST" && path === "/access") {
           const actor = (await request.json()) as HallActor;
-          const leads = await this.env.DB.prepare(
-            "SELECT zone FROM hall_leads WHERE user_id=?",
-          )
-            .bind(actor.id)
-            .all<{ zone: string }>();
-          return json({
-            actor,
-            zones: actor.organizer
-              ? hallZones.map((z) => z.id)
-              : leads.results.map((z) => z.zone),
-          });
+          return json({ actor, zones: await this.zones(actor) });
         }
         if (request.method !== "POST" || path !== "/write")
           throw new Rejected(404, "Not found");
@@ -105,6 +95,24 @@ export class HallCoordinator extends DurableObject<Env> {
       }
     });
   }
+  async zones(actor: HallActor): Promise<string[]> {
+    if (actor.organizer) return hallZones.map((z) => z.id);
+    if (actor.zones !== undefined)
+      return actor.zones.filter((id) => hallZones.some((z) => z.id === id));
+    // Legacy assignments exist only for isolated local fixtures. Production
+    // permissions always come from the current RBAC adapter on each request.
+    if (
+      this.env.HALL_LOCAL_TEST !== "1" ||
+      !["dev:lead-tech", "dev:lead-deep"].includes(actor.id)
+    )
+      return [];
+    const leads = await this.env.DB.prepare(
+      "SELECT zone FROM hall_leads WHERE user_id=?",
+    )
+      .bind(actor.id)
+      .all<{ zone: string }>();
+    return leads.results.map((z) => z.zone);
+  }
   async limit(key: string, maximum: number) {
     const bucket = Math.floor(Date.now() / 60000);
     // Bounded map, persisted in SQLite storage, no dependence on venue IP addresses.
@@ -132,14 +140,22 @@ export class HallCoordinator extends DurableObject<Env> {
     const promotions = await this.env.DB.prepare(
       "SELECT session,recommended,position FROM hall_promotions",
     ).all<{ session: string; recommended: number; position: number | null }>();
+    const sessions = await this.env.DB.prepare(
+      "SELECT session,status,updated_at FROM hall_sessions",
+    ).all<HallSnapshot["sessions"][number]>();
     return {
+      sessions: sessions.results,
       revision: meta.revision,
       clock: meta.clock,
       serverNow: now,
       occupancy: occupancy.results,
       promotions: promotions.results
-        .filter((p) =>
-          agenda.some((s) => s.id === p.session && Date.parse(s.end) > now),
+        .filter(
+          (p) =>
+            agenda.some((s) => s.id === p.session) &&
+            !sessions.results.some(
+              (s) => s.session === p.session && s.status === "ended",
+            ),
         )
         .map((p) => ({ ...p, recommended: !!p.recommended })),
     };
@@ -186,13 +202,7 @@ export class HallCoordinator extends DurableObject<Env> {
         Number(mutation.occupied) > 100
       )
         throw new Rejected(400, "Occupancy must be an integer from 0 to 100");
-      if (
-        !actor.organizer &&
-        !(await db
-          .prepare("SELECT 1 FROM hall_leads WHERE user_id=? AND zone=?")
-          .bind(actor.id, mutation.zone)
-          .first())
-      )
+      if (!(await this.zones(actor)).includes(mutation.zone))
         throw new Rejected(403, "Zone not assigned");
       const previous = state.occupancy.find((o) => o.zone === mutation.zone);
       if ((previous?.revision ?? 0) !== mutation.expected)
@@ -214,7 +224,7 @@ export class HallCoordinator extends DurableObject<Env> {
           ),
       );
     } else if (mutation.kind === "promotions") {
-      if (!actor.organizer) throw new Rejected(403, "Organizer required");
+      if (!actor.organizer) throw new Rejected(403, "Super admin required");
       if (mutation.expected !== state.revision)
         throw new Rejected(
           409,
@@ -243,7 +253,12 @@ export class HallCoordinator extends DurableObject<Env> {
         const session = agenda.find(
           (s) => s.id === p.session && s.track && s.type !== "break",
         );
-        if (!session || Date.parse(session.end) <= state.serverNow)
+        if (
+          !session ||
+          state.sessions.some(
+            (s) => s.session === p.session && s.status === "ended",
+          )
+        )
           throw new Rejected(400, "Unknown or expired session");
         ids.add(p.session);
         if (p.position !== null) positions.add(p.position);
@@ -256,6 +271,48 @@ export class HallCoordinator extends DurableObject<Env> {
               "INSERT INTO hall_promotions(session,recommended,position) VALUES(?,?,?)",
             )
             .bind(p.session, p.recommended ? 1 : 0, p.position),
+        );
+    } else if (mutation.kind === "session") {
+      const session = agenda.find(
+        (s) =>
+          s.id === mutation.session &&
+          s.track === mutation.zone &&
+          s.type !== "break",
+      );
+      if (!session || !["started", "ended"].includes(String(mutation.status)))
+        throw new Rejected(400, "Invalid event transition");
+      if (!(await this.zones(actor)).includes(session.track!))
+        throw new Rejected(403, "Track not assigned");
+      if (mutation.expected !== state.revision)
+        throw new Rejected(409, "Events changed. Review and retry.");
+      const existing = state.sessions.find((s) => s.session === session.id);
+      if (mutation.status === "ended" && existing?.status !== "started")
+        throw new Rejected(409, "Only a running event can end");
+      if (
+        mutation.status === "started" &&
+        (existing ||
+          state.sessions.some(
+            (s) =>
+              s.status === "started" &&
+              agenda.find((a) => a.id === s.session)?.track === session.track,
+          ))
+      )
+        throw new Rejected(
+          409,
+          "End the running event before starting another",
+        );
+      statements.push(
+        db
+          .prepare(
+            "INSERT INTO hall_sessions(session,status,updated_at,updated_by) VALUES(?,?,?,?) ON CONFLICT(session) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at,updated_by=excluded.updated_by",
+          )
+          .bind(session.id, mutation.status, Date.now(), actor.id),
+      );
+      if (mutation.status === "ended")
+        statements.push(
+          db
+            .prepare("DELETE FROM hall_promotions WHERE session=?")
+            .bind(session.id),
         );
     } else if (mutation.kind === "clock") {
       if (this.env.HALL_LOCAL_TEST !== "1" || !actor.organizer)
@@ -344,16 +401,7 @@ export class HallCoordinator extends DurableObject<Env> {
       await this.ctx.storage.setAlarm(Date.now() + 1000);
       return;
     }
-    const boundaries = agenda
-      .flatMap((s) => [Date.parse(s.start), Date.parse(s.end)])
-      .filter((t) => t > state.serverNow);
-    if (
-      state.clock === null &&
-      boundaries.length &&
-      this.ctx.getWebSockets().length
-    )
-      await this.ctx.storage.setAlarm(Math.min(...boundaries));
-    else await this.ctx.storage.deleteAlarm();
+    await this.ctx.storage.deleteAlarm();
   }
   async alarm() {
     await this.ctx.blockConcurrencyWhile(async () => {

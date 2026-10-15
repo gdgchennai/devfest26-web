@@ -1,4 +1,5 @@
 import "./hook-tests.mjs";
+import "./access-tests.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
@@ -21,7 +22,21 @@ async function write(mutation, role = "organizer", extra = {}) {
     body: JSON.stringify(mutation),
   });
 }
+const sessions = JSON.parse(fs.readFileSync("content/agenda.json", "utf8"));
 let state = await snapshot();
+// Finish running local fixtures before testing; preserve every measurement.
+for (const active of state.sessions.filter((s) => s.status === "started")) {
+  const event = sessions.find((s) => s.id === active.session);
+  const ended = await write({
+    kind: "session",
+    zone: event.track,
+    session: event.id,
+    status: "ended",
+    expected: state.revision,
+  });
+  assert.equal(ended.status, 200, await ended.clone().text());
+  state = await ended.json();
+}
 let r = await write({
   kind: "clock",
   now: Date.parse("2026-10-17T11:00:00+05:30"),
@@ -89,9 +104,11 @@ assert.equal(
   beforeRace + 1,
   "losing write must not create an audit revision",
 );
-const sessions = JSON.parse(fs.readFileSync("content/agenda.json", "utf8"));
 const eligible = sessions.filter(
-  (s) => s.track && s.type !== "break" && Date.parse(s.end) > state.serverNow,
+  (s) =>
+    s.track &&
+    s.type !== "break" &&
+    !state.sessions.some((e) => e.session === s.id),
 );
 const a = eligible[0],
   b = eligible.find((s) => s.id !== a.id);
@@ -186,8 +203,47 @@ assert.equal(r.status, 200, await r.clone().text());
 state = await r.json();
 assert.equal(
   state.promotions.some((p) => p.session === a.id),
+  true,
+  "planned end time must not expire a promotion",
+);
+// Real transitions authorize per track, retain occupancy, and expire only ended event promotions.
+const lifecycle = {
+  kind: "session",
+  zone: a.track,
+  session: a.id,
+  status: "started",
+  expected: state.revision,
+};
+assert.equal((await write(lifecycle, "unassigned")).status, 403);
+assert.equal((await write(lifecycle, "public")).status, 401);
+assert.equal((await write({ ...lifecycle, zone: "made-up" })).status, 400);
+assert.equal((await write({ ...lifecycle, status: "ended" })).status, 409);
+const startRace = await Promise.all([write(lifecycle), write(lifecycle)]);
+assert.deepEqual(startRace.map(r => r.status).sort(), [200,409], "exactly one concurrent event start commits");
+state = await startRace.find(r => r.status === 200).json();
+const beforeEnd = state.occupancy;
+assert.equal(
+  (await write({ ...lifecycle, expected: state.revision })).status,
+  409,
+);
+const other = eligible.find((s) => s.track === a.track && s.id !== a.id);
+if (other)
+  assert.equal(
+    (await write({ ...lifecycle, session: other.id, expected: state.revision }))
+      .status,
+    409,
+  );
+r = await write({ ...lifecycle, status: "ended", expected: state.revision });
+assert.equal(r.status, 200, await r.clone().text());
+state = await r.json();
+assert.deepEqual(
+  state.occupancy,
+  beforeEnd,
+  "event changes preserve measurements",
+);
+assert.equal(
+  state.promotions.some((p) => p.session === a.id),
   false,
-  "expiry is exclusive at end",
 );
 assert.equal(
   (
@@ -198,7 +254,48 @@ assert.equal(
     })
   ).status,
   400,
+  "ended event cannot be promoted",
 );
+assert.equal(
+  (
+    await write(
+      { kind: "promotions", promotions: [], expected: state.revision },
+      "admin-tech",
+    )
+  ).status,
+  403,
+  "track admin cannot promote",
+);
+assert.equal(
+  (
+    await write(
+      { ...mutation, zone: "d7-amphitheater", expected: 0 },
+      "admin-tech",
+    )
+  ).status,
+  403,
+  "track admin cannot cross tracks",
+);
+const own = eligible.find((s) => s.track === "d7-auditorium" && s.id !== a.id);
+if (own) {
+  const transition = {
+    kind: "session",
+    zone: own.track,
+    session: own.id,
+    status: "started",
+    expected: state.revision,
+  };
+  assert.equal((await write(transition, "lead-deep")).status, 403);
+  r = await write(transition, "admin-tech");
+  assert.equal(r.status, 200, await r.clone().text());
+  state = await r.json();
+  r = await write(
+    { ...transition, status: "ended", expected: state.revision },
+    "lead-tech",
+  );
+  assert.equal(r.status, 200);
+  state = await r.json();
+}
 socket.send("attempt-public-write");
 await new Promise((resolve) => {
   socket.onclose = (e) => {
@@ -236,5 +333,5 @@ fs.writeFileSync(
   JSON.stringify(await snapshot()),
 );
 console.log(
-  "Workers API: validation, identities, assignment enforcement, revision race, atomic promotions, expiry, snapshot race, outbox recovery, public-message rejection and CSRF passed.",
+  "Workers API: validation, identities, assignment enforcement, revision race, atomic promotions, manual lifecycle, preserved occupancy, scoped admin, snapshot race, outbox recovery, public-message rejection and CSRF passed.",
 );

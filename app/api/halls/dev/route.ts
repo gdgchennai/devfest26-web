@@ -11,9 +11,14 @@ export async function POST(request: Request) {
   if (!(await sameOrigin(request))) return new Response(null, { status: 403 });
   const { role } = (await request.json()) as { role?: string };
   if (
-    !["organizer", "lead-tech", "lead-deep", "unassigned", "public"].includes(
-      role ?? "",
-    )
+    ![
+      "organizer",
+      "lead-tech",
+      "lead-deep",
+      "admin-tech",
+      "unassigned",
+      "public",
+    ].includes(role ?? "")
   )
     return new Response(null, { status: 400 });
   return Response.json(
