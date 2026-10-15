@@ -361,6 +361,6 @@ one state dir. **Stop `npm run dev` before starting the ticketing dev server.**
 If `lib/db.ts` starts throwing `Attempted to use poisoned stub`, that's the
 collision — restart `npm run dev`.
 
-## Hall live preview integration
+## Hall live integration
 
-The new `/live` and `/admin/halls` pages require a separate realtime Worker and private `HALL_CONTROL` / read-only `HALL_PUBLIC` bindings. The root production Wrangler config and database IDs are intentionally untouched. Follow [hall availability](hall-availability.md#production-integration-not-performed-here) before deploying this feature. `wrangler.hall-local.jsonc`, local fixture flags and isolated bundles are never production deployment configs. Apply `0014_hall_live.sql`, the upstream `0014_track_roles.sql`, and `0015_hall_manual_sessions.sql` to the original shared D1 only when production integration is authorized. Production permissions use the existing track RBAC; only super-admins manage hall priorities.
+The `/live` and `/admin/halls` pages require the separate `devfest-hall-live` realtime Worker. Root configuration declares private `HALL_CONTROL` and read-only `HALL_PUBLIC` service bindings, and wraps OpenNext fetch to forward WebSocket upgrades. Existing D1, R2, Images, self-reference and domain bindings remain in place. Follow [production readiness](hall-production-readiness.md) before deploying. `wrangler.hall-local.jsonc`, local fixture flags and isolated bundles are never production deployment configs. Production permissions use the existing track RBAC; only super-admins manage hall priorities.

@@ -77,14 +77,16 @@ npm run hall:load
 
 The load configuration only raises the coordinator's actor limit to 2000/min; validation, authorization, public limits and socket cap stay enabled. Runner defaults: 1400 independent sockets, 500 writes (400 occupancy, 100 promotion/order), two additional manual lifecycle writes, 300 reconnect surge, shared loopback IP, unauthorized cases and 120-second soak. `HALL_CLIENTS`, `HALL_CHANGES`, `HALL_SOAK_SECONDS` and `HALL_URL` customize it. Final convergence checks revision and measurement content on every connected client. Output is saved to `/tmp/hall-load-report.json`. The runner records bounded retries on transient local proxy failures for denial probes; successful writes are not silently repeated. Latencies include Next/API/D1/DO/generator work from request start to client receipt, rather than hosted network timing. See [manual event verification](hall-manual-verification.md) for current results and browser QA limitations.
 
-## Production integration (not performed here)
+## Production integration
 
 1. Apply additive migrations to the project's existing D1. Assign track admins/leads using the existing People RBAC page (`user_track_roles`); `ADMIN_EMAILS` supplies super-admin access. Do not assign production roles in `hall_leads`.
-2. Provision/deploy a hall Worker with DB pointing at that SAME D1, a SQLite DO migration and the stable event ID. Omit all test flags. No remote/production database IDs were edited by this feature.
-3. Add `HALL_CONTROL` (named private entrypoint) and `HALL_PUBLIC` (read-only default entrypoint) service bindings to the application. Adapt the gateway wrapper for its `/api/halls/socket` upgrade delegation; retain OpenNext's default exports if future cache modes require them. Root production configuration deliberately remains unchanged pending this integration.
+2. `workers/hall-live/wrangler.jsonc` defines the production `devfest-hall-live` Worker, the SAME existing D1, and a SQLite DO migration. It has no public hostname and omits all test flags. Local configurations retain their separate local database IDs.
+3. Root `wrangler.jsonc` supplies `HALL_CONTROL` (named private entrypoint) and `HALL_PUBLIC` (read-only default entrypoint) service bindings. Its gateway delegates `/api/halls/socket` upgrades and re-exports OpenNext's named cache/queue classes as well as forwarding ordinary requests.
 4. Build the full site without `NEXT_PUBLIC_HALL_ISOLATED`; restore the original full-site bindings/secrets and verify the combined gzip bundle, hosted slow readers, rate limits and Free CPU budgets before deployment.
 
 Cloudflare references checked during implementation: [hibernating WebSockets](https://developers.cloudflare.com/durable-objects/best-practices/websockets/), [D1 batches](https://developers.cloudflare.com/d1/worker-api/d1-database/), [DO pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/). Outgoing socket messages are not DO request units, but their CPU/duration still matters. Local load measurements do not establish hosted Free-tier compliance.
+
+See [production readiness](hall-production-readiness.md) for the verified prerequisites and deployment sequence. Preparing these configurations does not deploy them.
 
 ## Existing Sessions page
 

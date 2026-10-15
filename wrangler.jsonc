@@ -1,7 +1,8 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
+	"main": "workers/hall-live/gateway.ts",
 	"name": "devfest-chennai-2026",
+	"account_id": "dbf439e411a3a8835d7880c3ff047b9e",
 	"compatibility_date": "2026-08-27",
 	// Custom domain — declared here so `wrangler deploy` keeps it attached
 	// (it was first added via the dashboard; without this line every deploy
@@ -26,6 +27,15 @@
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
 			"service": "devfest-chennai-2026"
+		},
+		{
+			"binding": "HALL_CONTROL",
+			"service": "devfest-hall-live",
+			"entrypoint": "HallControl"
+		},
+		{
+			"binding": "HALL_PUBLIC",
+			"service": "devfest-hall-live"
 		}
 	],
 	"d1_databases": [

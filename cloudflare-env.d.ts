@@ -6,6 +6,7 @@
 declare global {
   interface CloudflareEnv {
     HALL_CONTROL?: Fetcher;
+    HALL_PUBLIC?: Fetcher;
     HALL_LOCAL_TEST?: string;
     /** D1 database — accounts + saved sessions. See wrangler.jsonc + migrations/. */
     DB: D1Database;

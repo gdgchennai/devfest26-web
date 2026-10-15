@@ -1,6 +1,9 @@
 // OpenNext's fetch remains the application entrypoint; upgrades bypass Next's HTTP adapter.
 // @ts-expect-error generated during hall:build
 import app from "../../.open-next/worker.js";
+// Preserve OpenNext's cache/queue Durable Object exports when wrapping fetch.
+// @ts-expect-error generated during hall:build
+export * from "../../.open-next/worker.js";
 type Env = { HALL_PUBLIC: Fetcher };
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
