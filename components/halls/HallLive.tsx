@@ -86,16 +86,10 @@ export function HallLive({
         </div>
         <p role="status" className={connected ? "text-green" : "text-yellow"}>
           {connected ? "● Connected" : "○ Offline / reconnecting"}
-          <span className="mt-1 block text-xs text-paper/60">
-            Occupancy age is shown separately
-          </span>
         </p>
       </div>
       <LocalHallTools snapshot={snapshot} />
-      <p className="mb-4 text-sm text-paper/60">
-        Most available first · pinned events take priority · recommendations add
-        a badge.
-      </p>
+
       <nav
         aria-label="Browse physical hall schedules"
         className="mb-6 flex flex-wrap gap-2"
