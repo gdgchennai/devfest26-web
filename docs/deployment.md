@@ -402,3 +402,13 @@ Saving/pushing the latest configuration and reports does not itself deploy them.
 No connection-recovery changes were implemented or deployed during the audit.
 See [the realistic five-minute rehearsal](hall-realistic-five-minute-report-2026-10-16.md)
 for the failed reliability checks, quota model and verified data restoration.
+
+
+### Hall emergency switch deployment — 16 October 2026
+
+Frontend version `9960dc1e-cd29-492d-951f-f6327b0649ff` now serves the runtime
+`HALL_LIVE_ENABLED` switch at 100% on `devfest-hall-availability-test`.
+Live is enabled; the private hall backend remains unchanged. The normal full
+OpenNext build and hosted HTTP/WebSocket smoke checks passed. Dashboard logs,
+traces and Issues settings are explicitly retained in root `wrangler.jsonc`.
+Use [the emergency runbook](hall-emergency-switch.md) to pause/resume Live.

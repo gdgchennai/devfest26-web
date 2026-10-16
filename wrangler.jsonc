@@ -8,6 +8,15 @@
 	// The main branch owns devfest.gdgchennai.in.
 	"routes": [],
 	"workers_dev": true,
+	// Preserve dashboard emergency toggles on later CLI deployments.
+	"keep_vars": true,
+	// Preserve the existing dashboard monitoring settings on CLI deployments.
+	"observability": {
+		"enabled": true,
+		"issues": { "enabled": true },
+		"logs": { "enabled": true },
+		"traces": { "enabled": true }
+	},
 	"vars": {
 		"NEXT_INC_CACHE_R2_PREFIX": "hall-availability-test"
 	},

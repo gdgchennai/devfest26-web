@@ -207,3 +207,18 @@ the JSON files.
   (including hosted preview configuration). This keeps its cache separate from
   the main site's default `incremental-cache` prefix in the existing R2 bucket.
 - Optional local override belongs in `.dev.vars`; no secret value is involved.
+
+### `HALL_LIVE_ENABLED`
+
+- Frontend Cloudflare runtime Text variable; missing/`true` enables Live and
+  `false` pauses it. Values are trimmed and case-insensitive.
+- Set in the frontend Worker's dashboard Variables and Secrets, then Deploy.
+  It is omitted from Wrangler `vars`; `keep_vars: true` preserves dashboard
+  emergency changes on later CLI deployments.
+- `/live` redirects temporarily to `/agenda`; new public hall sockets/snapshots
+  are rejected without contacting the backend. The status endpoint is
+  `/api/halls/availability`. Live navigation/content is hidden when paused.
+- Local override belongs in frontend `.dev.vars` (`.dev.vars.example`), using
+  the Worker preview. No Next.js rebuild is needed to toggle a deployed switch.
+- See [the emergency runbook](hall-emergency-switch.md) for existing-tab behavior,
+  the 20-second public connection fallback and Agenda prerequisites.

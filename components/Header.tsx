@@ -42,7 +42,7 @@ export function Header() {
   const routeItems = navRoutes.map((route) => {
     const active = pathname === route.href;
     return (
-      <li key={route.href}>
+      <li key={route.href} data-hall-live-link={route.href === "/live" ? "" : undefined}>
         <Link
           href={route.href}
           // aria-current is what actually announces the active page; the colour

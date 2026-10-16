@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Runtime emergency flag is stamped by the Worker before HTML reaches the browser. */
+html[data-hall-live-enabled="false"] [data-hall-live-link],
+html[data-hall-live-enabled="false"] [data-hall-live-content] {
+  display: none !important;
+}
+
 /* Lets the browser interpolate --theme as VenueReveal scrubs it on scroll. */
 @property --theme {
   syntax: "<number>";

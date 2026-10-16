@@ -19,6 +19,7 @@ import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { OG_IMAGE, siteDescription } from "@/lib/seo";
 import { CtaTracker } from "@/components/CtaTracker";
 import { PostHogIdentify } from "@/components/PostHogIdentify";
+import { HallAvailability } from "@/components/halls/HallAvailability";
 
 // Google Sans from fonts.googleapis.com (not next/font). next/font/google
 // self-hosts the files and has no fallback metrics for this family, which
@@ -186,6 +187,7 @@ export default function RootLayout({
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
+        <HallAvailability />
         <AuthProvider>
           {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PostHogIdentify />}
           {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PushPrompt />}

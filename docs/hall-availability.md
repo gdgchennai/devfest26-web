@@ -1,5 +1,9 @@
 # Live track occupancy
 
+Emergency fallback: set frontend runtime `HALL_LIVE_ENABLED=false` to redirect
+new `/live` visits to `/agenda`, hide Live links and pause new public hall
+connections. See [the emergency runbook](hall-emergency-switch.md) before the event.
+
 `/live` has one current/next card per configured track. `/admin/halls` allows assigned track leads/admins to report occupancy and manually start/end events. Only super-admins manage all tracks and recommend, pin, or reorder events. Site navigation includes Live in both full and lite modes.
 
 ## Local isolated runtime

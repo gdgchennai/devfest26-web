@@ -5,6 +5,8 @@
 // full picture any time with `npm run cf-typegen`.
 declare global {
   interface CloudflareEnv {
+    /** Runtime frontend kill switch. Only "false" pauses public Live access. */
+    HALL_LIVE_ENABLED?: string;
     /** Separate R2 cache namespace for the hosted availability branch. */
     NEXT_INC_CACHE_R2_PREFIX?: string;
     HALL_CONTROL?: Fetcher;

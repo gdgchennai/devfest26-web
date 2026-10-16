@@ -16,7 +16,7 @@ export function HallLive({
   agenda: AgendaSession[];
   speakers: Speaker[];
 }) {
-  const { snapshot, connected, now } = useHallLive();
+  const { snapshot, connected, now } = useHallLive({ publicView: true });
   const [hall, setHall] = useState<string | null>(null),
     [session, setSession] = useState<AgendaSession | null>(null);
   const [restoreId, setRestoreId] = useState<string>();
@@ -79,7 +79,7 @@ export function HallLive({
     </div>
   );
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-20 pt-28 sm:px-8">
+    <div data-hall-live-content className="mx-auto max-w-6xl px-4 pb-20 pt-28 sm:px-8">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-sm text-paper/60">
