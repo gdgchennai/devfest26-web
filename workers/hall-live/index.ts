@@ -360,12 +360,11 @@ export class HallCoordinator extends DurableObject<Env> {
         throw new Rejected(409, "Only a running event can end");
       if (
         mutation.status === "started" &&
-        (existing ||
-          state.sessions.some(
-            (s) =>
-              s.status === "started" &&
-              agenda.find((a) => a.id === s.session)?.track === session.track,
-          ))
+        state.sessions.some(
+          (s) =>
+            s.status === "started" &&
+            agenda.find((a) => a.id === s.session)?.track === session.track,
+        )
       )
         throw new Rejected(
           409,

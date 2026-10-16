@@ -57,7 +57,7 @@ Run from the repository root, after all readiness gates pass:
    npm run deploy
    ```
 
-5. Verify Home, Live, Agenda and Speakers; Google sign-in; anonymous/ordinary-user denials; track-scoped admin/lead controls; super-admin ordering; and WebSocket updates between two browsers. Do not seed fake users, occupancy or simulated clock values into production. Coordinate any real event start/end with the organizer because ended events cannot be restarted through the hall UI.
+5. Verify Home, Live, Agenda and Speakers; Google sign-in; anonymous/ordinary-user denials; track-scoped admin/lead controls; super-admin ordering; and WebSocket updates between two browsers. Do not seed fake users, occupancy or simulated clock values into production. Coordinate any real event start/end with the organizer; an ended event can be started again from the next-event control once the track has no running event.
 
 The existing custom domain needs no DNS change. The new hall Worker has neither a custom domain nor a workers.dev endpoint; browsers connect through the main application's `/api/halls/socket`. Existing Google redirect URIs remain valid because the application's hostname is unchanged. The ticketing Worker is not redeployed.
 

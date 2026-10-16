@@ -8,7 +8,7 @@ Implemented on `codex/hall-availability-test` after fetching and merging `main` 
 
 - Event titles lead both lead/admin and super-admin controls; same cards contain occupancy, lifecycle, and (super-admin only) recommendation/pin/reordering controls.
 - Existing RBAC resolves production access on each request: super-admin is `ADMIN_EMAILS`, admin/lead are track grants from `user_track_roles`. Retired `users.is_admin` and local `hall_leads` cannot grant production hall access. Existing main RBAC matches the required scopes once this adapter is used.
-- Explicit start and end actions replace clock-driven selection and expiry. Only one event can run per track. The next unplayed event follows the last ended event; an earlier skipped or another unplayed event can be chosen. Ended events cannot restart. Occupancy persists unchanged. Scheduled times remain informational and order the agenda.
+- Explicit start and end actions replace clock-driven selection and expiry. Only one event can run per track. The next unplayed event follows the last ended event; an earlier skipped, another unplayed, or a previously ended event can be chosen and started again. Occupancy persists unchanged. Scheduled times remain informational and order the agenda.
 - Ending an event removes its recommendation and pin in the same audited D1 batch. A successor inherits neither. Public snapshots and hall schedule highlights use the same manual state.
 - Priority changes save immediately. Most available first is the default; pinned events override that order, and recommended alone does not sort. Pointer dragging and keyboard Up/Down operate directly on event cards. Passive live reorder waits for focus/pointer to leave.
 

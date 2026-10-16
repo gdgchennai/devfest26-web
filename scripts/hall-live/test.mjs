@@ -258,6 +258,17 @@ assert.equal(
   400,
   "ended event cannot be promoted",
 );
+r = await write({ ...lifecycle, status: "started", expected: state.revision });
+assert.equal(r.status, 200, await r.clone().text());
+state = await r.json();
+assert.equal(
+  state.sessions.find((s) => s.session === a.id)?.status,
+  "started",
+  "ended event can be started again",
+);
+r = await write({ ...lifecycle, status: "ended", expected: state.revision });
+assert.equal(r.status, 200, await r.clone().text());
+state = await r.json();
 assert.equal(
   (
     await write(

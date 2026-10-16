@@ -167,8 +167,9 @@ rate-limit probe is expected enforcement, not necessarily a reliability defect.
 
 Occupancy uses the zone measurement revision as `expected`; promotions and
 lifecycle use the global snapshot revision. Promotion writes replace the list.
-Ending an event deletes its promotions; an ended event cannot be restarted via
-the current API. Do not run lifecycle tests on real events just to generate load.
+Ending an event deletes its promotions. An ended event can be started again
+after the track has no running event; do not run lifecycle tests on real events
+just to generate load.
 An API snapshot is not a complete database backup and restoring occupancy values
 still creates new revisions, timestamps, audit rows and broadcasts.
 

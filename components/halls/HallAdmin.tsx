@@ -151,18 +151,29 @@ function EventControls({
   pending: boolean;
 }) {
   const [selected, setSelected] = useState("");
+  const statusOf = (id: string) =>
+    snapshot.sessions.find((e) => e.session === id)?.status;
   const available = agenda
     .filter(
       (s) =>
         s.track === card.zone.id &&
         s.type !== "break" &&
-        !snapshot.sessions.some((e) => e.session === s.id),
+        statusOf(s.id) !== "started",
     )
     .sort(
       (a, b) =>
         Date.parse(a.start) - Date.parse(b.start) || a.id.localeCompare(b.id),
     );
-  const suggested = card.phase === "current" ? card.next : card.primary;
+  const lastEnded = [...(snapshot.sessions ?? [])]
+    .filter(
+      (e) =>
+        e.status === "ended" && available.some((s) => s.id === e.session),
+    )
+    .sort((a, b) => (b.updated_at ?? 0) - (a.updated_at ?? 0))[0];
+  const suggested =
+    card.phase === "current"
+      ? card.next
+      : (card.primary ?? available.find((s) => s.id === lastEnded?.session));
   const choices = [...available].sort(
     (a, b) => Number(b.id === suggested?.id) - Number(a.id === suggested?.id),
   );
@@ -197,11 +208,14 @@ function EventControls({
               onChange={(e) => setSelected(e.target.value)}
               className="mt-2 min-h-11 w-full min-w-0 rounded-lg border border-paper/20 bg-surface p-2"
             >
-              {!choices.length && <option value="">All events ended</option>}
+              {!choices.length && (
+                <option value="">No events on this track</option>
+              )}
               {choices.map((s, i) => (
                 <option key={s.id} value={s.id}>
                   {i === 0 ? "Next in order · " : ""}
                   {s.title}
+                  {statusOf(s.id) === "ended" ? " (ended)" : ""}
                 </option>
               ))}
             </select>
@@ -225,6 +239,7 @@ function EventControls({
       )}
       <p className="mt-2 text-xs text-paper/60">
         Events change only when started or ended here. Occupancy carries over.
+        Ended events stay in this list and can be started again.
       </p>
     </div>
   );
