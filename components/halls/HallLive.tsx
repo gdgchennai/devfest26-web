@@ -38,11 +38,20 @@ export function HallLive({
   const displayed = order.length
     ? order.map((id) => cards.find((c) => c.zone.id === id)).filter((c) => !!c)
     : cards;
-  const sessionButton = (s: AgendaSession | undefined, label: string) => (
+  const sessionButton = (s: AgendaSession | undefined, label: string, live = false) => (
     <div className="min-w-0">
-      <p className="mb-2 text-xs uppercase tracking-wide text-paper/60">
-        {label}
-      </p>
+      {live ? (
+        <p className="mb-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-red/40 bg-red-pastel px-2.5 py-1 text-xs font-bold uppercase tracking-widest text-ink">
+            <span aria-hidden="true" className="size-2 rounded-full bg-red" />
+            {label}
+          </span>
+        </p>
+      ) : (
+        <p className="mb-2 text-xs uppercase tracking-wide text-paper/60">
+          {label}
+        </p>
+      )}
       {s ? (
         <>
           <button
@@ -184,11 +193,12 @@ export function HallLive({
                   s,
                   s
                     ? c.phase === "current"
-                      ? "On now"
+                      ? "LIVE"
                       : c.phase === "gap"
                         ? "Coming up · between sessions"
                         : "Not started · coming up"
                     : "Track finished",
+                  !!s && c.phase === "current",
                 )}
               </div>
               <div className="hall-occupancy mt-5 lg:mt-0">
