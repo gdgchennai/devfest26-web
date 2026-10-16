@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getAccess, manageableTracks, canViewPeople, DEV_ADMIN_ACCESS } from "@/lib/admin";
+import { getAccess, manageableTracks, canViewPeople } from "@/lib/admin";
 import { getAgenda, getSpeakers } from "@/lib/content";
 import { getSessionStatuses, type SessionStatus } from "@/lib/session-status";
 import { sessionKey } from "@/lib/session-key";
@@ -23,28 +23,13 @@ export const metadata: Metadata = pageMetadata({
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminHallsPage(props: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const searchParams = await props.searchParams;
-  const isDevFlag =
-    process.env.NODE_ENV === "development" &&
-    (process.env.DEV_ADMIN === "true" ||
-      process.env.DEV_ADMIN === "1" ||
-      searchParams?.dev_admin === "true" ||
-      searchParams?.dev === "1");
-
-  let access = null;
-  if (isDevFlag) {
-    access = DEV_ADMIN_ACCESS;
-  } else {
-    const session = await auth();
-    if (!session?.user?.uid) {
-      redirect(`/signin?callbackUrl=${encodeURIComponent("/admin/halls")}`);
-    }
-    access = await getAccess(session.user.uid);
+export default async function AdminHallsPage() {
+  const session = await auth();
+  if (!session?.user?.uid) {
+    redirect(`/signin?callbackUrl=${encodeURIComponent("/admin/halls")}`);
   }
 
+  const access = await getAccess(session.user.uid);
   if (!access) {
     redirect("/");
   }
