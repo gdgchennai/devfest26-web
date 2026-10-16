@@ -45,55 +45,98 @@ export default {
 } satisfies ExportedHandler<Env>;
 
 export class HallCoordinator extends DurableObject<Env> {
-  // blockConcurrencyWhile below serializes snapshot+subscribe, D1 commits and publication.
-  // No authoritative state in memory: reconstruction reads D1 and durable rate counters.
-  async fetch(request: Request): Promise<Response> {
-    return this.ctx.blockConcurrencyWhile(async () => {
-      try {
-        const path = new URL(request.url).pathname;
-        if (request.method === "GET" && path === "/socket")
-          return await this.subscribe(request);
-        if (request.method === "GET" && path === "/snapshot") {
-          await this.limit("public", 6000);
-          return json(await this.snapshot());
-        }
-        if (request.method === "POST" && path === "/access") {
-          const actor = (await request.json()) as HallActor;
-          return json({ actor, zones: await this.zones(actor) });
-        }
-        if (request.method !== "POST" || path !== "/write")
-          throw new Rejected(404, "Not found");
-        if (Number(request.headers.get("content-length") ?? 0) > 16384)
-          throw new Rejected(413, "Payload too large");
-        const text = await request.text();
-        if (text.length > 16384) throw new Rejected(413, "Payload too large");
-        const { actor, mutation, failPublication } = JSON.parse(text);
-        if (
-          !actor ||
-          typeof actor.id !== "string" ||
-          !actor.id ||
-          typeof actor.organizer !== "boolean"
-        )
-          throw new Rejected(401, "Unauthorized");
-        await this.limit(
-          `actor:${actor.id}`,
-          this.env.HALL_LOCAL_TEST === "1" && this.env.HALL_LOAD_TEST === "1"
-            ? 2000
-            : 90,
+  private current: HallSnapshot | null = null;
+  private ready: Promise<void> | null = null;
+  private writes: Promise<unknown> = Promise.resolve();
+  private limitBucket = -1;
+
+  // D1 is persistent truth. Rebuild once per instance, including after hibernation.
+  // Lazy initialization also lets isolated fixtures apply migrations before first use.
+  private initialize() {
+    return (this.ready ??= this.ctx.blockConcurrencyWhile(async () => {
+      this.ctx.storage.sql.exec(`CREATE TABLE IF NOT EXISTS hall_rate_limits (
+        key TEXT PRIMARY KEY, bucket INTEGER NOT NULL, count INTEGER NOT NULL)`);
+      // Carry over counters from the earlier KV implementation on first deployment.
+      const legacy =
+        await this.ctx.storage.get<
+          Record<string, { bucket: number; count: number }>
+        >("limits");
+      for (const [key, value] of Object.entries(legacy ?? {}))
+        this.ctx.storage.sql.exec(
+          "INSERT OR IGNORE INTO hall_rate_limits VALUES(?,?,?)",
+          key,
+          value.bucket,
+          value.count,
         );
-        return await this.write(actor, mutation, failPublication === true);
-      } catch (e) {
-        if (e instanceof Rejected) {
-          const r = json({ error: e.message }, e.status);
-          if (e.status === 429) r.headers.set("Retry-After", "60");
-          return r;
-        }
-        if (e instanceof SyntaxError)
-          return json({ error: "Invalid JSON" }, 400);
-        console.error("Hall coordinator failure", e);
-        return json({ error: "Hall service unavailable" }, 503);
+      if (legacy) await this.ctx.storage.delete("limits");
+      this.current = await this.readSnapshot();
+      // Recover a commit made before the previous instance could publish it.
+      const pending = await this.env.DB.prepare(
+        "SELECT revision FROM hall_outbox WHERE id=1",
+      ).first();
+      if (pending) await this.publish(this.current);
+    }));
+  }
+
+  // Only writers and alarm recovery queue behind remote D1 I/O. Readers remain
+  // available with the last committed revision; a subsequent publish reaches them.
+  private exclusive<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.writes.then(operation);
+    this.writes = result.catch(() => {});
+    return result;
+  }
+
+  private snapshot(): HallSnapshot {
+    if (!this.current) throw new Error("Hall state not initialized");
+    return { ...this.current, serverNow: this.current.clock ?? Date.now() };
+  }
+  async fetch(request: Request): Promise<Response> {
+    try {
+      await this.initialize();
+      const path = new URL(request.url).pathname;
+      if (request.method === "GET" && path === "/socket")
+        return await this.subscribe(request);
+      if (request.method === "GET" && path === "/snapshot") {
+        this.limit("public", 6000);
+        return json(this.snapshot());
       }
-    });
+      if (request.method === "POST" && path === "/access") {
+        const actor = (await request.json()) as HallActor;
+        return json({ actor, zones: await this.zones(actor) });
+      }
+      if (request.method !== "POST" || path !== "/write")
+        throw new Rejected(404, "Not found");
+      if (Number(request.headers.get("content-length") ?? 0) > 16384)
+        throw new Rejected(413, "Payload too large");
+      const text = await request.text();
+      if (text.length > 16384) throw new Rejected(413, "Payload too large");
+      const { actor, mutation, failPublication } = JSON.parse(text);
+      if (
+        !actor ||
+        typeof actor.id !== "string" ||
+        !actor.id ||
+        typeof actor.organizer !== "boolean"
+      )
+        throw new Rejected(401, "Unauthorized");
+      this.limit(
+        `actor:${actor.id}`,
+        this.env.HALL_LOCAL_TEST === "1" && this.env.HALL_LOAD_TEST === "1"
+          ? 2000
+          : 90,
+      );
+      return await this.exclusive(() =>
+        this.write(actor, mutation, failPublication === true),
+      );
+    } catch (e) {
+      if (e instanceof Rejected) {
+        const r = json({ error: e.message }, e.status);
+        if (e.status === 429) r.headers.set("Retry-After", "60");
+        return r;
+      }
+      if (e instanceof SyntaxError) return json({ error: "Invalid JSON" }, 400);
+      console.error("Hall coordinator failure", e);
+      return json({ error: "Hall service unavailable" }, 503);
+    }
   }
   async zones(actor: HallActor): Promise<string[]> {
     if (actor.organizer) return hallZones.map((z) => z.id);
@@ -113,36 +156,60 @@ export class HallCoordinator extends DurableObject<Env> {
       .all<{ zone: string }>();
     return leads.results.map((z) => z.zone);
   }
-  async limit(key: string, maximum: number) {
+  limit(key: string, maximum: number) {
+    // Synchronous SQLite read/check/write cannot interleave. Output gates persist
+    // counters before sending responses, without an async KV round trip per viewer.
     const bucket = Math.floor(Date.now() / 60000);
-    // Bounded map, persisted in SQLite storage, no dependence on venue IP addresses.
-    const counters =
-      (await this.ctx.storage.get<
-        Record<string, { bucket: number; count: number }>
-      >("limits")) ?? {};
-    for (const k of Object.keys(counters))
-      if (counters[k].bucket !== bucket) delete counters[k];
-    const current = counters[key]?.count ?? 0;
-    if (current >= maximum || Object.keys(counters).length > 2000)
+    const sql = this.ctx.storage.sql;
+    if (this.limitBucket !== bucket) {
+      sql.exec("DELETE FROM hall_rate_limits WHERE bucket<>?", bucket);
+      this.limitBucket = bucket;
+    }
+    const existing = sql
+      .exec<{ count: number }>(
+        "SELECT count FROM hall_rate_limits WHERE key=?",
+        key,
+      )
+      .toArray()[0];
+    if (existing && existing.count >= maximum)
       throw new Rejected(429, "Too many requests; retry in 60 seconds");
-    counters[key] = { bucket, count: current + 1 };
-    await this.ctx.storage.put("limits", counters);
+    if (
+      !existing &&
+      sql.exec<{ n: number }>("SELECT count(*) n FROM hall_rate_limits").one()
+        .n >= 2000
+    )
+      throw new Rejected(429, "Too many requests; retry in 60 seconds");
+    sql.exec(
+      "INSERT INTO hall_rate_limits VALUES(?,?,1) ON CONFLICT(key) DO UPDATE SET count=count+1",
+      key,
+      bucket,
+    );
   }
-  async snapshot(): Promise<HallSnapshot> {
-    const meta = await this.env.DB.prepare(
-      "SELECT revision,clock FROM hall_meta WHERE id=1",
-    ).first<{ revision: number; clock: number | null }>();
+  async readSnapshot(): Promise<HallSnapshot> {
+    // One D1 batch reduces cross-region round trips and reads one consistent state.
+    const rows = await this.env.DB.batch([
+      this.env.DB.prepare("SELECT revision,clock FROM hall_meta WHERE id=1"),
+      this.env.DB.prepare(
+        "SELECT zone,occupied,revision,updated_at FROM hall_occupancy",
+      ),
+      this.env.DB.prepare(
+        "SELECT session,recommended,position FROM hall_promotions",
+      ),
+      this.env.DB.prepare(
+        "SELECT session,status,updated_at FROM hall_sessions",
+      ),
+    ]);
+    const meta = rows[0].results[0] as
+      { revision: number; clock: number | null } | undefined;
     if (!meta) throw new Error("Apply hall migrations first");
     const now = meta.clock ?? Date.now();
-    const occupancy = await this.env.DB.prepare(
-      "SELECT zone,occupied,revision,updated_at FROM hall_occupancy",
-    ).all<HallSnapshot["occupancy"][number]>();
-    const promotions = await this.env.DB.prepare(
-      "SELECT session,recommended,position FROM hall_promotions",
-    ).all<{ session: string; recommended: number; position: number | null }>();
-    const sessions = await this.env.DB.prepare(
-      "SELECT session,status,updated_at FROM hall_sessions",
-    ).all<HallSnapshot["sessions"][number]>();
+    const occupancy = rows[1] as D1Result<HallSnapshot["occupancy"][number]>;
+    const promotions = rows[2] as D1Result<{
+      session: string;
+      recommended: number;
+      position: number | null;
+    }>;
+    const sessions = rows[3] as D1Result<HallSnapshot["sessions"][number]>;
     return {
       sessions: sessions.results,
       revision: meta.revision,
@@ -160,20 +227,22 @@ export class HallCoordinator extends DurableObject<Env> {
         .map((p) => ({ ...p, recommended: !!p.recommended })),
     };
   }
-  async subscribe(request: Request) {
+  subscribe(request: Request) {
     if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket")
       throw new Rejected(426, "WebSocket required");
     const origin = request.headers.get("Origin");
     if (origin && origin !== new URL(request.url).origin)
       throw new Rejected(403, "Origin rejected");
-    await this.limit("connections", 6000);
+    this.limit("connections", 6000);
     if (this.ctx.getWebSockets().length >= 2000)
       throw new Rejected(503, "Connection capacity reached");
-    const snapshot = await this.snapshot();
+    // No await from reading current through accepting/sending. Publication likewise
+    // installs and broadcasts synchronously: subscribe before it gets the broadcast,
+    // subscribe after it gets the new initial snapshot. No missed-update window.
+    const snapshot = this.snapshot();
     const pair = new WebSocketPair();
     this.ctx.acceptWebSocket(pair[1]);
     pair[1].send(JSON.stringify(snapshot));
-    await this.schedule(snapshot);
     return new Response(null, { status: 101, webSocket: pair[0] });
   }
   async write(
@@ -187,7 +256,8 @@ export class HallCoordinator extends DurableObject<Env> {
       Number(mutation.expected) < 0
     )
       throw new Rejected(400, "Expected revision required");
-    const state = await this.snapshot();
+    // Fresh D1 read also reconciles an ambiguous failure in an earlier commit.
+    const state = await this.readSnapshot();
     const db = this.env.DB;
     const statements: D1PreparedStatement[] = [];
     if (mutation.kind === "occupancy") {
@@ -365,7 +435,8 @@ export class HallCoordinator extends DurableObject<Env> {
         throw new Rejected(409, "Concurrent write; resnapshot and retry");
       throw e;
     }
-    const committed = await this.snapshot();
+    const committed = await this.readSnapshot();
+    this.current = committed;
     // Explicit local fault injection; never available in the production environment.
     if (!(failPublication && this.env.HALL_LOCAL_TEST === "1")) {
       try {
@@ -377,6 +448,7 @@ export class HallCoordinator extends DurableObject<Env> {
     return json(committed);
   }
   async publish(state: HallSnapshot) {
+    this.current = state;
     const message = JSON.stringify(state);
     for (const socket of this.ctx.getWebSockets()) {
       try {
@@ -391,9 +463,9 @@ export class HallCoordinator extends DurableObject<Env> {
     await this.env.DB.prepare("DELETE FROM hall_outbox WHERE revision<=?")
       .bind(state.revision)
       .run();
-    await this.schedule(state);
+    await this.schedule();
   }
-  async schedule(state: HallSnapshot) {
+  async schedule() {
     const pending = await this.env.DB.prepare(
       "SELECT revision FROM hall_outbox WHERE id=1",
     ).first();
@@ -404,10 +476,11 @@ export class HallCoordinator extends DurableObject<Env> {
     await this.ctx.storage.deleteAlarm();
   }
   async alarm() {
-    await this.ctx.blockConcurrencyWhile(async () => {
+    await this.initialize();
+    await this.exclusive(async () => {
       // Persist next retry before attempting D1, so errors cannot strand the outbox.
       await this.ctx.storage.setAlarm(Date.now() + 5000);
-      await this.publish(await this.snapshot());
+      await this.publish(await this.readSnapshot());
     });
   }
   webSocketMessage(socket: WebSocket, message: string | ArrayBuffer) {
