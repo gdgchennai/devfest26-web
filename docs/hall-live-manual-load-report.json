@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-15T04:45:15.335Z",
+  "clients": 1400,
+  "acceptedConnections": 1700,
+  "authorizedChanges": 500,
+  "setupClockWrites": 1,
+  "lifecycleWrites": 2,
+  "healthyBroadcastGaps": 0,
+  "updatesSequential": true,
+  "finalRevision": 2071,
+  "missed": 0,
+  "unexpectedDisconnects": 0,
+  "disconnectEvents": 300,
+  "reconnects": 300,
+  "conflicts": 0,
+  "unauthorizedRejected": 3,
+  "transportRetries": 0,
+  "duplicates": 300,
+  "outOfOrder": 0,
+  "propagationMs": {
+    "p50": 61.32,
+    "p95": 93.63,
+    "p99": 117.93
+  },
+  "samples": 704500,
+  "elapsedSeconds": 204.887,
+  "soakSeconds": 120,
+  "loadGeneratorRSS": 389758976,
+  "loadGeneratorCPUms": 35035.354
+}

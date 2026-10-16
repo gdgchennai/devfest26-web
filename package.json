@@ -21,7 +21,16 @@
     "worker:ticketing:dev": "wrangler dev -c workers/ticketing/wrangler.jsonc --persist-to .wrangler/state",
     "worker:ticketing:deploy": "wrangler deploy -c workers/ticketing/wrangler.jsonc",
     "worker:ticketing:types": "wrangler types -c workers/ticketing/wrangler.jsonc --env-interface Env workers/ticketing/worker-configuration.d.ts",
-    "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit"
+    "worker:ticketing:check": "tsc -p workers/ticketing/tsconfig.json --noEmit",
+    "hall:build": "AGENDA_READY=true NEXT_PUBLIC_HALL_ISOLATED=1 opennextjs-cloudflare build -c wrangler.hall-local.jsonc --openNextConfigPath open-next.hall.config.ts",
+    "hall:dev": "wrangler dev -c wrangler.hall-local.jsonc -c workers/hall-live/wrangler.local.jsonc --ip 127.0.0.1 --port 8787 --persist-to .wrangler/hall-state",
+    "hall:migrate": "wrangler d1 migrations apply hall-live-local --local -c workers/hall-live/wrangler.local.jsonc --persist-to .wrangler/hall-state",
+    "hall:seed": "wrangler d1 execute hall-live-local --local -c workers/hall-live/wrangler.local.jsonc --persist-to .wrangler/hall-state --file scripts/hall-live/seed.sql",
+    "hall:check": "tsc -p workers/hall-live/tsconfig.json --noEmit",
+    "hall:test": "node scripts/hall-live/test.mjs",
+    "hall:load": "node scripts/hall-live/load.mjs",
+    "hall:bundle": "AGENDA_READY=true NEXT_PUBLIC_HALL_ISOLATED=1 opennextjs-cloudflare build -c wrangler.hall-local.jsonc --openNextConfigPath open-next.hall.config.ts --skipNextBuild",
+    "hall:dev:load": "wrangler dev -c wrangler.hall-local.jsonc -c workers/hall-live/wrangler.load.jsonc --ip 127.0.0.1 --port 8787 --persist-to .wrangler/hall-state"
   },
   "dependencies": {
     "@block65/webcrypto-web-push": "^2.0.0",

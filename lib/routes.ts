@@ -29,6 +29,7 @@ export const AGENDA_READY = process.env.AGENDA_READY === "true";
 
 export const siteRoutes: SiteRoute[] = [
   { href: "/", label: "Home", description: "Tracks, schedule preview and the lineup.", inNav: true },
+  { href: "/live", label: "Live", description: "Live track occupancy and current sessions.", inNav: true },
   ...(AGENDA_READY
     ? [
         { href: "/agenda", label: "Agenda", description: "The full schedule for the day.", inNav: true },

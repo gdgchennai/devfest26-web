@@ -19,6 +19,7 @@ import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { OG_IMAGE, siteDescription } from "@/lib/seo";
 import { CtaTracker } from "@/components/CtaTracker";
 import { PostHogIdentify } from "@/components/PostHogIdentify";
+import { HallAvailability } from "@/components/halls/HallAvailability";
 
 // Google Sans from fonts.googleapis.com (not next/font). next/font/google
 // self-hosts the files and has no fallback metrics for this family, which
@@ -186,9 +187,10 @@ export default function RootLayout({
         {/* Takes the preloader above back down on every route. Must live here,
             not in a page-level component — see BootPreloaderRelease. */}
         <BootPreloaderRelease />
+        <HallAvailability />
         <AuthProvider>
-          <PostHogIdentify />
-          <PushPrompt />
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PostHogIdentify />}
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <PushPrompt />}
           <FavoritesProvider>
             <HeaderTitleProvider>
               <MotionProvider>
@@ -197,7 +199,7 @@ export default function RootLayout({
               route-transition interceptor — see CtaTracker. */}
           <CtaTracker />
           {/* Silently caches the daily crossword puzzle in localStorage for 24 hours */}
-          <CrosswordPreloader />
+          {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <CrosswordPreloader />}
           {/* Both mount unconditionally; which one is visible is a pure CSS
               gate on `html.lite` (see .nav-hamburger-only/.nav-lite-only in
               app/globals.css) so there's no hydration flash. Full mode gets
@@ -218,7 +220,7 @@ export default function RootLayout({
           </FavoritesProvider>
         </AuthProvider>
       </body>
-      <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />
+      {process.env.NEXT_PUBLIC_HALL_ISOLATED !== "1" && <GoogleAnalytics gaId={siteConfig.analytics.measurementId} />}
     </html>
   );
 }

@@ -742,3 +742,7 @@ still sitting in the repo, unread by any code; revisit it only if the FAQ sectio
 - **`public/venue-lines.svg` is 586 KB**, fetched client-side on every homepage visit for a
   decorative draw-in the reduced-motion path never uses. An SVGO pass over its 2203 path segments
   would likely halve it.
+
+## Track occupancy / hall live
+
+`/live` and `/admin/halls` share per-track event cards. Current/next events are manually started and ended by assigned admins/leads; clock times are informational. Occupancy persists across events. Only `ADMIN_EMAILS` super-admins recommend/pin/reorder events; production track grants come from `user_track_roles`, through the existing access helpers. Stable session IDs, additive D1 lifecycle/occupancy tables, atomic audit/outbox batches, and an event-level hibernating Durable Object drive revisioned snapshots over WebSockets. The isolated local preview and production integration requirements are in [hall availability](docs/hall-availability.md).

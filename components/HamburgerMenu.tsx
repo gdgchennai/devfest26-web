@@ -352,9 +352,9 @@ export function HamburgerMenu() {
         {navRoutes
           .filter((route) => route.href !== "/")
           .map((route) => (
-            <div key={route.href} data-menu-item>
+            <div key={route.href} data-menu-item data-hall-live-link={route.href === "/live" ? "" : undefined}>
               <Link href={route.href} onClick={close} className="text-paper/90 hover:text-paper">
-                <RollingText>{route.label}</RollingText> →
+                {route.href === "/live" && <span aria-hidden="true" className="mr-2 inline-block h-2 w-2 rounded-full bg-red" />}<RollingText>{route.label}</RollingText> →
               </Link>
             </div>
           ))}

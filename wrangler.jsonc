@@ -1,17 +1,25 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
-	"name": "devfest-chennai-2026",
+	"main": "workers/hall-live/gateway.ts",
+	"name": "devfest-hall-availability-test",
+	"account_id": "dbf439e411a3a8835d7880c3ff047b9e",
 	"compatibility_date": "2026-08-27",
-	// Custom domain — declared here so `wrangler deploy` keeps it attached
-	// (it was first added via the dashboard; without this line every deploy
-	// would detach it). Zone `gdgchennai.in`.
-	"routes": [
-		{ "pattern": "devfest.gdgchennai.in", "custom_domain": true }
-	],
-	// Wrangler defaults workers_dev to false whenever routes is set —
-	// force it on so the *.workers.dev URL stays active alongside the custom domain.
+	// Availability branch deploys only to its own workers.dev hostname.
+	// The main branch owns devfest.gdgchennai.in.
+	"routes": [],
 	"workers_dev": true,
+	// Preserve dashboard emergency toggles on later CLI deployments.
+	"keep_vars": true,
+	// Preserve the existing dashboard monitoring settings on CLI deployments.
+	"observability": {
+		"enabled": true,
+		"issues": { "enabled": true },
+		"logs": { "enabled": true },
+		"traces": { "enabled": true }
+	},
+	"vars": {
+		"NEXT_INC_CACHE_R2_PREFIX": "hall-availability-test"
+	},
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
@@ -25,7 +33,16 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "devfest-chennai-2026"
+			"service": "devfest-hall-availability-test"
+		},
+		{
+			"binding": "HALL_CONTROL",
+			"service": "devfest-hall-live",
+			"entrypoint": "HallControl"
+		},
+		{
+			"binding": "HALL_PUBLIC",
+			"service": "devfest-hall-live"
 		}
 	],
 	"d1_databases": [
@@ -58,6 +75,20 @@
 		"binding": "IMAGES"
 	},
 	"previews": {
+		"vars": {
+			"NEXT_INC_CACHE_R2_PREFIX": "hall-availability-test"
+		},
+		"services": [
+			{
+				"binding": "HALL_CONTROL",
+				"service": "devfest-hall-live",
+				"entrypoint": "HallControl"
+			},
+			{
+				"binding": "HALL_PUBLIC",
+				"service": "devfest-hall-live"
+			}
+		],
 		"d1_databases": [
 			{
 				"binding": "DB",
@@ -78,7 +109,7 @@
 				{
 					"name": "WORKER_SELF_REFERENCE",
 					"type": "service",
-					"service": "devfest-chennai-2026",
+					"service": "devfest-hall-availability-test",
 					"environment": "production"
 				}
 			]

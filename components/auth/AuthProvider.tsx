@@ -22,7 +22,7 @@ import { SessionProvider } from "next-auth/react";
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider refetchOnWindowFocus={false} refetchWhenOffline={false}>
+    <SessionProvider {...(process.env.NEXT_PUBLIC_HALL_ISOLATED === "1" ? {session: null} : {})} refetchOnWindowFocus={false} refetchWhenOffline={false}>
       {children}
     </SessionProvider>
   );

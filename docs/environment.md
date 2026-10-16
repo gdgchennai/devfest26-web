@@ -191,3 +191,34 @@ npm run dev
 pages fall back to `content/*.json` when D1 is empty (including `next build`).
 After applying migrations, run `npm run content:sync` so local/prod D1 match
 the JSON files.
+
+## Isolated hall preview
+
+`NEXT_PUBLIC_HALL_ISOLATED=1` is build-time only (`.env.example`); the `hall:build` script supplies it. It disables production analytics and unrelated auth/push/game effects while preserving the visual shell. Do not use it for a full-site deployment.
+
+`HALL_LOCAL_TEST=1` is a Cloudflare runtime flag (`.dev.vars.example`), supplied only by the separate local hall configs. Together with the isolated build and loopback Host it enables fixture identity cookies and a super-admin-controlled simulated IST clock for measurement age (event lifecycle is manual). Production configs must omit it. `HALL_LOAD_TEST=1` is a coordinator runtime flag supplied only by `workers/hall-live/wrangler.load.jsonc`; with local opt-in it raises the actor limiter for the reproducible 500-write load run. Neither flag should be set on a remote Worker.
+
+`HALL_CONTROL` and `HALL_PUBLIC` are service bindings, not secrets: private authenticated control and read-only public realtime service respectively. See [hall availability](hall-availability.md).
+
+### `NEXT_INC_CACHE_R2_PREFIX`
+
+- Runtime Cloudflare variable read by OpenNext's R2 incremental cache.
+- The availability branch sets `hall-availability-test` in `wrangler.jsonc`
+  (including hosted preview configuration). This keeps its cache separate from
+  the main site's default `incremental-cache` prefix in the existing R2 bucket.
+- Optional local override belongs in `.dev.vars`; no secret value is involved.
+
+### `HALL_LIVE_ENABLED`
+
+- Frontend Cloudflare runtime Text variable; missing/`true` enables Live and
+  `false` pauses it. Values are trimmed and case-insensitive.
+- Set in the frontend Worker's dashboard Variables and Secrets, then Deploy.
+  It is omitted from Wrangler `vars`; `keep_vars: true` preserves dashboard
+  emergency changes on later CLI deployments.
+- `/live` redirects temporarily to `/agenda`; new public hall sockets/snapshots
+  are rejected without contacting the backend. The status endpoint is
+  `/api/halls/availability`. Live navigation/content is hidden when paused.
+- Local override belongs in frontend `.dev.vars` (`.dev.vars.example`), using
+  the Worker preview. No Next.js rebuild is needed to toggle a deployed switch.
+- See [the emergency runbook](hall-emergency-switch.md) for existing-tab behavior,
+  the 20-second public connection fallback and Agenda prerequisites.

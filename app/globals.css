@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Runtime emergency flag is stamped by the Worker before HTML reaches the browser. */
+html[data-hall-live-enabled="false"] [data-hall-live-link],
+html[data-hall-live-enabled="false"] [data-hall-live-content] {
+  display: none !important;
+}
+
 /* Lets the browser interpolate --theme as VenueReveal scrubs it on scroll. */
 @property --theme {
   syntax: "<number>";
@@ -1798,6 +1804,16 @@ html.gpu .agenda-board-card {
   html:not(.lite) .lb-ring--you {
     animation: glow-rotate 6s linear infinite;
   }
+}
+
+/* Live cards: current/next share 3:1 space; very narrow phones stack the preview. */
+@media (min-width: 360px) and (max-width: 1023px) {
+  [data-hall-cards] article { display: grid; grid-template-columns: minmax(0,3fr) minmax(0,1fr); column-gap: 1rem; }
+  [data-hall-cards] article > :first-child { grid-column: 1 / -1; }
+  .hall-current { grid-column: 1; grid-row: 2; }
+  .hall-next { grid-column: 2; grid-row: 2; margin-top: 0; padding-top: 0; padding-left: .75rem; border-top: 0; border-left: 1px solid var(--color-paper); border-color: color-mix(in srgb, var(--paper) 10%, transparent); font-size: .75rem; overflow-wrap: anywhere; }
+  .hall-next button { font-size: .75rem; }
+  .hall-occupancy { grid-column: 1 / -1; grid-row: 3; }
 }
 
 /*

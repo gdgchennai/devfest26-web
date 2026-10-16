@@ -1,0 +1,15 @@
+{
+ "$schema":"node_modules/wrangler/config-schema.json",
+ "name":"devfest-hall-local", "main":"workers/hall-live/gateway.ts",
+ "compatibility_date":"2026-10-01", "compatibility_flags":["nodejs_compat"],
+ "workers_dev":false,
+ "assets":{"directory":".open-next/assets","binding":"ASSETS"},
+ "vars":{"HALL_LOCAL_TEST":"1"},
+ "services":[
+  {"binding":"HALL_CONTROL","service":"hall-live-local","entrypoint":"HallControl"},
+  {"binding":"HALL_PUBLIC","service":"hall-live-local"},
+  {"binding":"WORKER_SELF_REFERENCE","service":"devfest-hall-local"}
+ ],
+ "r2_buckets":[{"binding":"NEXT_INC_CACHE_R2_BUCKET","bucket_name":"hall-local-cache"}],
+ "images":{"binding":"IMAGES"}
+}

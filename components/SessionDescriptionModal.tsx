@@ -40,10 +40,12 @@ export function SessionDescriptionModal({
   session,
   speakers,
   onClose,
+  backLabel,
 }: {
   session: AgendaSession | null;
   speakers: Speaker[];
   onClose: () => void;
+  backLabel?: string;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialog(dialogRef, session !== null, onClose);
@@ -86,6 +88,7 @@ export function SessionDescriptionModal({
         </button>
 
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+          {backLabel && <button onClick={onClose} className="mb-4 min-h-11 pr-8 text-sm text-blue">← {backLabel}</button>}
           <div className="flex flex-wrap items-center gap-2 pr-8">
             {pillLabel && (
               <span className={`rounded-full px-3 py-1 text-[0.6875rem] uppercase tracking-wide text-ink ${color.bg}`}>
