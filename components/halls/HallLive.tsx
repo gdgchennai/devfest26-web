@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AgendaSession, Speaker } from "@/lib/schemas";
 import { trackCards, occupancyColor, STALE_MS } from "@/lib/hall-model";
 import { useHallLive } from "./useHallLive";
@@ -8,6 +8,10 @@ import { SessionDescriptionModal } from "@/components/SessionDescriptionModal";
 import { formatSessionTime } from "@/lib/format";
 import { LocalHallTools } from "./LocalHallTools";
 import { siteConfig, formatEventDate } from "@/site.config";
+import { rankSessionRecommendations } from "@/lib/hall-recommendation";
+import { shouldUseStaticBaseline } from "@/lib/motion-prefs";
+import { useMotion } from "@/components/motion/MotionProvider";
+import styles from "./HallLive.module.css";
 
 export function HallLive({
   agenda,
@@ -17,6 +21,29 @@ export function HallLive({
   speakers: Speaker[];
 }) {
   const { snapshot, connected, now } = useHallLive({ publicView: true });
+  const { lenisRef, staticBaseline } = useMotion();
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const [recommendation, setRecommendation] = useState<{ id: string; attempt: number } | null>(null);
+  const [recommendationMessage, setRecommendationMessage] = useState("");
+  const ranked = snapshot
+    ? rankSessionRecommendations(agenda, snapshot, now || snapshot.serverNow, connected)
+    : [];
+  const selected = ranked.find((entry) => entry.session.id === recommendation?.id);
+  const selectedId = selected?.session.id;
+  useEffect(() => {
+    if (!selectedId) return;
+    const card = Array.from(cardsRef.current?.querySelectorAll<HTMLElement>("[data-track]") ?? [])
+      .find((element) => element.querySelector("[data-recommended-title]"));
+    const title = card?.querySelector<HTMLButtonElement>("[data-recommended-title]");
+    if (!card || !title) return;
+    title.focus({ preventScroll: true });
+    const instant = shouldUseStaticBaseline();
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(title, { offset: -Math.min(window.innerHeight / 3, 220), immediate: instant });
+    } else {
+      title.scrollIntoView({ behavior: instant ? "instant" : "smooth", block: "center" });
+    }
+  }, [selectedId, recommendation?.attempt, lenisRef]);
   const [hall, setHall] = useState<string | null>(null),
     [session, setSession] = useState<AgendaSession | null>(null);
   const [restoreId, setRestoreId] = useState<string>();
@@ -59,7 +86,9 @@ export function HallLive({
               setHall(null);
               setSession(s);
             }}
-            className="min-h-11 text-left font-semibold leading-snug hover:text-blue"
+            key={selectedId === s.id ? recommendation?.attempt : undefined}
+            data-recommended-title={selectedId === s.id ? "true" : undefined}
+            className={`min-h-11 text-left font-semibold leading-snug hover:text-blue ${selectedId === s.id ? `${styles.title} ${!staticBaseline ? styles.pulse : ""}` : ""}`}
           >
             {s.title} ↗
           </button>
@@ -115,6 +144,35 @@ export function HallLive({
           </button>
         ))}
       </nav>
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={!snapshot}
+          onClick={() => {
+            const winner = ranked[0];
+            if (!winner) {
+              setRecommendation(null);
+              setRecommendationMessage("No sessions available in the next 15 minutes or started in the last 5 minutes. Explore the hall schedules above.");
+              return;
+            }
+            setRecommendation((previous) => ({ id: winner.session.id, attempt: (previous?.attempt ?? 0) + 1 }));
+            setRecommendationMessage(`Try ${winner.session.title}. ${winner.seatsKnown ? `${Math.round(winner.availability * 100)}% of seats currently available.` : "Seat availability is uncertain; check at the hall."} Select the highlighted title for details.`);
+          }}
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-blue/40 bg-blue/10 px-4 text-sm font-semibold text-blue-pastel hover:border-blue hover:bg-blue/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue disabled:opacity-50"
+        >
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
+            <circle cx="12" cy="12" r="9" />
+            <path d="m16 8-2.5 5.5L8 16l2.5-5.5L16 8Z" />
+          </svg>
+          Recommend next session
+        </button>
+        <p className="text-xs text-paper/60">A little help finding where to go next.</p>
+        <p role="status" className={selected || !recommendationMessage ? "sr-only" : "w-full text-sm text-paper/70"}>
+          {recommendation && !selected
+            ? "That recommendation is no longer available. Tap again for a new suggestion."
+            : recommendationMessage}
+        </p>
+      </div>
       {!snapshot && (
         <p role="status" className="rounded-xl border border-paper/20 p-6">
           Connecting to live track updates…
@@ -130,6 +188,7 @@ export function HallLive({
         <span>Up next</span>
       </div>
       <div
+        ref={cardsRef}
         className="space-y-3"
         onPointerEnter={() => setBusy(true)}
         onPointerLeave={() => {
@@ -150,7 +209,8 @@ export function HallLive({
           return (
             <article
               key={c.zone.id}
-              className={`rounded-xl border bg-surface p-4 lg:grid lg:grid-cols-[1fr_2fr_1.2fr_1fr] lg:items-center lg:gap-6 lg:p-5 ${c.promotion?.recommended ? "border-blue/70" : "border-paper/15"}`}
+              data-track={c.zone.id}
+              className={`scroll-mt-28 rounded-xl border bg-surface p-4 lg:grid lg:grid-cols-[1fr_2fr_1.2fr_1fr] lg:items-center lg:gap-6 lg:p-5 ${selected?.session.track === c.zone.id ? styles.recommended : c.promotion?.recommended ? "border-blue/70" : "border-paper/15"}`}
             >
               <div className="mb-4 border-b border-paper/10 pb-3 lg:mb-0 lg:border-0 lg:pb-0">
                 <button
@@ -242,6 +302,16 @@ export function HallLive({
               <div className="hall-next mt-4 border-t border-paper/10 pt-3 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
                 {sessionButton(c.next, "Up next")}
               </div>
+              {selected?.session.track === c.zone.id && (
+                <div className="col-span-2 mt-4 border-t border-blue/30 pt-3 lg:col-span-4">
+                  <p className="mb-2 text-xs font-semibold text-blue-pastel">✦ Your next session</p>
+                  {selectedId !== s?.id && selectedId !== c.next?.id && sessionButton(selected.session, "Coming up")}
+                  <p className="text-sm text-paper/70">
+                    {selected.seatsKnown ? `${Math.round(selected.availability * 100)}% of seats currently available` : "Seat availability uncertain · check at the hall"}
+                    {" · "}Select the highlighted title for details.
+                  </p>
+                </div>
+              )}
             </article>
           );
         })}
