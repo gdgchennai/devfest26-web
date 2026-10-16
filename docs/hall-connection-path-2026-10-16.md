@@ -1,6 +1,6 @@
 # Hall connection-path change — 16 October 2026
 
-This implementation follows the earlier readiness assessment. It addresses its serialized connection-startup bottleneck. It has **not been deployed or verified under hosted load**.
+This implementation follows the earlier readiness assessment. It addresses its serialized connection-startup bottleneck. The implementation was deployed to the shared private hall backend and exercised with anonymous hosted connections up to 100 clients; the 100-client reconnect phase failed. See [hosted results](hall-hosted-100-report-2026-10-16.md).
 
 ## Gate review and design
 
@@ -46,8 +46,8 @@ npx wrangler deploy --dry-run -c workers/hall-live/wrangler.jsonc
 
 The harness generates test-only subclasses/RPC hooks and fault injection in memory; these are not part of the deployable Worker. Synthetic actors bypass Auth.js only at the harness's trusted backend boundary. The target workload is anonymous public viewers: WebSocket access requires no sign-in. Google authentication is handled separately and is outside this workload. These backend measurements also exclude Next page rendering.
 
-## Hosted verification remaining
+## Hosted verification
 
 The source change is confined to the private hall backend. A deployment must use `workers/hall-live/wrangler.jsonc`; there is no need to deploy the isolated frontend build. The frontend test hostname still shares the backend and D1 with production, so a backend deployment affects both.
 
-After authorized deployment, repeat bounded read-only hosted stages at 25, 100, 500 and 1,400 clients, stopping on latency/error/convergence failure. Keep the existing p95 initial snapshot target of five seconds. Observe route-level timing, actual sockets, D1 reads, DO CPU/errors and quota headroom. Include a few authorized occupancy writes while readers join/reconnect. Capacity and venue-network reliability remain unverified until these hosted checks pass; longer client deadlines alone are not the remedy.
+Hosted anonymous read-only stages were authorized up to 100 clients; execution stopped at that limit. The 25-client stage passed. All 100 initial clients connected and held for 60 seconds, but only 98 of 100 reconnects received snapshots before the deadline, so the 100-client stage failed. Larger connection counts remain unverified. Keep the existing p95 initial snapshot target of five seconds. Observe route-level timing, actual sockets, D1 reads, DO CPU/errors and quota headroom. Include a few authorized occupancy writes while readers join/reconnect. Capacity above the measured 100 hosted clients, active-update propagation and venue-network reliability remain unverified.
