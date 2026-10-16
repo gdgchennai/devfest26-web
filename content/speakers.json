@@ -64,23 +64,6 @@
     ]
   },
   {
-    "slug": "dinoy-raj",
-    "name": "Dinoy Raj",
-    "title": "Product Engineer, Android",
-    "company": "Strollby",
-    "bio": "Dinoy Raj is a Product Engineer and Android specialist with a deep focus on building scalable, high-performance mobile experiences using Kotlin and Jetpack Compose.\nHe has shared his expertise on On-Device AI, custom launchers, and modern Android architecture at Droidcon Abu Dhabi '25, Droidcon Uganda '25, DevFest Dubai '25 and DevFest Mumbai '25. Dinoy will also be speaking at FOSSASIA 2026.",
-    "photo": "/people/dinoy-raj.webp",
-    "links": {
-      "twitter": "https://x.com/dinoy_raj",
-      "instagram": "https://www.instagram.com/dinoy__raj",
-      "linkedin": "https://linkedin.com/in/dinoy-raj/",
-      "github": null
-    },
-    "talkIds": [
-      "from-receipts-to-smart-search-productionizing-gemini-nano-on"
-    ]
-  },
-  {
     "slug": "jeeththenthar-l",
     "name": "Jeeththenthar L",
     "title": "AI Engineer",
