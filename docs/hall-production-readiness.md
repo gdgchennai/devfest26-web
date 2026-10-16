@@ -1,5 +1,10 @@
 # Hall production readiness
 
+Deployment target update: root `wrangler.jsonc` on the availability branch now
+targets `devfest-hall-availability-test`, without the production custom domain.
+The preflight below describes the earlier production rollout. For current branch
+targets and shared data, see [deployment separation](deployment.md#branch-deployment-targets).
+
 Preflight performed on 2026-10-15. Production deployment is authorized by the user, but the checks below are not a deployment record.
 
 ## Verified infrastructure

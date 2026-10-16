@@ -1,0 +1,1575 @@
+{
+  "scope": "1310 anonymous protocol viewers, two spaced real organizer edits during 300-second hold; no browser page-load or venue-network validation",
+  "finalRun": {
+    "runId": "9f28e4a7-bcaa-4a09-a9ce-057a0325fcda",
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T15:45:53.455Z",
+    "anonymousViewers": 1310,
+    "offeredUpdates": 2,
+    "localSmoke": false,
+    "requestedWriteWindowSeconds": 300,
+    "automaticSocketRetries": 55,
+    "unexpectedCloses": 215,
+    "unexpectedClosesDuringWrites": 64,
+    "connectionDrops": [
+      {
+        "client": 1216,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 11,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 38,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 486,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 529,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 402,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 494,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 543,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 635,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 658,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 657,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 285,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 203,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 156,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 406,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 446,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 520,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 238,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 149,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 541,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 244,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 33,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 225,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 269,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 346,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 327,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 572,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 542,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 710,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 410,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 502,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 466,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 235,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 636,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 651,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 801,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 681,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 964,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 850,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 947,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1004,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1132,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1115,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1107,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1073,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 911,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1265,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1280,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 937,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 926,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1284,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 979,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 796,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 853,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 901,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1121,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1144,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1272,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1229,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1045,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 631,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1243,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 500,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 552,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 62,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 714,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1187,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 808,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 653,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 431,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1089,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 495,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1249,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 414,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 306,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1032,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 369,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 12,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1090,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 350,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 399,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 396,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 755,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1227,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 444,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 334,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 106,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 180,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 201,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 326,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 626,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 283,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 695,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 731,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 290,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 224,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 784,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 692,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 179,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 113,
+        "phase": "setup",
+        "code": 1006,
+        "reason": ""
+      }
+    ],
+    "connectionRampBatchSize": 1310,
+    "regressions": 0,
+    "statuses": {
+      "200": 2
+    },
+    "jobs": [
+      {
+        "sequence": 0,
+        "actorReference": "074879e21943",
+        "zone": "d7-auditorium",
+        "expected": 138,
+        "occupied": 49,
+        "sentAt": 172596.7732,
+        "sentOffsetMs": 60000.139467,
+        "status": 200,
+        "responseMs": 2294.3225939999975,
+        "revision": 140,
+        "deliveryCheckMs": 32300.028907,
+        "exactStateMatches": 1307,
+        "revisionDistribution": {
+          "139": 3,
+          "140": 1307
+        }
+      },
+      {
+        "sequence": 1,
+        "actorReference": "3b7bd69634fd",
+        "zone": "agent-wars",
+        "expected": 139,
+        "occupied": 12,
+        "sentAt": 322596.300014,
+        "sentOffsetMs": 209999.66628099998,
+        "status": 200,
+        "responseMs": 3909.264775000047,
+        "revision": 141,
+        "deliveryCheckMs": 33916.813226,
+        "exactStateMatches": 1309,
+        "revisionDistribution": {
+          "140": 1,
+          "141": 1309
+        }
+      }
+    ],
+    "errors": [
+      "The operation was aborted due to timeout",
+      "Restoration: The operation was aborted due to timeout"
+    ],
+    "restore": [],
+    "skippedSessions": [],
+    "organizers": [
+      {
+        "session": 1,
+        "actorReference": "074879e21943",
+        "zone": "d7-auditorium"
+      },
+      {
+        "session": 2,
+        "actorReference": "3b7bd69634fd",
+        "zone": "agent-wars"
+      },
+      {
+        "session": 3,
+        "actorReference": "aae6ae8fc7a3",
+        "zone": "d7-auditorium"
+      }
+    ],
+    "effectiveWriteWindowSeconds": 300,
+    "writeRateAdjustedForAvailableActors": false,
+    "setupRecoveredAfterDrop": 1,
+    "initialized": 1310,
+    "setupHealthChecks": [
+      {
+        "round": 0,
+        "responders": 1231,
+        "failed": 79
+      },
+      {
+        "round": 1,
+        "responders": 1233,
+        "failed": 77
+      },
+      {
+        "round": 2,
+        "responders": 1269,
+        "failed": 41
+      }
+    ],
+    "initialPingResponses": 1269,
+    "initialHealthFullyResponsive": false,
+    "healthDuringHold": [
+      {
+        "offsetSeconds": 65.013311827,
+        "responders": 1287,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 125.014101876,
+        "responders": 1289,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 185.018586951,
+        "responders": 1285,
+        "open": 1307
+      },
+      {
+        "offsetSeconds": 245.01526506,
+        "responders": 1282,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 305.025866731,
+        "responders": 1237,
+        "open": 1309
+      }
+    ],
+    "minimumOpenDuringWrites": 1309,
+    "writeStartedAt": 112596.633733,
+    "committedResponsesWithinWindow": 2,
+    "writeDrainSeconds": 300.00036923700003,
+    "committedUpdates": 2,
+    "auditActors": 2,
+    "result": "FAIL",
+    "observerRevisionDistribution": {
+      "141": 1310
+    },
+    "deliveryEvidence": {
+      "continuousViewers": 1251,
+      "committedRevisions": 2,
+      "missingDeliveries": 0,
+      "samples": 2502,
+      "p50": 3368.112194000045,
+      "p95": 5213.4972340000095,
+      "p99": 9550.810320000048
+    },
+    "remainingSockets": 0,
+    "finished": "2026-10-16T15:53:19.930Z"
+  },
+  "earlierFiveMinuteRun": {
+    "runId": "1ce67c9c-75c6-4137-88e3-6bd35d8ebc7b",
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T15:37:57.737Z",
+    "anonymousViewers": 1310,
+    "offeredUpdates": 2,
+    "localSmoke": false,
+    "requestedWriteWindowSeconds": 300,
+    "automaticSocketRetries": 8,
+    "unexpectedCloses": 52,
+    "unexpectedClosesDuringWrites": 52,
+    "connectionDrops": [
+      {
+        "client": 17,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1186,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 256,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 622,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 251,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 908,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 706,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 993,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 128,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 874,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1033,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 99,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 20,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 304,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 216,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 584,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 689,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 508,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 690,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 704,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 875,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 754,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 528,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1022,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1255,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 499,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 374,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 513,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 733,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 852,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 768,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 999,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 958,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1008,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1219,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1266,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1272,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 717,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 391,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1014,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1265,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 844,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 408,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1035,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 530,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 209,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1071,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1279,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 472,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 703,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1224,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      },
+      {
+        "client": 1288,
+        "phase": "writes",
+        "code": 1006,
+        "reason": ""
+      }
+    ],
+    "connectionRampBatchSize": 1310,
+    "regressions": 0,
+    "statuses": {
+      "200": 2
+    },
+    "jobs": [
+      {
+        "sequence": 0,
+        "actorReference": "074879e21943",
+        "zone": "d7-auditorium",
+        "expected": 135,
+        "occupied": 49,
+        "sentAt": 122282.728144,
+        "sentOffsetMs": 60000.004285999996,
+        "status": 200,
+        "responseMs": 9550.129086,
+        "revision": 136,
+        "deliveryCheckMs": 39551.80485099999,
+        "exactStateMatches": 1309,
+        "revisionDistribution": {
+          "135": 1,
+          "136": 1309
+        }
+      },
+      {
+        "sequence": 1,
+        "actorReference": "3b7bd69634fd",
+        "zone": "agent-wars",
+        "expected": 133,
+        "occupied": 12,
+        "sentAt": 272287.838672,
+        "sentOffsetMs": 210005.11481399997,
+        "status": 200,
+        "responseMs": 2842.4853090000106,
+        "revision": 137,
+        "deliveryCheckMs": 32868.84411599999,
+        "exactStateMatches": 1309,
+        "revisionDistribution": {
+          "136": 1,
+          "137": 1309
+        }
+      }
+    ],
+    "errors": [
+      "Restoration: Final restoration did not converge"
+    ],
+    "restore": [
+      {
+        "zone": "d7-auditorium",
+        "status": 200,
+        "result": "Restored through API"
+      },
+      {
+        "zone": "agent-wars",
+        "status": 200,
+        "result": "Restored through API"
+      }
+    ],
+    "skippedSessions": [],
+    "organizers": [
+      {
+        "session": 1,
+        "actorReference": "074879e21943",
+        "zone": "d7-auditorium"
+      },
+      {
+        "session": 2,
+        "actorReference": "3b7bd69634fd",
+        "zone": "agent-wars"
+      },
+      {
+        "session": 3,
+        "actorReference": "aae6ae8fc7a3",
+        "zone": "d7-auditorium"
+      }
+    ],
+    "effectiveWriteWindowSeconds": 300,
+    "writeRateAdjustedForAvailableActors": false,
+    "initialized": 1310,
+    "setupHealthChecks": [
+      {
+        "round": 0,
+        "responders": 1303,
+        "failed": 7
+      },
+      {
+        "round": 1,
+        "responders": 1301,
+        "failed": 9
+      },
+      {
+        "round": 2,
+        "responders": 1302,
+        "failed": 8
+      }
+    ],
+    "initialPingResponses": 1302,
+    "initialHealthFullyResponsive": false,
+    "healthDuringHold": [
+      {
+        "offsetSeconds": 65.011401721,
+        "responders": 1303,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 125.01951819399999,
+        "responders": 1298,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 185.020486288,
+        "responders": 1299,
+        "open": 1310
+      },
+      {
+        "offsetSeconds": 245.01972274599999,
+        "responders": 1302,
+        "open": 1301
+      },
+      {
+        "offsetSeconds": 305.038039401,
+        "responders": 1265,
+        "open": 1278
+      }
+    ],
+    "minimumOpenDuringWrites": 1310,
+    "writeStartedAt": 62282.723858,
+    "committedResponsesWithinWindow": 2,
+    "writeDrainSeconds": 300.021810972,
+    "committedUpdates": 2,
+    "auditActors": 2,
+    "convergedAfterWrites": 1310,
+    "pingAfterWrites": 1258,
+    "continuousViewers": 1264,
+    "missedContinuousDeliveries": 0,
+    "propagationMs": {
+      "p50": 7472.844402000002,
+      "p95": 8791.554571000015,
+      "p99": 10336.349126999994,
+      "samples": 2528
+    },
+    "result": "FAIL",
+    "observerRevisionDistribution": {
+      "137": 43,
+      "138": 4,
+      "139": 1263
+    },
+    "deliveryEvidence": {
+      "continuousViewers": 1258,
+      "committedRevisions": 2,
+      "missingDeliveries": 0,
+      "samples": 2516,
+      "p50": 7472.844402000002,
+      "p95": 8791.561791999993,
+      "p99": 10336.349126999994
+    },
+    "remainingSockets": 0,
+    "finished": "2026-10-16T15:44:25.888Z"
+  },
+  "initialSetupAttempt": {
+    "runId": "dfb24231-c303-4184-ba47-b6994307739c",
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T15:32:57.339Z",
+    "anonymousViewers": 1310,
+    "offeredUpdates": 2,
+    "localSmoke": false,
+    "requestedWriteWindowSeconds": 300,
+    "automaticSocketRetries": 38,
+    "unexpectedCloses": 0,
+    "unexpectedClosesDuringWrites": 0,
+    "connectionDrops": [],
+    "connectionRampBatchSize": 1310,
+    "regressions": 0,
+    "statuses": {},
+    "jobs": [],
+    "errors": [
+      "Initial connectivity health failed\n\n1307 !== 1310\n"
+    ],
+    "restore": [],
+    "skippedSessions": [],
+    "organizers": [
+      {
+        "session": 1,
+        "actorReference": "074879e21943",
+        "zone": "d7-auditorium"
+      },
+      {
+        "session": 2,
+        "actorReference": "3b7bd69634fd",
+        "zone": "agent-wars"
+      },
+      {
+        "session": 3,
+        "actorReference": "aae6ae8fc7a3",
+        "zone": "d7-auditorium"
+      }
+    ],
+    "effectiveWriteWindowSeconds": 300,
+    "writeRateAdjustedForAvailableActors": false,
+    "initialized": 1310,
+    "setupHealthChecks": [
+      {
+        "round": 0,
+        "responders": 1297,
+        "failed": 13
+      },
+      {
+        "round": 1,
+        "responders": 1299,
+        "failed": 11
+      },
+      {
+        "round": 2,
+        "responders": 1307,
+        "failed": 3
+      }
+    ],
+    "initialPingResponses": 1307,
+    "result": "FAIL",
+    "observerRevisionDistribution": {
+      "135": 1310
+    },
+    "remainingSockets": 0,
+    "finished": "2026-10-16T15:34:14.103Z"
+  },
+  "abortedBatchedSetup": "Stopped before edits because runner overall timeout was insufficient; log retained at /tmp/hall-realistic-setup-attempt2.log",
+  "usageBefore": {
+    "start": "2026-10-16T00:00:00Z",
+    "end": "2026-10-16T15:31:51Z",
+    "data": {
+      "data": {
+        "viewer": {
+          "accounts": [
+            {
+              "d1AnalyticsAdaptiveGroups": [
+                {
+                  "sum": {
+                    "rowsRead": 76921,
+                    "rowsWritten": 1878
+                  }
+                }
+              ],
+              "durableObjectsInvocationsAdaptiveGroups": [
+                {
+                  "sum": {
+                    "errors": 10500,
+                    "requests": 21629
+                  }
+                }
+              ],
+              "durableObjectsPeriodicGroups": [
+                {
+                  "max": {
+                    "activeWebsocketConnections": 1750
+                  },
+                  "sum": {
+                    "duration": 196.42942847999996,
+                    "exceededCpuErrors": 0,
+                    "exceededMemoryErrors": 0,
+                    "fatalInternalErrors": 0,
+                    "rowsRead": 56307,
+                    "rowsWritten": 11366
+                  }
+                }
+              ],
+              "workersInvocationsAdaptive": [
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-hall-availability-test"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 12498
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-ticketing"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 23
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest"
+                  },
+                  "sum": {
+                    "errors": 25,
+                    "requests": 395
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-chennai-2026"
+                  },
+                  "sum": {
+                    "errors": 298,
+                    "requests": 39672
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-hall-live"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 11031
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "agentic-inbox"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 37
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-26-sponsor"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 21
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "home"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 765
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "errors": null
+    }
+  },
+  "usageAfter": {
+    "start": "2026-10-16T00:00:00Z",
+    "end": "2026-10-16T15:56:00Z",
+    "data": {
+      "data": {
+        "viewer": {
+          "accounts": [
+            {
+              "d1AnalyticsAdaptiveGroups": [
+                {
+                  "sum": {
+                    "rowsRead": 77890,
+                    "rowsWritten": 1963
+                  }
+                }
+              ],
+              "durableObjectsInvocationsAdaptiveGroups": [
+                {
+                  "sum": {
+                    "errors": 14406,
+                    "requests": 29468
+                  }
+                }
+              ],
+              "durableObjectsPeriodicGroups": [
+                {
+                  "max": {
+                    "activeWebsocketConnections": 1811
+                  },
+                  "sum": {
+                    "duration": 209.55064921599995,
+                    "exceededCpuErrors": 0,
+                    "exceededMemoryErrors": 0,
+                    "fatalInternalErrors": 0,
+                    "rowsRead": 70122,
+                    "rowsWritten": 16727
+                  }
+                }
+              ],
+              "workersInvocationsAdaptive": [
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-hall-availability-test"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 16470
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-ticketing"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 23
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest"
+                  },
+                  "sum": {
+                    "errors": 25,
+                    "requests": 395
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "__unknown__"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 50
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-chennai-2026"
+                  },
+                  "sum": {
+                    "errors": 326,
+                    "requests": 42304
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-hall-live"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 15003
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "agentic-inbox"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 38
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "devfest-26-sponsor"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 21
+                  }
+                },
+                {
+                  "dimensions": {
+                    "scriptName": "home"
+                  },
+                  "sum": {
+                    "errors": 0,
+                    "requests": 766
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "errors": null
+    }
+  },
+  "restoration": {
+    "restores": [
+      {
+        "zone": "d7-auditorium",
+        "status": 200,
+        "revision": 142
+      },
+      {
+        "zone": "agent-wars",
+        "status": 200,
+        "revision": 143
+      }
+    ],
+    "baselineRevision": 139,
+    "finalRevision": 143,
+    "valuesRestored": true,
+    "lifecycleUnchanged": true
+  },
+  "workersSubscriptionVerified": false,
+  "conservativeWorkerInvocationSum": 75070,
+  "limits": "Analytics may be sampled/delayed and include internal service invocations; not an exact billing ledger. Errors on closed long-lived streams must not all be interpreted as quota errors."
+}

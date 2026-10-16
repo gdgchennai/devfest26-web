@@ -38,3 +38,6 @@ VAPID_PRIVATE_KEY=
 # HALL_LOCAL_TEST=1
 # Coordinator load allowance ONLY; wrangler.load.jsonc raises actor writes to 2000/min.
 # HALL_LOAD_TEST=1
+
+# Optional OpenNext R2 cache namespace; availability Worker config supplies this.
+# NEXT_INC_CACHE_R2_PREFIX=hall-availability-test

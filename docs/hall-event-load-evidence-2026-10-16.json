@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-16",
+  "expectations": "hall-event-load-expectations.md",
+  "localSequential": {
+    "date": "2026-10-16T12:07:10.199Z",
+    "clients": 1520,
+    "acceptedConnections": 1820,
+    "authorizedChanges": 200,
+    "setupClockWrites": 1,
+    "lifecycleWrites": 2,
+    "healthyBroadcastGaps": 0,
+    "updatesSequential": true,
+    "finalRevision": 219,
+    "missed": 0,
+    "unexpectedDisconnects": 0,
+    "disconnectEvents": 300,
+    "reconnects": 300,
+    "conflicts": 0,
+    "unauthorizedRejected": 3,
+    "transportRetries": 0,
+    "duplicates": 300,
+    "outOfOrder": 0,
+    "propagationMs": {
+      "p50": 45.41,
+      "p95": 64.16,
+      "p99": 100.28
+    },
+    "samples": 308860,
+    "elapsedSeconds": 163.044,
+    "soakSeconds": 120,
+    "loadGeneratorRSS": 359854080,
+    "loadGeneratorCPUms": 11235.513
+  },
+  "localConcurrent": {
+    "started": "2026-10-16T12:07:16.657Z",
+    "localOnly": true,
+    "authBypassedAtTrustedBackend": true,
+    "productionActorLimit": 90,
+    "clients": 1520,
+    "actors": 20,
+    "rounds": 200,
+    "committed": 4000,
+    "conflicts": 19,
+    "statuses": {
+      "200": 4001,
+      "409": 19
+    },
+    "unexpectedCloses": 0,
+    "gaps": 0,
+    "regressions": 0,
+    "peakOpen": 1520,
+    "racePassed": true,
+    "reconnected": 300,
+    "converged": 1520,
+    "audit": {
+      "n": 4001,
+      "actors": 20
+    },
+    "soakSeconds": 120,
+    "result": "PASS",
+    "propagationMs": {
+      "p50": 48.42264999999952,
+      "p95": 81.77109200000996,
+      "p99": 97.43662700000277,
+      "samples": 6081820
+    },
+    "initialSnapshotMs": {
+      "p95": 535.6937790000084,
+      "samples": 1820
+    },
+    "elapsedSeconds": 367.233585156,
+    "loadGeneratorRSS": 1039306752
+  },
+  "hostedInitialFailure": {
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T12:01:18.915Z",
+    "clients": 25,
+    "soakSeconds": 30,
+    "readonly": true,
+    "attempts": 25,
+    "accepted": 0,
+    "unexpectedCloses": 0,
+    "errors": 25,
+    "regressions": 0,
+    "duplicates": 0,
+    "revisionGaps": 0,
+    "httpStatuses": {
+      "200": 1
+    },
+    "initialRevision": 2,
+    "result": "FAIL",
+    "error": "Initial snapshot timeout",
+    "initialSnapshotMs": {
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "samples": 0
+    },
+    "elapsedSeconds": 17.169613405,
+    "closeCodes": {
+      "1006": 25
+    },
+    "remainingSockets": 0,
+    "loadGeneratorRSS": 88195072
+  },
+  "hostedFive": {
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T12:06:42.775Z",
+    "clients": 5,
+    "soakSeconds": 10,
+    "readonly": true,
+    "attempts": 10,
+    "accepted": 10,
+    "unexpectedCloses": 0,
+    "errors": 0,
+    "regressions": 0,
+    "duplicates": 0,
+    "revisionGaps": 0,
+    "httpStatuses": {
+      "200": 2
+    },
+    "initialRevision": 2,
+    "peakOpen": 5,
+    "reconnected": 5,
+    "reconnectMs": 3684.198966,
+    "finalRevision": 2,
+    "converged": 5,
+    "result": "PASS",
+    "initialSnapshotMs": {
+      "p50": 3389.879992,
+      "p95": 3433.162124999999,
+      "p99": 3433.162124999999,
+      "samples": 10
+    },
+    "elapsedSeconds": 23.583700491,
+    "closeCodes": {
+      "1000": 10
+    },
+    "remainingSockets": 0,
+    "loadGeneratorRSS": 84557824
+  },
+  "hostedTwentyFive": {
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T12:07:24.309Z",
+    "clients": 25,
+    "soakSeconds": 30,
+    "readonly": true,
+    "attempts": 50,
+    "accepted": 50,
+    "unexpectedCloses": 0,
+    "errors": 0,
+    "regressions": 0,
+    "duplicates": 0,
+    "revisionGaps": 0,
+    "httpStatuses": {
+      "200": 2
+    },
+    "initialRevision": 2,
+    "peakOpen": 25,
+    "reconnected": 25,
+    "reconnectMs": 12820.758687000001,
+    "finalRevision": 2,
+    "converged": 25,
+    "result": "PASS",
+    "initialSnapshotMs": {
+      "p50": 12567.257696,
+      "p95": 13376.273455,
+      "p99": 13379.031796,
+      "samples": 50
+    },
+    "elapsedSeconds": 62.845654993000004,
+    "closeCodes": {
+      "1000": 50
+    },
+    "remainingSockets": 0,
+    "loadGeneratorRSS": 89395200
+  },
+  "hostedTwentyFiveAcceptance": {
+    "transport": "PASS",
+    "initialSnapshotP95TargetMs": 5000,
+    "latency": "FAIL",
+    "escalationStopped": true
+  },
+  "hostedAccess": [
+    {
+      "probe": "anonymous",
+      "status": 401
+    },
+    {
+      "probe": "forged-local-organizer-cookie",
+      "status": 401
+    }
+  ],
+  "latestRunnerLocalValidation": {
+    "target": "http://127.0.0.1:8787",
+    "started": "2026-10-16T12:08:54.993Z",
+    "clients": 25,
+    "soakSeconds": 2,
+    "readonly": true,
+    "attempts": 50,
+    "accepted": 50,
+    "unexpectedCloses": 0,
+    "errors": 0,
+    "regressions": 0,
+    "duplicates": 0,
+    "revisionGaps": 0,
+    "httpStatuses": {
+      "200": 2
+    },
+    "initialRevision": 219,
+    "peakOpen": 25,
+    "reconnected": 25,
+    "reconnectMs": 543.8004420000002,
+    "finalRevision": 219,
+    "converged": 25,
+    "result": "PASS",
+    "initialSnapshotMs": {
+      "p50": 291.82764199999974,
+      "p95": 353.04159400000003,
+      "p99": 355.355026,
+      "samples": 50
+    },
+    "transportResult": "PASS",
+    "acceptance": {
+      "initialSnapshotP95Within5s": true,
+      "reconnectWithin30s": true
+    },
+    "elapsedSeconds": 4.356681297,
+    "closeCodes": {
+      "1000": 50
+    },
+    "remainingSockets": 0,
+    "loadGeneratorRSS": 91893760
+  },
+  "accountAfter": {
+    "workerInvocationSum": 28073,
+    "d1": [
+      {
+        "sum": {
+          "rowsRead": 65772,
+          "rowsWritten": 527
+        }
+      }
+    ],
+    "durableObjects": [
+      {
+        "max": {
+          "activeWebsocketConnections": 72,
+          "memoryUsageBytes": 37687260
+        },
+        "sum": {
+          "duration": 120.94426035199997,
+          "exceededCpuErrors": 0,
+          "exceededMemoryErrors": 0,
+          "fatalInternalErrors": 0,
+          "rowsRead": 24943,
+          "rowsWritten": 326
+        }
+      }
+    ],
+    "doInvocations": [
+      {
+        "sum": {
+          "errors": 159,
+          "requests": 366
+        }
+      }
+    ]
+  },
+  "subscriptionVerified": false,
+  "hostedMutationsPerformed": 0,
+  "deployed": false,
+  "validation": {
+    "rootTypecheck": "PASS",
+    "hallTypecheck": "PASS",
+    "isolatedBuild": "PASS",
+    "newScriptsLint": "PASS",
+    "repositoryLint": {
+      "errors": 10,
+      "warnings": 4,
+      "newProblems": 0
+    },
+    "functionalSuite": "PASS after isolated rebuild",
+    "restartPersistence": "PASS revision 219"
+  }
+}

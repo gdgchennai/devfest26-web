@@ -52,7 +52,7 @@ The reference is superseded wherever it differs from the decisions above:
 Existing design evidence:
 
 - `app/layout.tsx` loads Google Sans from Google Fonts; all typography is Google Sans. No new font family.
-- `app/globals.css`: `ink`, `paper`, `surface`, `surface-raised` and brand blue/green/yellow/red/purple tokens. Use Tailwind v4 tokens, not literal hex or `bg-[var(...)]`.
+- `app/globals.css`: `ink`, `paper`, `surface`, `surface-raised` and brand blue/green/yellow/red/purple tokens. Use Tailwind v4 tokens, not literal hex or arbitrary CSS-variable background utilities.
 - `components/Card.tsx`: fine border, near-black surface, modest rounded corners, optional accent hairline.
 - `lib/track-color.ts`: track identity colors. Keep these distinct from occupancy's semantic colors.
 - `components/ArrowGlyph.tsx`: existing arrow idiom. Reuse available icon patterns; avoid adding an icon library for a few icons.

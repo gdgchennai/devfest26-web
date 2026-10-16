@@ -236,6 +236,32 @@ Local dev reads it from `workers/ticketing/.dev.vars` (template sets it to
 
 ---
 
+## Branch deployment targets
+
+On `codex/hall-availability-test`, root `wrangler.jsonc` targets the separate
+`devfest-hall-availability-test` Worker with no custom-domain routes. `main`
+retains `devfest-chennai-2026` and `devfest.gdgchennai.in`. Run `npm run deploy`
+from the intended branch checkout; a Git push alone does not deploy either site.
+Never override the availability Worker name to the production name.
+
+The availability site uses the existing D1 and private `devfest-hall-live`
+service. Authorized writes affect shared production data. Its self-reference
+points to itself, and `NEXT_INC_CACHE_R2_PREFIX=hall-availability-test` separates
+its incremental cache in the existing R2 bucket. No migration or content sync
+is needed when separating these deployment targets.
+
+Deployment separation verified on 2026-10-15: production serves `main` commit
+`93f64cc845366dd94d881a5120c20a373e8cf4e6` (Worker version
+`0d2cea81-5b50-4f12-9888-5811dfb9de34`). Production Agenda/Speakers and auth
+provider discovery returned 200; hall routes returned 404. The separate
+availability Worker returned its hall snapshot and WebSocket snapshot. No
+migrations or hall-data mutations were performed during separation.
+
+Each Worker needs its own runtime secrets. Register
+`https://devfest-hall-availability-test.gdg-chennai.workers.dev/api/auth/callback/google`
+in the Google OAuth client's authorized redirect URIs. Preserve production
+secrets; configure the new Worker separately. Local role simulation stays off.
+
 ## Deploying
 
 ### Site
@@ -364,3 +390,15 @@ collision — restart `npm run dev`.
 ## Hall live integration
 
 The `/live` and `/admin/halls` pages require the separate `devfest-hall-live` realtime Worker. Root configuration declares private `HALL_CONTROL` and read-only `HALL_PUBLIC` service bindings, and wraps OpenNext fetch to forward WebSocket upgrades. Existing D1, R2, Images, self-reference and domain bindings remain in place. Follow [production readiness](hall-production-readiness.md) before deploying. `wrangler.hall-local.jsonc`, local fixture flags and isolated bundles are never production deployment configs. Production permissions use the existing track RBAC; only super-admins manage hall priorities.
+
+
+### Hall deployment verification — 16 October 2026
+
+The private backend is serving cached-snapshot version
+`6431b79a-0023-4730-b86c-6f27d28bfe8e` at 100% (cache implementation `f122115`).
+The availability frontend is serving version
+`bf061986-e6a4-48eb-b5cb-d93ec5bf7486` at 100%, deployed through the dashboard.
+Saving/pushing the latest configuration and reports does not itself deploy them.
+No connection-recovery changes were implemented or deployed during the audit.
+See [the realistic five-minute rehearsal](hall-realistic-five-minute-report-2026-10-16.md)
+for the failed reliability checks, quota model and verified data restoration.

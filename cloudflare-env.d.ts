@@ -5,6 +5,8 @@
 // full picture any time with `npm run cf-typegen`.
 declare global {
   interface CloudflareEnv {
+    /** Separate R2 cache namespace for the hosted availability branch. */
+    NEXT_INC_CACHE_R2_PREFIX?: string;
     HALL_CONTROL?: Fetcher;
     HALL_PUBLIC?: Fetcher;
     HALL_LOCAL_TEST?: string;

@@ -79,6 +79,15 @@ npm run hall:load
 
 The load configuration only raises the coordinator's actor limit to 2000/min; validation, authorization, public limits and socket cap stay enabled. Runner defaults: 1400 independent sockets, 500 writes (400 occupancy, 100 promotion/order), two additional manual lifecycle writes, 300 reconnect surge, shared loopback IP, unauthorized cases and 120-second soak. `HALL_CLIENTS`, `HALL_CHANGES`, `HALL_SOAK_SECONDS` and `HALL_URL` customize it. Final convergence checks revision and measurement content on every connected client. Output is saved to `/tmp/hall-load-report.json`. The runner records bounded retries on transient local proxy failures for denial probes; successful writes are not silently repeated. Latencies include Next/API/D1/DO/generator work from request start to client receipt, rather than hosted network timing. See [manual event verification](hall-manual-verification.md) for current results and browser QA limitations.
 
+## Hosted availability branch
+
+Root `wrangler.jsonc` on this branch deploys the full app to
+`devfest-hall-availability-test`, without the production custom domain. The
+`main` branch owns `devfest-chennai-2026` and `devfest.gdgchennai.in`. See
+[branch deployment targets](deployment.md#branch-deployment-targets) for
+commands, shared production data, cache separation and OAuth configuration.
+The private hall backend remains `devfest-hall-live`.
+
 ## Production integration
 
 1. Apply additive migrations to the project's existing D1. Assign track admins/leads using the existing People RBAC page (`user_track_roles`); `ADMIN_EMAILS` supplies super-admin access. Do not assign production roles in `hall_leads`.
@@ -89,6 +98,8 @@ The load configuration only raises the coordinator's actor limit to 2000/min; va
 Cloudflare references checked during implementation: [hibernating WebSockets](https://developers.cloudflare.com/durable-objects/best-practices/websockets/), [D1 batches](https://developers.cloudflare.com/d1/worker-api/d1-database/), [DO pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/). Outgoing socket messages are not DO request units, but their CPU/duration still matters. Local load measurements do not establish hosted Free-tier compliance.
 
 See [production readiness](hall-production-readiness.md) for the verified prerequisites and deployment sequence. Preparing these configurations does not deploy them.
+
+Cloudflare Worker Previews require their own `previews.services` declarations for `HALL_CONTROL` and `HALL_PUBLIC`; top-level production service bindings are not inherited. These preview bindings use the production `devfest-hall-live` service and share its hall state. Authorized edits in a hosted preview therefore affect production. Updating preview configuration requires a new preview deployment; an older unique deployment URL retains its previous bindings.
 
 ## Existing Sessions page
 

@@ -199,3 +199,11 @@ the JSON files.
 `HALL_LOCAL_TEST=1` is a Cloudflare runtime flag (`.dev.vars.example`), supplied only by the separate local hall configs. Together with the isolated build and loopback Host it enables fixture identity cookies and a super-admin-controlled simulated IST clock for measurement age (event lifecycle is manual). Production configs must omit it. `HALL_LOAD_TEST=1` is a coordinator runtime flag supplied only by `workers/hall-live/wrangler.load.jsonc`; with local opt-in it raises the actor limiter for the reproducible 500-write load run. Neither flag should be set on a remote Worker.
 
 `HALL_CONTROL` and `HALL_PUBLIC` are service bindings, not secrets: private authenticated control and read-only public realtime service respectively. See [hall availability](hall-availability.md).
+
+### `NEXT_INC_CACHE_R2_PREFIX`
+
+- Runtime Cloudflare variable read by OpenNext's R2 incremental cache.
+- The availability branch sets `hall-availability-test` in `wrangler.jsonc`
+  (including hosted preview configuration). This keeps its cache separate from
+  the main site's default `incremental-cache` prefix in the existing R2 bucket.
+- Optional local override belongs in `.dev.vars`; no secret value is involved.
