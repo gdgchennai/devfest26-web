@@ -52,6 +52,16 @@ assert.equal(
   "not-started",
 );
 assert.equal(
+  cards(0).find((c) => c.zone.id === "d7-auditorium").primary.id,
+  "first",
+  "empty lifecycle shows each track's first event",
+);
+assert.equal(
+  cards(0).find((c) => c.zone.id === "d7-amphitheater").primary.id,
+  "parallel",
+  "empty lifecycle shows each track's first event",
+);
+assert.equal(
   cards(999999).find((c) => c.zone.id === "d7-auditorium").primary.id,
   "first",
   "clock does not advance events",

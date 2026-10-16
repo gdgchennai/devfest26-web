@@ -45,7 +45,8 @@ export type HallMutation =
       status: "started" | "ended";
       expected: number;
     }
-  | { kind: "clock"; now: number | null; expected: number };
+  | { kind: "clock"; now: number | null; expected: number }
+  | { kind: "reset"; expected: number };
 
 export function occupancyColor(n: number) {
   return n < 50 ? "bg-green" : n < 80 ? "bg-yellow" : "bg-red";

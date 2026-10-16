@@ -55,6 +55,7 @@ for (const [role, zone] of roles) {
       expected: 0,
     },
     { kind: "promotions", promotions: [], expected: 0 },
+    { kind: "reset", expected: 0 },
   ]) {
     const denied = await fetch(base + "/api/admin/halls", {
       method: "POST",

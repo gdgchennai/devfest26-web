@@ -510,7 +510,8 @@ export function HallAdmin({
           .filter((c) => access?.zones.includes(c.zone.id))
           .map((c) => c.zone.id),
       );
-      if (mutation.kind === "promotions") setDraft(null);
+      if (mutation.kind === "promotions" || mutation.kind === "reset")
+        setDraft(null);
       setMessage("Saved · participant view updated");
     } catch (e) {
       setMessage((e as Error).message);
@@ -604,9 +605,9 @@ export function HallAdmin({
       {access?.actor.organizer ? (
         <>
           <p className="mb-3 text-xs leading-relaxed text-paper/60">
-            Most available first by default. Pinned events take priority. Open
-            an event to edit. Use arrows, then Save priorities to publish a
-            pinned order.
+            Most available first by default. Each track shows its first event
+            until a lead starts one. Pinned events take priority. Open an event
+            to edit. Use arrows, then Save priorities to publish a pinned order.
           </p>
           <div className="sticky top-16 z-10 mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-paper/15 bg-surface px-3 py-2">
             <button
@@ -622,6 +623,23 @@ export function HallAdmin({
               className="min-h-11 rounded-lg bg-blue px-3 text-sm text-white disabled:opacity-40"
             >
               {pending ? "Saving…" : "Save priorities"}
+            </button>
+            <button
+              disabled={!snapshot || pending || !!draft || !connected}
+              onClick={() => {
+                if (
+                  !snapshot ||
+                  !window.confirm(
+                    "Clear every started and ended event, pin, recommendation and occupancy report? Each track will show its first event as upcoming.",
+                  )
+                )
+                  return;
+                setDraft(null);
+                void run({ kind: "reset", expected: snapshot.revision });
+              }}
+              className="min-h-11 rounded-lg border border-paper/20 px-3 text-sm disabled:opacity-40"
+            >
+              Reset to first events
             </button>
             {draft && (
               <button

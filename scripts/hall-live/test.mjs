@@ -270,6 +270,23 @@ r = await write({ ...lifecycle, status: "ended", expected: state.revision });
 assert.equal(r.status, 200, await r.clone().text());
 state = await r.json();
 assert.equal(
+  (await write({ kind: "reset", expected: state.revision }, "lead-tech"))
+    .status,
+  403,
+);
+r = await write({ kind: "reset", expected: state.revision });
+assert.equal(r.status, 200, await r.clone().text());
+state = await r.json();
+assert.deepEqual(state.sessions, []);
+assert.deepEqual(state.promotions, []);
+assert.deepEqual(state.occupancy, []);
+assert.equal(state.clock, null);
+assert.equal(
+  (await write({ kind: "reset", expected: 0 })).status,
+  409,
+  "stale reset is rejected",
+);
+assert.equal(
   (
     await write(
       { kind: "promotions", promotions: [], expected: state.revision },

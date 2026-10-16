@@ -16,7 +16,7 @@ type Env = {
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 const coordinator = (env: Env) =>
-  env.HALL.get(env.HALL.idFromName("devfest-chennai-2026"));
+  env.HALL.get(env.HALL.idFromName("devfest-chennai-2026-day"));
 class Rejected extends Error {
   constructor(
     public status: number,
@@ -90,14 +90,27 @@ export class HallCoordinator extends DurableObject<Env> {
     if (!this.current) throw new Error("Hall state not initialized");
     return { ...this.current, serverNow: this.current.clock ?? Date.now() };
   }
+  // Direct D1 edits (ops reset) leave an outbox revision the awake cache has
+  // not installed. Adopt it before serving readers so they do not stay on the
+  // previous in-memory snapshot.
+  private async adoptOutbox() {
+    const pending = await this.env.DB.prepare(
+      "SELECT revision FROM hall_outbox WHERE id=1",
+    ).first<{ revision: number }>();
+    if (!pending || pending.revision <= (this.current?.revision ?? 0)) return;
+    await this.publish(await this.readSnapshot());
+  }
   async fetch(request: Request): Promise<Response> {
     try {
       await this.initialize();
       const path = new URL(request.url).pathname;
-      if (request.method === "GET" && path === "/socket")
+      if (request.method === "GET" && path === "/socket") {
+        await this.exclusive(() => this.adoptOutbox());
         return await this.subscribe(request);
+      }
       if (request.method === "GET" && path === "/snapshot") {
         this.limit("public", 6000);
+        await this.exclusive(() => this.adoptOutbox());
         return json(this.snapshot());
       }
       if (request.method === "POST" && path === "/access") {
@@ -383,6 +396,16 @@ export class HallCoordinator extends DurableObject<Env> {
             .prepare("DELETE FROM hall_promotions WHERE session=?")
             .bind(session.id),
         );
+    } else if (mutation.kind === "reset") {
+      if (!actor.organizer) throw new Rejected(403, "Super admin required");
+      if (mutation.expected !== state.revision)
+        throw new Rejected(409, "Events changed. Review and retry.");
+      statements.push(
+        db.prepare("DELETE FROM hall_sessions"),
+        db.prepare("DELETE FROM hall_promotions"),
+        db.prepare("DELETE FROM hall_occupancy"),
+        db.prepare("UPDATE hall_meta SET clock=NULL WHERE id=1"),
+      );
     } else if (mutation.kind === "clock") {
       if (this.env.HALL_LOCAL_TEST !== "1" || !actor.organizer)
         throw new Rejected(403, "Local organizer only");
