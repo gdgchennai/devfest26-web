@@ -69,9 +69,13 @@ export function AgendaList({
                 </span>
               )}
 
-              {showFavorite && session.type !== "break" && (
-                <FavoriteButton session={session} />
-              )}
+              {showFavorite &&
+                (session.type !== "break" ? (
+                  <FavoriteButton session={session} />
+                ) : (
+                  // Same footprint as the star so the hall column lines up.
+                  <span aria-hidden className="hidden h-8 w-8 shrink-0 sm:block" />
+                ))}
             </li>
           );
         })}

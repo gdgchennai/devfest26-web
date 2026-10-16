@@ -200,11 +200,9 @@ function AgendaTrackList({
     onStep: (direction) => onSelectTrack(tabOptions[activeIndex + direction].slug),
   });
 
-  // Only sessions you can star: lunch, quick breaks and check-in are all
-  // type "break", the same test FavoriteButton's callers use.
-  const filtered = sessions.filter(
-    (s) => s.type !== "break" && (s.track === null || s.track === currentTrack),
-  );
+  // Lunch, quick breaks and check-in (type "break") are shown too, without a
+  // star — AgendaList skips the FavoriteButton for them.
+  const filtered = sessions.filter((s) => s.track === null || s.track === currentTrack);
 
   // The swipe surface wraps the tabs AND the list: a horizontal drag over
   // either switches track (over the tabs it must not scroll the strip
