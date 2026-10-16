@@ -63,32 +63,14 @@ export function AdminHallControl({
   const palette = trackColor(hall.track);
 
   function hallApiEndpoint() {
-    if (
-      typeof window !== "undefined" &&
-      (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
-    ) {
-      return "/api/admin/hall-status?dev_admin=true";
-    }
     return "/api/admin/hall-status";
   }
 
   function sessionApiEndpoint() {
-    if (
-      typeof window !== "undefined" &&
-      (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
-    ) {
-      return "/api/admin/session-status?dev_admin=true";
-    }
     return "/api/admin/session-status";
   }
 
   function recommendApiEndpoint() {
-    if (
-      typeof window !== "undefined" &&
-      (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
-    ) {
-      return "/api/admin/session-recommend?dev_admin=true";
-    }
     return "/api/admin/session-recommend";
   }
 

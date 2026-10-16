@@ -6,7 +6,7 @@ import { setSessionRecommended } from "@/lib/recommendations";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const access = await requireAccessApi(req);
+  const access = await requireAccessApi();
   if (access instanceof Response) return access;
 
   const body = (await req.json().catch(() => null)) as {

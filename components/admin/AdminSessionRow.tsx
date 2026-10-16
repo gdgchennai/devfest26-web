@@ -40,12 +40,7 @@ export function AdminSessionRow({
     const previous = status;
     setStatus(next);
     try {
-      const url =
-        typeof window !== "undefined" &&
-        (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
-          ? "/api/admin/session-status?dev_admin=true"
-          : "/api/admin/session-status";
-      const res = await fetch(url, {
+      const res = await fetch("/api/admin/session-status", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ sessionKey, status: next }),
@@ -67,12 +62,7 @@ export function AdminSessionRow({
     const next = !recommended;
     setRecommended(next);
     try {
-      const url =
-        typeof window !== "undefined" &&
-        (window.location.search.includes("dev_admin=true") || window.location.search.includes("dev=1"))
-          ? "/api/admin/session-recommend?dev_admin=true"
-          : "/api/admin/session-recommend";
-      const res = await fetch(url, {
+      const res = await fetch("/api/admin/session-recommend", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ sessionKey, recommended: next }),
