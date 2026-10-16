@@ -644,21 +644,15 @@
     "prerequisites": []
   },
   {
-    "id": "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems",
+    "id": "lets-have-fun-icebreaker",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:50:00+05:30",
     "end": "2026-10-17T15:15:00+05:30",
-    "title": "Tokenomics: How to Cut Token Costs in Multi-Agent AI Systems",
+    "title": "Let's have fun - Icebreaker",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Intermediate",
-    "speakerSlugs": [
-      "bhargav-patel"
-    ],
-    "description": "Multi-agent systems are easy to demo and hard to keep affordable. Every hop, orchestrator to sub-agent to tool call, adds tokens, and spend that looked trivial in a prototype can multiply once real traffic hits it. Drawing on production work building agentic RAG systems and an agentic RFP evaluator with MCP server interfaces on GCP, using Vertex AI, GKE, and observability tooling like LangSmith and Langfuse, this talk breaks down where token cost actually comes from in a multi-agent pipeline and what to do about it: auditing spend per agent, routing tasks to smaller models instead of defaulting to your biggest one, compacting and caching context instead of re-sending it at every hop, and rethinking agent topology so you are not paying for coordination that adds no value. You will leave with a framework for finding your real cost drivers and levers you can apply this week.",
-    "prerequisites": [
-      "Familiarity with LLM agents or multi-agent systems"
-    ]
+    "speakerSlugs": [],
+    "prerequisites": []
   },
   {
     "id": "deep-tech-workshop-machine-learning-the-physical-world",

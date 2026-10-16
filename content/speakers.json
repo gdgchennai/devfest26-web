@@ -64,23 +64,6 @@
     ]
   },
   {
-    "slug": "bhargav-patel",
-    "name": "Bhargav Patel",
-    "title": "AI Forward Deployed Engineer",
-    "company": "Google",
-    "bio": "Bhargav Patel is an AI Forward Deployed Engineer at Google, focused on agentic AI systems and LLM orchestration, and on the discipline of taking these systems from a working prototype to something a business can depend on in production. He has 3 peer-reviewed publications in applied machine learning and has spoken at more than 100 ML, MLOps, and AI events across India. Outside of work, he writes about AI engineering and MLOps on LinkedIn and Medium, and spends his time exploring food and anime.",
-    "photo": "/people/bhargav-patel.webp",
-    "links": {
-      "twitter": "https://x.com/0xbhargavpatel",
-      "instagram": "https://www.instagram.com/bhargav.p.patel",
-      "linkedin": "https://linkedin.com/in/bhargav-p-patel",
-      "github": null
-    },
-    "talkIds": [
-      "tokenomics-how-to-cut-token-costs-in-multi-agent-ai-systems"
-    ]
-  },
-  {
     "slug": "dinoy-raj",
     "name": "Dinoy Raj",
     "title": "Product Engineer, Android",
