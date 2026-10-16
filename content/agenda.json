@@ -128,17 +128,92 @@
     "description": "A day spent with cool creators for the entire day."
   },
   {
-    "id": "meetup-lounge",
+    "id": "community-project-showcase",
     "track": "meetup-lounge",
     "start": "2026-10-17T10:45:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Meetup Lounge",
+    "end": "2026-10-17T11:15:00+05:30",
+    "title": "Community Project Showcase",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
-    "level": "Beginner",
     "speakerSlugs": [],
-    "description": "Come and see what the community is doing.",
-    "prerequisites": []
+    "description": "Project showcases from the community"
+  },
+  {
+    "id": "meetup-fun-activity",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T11:15:00+05:30",
+    "end": "2026-10-17T11:30:00+05:30",
+    "title": "Fun Activity",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "A short break from the screens."
+  },
+  {
+    "id": "open-mic-community-discussions",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T11:30:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
+    "title": "Open Mic / Community Discussions",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "Take the mic or join the conversation with the community."
+  },
+  {
+    "id": "meetup-fun-activity-2",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:15:00+05:30",
+    "title": "Fun Activity",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "A short break from the screens."
+  },
+  {
+    "id": "community-project-showcase-2",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "Community Project Showcase",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "Community projects, shown by the people who built them."
+  },
+  {
+    "id": "meetup-fun-activity-3",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T14:45:00+05:30",
+    "title": "Fun Activity",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "A short break from the screens."
+  },
+  {
+    "id": "gdg-on-campus-meetup",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T14:45:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "GDG on Campus Meetup",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "Students and GDG on Campus organisers meet and swap notes."
+  },
+  {
+    "id": "open-mic",
+    "track": "meetup-lounge",
+    "start": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T16:15:00+05:30",
+    "title": "Open Mic",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "Take the mic. Share what you're building or learning."
   },
   {
     "id": "agent-wars-signup-qualifier",
@@ -547,19 +622,6 @@
     "type": "lounge",
     "speakerSlugs": [],
     "description": "A day spent with cool creators for the entire day."
-  },
-  {
-    "id": "meetup-lounge-2",
-    "track": "meetup-lounge",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T16:15:00+05:30",
-    "title": "Meetup Lounge",
-    "hall": "D7 Pre-Function Area",
-    "type": "lounge",
-    "level": "Beginner",
-    "speakerSlugs": [],
-    "description": "Come and see what the community is doing.",
-    "prerequisites": []
   },
   {
     "id": "agent-wars-live-tournament-finals",
