@@ -596,22 +596,15 @@
     ]
   },
   {
-    "id": "from-receipts-to-smart-search-productionizing-gemini-nano-on",
+    "id": "lets-have-fun-icebreaker-2",
     "track": "d7-auditorium",
     "start": "2026-10-17T14:25:00+05:30",
     "end": "2026-10-17T14:50:00+05:30",
-    "title": "From Receipts to Smart Search: Productionizing Gemini Nano on Android",
+    "title": "Let's have fun - Icebreaker",
     "hall": "D7 Auditorium",
     "type": "talk",
-    "level": "Intermediate",
-    "speakerSlugs": [
-      "dinoy-raj"
-    ],
-    "description": "A real-world case study on productionizing Gemini Nano in Android, covering structured outputs, OCR hallucination detection, local-to-cloud failover, and cross-app search.\nWhile on-device AI demos abound, running LLMs locally in Android apps reveals harsh realities: tight RAM limits, missing NPUs, and zero cloud safety nets.\nThis talk breaks down a real-world case study using Gemini Nano and AICore Prompt API in an enterprise travel app. We’ll cover:\n• Mapping GraphQL schemas to local structured outputs\n• Catching OCR hallucinations on receipt scans\n• Building hybrid local-to-cloud failovers\n• Cross-app entity search\nGet a hype-free blueprint for edge AI.",
-    "prerequisites": [
-      "Android development",
-      "Basic understanding of LLMs"
-    ]
+    "speakerSlugs": [],
+    "prerequisites": []
   },
   {
     "id": "deep-tech-talk-5",
