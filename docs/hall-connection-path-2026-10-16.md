@@ -51,3 +51,7 @@ The harness generates test-only subclasses/RPC hooks and fault injection in memo
 The source change is confined to the private hall backend. A deployment must use `workers/hall-live/wrangler.jsonc`; there is no need to deploy the isolated frontend build. The frontend test hostname still shares the backend and D1 with production, so a backend deployment affects both.
 
 Hosted anonymous read-only stages were authorized up to 100 clients; execution stopped at that limit. The 25-client stage passed. All 100 initial clients connected and held for 60 seconds, but only 98 of 100 reconnects received snapshots before the deadline, so the 100-client stage failed. Larger connection counts remain unverified. Keep the existing p95 initial snapshot target of five seconds. Observe route-level timing, actual sockets, D1 reads, DO CPU/errors and quota headroom. Include a few authorized occupancy writes while readers join/reconnect. Capacity above the measured 100 hosted clients, active-update propagation and venue-network reliability remain unverified.
+
+## Subsequent 500-client diagnostics
+
+A later authorized anonymous run reached and held 500 responsive sockets for 60 seconds. It passed 497/500 reconnects; three failed during TCP establishment before TLS or HTTP upgrade. See [the 500-client diagnostic report](hall-hosted-500-report-2026-10-16.md) for the deployment URL explanation, phase-level failure evidence, ping/state checks and limits of the network diagnosis.

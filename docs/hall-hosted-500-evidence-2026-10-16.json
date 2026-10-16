@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-16",
+  "backendWorker": "devfest-hall-live",
+  "backendVersion": "6431b79a-0023-4730-b86c-6f27d28bfe8e",
+  "frontendWorker": "devfest-hall-availability-test",
+  "frontendVersion": "26b39bc1-d214-46b6-9c16-3da53b780eb8",
+  "publicLiveUrl": "https://devfest-hall-availability-test.gdg-chennai.workers.dev/live",
+  "frontendLiveHttpStatus": 200,
+  "hostedApplicationMutations": 0,
+  "run": {
+    "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+    "started": "2026-10-16T13:37:30.616Z",
+    "anonymous": true,
+    "readonly": true,
+    "clients": 500,
+    "soakSeconds": 60,
+    "simultaneousArrival": true,
+    "automaticRetries": 0,
+    "unexpectedCloses": 0,
+    "regressions": 0,
+    "revisionGaps": 0,
+    "failures": [
+      {
+        "id": 585,
+        "client": 85,
+        "phase": "reconnect",
+        "startedMs": 73472.146559,
+        "socketMs": 83.80655299998762,
+        "dnsMs": 149.9430999999895,
+        "result": "FAIL",
+        "error": "15-second initial snapshot deadline exceeded",
+        "errorCode": null,
+        "failureStage": "TCP connect",
+        "elapsedMs": 15000.12823799999,
+        "closeCode": 1006,
+        "closeReason": ""
+      },
+      {
+        "id": 602,
+        "client": 102,
+        "phase": "reconnect",
+        "startedMs": 73475.588292,
+        "socketMs": 80.46335499999986,
+        "dnsMs": 182.1654639999906,
+        "result": "FAIL",
+        "error": "15-second initial snapshot deadline exceeded",
+        "errorCode": null,
+        "failureStage": "TCP connect",
+        "elapsedMs": 15001.709363999995,
+        "closeCode": 1006,
+        "closeReason": ""
+      },
+      {
+        "id": 612,
+        "client": 112,
+        "phase": "reconnect",
+        "startedMs": 73477.443086,
+        "socketMs": 78.66553499999281,
+        "dnsMs": 199.876774999997,
+        "result": "FAIL",
+        "error": "15-second initial snapshot deadline exceeded",
+        "errorCode": null,
+        "failureStage": "TCP connect",
+        "elapsedMs": 14999.962994000001,
+        "closeCode": 1006,
+        "closeReason": ""
+      }
+    ],
+    "closeCodes": {
+      "1000": 996,
+      "1006": 4
+    },
+    "httpStatuses": {
+      "200": 3
+    },
+    "initialRevision": 11,
+    "peakOpen": 500,
+    "controlPingChecks": [
+      {
+        "phase": "hold-start",
+        "attempted": 500,
+        "responded": 500
+      },
+      {
+        "phase": "hold-end",
+        "attempted": 500,
+        "responded": 500
+      },
+      {
+        "phase": "after-reconnect",
+        "attempted": 497,
+        "responded": 497
+      }
+    ],
+    "openAfterSoak": 500,
+    "convergedAfterSoak": 500,
+    "revisionAfterSoak": 11,
+    "reconnectMs": 15024.937019000005,
+    "finalRevision": 11,
+    "finalOpen": 497,
+    "finalConverged": 497,
+    "transportResult": "FAIL",
+    "phases": {
+      "initial": {
+        "attempted": 500,
+        "accepted": 500,
+        "failed": 0,
+        "metrics": {
+          "dnsMs": {
+            "p50": 401.5647389999999,
+            "p95": 894.4945890000004,
+            "p99": 933.5443969999997,
+            "samples": 500
+          },
+          "tcpMs": {
+            "p50": 574.5284490000004,
+            "p95": 1091.0139440000003,
+            "p99": 1137.997019,
+            "samples": 500
+          },
+          "tlsMs": {
+            "p50": 859.930132,
+            "p95": 1341.3505289999998,
+            "p99": 1538.178129,
+            "samples": 500
+          },
+          "upgradeMs": {
+            "p50": 2478.244193,
+            "p95": 2558.392083,
+            "p99": 2636.7737319999997,
+            "samples": 500
+          },
+          "snapshotMs": {
+            "p50": 2479.385597,
+            "p95": 2561.852879,
+            "p99": 2637.1151440000003,
+            "samples": 500
+          }
+        }
+      },
+      "reconnect": {
+        "attempted": 500,
+        "accepted": 497,
+        "failed": 3,
+        "metrics": {
+          "dnsMs": {
+            "p50": 481.5858789999911,
+            "p95": 909.9453479999938,
+            "p99": 931.573458999992,
+            "samples": 497
+          },
+          "tcpMs": {
+            "p50": 662.8659239999979,
+            "p95": 1084.0628690000012,
+            "p99": 1147.9947419999953,
+            "samples": 497
+          },
+          "tlsMs": {
+            "p50": 932.0397930000036,
+            "p95": 1390.6665129999892,
+            "p99": 2018.8817310000013,
+            "samples": 497
+          },
+          "upgradeMs": {
+            "p50": 1866.0290209999948,
+            "p95": 2468.3903589999973,
+            "p99": 3127.6673909999954,
+            "samples": 497
+          },
+          "snapshotMs": {
+            "p50": 1866.2118559999944,
+            "p95": 2471.678899999999,
+            "p99": 3128.2705600000045,
+            "samples": 497
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "allControlPingsAnswered": true,
+      "allInitialConnected": true,
+      "allHeldAndConverged": true,
+      "allReconnectedAndConverged": false,
+      "initialP95Within5s": true,
+      "reconnectWithin30s": true
+    },
+    "result": "FAIL",
+    "elapsedSeconds": 94.21019790999999,
+    "remainingSockets": 0,
+    "generator": {
+      "rss": 192843776,
+      "eventLoopDelayP99Ms": 21.086207,
+      "eventLoopDelayMaxMs": 154.664959
+    }
+  },
+  "tailSummary": {
+    "frontend": {
+      "capturedEvents": 889,
+      "outcomes": {
+        "ok": 4,
+        "responseStreamDisconnected": 225,
+        "canceled": 659,
+        "unknown": 1
+      },
+      "paths": {
+        "api/halls": 3,
+        "live": 1,
+        "api/halls/socket": 884,
+        "(non-fetch)": 1
+      },
+      "versions": {
+        "26b39bc1-d214-46b6-9c16-3da53b780eb8": 888,
+        "None": 1
+      },
+      "exceptions": [],
+      "samplingNotices": [
+        "Tail is currently in sampling mode due to the high volume of messages. To prevent messages from being dropped consider adding filters."
+      ]
+    },
+    "backend": {
+      "capturedEvents": 897,
+      "outcomes": {
+        "ok": 22,
+        "canceled": 670,
+        "responseStreamDisconnected": 205
+      },
+      "paths": {
+        "snapshot": 6,
+        "(non-fetch)": 16,
+        "socket": 875
+      },
+      "versions": {
+        "6431b79a-0023-4730-b86c-6f27d28bfe8e": 897
+      },
+      "exceptions": [],
+      "samplingNotices": []
+    }
+  },
+  "tailLimitations": "Frontend reported sampling due to high volume; captured logs are not a complete ledger. Disconnect/canceled outcomes include intentional reconnect and cleanup. No captured exceptions. Raw tails contain request headers and are retained only in a private local directory."
+}
