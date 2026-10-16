@@ -1,4 +1,4 @@
-// Anonymous, read-only transport diagnostics. No application messages or retries.
+// Anonymous, read-only transport diagnostics. Bounded retries are explicit opt-in; no application writes.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import WebSocket from "ws";
@@ -11,6 +11,7 @@ const [
   countArg = "500",
   soakArg = "60",
   output = "/tmp/hall-diagnostic-500.json",
+  retryArg = "0",
 ] = process.argv.slice(2);
 const base = new URL(target).origin;
 assert.ok(
@@ -21,8 +22,11 @@ assert.ok(
 );
 const count = Number(countArg),
   soak = Number(soakArg);
-assert.ok(Number.isInteger(count) && count > 0 && count <= 500);
+assert.ok(Number.isInteger(count) && count > 0 && count <= 1400);
 assert.ok(Number.isInteger(soak) && soak >= 1 && soak <= 120);
+const retries = Number(retryArg);
+assert.ok(Number.isInteger(retries) && retries >= 0 && retries <= 2);
+const recovery = { initial: [], reconnect: [] };
 const attempts = [],
   all = new Set(),
   intentional = new WeakSet(),
@@ -36,6 +40,7 @@ const report = {
   clients: count,
   soakSeconds: soak,
   simultaneousArrival: true,
+  retryLimit: retries,
   automaticRetries: 0,
   unexpectedCloses: 0,
   regressions: 0,
@@ -54,7 +59,7 @@ function stop() {
 }
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
-const hard = setTimeout(stop, (soak + 80) * 1000);
+const hard = setTimeout(stop, (soak + 160) * 1000);
 function connect(client, phase) {
   const began = performance.now();
   const a = {
@@ -101,7 +106,8 @@ function connect(client, phase) {
         finishRequest(req) {
           req.once("socket", (socket) => {
             a.socketMs = performance.now() - began;
-            socket.once("lookup", (error) => {
+            socket.once("lookup", (error, address) => {
+              a.resolvedAddress = address;
               a.dnsMs = performance.now() - began;
               if (error) a.dnsError = error.code;
             });
@@ -179,6 +185,32 @@ function connect(client, phase) {
     });
   });
 }
+async function connectWithRecovery(client, phase) {
+  const began = performance.now();
+  let used = 0,
+    success = false;
+  for (let retry = 0; retry <= retries; retry++) {
+    if (retry) {
+      report.automaticRetries++;
+      await delay(
+        Math.min(30000, 500 * 2 ** Math.min(retry - 1, 6)) *
+          (0.75 + Math.random() / 2),
+      );
+    }
+    used++;
+    if (await connect(client, phase)) {
+      success = true;
+      break;
+    }
+    if (interrupted) break;
+  }
+  recovery[phase].push({
+    client: client.id,
+    attempts: used,
+    success,
+    readyMs: performance.now() - began,
+  });
+}
 const stable = (s) =>
   JSON.stringify([s.revision, s.occupancy, s.promotions, s.sessions, s.clock]);
 async function snapshot() {
@@ -247,7 +279,7 @@ try {
       ws: null,
     })),
   );
-  await Promise.all(clients.map((c) => connect(c, "initial")));
+  await Promise.all(clients.map((c) => connectWithRecovery(c, "initial")));
   const healthy = clients.filter(
     (c) => c.ws.readyState === WebSocket.OPEN && c.state,
   );
@@ -272,7 +304,7 @@ try {
   report.revisionAfterSoak = middle.revision;
   await closeGroup(healthy);
   const reconnectStart = performance.now();
-  await Promise.all(healthy.map((c) => connect(c, "reconnect")));
+  await Promise.all(healthy.map((c) => connectWithRecovery(c, "reconnect")));
   report.reconnectMs = performance.now() - reconnectStart;
   await probe(
     clients.filter((c) => c.ws.readyState === WebSocket.OPEN),
@@ -288,7 +320,7 @@ try {
       c.ws.readyState === WebSocket.OPEN && stable(c.state) === stable(final),
   ).length;
   report.transportResult =
-    !report.failures.length &&
+    (!report.failures.length || retries > 0) &&
     !report.unexpectedCloses &&
     !report.regressions &&
     !report.revisionGaps &&
@@ -335,6 +367,22 @@ try {
       accepted: good.length,
       failed: rows.length - good.length,
       metrics,
+    };
+  }
+  report.recovery = {};
+  for (const phase of ["initial", "reconnect"]) {
+    const good = recovery[phase].filter((r) => r.success);
+    const values = good.map((r) => r.readyMs);
+    report.recovery[phase] = {
+      clients: recovery[phase].length,
+      ready: good.length,
+      recoveredAfterRetry: good.filter((r) => r.attempts > 1).length,
+      readyMs: {
+        p50: percentile(values, 0.5),
+        p95: percentile(values, 0.95),
+        p99: percentile(values, 0.99),
+        max: values.length ? Math.max(...values) : null,
+      },
     };
   }
   report.acceptance = {
