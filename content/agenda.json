@@ -84,10 +84,28 @@
     ]
   },
   {
-    "id": "kotlin-over-the-air-reimagining-android-kmp-app-delivery",
+    "id": "beyond-the-happy-path-production-grade-agent-guardrails-huma",
     "track": "d7-auditorium",
     "start": "2026-10-17T10:45:00+05:30",
     "end": "2026-10-17T11:10:00+05:30",
+    "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
+    "hall": "D7 Auditorium",
+    "type": "talk",
+    "level": "Intermediate",
+    "speakerSlugs": [
+      "saurabh-mishra"
+    ],
+    "description": "Practical patterns for securing, verifying, observing, auditing, and safely scaling AI agents on Google Cloud with Gemini and Vertex AI.\nThe goal is simple: build agents that don’t just work in a demo, but can be trusted in production.\nThis session explores how to move beyond the “happy path” and build AI agents that are secure, observable, and safe to operate at scale on Google Cloud.\nWe’ll look at practical patterns for implementing agent guardrails, least-privilege identity, human-in-the-loop verification, policy enforcement, and runtime protection using services & capabilities across GCP, Gemini and Vertex AI.\nGoogle Cloud provides built-in observability for agent metrics and supports tracing through OpenTelemetry, making it possible to understand agent behavior across models, tools & execution steps.\nWe’ll explore when an agent should act autonomously, when it should pause for human approval, and how to design a “fail safely” architecture when something goes wrong.",
+    "prerequisites": [
+      "Experience building AI agents",
+      "Basic Google Cloud familiarity"
+    ]
+  },
+  {
+    "id": "kotlin-over-the-air-reimagining-android-kmp-app-delivery",
+    "track": "d7-auditorium",
+    "start": "2026-10-17T11:10:00+05:30",
+    "end": "2026-10-17T11:35:00+05:30",
     "title": "Kotlin Over the Air: Reimagining Android/KMP App Delivery",
     "hall": "D7 Auditorium",
     "type": "talk",
@@ -360,8 +378,8 @@
   {
     "id": "gemma-101-fine-tuning-open-models-with-lora-transformers-and",
     "track": "d7-auditorium",
-    "start": "2026-10-17T11:10:00+05:30",
-    "end": "2026-10-17T11:35:00+05:30",
+    "start": "2026-10-17T11:35:00+05:30",
+    "end": "2026-10-17T12:00:00+05:30",
     "title": "Gemma 101: Fine-Tuning Open Models with LoRA, Transformers & Differential Privacy the Deepmind Way",
     "hall": "D7 Auditorium",
     "type": "talk",
@@ -413,8 +431,8 @@
   {
     "id": "developing-and-using-owasp-nettacker-for-security-testing",
     "track": "d7-auditorium",
-    "start": "2026-10-17T11:35:00+05:30",
-    "end": "2026-10-17T12:00:00+05:30",
+    "start": "2026-10-17T12:00:00+05:30",
+    "end": "2026-10-17T12:25:00+05:30",
     "title": "Developing and Using OWASP Nettacker for Security Testing",
     "hall": "D7 Auditorium",
     "type": "talk",
@@ -471,24 +489,6 @@
     "speakerSlugs": [],
     "description": "Talk details will be updated soon.",
     "prerequisites": []
-  },
-  {
-    "id": "beyond-the-happy-path-production-grade-agent-guardrails-huma",
-    "track": "d7-auditorium",
-    "start": "2026-10-17T12:00:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Beyond the Happy Path: Production-Grade Agent Guardrails, Human Verification, Observability on GCP",
-    "hall": "D7 Auditorium",
-    "type": "talk",
-    "level": "Intermediate",
-    "speakerSlugs": [
-      "saurabh-mishra"
-    ],
-    "description": "Practical patterns for securing, verifying, observing, auditing, and safely scaling AI agents on Google Cloud with Gemini and Vertex AI.\nThe goal is simple: build agents that don’t just work in a demo, but can be trusted in production.\nThis session explores how to move beyond the “happy path” and build AI agents that are secure, observable, and safe to operate at scale on Google Cloud.\nWe’ll look at practical patterns for implementing agent guardrails, least-privilege identity, human-in-the-loop verification, policy enforcement, and runtime protection using services & capabilities across GCP, Gemini and Vertex AI.\nGoogle Cloud provides built-in observability for agent metrics and supports tracing through OpenTelemetry, making it possible to understand agent behavior across models, tools & execution steps.\nWe’ll explore when an agent should act autonomously, when it should pause for human approval, and how to design a “fail safely” architecture when something goes wrong.",
-    "prerequisites": [
-      "Experience building AI agents",
-      "Basic Google Cloud familiarity"
-    ]
   },
   {
     "id": "rethinking-infrastructure-for-agentic-workloads",
