@@ -117,15 +117,97 @@
     "prerequisites": []
   },
   {
-    "id": "creators-lounge",
+    "id": "creators-lounge-introduction",
     "track": "creators-lounge",
-    "start": "2026-10-17T10:45:00+05:30",
-    "end": "2026-10-17T12:25:00+05:30",
-    "title": "Creators Lounge",
+    "start": "2026-10-17T11:30:00+05:30",
+    "end": "2026-10-17T11:45:00+05:30",
+    "title": "Introduction to the Event",
     "hall": "D7 Pre-Function Area",
     "type": "lounge",
     "speakerSlugs": [],
-    "description": "A day spent with cool creators for the entire day."
+    "description": "Extra activity: One-minute Gemini Prompt Challenge (no scheduled time)."
+  },
+  {
+    "id": "creators-lounge-tech-fireside-chat",
+    "track": "creators-lounge",
+    "start": "2026-10-17T11:50:00+05:30",
+    "end": "2026-10-17T12:30:00+05:30",
+    "title": "Tech Fireside Chat",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "With Hareesh, Abhishek and Ragavendar."
+  },
+  {
+    "id": "creators-lounge-creator-hot-seat",
+    "track": "creators-lounge",
+    "start": "2026-10-17T12:30:00+05:30",
+    "end": "2026-10-17T13:00:00+05:30",
+    "title": "Creator Hot Seat (All)",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-lunch-and-networking",
+    "track": "creators-lounge",
+    "start": "2026-10-17T13:00:00+05:30",
+    "end": "2026-10-17T14:00:00+05:30",
+    "title": "Lunch and Networking",
+    "hall": "D7 Pre-Function Area",
+    "type": "break",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-create-with-google-flow",
+    "track": "creators-lounge",
+    "start": "2026-10-17T14:00:00+05:30",
+    "end": "2026-10-17T14:30:00+05:30",
+    "title": "Create with Google Flow",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-youtube-vs-instagram-debate",
+    "track": "creators-lounge",
+    "start": "2026-10-17T14:30:00+05:30",
+    "end": "2026-10-17T15:00:00+05:30",
+    "title": "YouTube vs Instagram Debate (All)",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-pass-the-object",
+    "track": "creators-lounge",
+    "start": "2026-10-17T15:00:00+05:30",
+    "end": "2026-10-17T15:15:00+05:30",
+    "title": "Pass the Object",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-guess-the-creator",
+    "track": "creators-lounge",
+    "start": "2026-10-17T15:15:00+05:30",
+    "end": "2026-10-17T15:30:00+05:30",
+    "title": "Guess the Creator",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": []
+  },
+  {
+    "id": "creators-lounge-creator-fireside-chat",
+    "track": "creators-lounge",
+    "start": "2026-10-17T15:30:00+05:30",
+    "end": "2026-10-17T16:00:00+05:30",
+    "title": "Creator Fireside Chat",
+    "hall": "D7 Pre-Function Area",
+    "type": "lounge",
+    "speakerSlugs": [],
+    "description": "With Sasikumar and Raghu."
   },
   {
     "id": "meetup-lounge",
@@ -385,17 +467,6 @@
     "description": "Fuel for mind, heart and tummy!"
   },
   {
-    "id": "lunch-5",
-    "track": "creators-lounge",
-    "start": "2026-10-17T12:30:00+05:30",
-    "end": "2026-10-17T13:45:00+05:30",
-    "title": "Lunch",
-    "hall": "F&B",
-    "type": "break",
-    "speakerSlugs": [],
-    "description": "Fuel for mind, heart and tummy!"
-  },
-  {
     "id": "lunch-6",
     "track": "meetup-lounge",
     "start": "2026-10-17T12:30:00+05:30",
@@ -536,17 +607,6 @@
     "speakerSlugs": [],
     "description": "Come vibe your way",
     "prerequisites": []
-  },
-  {
-    "id": "creators-lounge-2",
-    "track": "creators-lounge",
-    "start": "2026-10-17T14:00:00+05:30",
-    "end": "2026-10-17T16:15:00+05:30",
-    "title": "Creators Lounge",
-    "hall": "D7 Pre-Function Area",
-    "type": "lounge",
-    "speakerSlugs": [],
-    "description": "A day spent with cool creators for the entire day."
   },
   {
     "id": "meetup-lounge-2",
