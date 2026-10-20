@@ -121,14 +121,14 @@ export function reconstruct(data: AnalysisData): History {
 export type Settings = {
   start: string; end: string; tracks: string[]; events: string[]; actors: string[];
   shift: number; trackShifts: Record<string, number>; eventShifts: Record<string, number>;
-  freshness: number; carry: boolean; outside: boolean; infer: boolean;
-  drop: number; high: number; confirmations: number; maxGap: number; endBuffer: number;
+  freshness: number | null; carry: boolean; outside: boolean; infer: boolean;
+  drop: number; high: number; confirmations: number; maxGap: number | null; endBuffer: number;
   bucket: number; congestion: number; capacities: Record<string, number>; headcounts: boolean;
 };
 export const defaultSettings: Settings = {
   start: DEFAULT_START, end: DEFAULT_END, tracks: [], events: [], actors: [], shift: 0,
-  trackShifts: {}, eventShifts: {}, freshness: 5, carry: true, outside: false, infer: false,
-  drop: 20, high: 70, confirmations: 1, maxGap: 10, endBuffer: 5, bucket: 30,
+  trackShifts: {}, eventShifts: {}, freshness: null, carry: true, outside: false, infer: false,
+  drop: 20, high: 70, confirmations: 1, maxGap: null, endBuffer: 5, bucket: 30,
   congestion: 80, capacities: {}, headcounts: false,
 };
 export function validateSettings(value: unknown): Settings {
@@ -137,9 +137,9 @@ export function validateSettings(value: unknown): Settings {
     start: z.string().regex(/^\d{4}-\d\d-\d\dT\d\d:\d\d$/), end: z.string().regex(/^\d{4}-\d\d-\d\dT\d\d:\d\d$/),
     tracks: z.array(z.string()).max(100), events: z.array(z.string()).max(1000), actors: z.array(z.string()).max(1000),
     shift: z.number().finite().min(-10080).max(10080), trackShifts: numericMap, eventShifts: numericMap,
-    freshness: z.number().min(1).max(120), carry: z.boolean(), outside: z.boolean(), infer: z.boolean(),
+    freshness: z.number().min(1).max(120).nullable(), carry: z.boolean(), outside: z.boolean(), infer: z.boolean(),
     drop: z.number().min(1).max(100), high: z.number().min(0).max(100), confirmations: z.number().int().min(1).max(10),
-    maxGap: z.number().min(1).max(120), endBuffer: z.number().min(0).max(120), bucket: z.number().min(1).max(1440),
+    maxGap: z.number().min(1).max(120).nullable(), endBuffer: z.number().min(0).max(120), bucket: z.number().min(1).max(1440),
     congestion: z.number().min(1).max(100), capacities: z.record(z.string(), z.number().int().positive().max(100000)), headcounts: z.boolean(),
   });
   const parsed = schema.parse({ ...defaultSettings, ...(value && typeof value === "object" ? value : {}) });
@@ -157,6 +157,8 @@ export type DropFlag = { run: Run; from: Reading; to: Reading; drop: number; con
 export type RunSummary = { run: Run; readings: Reading[]; segments: Segment[]; coverage: number; duration: number; average?: number; peak?: number; timeToPeak?: number; opening?: number; closing?: number; change?: number; largestDrop: number; recovered: boolean; startDrift?: number; endDrift?: number; originalStartDrift?: number; originalEndDrift?: number };
 export function analyze(data: AnalysisData, settings: Settings) {
   const history = reconstruct(data);
+  const freshnessMs = settings.freshness === null ? Infinity : settings.freshness * MINUTE;
+  const maxGapMs = settings.maxGap === null ? Infinity : settings.maxGap * MINUTE;
   const start = istTime(settings.start), end = istTime(settings.end);
   const runs = [...history.runs];
   const inferredReadings = new Map<number, string>();
@@ -191,7 +193,7 @@ export function analyze(data: AnalysisData, settings: Settings) {
   if (settings.carry) for (const reading of eligible) {
     const run = reading.runKey ? runMap.get(reading.runKey) : undefined;
     const a = Math.max(start, reading.time, run?.start ?? reading.time);
-    const b = Math.min(end, reading.time + settings.freshness * MINUTE, nextByRevision.get(reading.revision) ?? Infinity, reading.boundary ?? Infinity, run?.boundaryEnd ?? Infinity);
+    const b = Math.min(end, reading.time + freshnessMs, nextByRevision.get(reading.revision) ?? Infinity, reading.boundary ?? Infinity, run?.boundaryEnd ?? Infinity);
     if (b > a) segments.push({ start: a, end: b, reading });
   }
   const selectedRuns = runs.filter((run) => {
@@ -209,7 +211,7 @@ export function analyze(data: AnalysisData, settings: Settings) {
     const peakReading = rs.find((r) => r.occupied === peak);
     let largestDrop = 0, recovered = false;
     rs.forEach((r, i) => {
-      if (i && rs[i - 1].time + settings.maxGap * MINUTE >= r.time) {
+      if (i && rs[i - 1].time + maxGapMs >= r.time) {
         const drop = rs[i - 1].occupied - r.occupied;
         if (drop > largestDrop) { largestDrop = drop; recovered = rs.slice(i + 1).some((later) => later.occupied >= rs[i - 1].occupied); }
       }
@@ -233,11 +235,11 @@ export function analyze(data: AnalysisData, settings: Settings) {
     let lastFlagEnd = -1;
     for (let i = 1; i < rs.length; i++) {
       const to = rs[i];
-      const from = rs.slice(lastFlagEnd + 1, i).filter((r) => r.occupied >= settings.high && to.time - r.time <= settings.maxGap * MINUTE).sort((a, b) => b.occupied - a.occupied)[0];
+      const from = rs.slice(lastFlagEnd + 1, i).filter((r) => r.occupied >= settings.high && to.time - r.time <= maxGapMs).sort((a, b) => b.occupied - a.occupied)[0];
       if (!from || from.occupied - to.occupied < settings.drop) continue;
       if (summary.run.end !== undefined && to.time > summary.run.end - settings.endBuffer * MINUTE) continue;
       const confirmation = rs.slice(i, i + settings.confirmations);
-      if (confirmation.length < settings.confirmations || confirmation.some((r, j) => from.occupied - r.occupied < settings.drop || (j > 0 && r.time - confirmation[j - 1].time > settings.maxGap * MINUTE))) continue;
+      if (confirmation.length < settings.confirmations || confirmation.some((r, j) => from.occupied - r.occupied < settings.drop || (j > 0 && r.time - confirmation[j - 1].time > maxGapMs))) continue;
       flags.push({ run: summary.run, from, to, drop: from.occupied - to.occupied, confirmed: confirmation.length,
         confidence: summary.run.end === undefined || summary.coverage < 50 ? "Limited coverage" : "Supported by reports",
         reason: `${from.occupied}% → ${to.occupied}% in ${((to.time - from.time) / MINUTE).toFixed(1)} min; ${confirmation.length} low reading(s). ${summary.run.end === undefined ? "End not recorded; end buffer cannot be checked." : `${((summary.run.end - to.time) / MINUTE).toFixed(1)} min before recorded end.`}` });

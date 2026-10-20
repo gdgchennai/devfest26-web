@@ -32,6 +32,11 @@ function timingDifference(minutes?: number) {
 function insightTone(event: EventInsight) {
   return event.lowAttendance || event.emptyMs > 0 ? "quiet" : event.drop ? "drop" : event.fullMs > 0 ? "full" : "normal";
 }
+function GapLabel({ event }: { event: EventInsight }) {
+  if (!event.longGaps.length) return null;
+  const longest = Math.max(...event.longGaps.map((gap) => gap.end - gap.start));
+  return <span className={styles.gapLabel} title="Last occupancy carried forward during this gap">{readableDuration(longest)} without an update</span>;
+}
 
 export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
   const [data, setData] = useState<AnalysisData>(() => emptyData(agenda));
@@ -159,8 +164,8 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
           <span className={styles.takeawayDescription}>{card.description}</span><span className={styles.cardLink}>See events <span aria-hidden="true">↗</span></span>
         </button>)}
       </section>
-      <p className={styles.measurementNote}>Based on reports updated within 5 minutes. Gaps aren’t counted; durations across events are added together.</p>
-      {overview.missing > 0 && <p className={styles.note}>{countLabel(overview.missing)} had no recent occupancy reports in this time range.</p>}
+      <p className={styles.measurementNote}>Occupancy is carried forward until the next update or event end. Gaps over 40 minutes are labeled; durations across events are added together.</p>
+      {overview.missing > 0 && <p className={styles.note}>{countLabel(overview.missing)} had no occupancy reports covering this time range.</p>}
 
       <section className={styles.eventSection} aria-label="Event cards">
         <div className={styles.sectionHeading}><div><h2>{titles[category]}</h2><p>{category === "attention" ? "Start with the clearest attendance signals. Select an event for its timeline." : "Select an event to see when and how its occupancy changed."}</p></div><button className={styles.textButton} onClick={() => chooseCategory(category === "all" ? "attention" : "all")}>{category === "all" ? "Show highlights" : `All events (${overview.events.length})`}</button></div>
@@ -168,6 +173,7 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
           {featured.map((event) => <button key={event.summary.run.key} className={styles.eventCard} onClick={() => setSelectedKey(event.summary.run.key)}>
             <span className={styles.eventMeta}>{trackName(event.summary.run.session.track)} <span>{formatTime(event.summary.run.start)}</span></span>
             <h3>{event.summary.run.session.title}</h3>
+            <GapLabel event={event} />
             <p className={styles.eventTakeaway} data-tone={insightTone(event)}>{eventTakeaway(event, category)}</p>
             <div className={styles.occupancyBar} aria-hidden="true"><span style={{ width: `${event.average ?? 0}%` }} /></div>
             <span className={styles.eventFooter}><span>{event.summary.coverage < 50 ? "Limited reports" : event.lowAttendance ? "" : `${percent(event.average)} full on average`}</span><span>View timeline ↗</span></span>
@@ -184,7 +190,7 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
         <section className={styles.comparisonSection} aria-label="Attendance comparison">
           <div className={styles.sectionHeading}><div><h2>How attendance changed</h2><p>Compare the highest reported occupancy, the opening and closing reports, and falls during an event.</p></div></div>
           <div className={styles.tableScroll}><table className={styles.comparison}><thead><tr><th>Event</th><th>Peak occupancy</th><th>Opening → closing</th><th>Recorded occupancy drops</th></tr></thead><tbody>
-            {attendanceRows.map((event) => <tr key={event.summary.run.key}><td><button onClick={() => setSelectedKey(event.summary.run.key)}>{event.summary.run.session.title}</button><small>{trackName(event.summary.run.session.track)}</small></td>
+            {attendanceRows.map((event) => <tr key={event.summary.run.key}><td><button onClick={() => setSelectedKey(event.summary.run.key)}>{event.summary.run.session.title}</button><small>{trackName(event.summary.run.session.track)}</small><GapLabel event={event} /></td>
               <td><strong>{percent(event.summary.peak)}{event.summary.peak !== undefined ? " full" : ""}</strong><small>{event.summary.timeToPeak === undefined ? "Time to peak unknown" : `${readableDuration(event.summary.timeToPeak * MINUTE)} after start`}</small></td>
               <td>{event.summary.opening === undefined ? "Not reported" : `${percent(event.summary.opening)} → ${percent(event.summary.closing)}`}</td>
               <td>{event.recordedDrops.length ? event.recordedDrops.map(({ from, to }) => <div key={to.revision}><strong>{from.occupied}% → {to.occupied}%</strong><small>{formatTime(from.time)} → {formatTime(to.time)}</small></div>) : "No drop recorded"}</td></tr>)}
@@ -226,7 +232,9 @@ function EventDetails({ event, track, start, end, delay }: {
     <p className={styles.eyebrow}>{track}</p><h2 id="event-detail-title">{summary.run.session.title}</h2>
     <p className={styles.detailTakeaway}>{eventTakeaway(event)}</p>
     <p className={styles.note}>{formatTime(summary.run.start, true)} — {formatTime(summary.run.end, true)} IST{summary.run.resetEnded ? " · reporting ended with a reset" : ""}</p>
+    <GapLabel event={event} />
     <EventOccupancyTimeline summary={summary} start={chartStart} end={Math.max(chartStart + 1, chartEnd)} />
+    {event.longGaps.length > 0 && <p className={styles.note}>No occupancy updates for {event.longGaps.map((gap) => `${readableDuration(gap.end - gap.start)} (${formatTime(gap.start)}–${formatTime(gap.end)})`).join(", ")}. The last reported occupancy is used throughout.</p>}
     <div className={styles.detailMetrics}>
       <div><span>Peak occupancy</span><strong>{percent(summary.peak)}</strong><small>{summary.timeToPeak === undefined ? "Time unknown" : `${readableDuration(summary.timeToPeak * MINUTE)} after start`}</small></div>
       <div><span>Opening → closing</span><strong>{summary.opening === undefined ? "Not reported" : `${percent(summary.opening)} → ${percent(summary.closing)}`}</strong><small>First and last reports in this range</small></div>
@@ -242,6 +250,6 @@ function EventDetails({ event, track, start, end, delay }: {
       <div><span>Planned start</span><strong>{formatTime(plan.start)}</strong><span>Recorded start</span><strong>{formatTime(summary.run.start)}</strong><small>{timingDifference(summary.startDrift)}</small></div>
       <div><span>Planned end</span><strong>{formatTime(plan.end)}</strong><span>Recorded end</span><strong>{formatTime(summary.run.end)}</strong><small>{timingDifference(summary.endDrift)}</small></div>
     </div></section>
-    <p className={styles.detailFootnote}>Recent reports cover {Math.round(summary.coverage)}% of this event’s selected time. Unreported periods are unknown.{partial ? " You’re viewing part of the event; comparisons apply only to the selected range." : ""}</p>
+    <p className={styles.detailFootnote}>Reports and carried-forward occupancy cover {Math.round(summary.coverage)}% of this event’s selected time. Time before the first report stays unknown.{partial ? " You’re viewing part of the event; comparisons apply only to the selected range." : ""}</p>
   </>;
 }

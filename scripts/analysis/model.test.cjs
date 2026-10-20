@@ -13,7 +13,7 @@ const start = (rev, minute = 0) => row(rev, minute, { kind: 'session', zone: 'd7
 const end = (rev, minute = 60) => row(rev, minute, { kind: 'session', zone: 'd7-auditorium', session: 'talk', status: 'ended' });
 const reading = (rev, minute, occupied, actor) => row(rev, minute, { kind: 'occupancy', zone: 'd7-auditorium', occupied }, actor);
 const data = (audit) => m.parseAnalysisData(audit, agenda, 'test');
-const settings = (changes = {}) => ({ ...m.defaultSettings, ...changes });
+const settings = (changes = {}) => ({ ...m.defaultSettings, freshness: 5, maxGap: 10, ...changes });
 test('uses IST independently of the computer timezone', () => {
   assert.equal(new Date(t(0)).toISOString(), '2026-10-17T03:30:00.000Z');
   assert.equal(m.istInput(t(0)), '2026-10-17T09:00');
@@ -47,6 +47,13 @@ test('reset ends validity without inventing a recorded end', () => {
   assert.equal(result.segments[0].end, t(2));
   assert.equal(result.runs[0].end, undefined);
   assert.equal(result.runs[0].resetEnded, true);
+});
+test('default carry fills long gaps but stops at lifecycle boundaries', () => {
+  const audit = [start(1), reading(2, 0, 100), row(3, 50, { kind: 'reset' }), start(4, 52), end(5)];
+  const result = m.analyze(data(audit), m.defaultSettings);
+  assert.equal(result.segments[0].end, t(50));
+  assert.equal(result.summaries[1].coverage, 0);
+  assert.equal(m.validateSettings({}).freshness, null);
 });
 test('occupancy cannot transfer to a restarted event', () => {
   const result = m.analyze(data([start(1), reading(2, 0, 80), end(3, 1), start(4, 2), end(5, 30)]), settings());

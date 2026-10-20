@@ -11,7 +11,7 @@ function subscribeToSize(onChange: () => void) {
 }
 const isCompact = () => window.matchMedia("(max-width: 600px)").matches;
 
-/** One event, a clearly labeled axis, and no interpolation across unknown time. */
+/** Dots show recorded reports; steps carry each value to the next update or event end. */
 export function EventOccupancyTimeline({ summary, start, end }: {
   summary: RunSummary; start: number; end: number;
 }) {
@@ -31,7 +31,7 @@ export function EventOccupancyTimeline({ summary, start, end }: {
   return <div className={styles.timeline}>
     <svg viewBox={compact ? "0 0 375 240" : "0 0 800 260"} role="group" aria-labelledby={`${id}-title ${id}-description`}>
       <title id={`${id}-title`}>Occupancy during {summary.run.session.title}</title>
-      <desc id={`${id}-description`}>Percentage of the hall occupied. Dots are reports; gaps mean no recent report. Select a dot for its time and occupancy.</desc>
+      <desc id={`${id}-description`}>Percentage of the hall occupied. Dots are reports; each value is carried forward until the next update or event end. Select a dot for its time and occupancy.</desc>
       <text x={left} y="20" className={styles.axisTitle}>Hall occupied</text>
       {[0, 25, 50, 75, 100].map((n) => <g key={n}>
         <line x1={left} x2={left + width} y1={y(n)} y2={y(n)} className={styles.gridLine} />
@@ -56,6 +56,6 @@ export function EventOccupancyTimeline({ summary, start, end }: {
     </svg>
     <p className={styles.chartCaption} aria-live="polite">{selectedReading
       ? `${formatTime(selectedReading.time, true)} IST · ${selectedReading.occupied}% of the hall occupied`
-      : "Select a dot to see the report. Gaps mean no recent update."}</p>
+      : "Select a dot to see the report. Lines carry the last report forward between updates."}</p>
   </div>;
 }

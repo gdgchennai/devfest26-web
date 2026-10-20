@@ -51,6 +51,7 @@
 .eventCard { display: flex; flex-direction: column; min-height: 203px; color: var(--paper); text-align: left; background: var(--ink); border: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); border-radius: 11px; padding: 19px; }
 .eventCard:hover { border-color: color-mix(in srgb, var(--blue) 70%, transparent); background: color-mix(in srgb, var(--blue) 3%, var(--ink)); }
 .eventMeta { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; color: color-mix(in srgb, var(--paper) 50%, transparent); }
+.gapLabel { display: inline-block; width: fit-content; font-size: 11px; font-weight: 400; line-height: 1.5; color: var(--yellow); background: color-mix(in srgb, var(--yellow) 8%, transparent); border-radius: 4px; padding: 2px 6px; margin: 4px 0; }
 .eventCard h3 { font-size: 15px; font-weight: 500; line-height: 1.45; margin: 10px 0 14px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .eventTakeaway { margin-top: auto; font-size: 15px; color: var(--blue); font-weight: 500; }
 .eventTakeaway[data-tone="drop"] { color: var(--yellow); }

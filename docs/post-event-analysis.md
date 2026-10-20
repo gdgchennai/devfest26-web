@@ -7,12 +7,12 @@
 
 Four clickable takeaway cards lead the page:
 
-- **Low attendance:** events averaging below 25% occupied during reported time.
+- **Low attendance:** events averaging below 25% occupied using carried-forward occupancy.
 - **Attendance dropped:** events with a reported fall of at least 20 percentage
-  points while running. Reports must be within ten minutes of each other;
+  points while running, including reports separated by gaps;
   falls in the last five minutes before a recorded end are excluded.
-- **Time spent full:** measured duration at exactly 100% occupied.
-- **Time spent empty:** measured duration at exactly 0% occupied.
+- **Time spent full:** estimated duration at exactly 100% occupied.
+- **Time spent empty:** estimated duration at exactly 0% occupied.
 
 Full/empty durations add event time across tracks; they are not a single
 wall-clock duration or a count of unique attendees. Unknown time never counts
@@ -26,9 +26,9 @@ Selecting an overview card narrows the event cards to that takeaway; selecting
 it again restores highlights. **All events** lists events in recorded start
 order. Each event card opens an accessible modal with:
 
-- Its occupancy timeline, with selectable report dots and unknown gaps.
+- Its occupancy timeline, with selectable report dots and values carried across gaps.
 - Peak occupancy and time to peak; opening versus closing reports.
-- Time full/empty, with a disclosure listing the actual reported intervals.
+- Time full/empty, with a disclosure listing the estimated intervals.
 - Its largest qualifying mid-event drop, if any.
 - Recorded start/end versus planned times including the schedule delay.
 
@@ -61,10 +61,14 @@ as another occurrence with its own time. Occupancy never transfers into a new
 run. End, reset, unknown agenda IDs and subsequent starts bound the old reading.
 Missing context appears under **Some reports need more context**.
 
-A reading is valid until the next update, event boundary, or five minutes after
-submission, whichever comes first. Full/empty periods merge contiguous reports
-but never bridge unknown gaps. Averages weight measured time rather than update
-counts. Peaks include any still-fresh reading supporting the selected range;
+A reading is carried forward until the next update, event boundary or selected
+range end. Full/empty durations and time-weighted averages include those gaps;
+they assume occupancy stayed unchanged between reports. Values never carry into
+a different event run, across resets or before the first report. A small label
+on event cards, attendance rows and details shows the longest gap over 40 minutes.
+Details list all such gaps, including a long wait from the final report to event
+end (or range end when the end is unknown). Exactly 40 minutes is not flagged.
+Peaks include any carried reading supporting the selected range;
 opening/closing are the first/last submitted readings within it. Partial-window
 comparisons and missing reports are noted in event details. A reported drop
 cannot establish why people left. Recorded start/end times reflect organizer

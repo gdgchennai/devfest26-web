@@ -12,6 +12,7 @@ export type EventInsight = {
   lowAttendance: boolean;
   drop?: DropFlag;
   recordedDrops: { from: RunSummary["readings"][number]; to: RunSummary["readings"][number] }[];
+  longGaps: { start: number; end: number }[];
   rank: number;
 };
 export type InsightCategory = "attention" | "all" | "low" | "drops" | "full" | "empty";
@@ -31,7 +32,7 @@ function occupiedPeriods(segments: Segment[], occupied: number) {
   return periods;
 }
 
-/** Durations use only fresh, lifecycle-bounded intervals from the reconstruction. */
+/** Carry reports across gaps, bounded by event lifecycle and the selected range. */
 export function eventOverview(analysis: Analysis) {
   const events: EventInsight[] = analysis.summaries.map((summary) => {
     const measuredMs = durationWhere(summary.segments, () => true);
@@ -39,6 +40,8 @@ export function eventOverview(analysis: Analysis) {
     const emptyMs = durationWhere(summary.segments, (n) => n === 0);
     const lowMs = durationWhere(summary.segments, (n) => n < 25);
     const average = summary.average;
+    const longGaps = summary.segments.filter((s) => s.end - s.reading.time > 40 * 60_000)
+      .map((s) => ({ start: s.reading.time, end: s.end }));
     const evidence = [...new Map([...summary.segments.map((s) => s.reading), ...summary.readings].map((r) => [r.revision, r])).values()].sort((a, b) => a.time - b.time);
     const peak = evidence.length ? Math.max(...evidence.map((r) => r.occupied)) : undefined;
     const peakReading = evidence.find((r) => r.occupied === peak);
@@ -52,7 +55,7 @@ export function eventOverview(analysis: Analysis) {
     const drop = analysis.flags.filter((flag) => flag.run.key === summary.run.key)
       .sort((a, b) => b.drop - a.drop)[0];
     const rank = lowAttendance ? 0 : drop ? 1 : fullMs > 0 ? 2 : emptyMs > 0 ? 3 : measuredMs ? 4 : 5;
-    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), lowMs, average, lowAttendance, drop, recordedDrops, rank };
+    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), lowMs, average, lowAttendance, drop, recordedDrops, longGaps, rank };
   });
   return {
     events,
@@ -108,7 +111,7 @@ export function readableDuration(ms: number) {
 
 /** No sum of percentages, no assumption that an unreported hall was empty. */
 export function eventTakeaway(event: EventInsight, category: InsightCategory = "attention") {
-  if (!event.measuredMs) return "No recent occupancy reports";
+  if (!event.measuredMs) return "No occupancy reports";
   if (category === "full") return `Full for ${readableDuration(event.fullMs)}`;
   if (category === "drops" && event.drop) return `${event.drop.from.occupied}% → ${event.drop.to.occupied}% during the event`;
   if (category === "empty" || (category === "attention" && event.emptyMs > 0)) return `Empty for ${readableDuration(event.emptyMs)}`;
