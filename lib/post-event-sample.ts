@@ -19,7 +19,10 @@ export function sampleAnalysisData(agenda: AgendaSession[]): AnalysisData {
       let n = 0;
       for (let time = start + MINUTE; time < end; time += 3 * MINUTE, n++) {
         if (i % 4 === 2 && n > 2 && n < 6) continue;
-        const occupied = i % 3 === 0 && n >= 3 ? 40 : Math.min(100, 60 + ((i + index) % 4) * 10 + Math.min(n, 3) * 4);
+        const occupied = i % 7 === 1 ? 10 + Math.min(n, 3) * 4
+          : i % 9 === 4 ? (n >= 2 ? 0 : 18)
+          : i % 3 === 0 && n >= 3 ? 40
+          : Math.min(100, 60 + ((i + index) % 4) * 10 + Math.min(n, 3) * 4);
         pending.push({ actor, changed_at: time, payload: { kind: "occupancy", zone: track!, occupied } });
       }
       pending.push({ actor, changed_at: end, payload: { kind: "session", zone: track!, session: session.id, status: "ended" } });

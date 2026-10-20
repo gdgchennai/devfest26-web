@@ -62,4 +62,4 @@ Hall identity terminology follows current `main`: **super-admin**, **admin (orga
 
 ## Post-event analysis
 
-`/admin/analysis` provides a customizable historical occupancy and timing dashboard, offline audit JSON imports, freshness-aware coverage, departure signals and exports. Database history requires a super-admin and loads only on request. See [post-event analysis](post-event-analysis.md) for reconstruction rules, schedule overrides and local review.
+`/admin/analysis` highlights low attendance, mid-event drops, and time halls spent full or empty. Click an event for its occupancy timeline and timing comparison. Only the time range and schedule delay are prominent controls. Data imports stay local; server history requires a super-admin and loads only on request. See [post-event analysis](post-event-analysis.md) for definitions and local review.

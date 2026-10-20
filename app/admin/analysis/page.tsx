@@ -5,7 +5,7 @@ import { agendaSchema } from "@/lib/schemas";
 export const dynamic = "force-static";
 export const metadata = {
   title: "Post-event analysis",
-  description: "Historical track occupancy, event timing and reporting coverage.",
+  description: "Attendance highlights, full and empty halls, and event occupancy timelines.",
   robots: { index: false, follow: false },
 };
 

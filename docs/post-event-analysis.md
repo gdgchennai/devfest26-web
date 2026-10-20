@@ -1,168 +1,97 @@
 # Post-event analysis
 
-`/admin/analysis` is an organizer dashboard for occupancy history, event timing,
-possible early departures, congestion/distribution and reporting coverage.
-Admin navigation links to it. It defaults to **17 October 2026, 09:00–18:00
-Asia/Kolkata (IST)**; the end is exclusive. Multi-day ranges up to 366 days are
-supported. No dependencies, migrations, environment variables, coordinator writes
-or changes to live hall behavior are required.
+`/admin/analysis` opens a simple attendance overview. The default range is
+**17 October 2026, 09:00–18:00 IST**, with zero schedule delay.
 
-## Data and access
+## What organizers see
 
-The page is a static, noindex shell with no private data. It starts empty. Import
-an existing audit JSON file for offline analysis, or choose **Try sample data**
-for deterministic synthetic reports generated from the bundled agenda. Samples
-are always labeled; `?sample=1` loads them on entry for local review.
+Four clickable takeaway cards lead the page:
 
-**Load database history** explicitly requests `GET /api/admin/analysis`.
-It uses the existing `requireAccessApi` authentication gate and requires
-`isSuper`; track admins/leads cannot read the whole-event audit. The handler
-performs one SELECT joining `hall_audit` to user display names, excludes emails
-and authentication fields, returns `private, no-store`, and refuses more than
-50,000 rows instead of truncating history. There is no polling or initial data
-request. **Refresh source** rereads the imported File, regenerates sample data,
-or explicitly refreshes the database, according to the current source.
+- **Low attendance:** events averaging below 25% occupied during reported time.
+- **Attendance dropped:** events with a reported fall of at least 20 percentage
+  points while running. Reports must be within ten minutes of each other;
+  falls in the last five minutes before a recorded end are excluded.
+- **Time spent full:** measured duration at exactly 100% occupied.
+- **Time spent empty:** measured duration at exactly 0% occupied.
 
-Local implementation and browser checks use synthetic data only. No hosted
-query, deployment or Cloudflare configuration change is required to review it.
-An offline import stays in the tab's memory; it is not uploaded or stored in
-localStorage. Clear data or reload to discard it. The static shell may still
-load the site's usual shared shell resources in normal builds.
+Full/empty durations add event time across tracks; they are not a single
+wall-clock duration or a count of unique attendees. Unknown time never counts
+as empty. Events with no usable reports stay unknown, rather than being
+classified as low attendance.
 
-### Testing hosted history on localhost
+The first six event cards mix quiet events, drops, full halls and empty halls.
+Selecting an overview card narrows the event cards to that takeaway; selecting
+it again restores highlights. **All events** lists events in recorded start
+order. Each event card opens an accessible modal with:
 
-The dashboard's database button reads the database bound to the **current server**.
-Use the exact Local URL printed by `next dev` (normally `http://localhost:3000`);
-Next.js can block development resources when using an unapproved hostname alias.
-Normal `next dev` uses local D1; a hosted-site session does not authenticate you
-on localhost. Without a local session the endpoint returns 401 and the dashboard
-shows a sign-in link. Signing in locally also requires the local database schema,
-OAuth configuration and `ADMIN_EMAILS` in `.dev.vars`.
+- Its occupancy timeline, with selectable report dots and unknown gaps.
+- Peak occupancy and time to peak; opening versus closing reports.
+- Time full/empty, with a disclosure listing the actual reported intervals.
+- Its largest qualifying mid-event drop, if any.
+- Recorded start/end versus planned times including the schedule delay.
 
-To analyze actual event history without deploying or pointing the application at
-production, explicitly run this read-only pull from the repository root:
+Further down, compact attendance and timing comparisons initially show six
+rows each, with buttons to reveal the remaining events. Event names in these
+comparisons open the same detail view.
+
+Only **time range** and **schedule delay in minutes** are prominent controls.
+A global delay moves planned start and end together, preserving duration and
+original agenda timestamps. No recorded action or live hall state is edited.
+Old saved layouts and advanced filters no longer affect this page. The previous
+heatmap, lead timelines, raw audit table, layout customization, exports and
+advanced detection settings have been removed from the dashboard.
+
+## Data and interpretation
+
+The data menu offers **Import event data**, **View sample data**, and
+**Load server history**. Samples are explicitly labeled and can be opened with
+`?sample=1`. No database request is made automatically.
+
+Imports stay in tab memory. Supported inputs are a raw audit row array,
+Wrangler's JSON result envelope, or an analysis bundle containing `audit`,
+optional `agenda`, and optional `actors`. Limits remain 10 MiB / 50,000 rows.
+Invalid imports leave the existing data intact. An event-day agenda snapshot
+is preferable if the repository schedule has changed.
+
+`lib/post-event-analysis.ts` replays the complete audit in revision order before
+applying the range. Each recorded start creates an event run; a restart appears
+as another occurrence with its own time. Occupancy never transfers into a new
+run. End, reset, unknown agenda IDs and subsequent starts bound the old reading.
+Missing context appears under **Some reports need more context**.
+
+A reading is valid until the next update, event boundary, or five minutes after
+submission, whichever comes first. Full/empty periods merge contiguous reports
+but never bridge unknown gaps. Averages weight measured time rather than update
+counts. Peaks include any still-fresh reading supporting the selected range;
+opening/closing are the first/last submitted readings within it. Partial-window
+comparisons and missing reports are noted in event details. A reported drop
+cannot establish why people left. Recorded start/end times reflect organizer
+button actions, not independently verified stage times.
+
+## Testing actual history on localhost
+
+The server-history button reads the database bound to the current server and
+requires super-admin access. Normal `next dev` uses local D1; a hosted-site
+session does not sign you in locally. Use the exact Local URL printed by Next,
+as unapproved hostname aliases can block development resources.
+
+For actual event history without deploying or connecting the entire local app
+to production, explicitly run:
 
 ```sh
 npm run analysis:pull
 ```
 
-This contacts hosted Cloudflare D1 through your existing Wrangler credentials,
-performs one SELECT of the full audit and reporter display names, and saves
-`.wrangler/post-event-analysis/history.json` (git-ignored, file mode 0600).
-No migrations, database writes, application sign-in or deployment are performed.
-If Wrangler is not authenticated, run `npx wrangler login` first. Then open
-`/admin/analysis` on localhost, choose **Import audit JSON**, and select that file.
-Use the original event-day agenda snapshot in the bundle if the current agenda
-has changed. Re-running the command replaces the local snapshot; a failed export
-leaves the existing one intact.
+This performs one read-only hosted SELECT through Wrangler and saves
+`.wrangler/post-event-analysis/history.json` (git-ignored, mode 0600). Choose
+**Import event data** to open it. No migrations, database writes or deployments
+occur. `npm run analysis:pull -- --dry-run` prints the query without network
+access or file writes. The command never runs automatically.
 
-`npm run analysis:pull -- --dry-run` prints the SELECT and output path without
-network access or writes. The command is never run by the dev server or dashboard.
-The dashboard's server request times out after 15 seconds and reports a clear
-error; authentication/runtime failures return an uncached JSON 503.
-
-### Supported JSON imports
-
-Maximum input size: 10 MiB and 50,000 rows. The parser accepts:
-
-- An array of `{ revision, actor, changed_at, payload }` records. Timestamps are
-  server Unix epoch **milliseconds**, not seconds; payload can be a JSON string
-  or object. `revision` must be unique and positive.
-- Wrangler's `[{ results: [...] }]` envelope, or `{ results: [...] }`.
-- `{ audit: [...], agenda: [...], actors: { "user-id": "Display name" } }`.
-  The optional agenda must follow `lib/schemas.ts`; importing the event-day
-  agenda snapshot preserves comparisons if the repository agenda later changes.
-
-Successful occupancy, lifecycle, reset, clock and promotion mutations are
-accepted. Promotions are retained for re-export but have no dashboard panel or
-metrics. Failed writes cannot be reconstructed from successful audit rows.
-Actor IDs remain visible if a display name is unavailable.
-Invalid records reject the import without replacing the current dataset.
-
-## Reconstruction and measurement rules
-
-`lib/post-event-analysis.ts` replays **all** imported rows in revision order,
-before applying the time range. Keep lifecycle/reset context when exporting.
-Every start creates a separate event run, including restarts of the same event.
-End and reset actions bound measurement validity. Resets do not fabricate an
-actual end timestamp. Revision gaps, backwards server timestamps, unknown agenda
-IDs and unmatched lifecycle actions appear in the data-quality disclosure.
-
-Occupancy belongs to a track. It is attributed to the run active at submission;
-an old reading never becomes a measurement of its successor. Unmatched readings
-are excluded by default and counted in the quality summary; **Include reports
-outside an event** exposes them. Explicitly enabling inferred windows can attach
-unmatched readings to an unambiguous adjusted schedule window for a session
-without recorded lifecycle. These runs are labeled and excluded from departure
-signals; recorded lifecycle takes precedence.
-
-The default freshness cutoff is five minutes, configurable from 1–120. A reading
-is carried forward only until the next report by **any** reporter, lifecycle
-boundary, freshness expiry or range end, whichever is first. Freshness never
-bridges events. **Carry forward while fresh** can be disabled for point-only
-charts: duration coverage becomes zero and means remain unknown. Exact-time
-comparisons and heatmaps then have no assumed occupancy intervals.
-
-Coverage is fresh duration divided by the selected event-run duration, clipped
-to the range. Unclosed runs extend to the next boundary or selected range end;
-missing ends remain visibly missing. Means are weighted by covered duration,
-not by number of submissions. The overall percentage weights event-track
-minutes equally; it is not weighted by room capacity or attendee counts.
-Filtering reporters measures their contributions, not the complete track
-history, while another reporter's update still supersedes theirs.
-
-Opening/closing, observed peaks, time-to-peak and largest consecutive drops use
-readings in the selected range. They can be partial-window observations.
-Largest consecutive drops ignore pairs farther apart than the detection gap.
-A later reading at the earlier occupancy level counts as observed recovery.
-
-### Timing and departure signals
-
-The original agenda, adjusted plan and recorded actions are separate timelines.
-Global hours/minutes shift both planned start and end, preserving duration.
-A track override replaces the global total; an event override replaces its
-track/global total. Blank means inherit; zero is an explicit override. No
-adjustment edits agenda content or recorded timestamps. Start/end drift is
-shown against both the original and adjusted plans. Recorded times are manual
-button-action times, not independently verified stage times.
-
-Departure detection defaults: prior occupancy at least 70%, drop at least 20
-percentage points, one low reading, no more than ten minutes between readings,
-exclude drops in the final five minutes before recorded end. All are editable.
-Increasing required consecutive low readings asks for confirmation. Missing end
-or under-50% coverage produces a limited-coverage label. Each flag exposes the
-triggering revisions, times and values through event details. Signals do not
-establish disinterest, causation, or individual movement.
-
-## Dashboard controls
-
-- Shared track, event and reporter filters; IST datetime range; default-event
-  and full-history presets; reset. Click chart points, event names, heatmap
-  cells and reporter/track links to inspect or filter. Event strips and detail
-  buttons zoom the shared range.
-- Occupancy charts show raw points and fresh step intervals with unknown gaps.
-  Timing rows compare original, adjusted and recorded intervals.
-- Congestion heatmap uses fresh, time-weighted bucket averages; tooltips show
-  covered fraction. Buckets expand to cap very long ranges at 96 columns.
-  Clicking a cell selects a representative covered instant (or bucket start
-  when unknown), not a claim about every instant in the bucket.
-- The selected-time distribution shows fresh percentages and report age.
-  Optional capacities enable estimated headcounts and shares **only among
-  estimable tracks**. Supply capacities only for independent measured spaces;
-  shared physical rooms must not be counted twice. This is not unique attendance.
-- Reporting groups by track or actor, with occupancy/lifecycle action filters,
-  first/last submission, median/longest observed inter-submission gaps and dots.
-  Session coverage separately includes leading/trailing unknown time.
-- Update table supports text search, column sorting, pagination and CSV export.
-  Unchanged measurements remain visible as confirmations.
-- Show/hide overview cards and panels; move panels up/down using accessible
-  buttons. Browser preferences and named views save filters/layout, not data.
-  Share links encode only the view in the `view` query parameter; recipients
-  must load their own authorized dataset. View JSON import/export is supported.
-- Export filtered/searched updates, event summaries, occupancy charts (SVG),
-  full analysis JSON, or print/save PDF. CSV protects text against spreadsheet
-  formula execution. Exports open a preview with a download link and selectable/copyable content, so they remain usable in embedded browsers that block downloads. Full dataset exports include reporter IDs/names; handle
-  them as organizer data. Print excludes controls.
+The static page contains no private records. `GET /api/admin/analysis` checks
+`requireAccessApi` and requires `isSuper`, excludes emails/authentication fields,
+returns `private, no-store`, and refuses oversized histories without truncation.
+Client requests time out after 15 seconds with an actionable error.
 
 ## Local verification
 
@@ -173,24 +102,8 @@ npm run lint
 NEXT_PUBLIC_HALL_ISOLATED=1 npm run dev -- --hostname 127.0.0.1
 ```
 
-Open `/admin/analysis?sample=1&lite=1` and `/admin/analysis?sample=1&lite=0`.
-No new animation is used. Exercise desktop/phone layouts, date filters, schedule
-shifts and overrides, saved views, exports, event details and empty states.
-The focused Node tests transpile the actual TypeScript model using the existing
-TypeScript dependency and stub auth/D1 for endpoint tests; they never access
-Cloudflare. Existing unrelated lint failures are not changed.
-
-### Verification for this implementation
-
-- 25 offline model/API/export checks pass; root TypeScript is clean. Full ESLint has
-  the existing baseline of 10 errors and 4 warnings, with none in new files.
-- Browser-reviewed desktop and phone layouts, including lite and full mode;
-  tested custom dates, schedule shift, event details, track filtering, panel
-  reordering/hiding, saved views and a synthetic JSON file import.
-- Inspected generated CSV contents and standalone SVG output (resolved colors,
-  no external CSS variables). The embedded browser did not emit completed
-  download events; the export dialog exposes the complete selectable content
-  and download link. Native download saving and PDF printing remain manual
-  verification steps in a regular browser.
-- No hosted data was fetched during implementation. No push, deployment, schema
-  change, Cloudflare configuration change or new dependency was performed.
+Browser-review desktop and phone widths in both `?sample=1&lite=1` and
+`?sample=1&lite=0`. Check overview cards, event details, report-dot selection,
+full/empty intervals, schedule delay, custom range, empty states and data import.
+All model/API/export tests run offline. No new dependencies, migrations,
+environment variables, Cloudflare changes or production writes are required.
