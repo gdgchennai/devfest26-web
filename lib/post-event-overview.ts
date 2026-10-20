@@ -7,7 +7,7 @@ export type EventInsight = {
   fullPeriods: { start: number; end: number }[];
   emptyPeriods: { start: number; end: number }[];
   emptyMs: number;
-  lowMs: number;
+  below20Ms: number;
   average?: number;
   lowAttendance: boolean;
   drop?: DropFlag;
@@ -15,7 +15,7 @@ export type EventInsight = {
   longGaps: { start: number; end: number }[];
   rank: number;
 };
-export type InsightCategory = "attention" | "all" | "low" | "drops" | "full" | "empty";
+export type InsightCategory = "attention" | "all" | "low" | "drops" | "full" | "empty" | "below20";
 
 function durationWhere(segments: Segment[], matches: (occupied: number) => boolean) {
   return segments.reduce((total, segment) => matches(segment.reading.occupied)
@@ -38,7 +38,7 @@ export function eventOverview(analysis: Analysis) {
     const measuredMs = durationWhere(summary.segments, () => true);
     const fullMs = durationWhere(summary.segments, (n) => n === 100);
     const emptyMs = durationWhere(summary.segments, (n) => n === 0);
-    const lowMs = durationWhere(summary.segments, (n) => n < 25);
+    const below20Ms = durationWhere(summary.segments, (n) => n < 20);
     const average = summary.average;
     const longGaps = summary.segments.filter((s) => s.end - s.reading.time > 40 * 60_000)
       .map((s) => ({ start: s.reading.time, end: s.end }));
@@ -55,7 +55,7 @@ export function eventOverview(analysis: Analysis) {
     const drop = analysis.flags.filter((flag) => flag.run.key === summary.run.key)
       .sort((a, b) => b.drop - a.drop)[0];
     const rank = lowAttendance ? 0 : drop ? 1 : fullMs > 0 ? 2 : emptyMs > 0 ? 3 : measuredMs ? 4 : 5;
-    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), lowMs, average, lowAttendance, drop, recordedDrops, longGaps, rank };
+    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), below20Ms, average, lowAttendance, drop, recordedDrops, longGaps, rank };
   });
   return {
     events,
@@ -63,6 +63,8 @@ export function eventOverview(analysis: Analysis) {
     drops: events.filter((event) => event.drop),
     full: events.filter((event) => event.fullMs > 0),
     empty: events.filter((event) => event.emptyMs > 0),
+    below20: events.filter((event) => event.below20Ms > 0),
+    below20Ms: events.reduce((total, event) => total + event.below20Ms, 0),
     fullMs: events.reduce((total, event) => total + event.fullMs, 0),
     emptyMs: events.reduce((total, event) => total + event.emptyMs, 0),
     missing: events.filter((event) => !event.measuredMs).length,
@@ -95,6 +97,7 @@ export function matchesCategory(event: EventInsight, category: InsightCategory) 
     case "drops": return !!event.drop;
     case "full": return event.fullMs > 0;
     case "empty": return event.emptyMs > 0;
+    case "below20": return event.below20Ms > 0;
     case "attention": return event.rank < 4;
     default: return true;
   }
@@ -113,6 +116,7 @@ export function readableDuration(ms: number) {
 export function eventTakeaway(event: EventInsight, category: InsightCategory = "attention") {
   if (!event.measuredMs) return "No occupancy reports";
   if (category === "full") return `Full for ${readableDuration(event.fullMs)}`;
+  if (category === "below20") return `Below 20% full for ${readableDuration(event.below20Ms)}`;
   if (category === "drops" && event.drop) return `${event.drop.from.occupied}% → ${event.drop.to.occupied}% during the event`;
   if (category === "empty" || (category === "attention" && event.emptyMs > 0)) return `Empty for ${readableDuration(event.emptyMs)}`;
   if (category === "low" || event.lowAttendance) return `Averaged ${Math.round(event.average!)}% full`;

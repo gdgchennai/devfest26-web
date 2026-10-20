@@ -12,7 +12,9 @@ Four clickable takeaway cards lead the page:
   points while running, including reports separated by gaps;
   falls in the last five minutes before a recorded end are excluded.
 - **Time spent full:** estimated duration at exactly 100% occupied.
-- **Time spent empty:** estimated duration at exactly 0% occupied.
+- **Time below 20%:** estimated duration below 20% occupied, including empty
+  periods. Selecting the card shows matching events, longest duration first.
+  Exactly 20% is excluded. Empty-hall durations remain in event details.
 
 Full/empty durations add event time across tracks; they are not a single
 wall-clock duration or a count of unique attendees. Unknown time never counts

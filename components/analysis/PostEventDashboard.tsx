@@ -23,6 +23,7 @@ const countLabel = (n: number) => `${n} event${n === 1 ? "" : "s"}`;
 const titles: Record<InsightCategory, string> = {
   attention: "Events worth a closer look", all: "All events", low: "Events with low attendance",
   drops: "Events where attendance fell", full: "Events with full halls", empty: "Events with empty halls",
+  below20: "Events with occupancy below 20%",
 };
 function timingDifference(minutes?: number) {
   if (minutes === undefined) return "Not recorded";
@@ -78,6 +79,7 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
     : overview.events.filter((event) => matchesCategory(event, category))
       .sort((a, b) => category === "full" ? b.fullMs - a.fullMs
         : category === "empty" ? b.emptyMs - a.emptyMs
+        : category === "below20" ? b.below20Ms - a.below20Ms
         : category === "drops" ? (b.drop?.drop ?? 0) - (a.drop?.drop ?? 0)
         : category === "low" ? (a.average ?? 101) - (b.average ?? 101)
         : (a.summary.run.start ?? 0) - (b.summary.run.start ?? 0));
@@ -122,7 +124,7 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
     { key: "low", label: "Low attendance", value: overview.hasMeasurements ? countLabel(overview.low.length) : "—", description: `Of ${overview.events.length} events · averaged below 25% full`, tone: "quiet" },
     { key: "drops", label: "Attendance dropped", value: overview.hasMeasurements ? countLabel(overview.drops.length) : "—", description: "Fell by 20 percentage points or more during an event", tone: "drop" },
     { key: "full", label: "Time spent full", value: overview.hasMeasurements ? readableDuration(overview.fullMs) : "—", description: `Across ${countLabel(overview.full.length)} · 100% occupied`, tone: "full" },
-    { key: "empty", label: "Time spent empty", value: overview.hasMeasurements ? readableDuration(overview.emptyMs) : "—", description: `Across ${countLabel(overview.empty.length)} · 0% occupied`, tone: "quiet" },
+    { key: "below20", label: "Time below 20%", value: overview.hasMeasurements ? readableDuration(overview.below20Ms) : "—", description: `Across ${countLabel(overview.below20.length)} · less than 20% occupied`, tone: "quiet" },
   ];
 
   return <div className={styles.dashboard}>

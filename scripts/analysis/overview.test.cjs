@@ -41,6 +41,16 @@ test('low attendance uses covered time, not an average of update counts', () => 
   assert.equal(result.low.length, 1);
   assert.ok(Math.abs(result.low[0].average - 100 / 6) < 0.00001);
 });
+test('time below 20% includes empty periods and gaps, excludes exactly 20% and unknown time', () => {
+  const result = report([[10, 19], [25, 20], [40, 0], [50, 30]], { freshness: null });
+  assert.equal(result.below20Ms, 25 * MINUTE);
+  assert.equal(result.below20.length, 1);
+  assert.equal(matchesCategory(result.events[0], 'below20'), true);
+  assert.equal(eventTakeaway(result.events[0], 'below20'), 'Below 20% full for 25 min');
+  assert.equal(report([[0, 20]], { freshness: null }).below20.length, 0);
+  assert.equal(report([]).below20Ms, 0);
+  assert.equal(report([[0, 10]], { freshness: null, start: '2026-10-17T09:20', end: '2026-10-17T09:30' }).below20Ms, 10 * MINUTE);
+});
 test('no measurements remain unknown, not empty or low', () => {
   const result = report([]);
   assert.equal(result.low.length, 0);
