@@ -11,6 +11,7 @@ export type EventInsight = {
   average?: number;
   lowAttendance: boolean;
   drop?: DropFlag;
+  recordedDrops: { from: RunSummary["readings"][number]; to: RunSummary["readings"][number] }[];
   rank: number;
 };
 export type InsightCategory = "attention" | "all" | "low" | "drops" | "full" | "empty";
@@ -43,10 +44,15 @@ export function eventOverview(analysis: Analysis) {
     const peakReading = evidence.find((r) => r.occupied === peak);
     const observedSummary = { ...summary, peak, timeToPeak: peakReading && summary.run.start !== undefined ? (peakReading.time - summary.run.start) / 60_000 : undefined };
     const lowAttendance = average !== undefined && average < 25;
+    // Compare actual consecutive reports, including small falls and reporting gaps.
+    const recordedDrops = summary.readings.flatMap((to, index, readings) => {
+      const from = readings[index - 1];
+      return from && from.occupied > to.occupied ? [{ from, to }] : [];
+    });
     const drop = analysis.flags.filter((flag) => flag.run.key === summary.run.key)
       .sort((a, b) => b.drop - a.drop)[0];
     const rank = lowAttendance ? 0 : drop ? 1 : fullMs > 0 ? 2 : emptyMs > 0 ? 3 : measuredMs ? 4 : 5;
-    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), lowMs, average, lowAttendance, drop, rank };
+    return { summary: observedSummary, measuredMs, fullMs, emptyMs, fullPeriods: occupiedPeriods(summary.segments, 100), emptyPeriods: occupiedPeriods(summary.segments, 0), lowMs, average, lowAttendance, drop, recordedDrops, rank };
   });
   return {
     events,

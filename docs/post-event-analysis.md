@@ -19,6 +19,8 @@ wall-clock duration or a count of unique attendees. Unknown time never counts
 as empty. Events with no usable reports stay unknown, rather than being
 classified as low attendance.
 
+The attendance comparison lists every decrease between consecutive reports in the selected time range for the same event, including small drops and reports separated by gaps. Both report times are shown; the exact time people left is unknown. This column does not use the overview's large-drop threshold or end buffer.
+
 The first six event cards mix quiet events, drops, full halls and empty halls.
 Selecting an overview card narrows the event cards to that takeaway; selecting
 it again restores highlights. **All events** lists events in recorded start

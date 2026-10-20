@@ -42,6 +42,13 @@ test('a mid-event drop from moderate attendance is visible', () => {
   assert.equal(matchesCategory(result.drops[0], 'drops'), true);
   assert.equal(eventTakeaway(result.drops[0], 'drops'), '45% → 20% during the event');
 });
+test('recorded drops include small falls, long gaps and falls near the end, within the selected range', () => {
+  const values = [[0, 80], [3, 75], [30, 60], [40, 90], [58, 85]];
+  const event = report(values).events[0];
+  assert.deepEqual(event.recordedDrops.map(({ from, to }) => [from.occupied, to.occupied]), [[80, 75], [75, 60], [90, 85]]);
+  assert.equal(event.drop, undefined);
+  assert.deepEqual(report(values, { start: '2026-10-17T09:30' }).events[0].recordedDrops.map(({ from, to }) => [from.occupied, to.occupied]), [[90, 85]]);
+});
 test('small durations and combined hours have unambiguous labels', () => {
   assert.equal(readableDuration(1), '<1 min');
   assert.equal(readableDuration(80 * MINUTE), '1h 20m');

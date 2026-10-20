@@ -183,11 +183,11 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
       {overview.events.length > 0 && <>
         <section className={styles.comparisonSection} aria-label="Attendance comparison">
           <div className={styles.sectionHeading}><div><h2>How attendance changed</h2><p>Compare the highest reported occupancy, the opening and closing reports, and falls during an event.</p></div></div>
-          <div className={styles.tableScroll}><table className={styles.comparison}><thead><tr><th>Event</th><th>Peak occupancy</th><th>Opening → closing</th><th>Largest mid-event fall</th></tr></thead><tbody>
+          <div className={styles.tableScroll}><table className={styles.comparison}><thead><tr><th>Event</th><th>Peak occupancy</th><th>Opening → closing</th><th>Recorded occupancy drops</th></tr></thead><tbody>
             {attendanceRows.map((event) => <tr key={event.summary.run.key}><td><button onClick={() => setSelectedKey(event.summary.run.key)}>{event.summary.run.session.title}</button><small>{trackName(event.summary.run.session.track)}</small></td>
               <td><strong>{percent(event.summary.peak)}{event.summary.peak !== undefined ? " full" : ""}</strong><small>{event.summary.timeToPeak === undefined ? "Time to peak unknown" : `${readableDuration(event.summary.timeToPeak * MINUTE)} after start`}</small></td>
               <td>{event.summary.opening === undefined ? "Not reported" : `${percent(event.summary.opening)} → ${percent(event.summary.closing)}`}</td>
-              <td>{event.drop ? <><strong>{event.drop.from.occupied}% → {event.drop.to.occupied}%</strong><small>at {formatTime(event.drop.to.time)}</small></> : "No large fall reported"}</td></tr>)}
+              <td>{event.recordedDrops.length ? event.recordedDrops.map(({ from, to }) => <div key={to.revision}><strong>{from.occupied}% → {to.occupied}%</strong><small>{formatTime(from.time)} → {formatTime(to.time)}</small></div>) : "No drop recorded"}</td></tr>)}
           </tbody></table></div>
           {overview.events.length > 6 && <button className={styles.moreButton} onClick={() => setAllAttendance(!allAttendance)}>{allAttendance ? "Show fewer events ↑" : `Compare all ${overview.events.length} events ↓`}</button>}
         </section>
