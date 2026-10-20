@@ -28,6 +28,7 @@ export type SiteRoute = {
 export const AGENDA_READY = process.env.AGENDA_READY === "true";
 
 export const siteRoutes: SiteRoute[] = [
+  { href: "/admin/analysis", label: "Post-event analysis", description: "Organizer analysis of occupancy, timing and reporting coverage.", inNav: false, noIndex: true },
   { href: "/", label: "Home", description: "Tracks, schedule preview and the lineup.", inNav: true },
   { href: "/live", label: "Live", description: "Live track occupancy and current sessions.", inNav: true },
   ...(AGENDA_READY
