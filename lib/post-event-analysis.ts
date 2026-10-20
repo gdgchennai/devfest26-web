@@ -18,11 +18,11 @@ export function formatTime(ms: number | undefined, date = false) {
   }).format(ms);
 }
 const mutationSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("occupancy"), zone: z.string(), occupied: z.number().int().min(0).max(100) }),
-  z.object({ kind: z.literal("session"), zone: z.string(), session: z.string(), status: z.enum(["started", "ended"]) }),
-  z.object({ kind: z.literal("reset") }),
-  z.object({ kind: z.literal("clock"), now: z.number().nullable() }),
-  z.object({ kind: z.literal("promotions") }),
+  z.object({ kind: z.literal("occupancy"), zone: z.string(), occupied: z.number().int().min(0).max(100) }).passthrough(),
+  z.object({ kind: z.literal("session"), zone: z.string(), session: z.string(), status: z.enum(["started", "ended"]) }).passthrough(),
+  z.object({ kind: z.literal("reset") }).passthrough(),
+  z.object({ kind: z.literal("clock"), now: z.number().nullable() }).passthrough(),
+  z.object({ kind: z.literal("promotions") }).passthrough(),
 ]);
 export type Mutation = z.infer<typeof mutationSchema>;
 export type AuditRow = { revision: number; actor: string; changed_at: number; payload: Mutation };
@@ -102,7 +102,8 @@ export function reconstruct(data: AnalysisData): History {
     } else if (m.kind === "occupancy") {
       const reading: Reading = { revision: row.revision, time: row.changed_at, zone: m.zone, occupied: m.occupied, actor: row.actor, runKey: active.get(m.zone)?.key };
       readings.push(reading);
-      openReadings.set(m.zone, [...(openReadings.get(m.zone) ?? []), reading]);
+      const pending = openReadings.get(m.zone) ?? [];
+      pending.push(reading); openReadings.set(m.zone, pending);
       actions.push({ ...row, zone: m.zone, runKey: reading.runKey });
     }
   }
@@ -235,7 +236,7 @@ export function analyze(data: AnalysisData, settings: Settings) {
       lastFlagEnd = i;
     }
   }
-  const actions = history.actions.filter((a) => a.changed_at >= start && a.changed_at < end && trackOk(a.zone) && actorOk(a.actor) && eventOk(a.runKey) && (settings.outside || a.runKey));
+  const actions = history.actions.map((a) => inferredReadings.has(a.revision) ? { ...a, runKey: inferredReadings.get(a.revision) } : a).filter((a) => a.changed_at >= start && a.changed_at < end && trackOk(a.zone) && actorOk(a.actor) && eventOk(a.runKey) && (settings.outside || a.runKey));
   const covered = summaries.reduce((n, s) => n + s.segments.reduce((m, segment) => m + segment.end - segment.start, 0), 0);
   const duration = summaries.reduce((n, s) => n + s.duration, 0);
   return { history, runs: selectedRuns, runMap, readings: visible, segments, summaries, flags, actions, start, end,
@@ -255,7 +256,7 @@ export function median(values: number[]) {
 export function csv(rows: (string | number | undefined)[][]) {
   return rows.map((row) => row.map((v) => {
     let s = v === undefined ? "" : String(v);
-    if (/^[\s]*[=+@-]/.test(s)) s = `'${s}`;
+    if (typeof v === "string" && /^[\s]*[=+@-]/.test(s)) s = `'${s}`;
     return `"${s.replaceAll('"', '""')}"`;
   }).join(",")).join("\r\n");
 }

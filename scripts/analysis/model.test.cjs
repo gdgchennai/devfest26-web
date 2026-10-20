@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS hooks transpile the real TS modules and isolate offline test dependencies. */
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const ts = require('typescript');
@@ -86,6 +87,7 @@ test('inferred windows are opt-in and never generate departure claims', () => {
   const result = m.analyze(data(audit), settings({ infer: true }));
   assert.equal(result.readings.length, 2);
   assert.equal(result.runs[0].inferred, true);
+  assert.equal(result.actions.length, 2);
   assert.equal(result.flags.length, 0);
 });
 test('flags incomplete revision history and validates custom ranges', () => {
@@ -95,4 +97,11 @@ test('flags incomplete revision history and validates custom ranges', () => {
 });
 test('CSV prevents formulas and escapes quotes', () => {
   assert.equal(m.csv([['=HYPERLINK()', 'A"B', 80]]), '"\'=HYPERLINK()","A""B","80"');
+});
+
+test('preserves mutation metadata and numeric negative CSV values', () => {
+  const input = reading(1, 0, 80);
+  input.payload.loadTest = 'setup-run';
+  assert.equal(data([input]).audit[0].payload.loadTest, 'setup-run');
+  assert.equal(m.csv([[-20]]), '\"-20\"');
 });

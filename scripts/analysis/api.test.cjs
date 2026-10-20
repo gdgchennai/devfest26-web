@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- CommonJS hooks transpile the real TS modules and isolate offline test dependencies. */
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('node:module');
