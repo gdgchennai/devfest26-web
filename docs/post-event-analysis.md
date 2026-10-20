@@ -29,6 +29,38 @@ An offline import stays in the tab's memory; it is not uploaded or stored in
 localStorage. Clear data or reload to discard it. The static shell may still
 load the site's usual shared shell resources in normal builds.
 
+### Testing hosted history on localhost
+
+The dashboard's database button reads the database bound to the **current server**.
+Use the exact Local URL printed by `next dev` (normally `http://localhost:3000`);
+Next.js can block development resources when using an unapproved hostname alias.
+Normal `next dev` uses local D1; a hosted-site session does not authenticate you
+on localhost. Without a local session the endpoint returns 401 and the dashboard
+shows a sign-in link. Signing in locally also requires the local database schema,
+OAuth configuration and `ADMIN_EMAILS` in `.dev.vars`.
+
+To analyze actual event history without deploying or pointing the application at
+production, explicitly run this read-only pull from the repository root:
+
+```sh
+npm run analysis:pull
+```
+
+This contacts hosted Cloudflare D1 through your existing Wrangler credentials,
+performs one SELECT of the full audit and reporter display names, and saves
+`.wrangler/post-event-analysis/history.json` (git-ignored, file mode 0600).
+No migrations, database writes, application sign-in or deployment are performed.
+If Wrangler is not authenticated, run `npx wrangler login` first. Then open
+`/admin/analysis` on localhost, choose **Import audit JSON**, and select that file.
+Use the original event-day agenda snapshot in the bundle if the current agenda
+has changed. Re-running the command replaces the local snapshot; a failed export
+leaves the existing one intact.
+
+`npm run analysis:pull -- --dry-run` prints the SELECT and output path without
+network access or writes. The command is never run by the dev server or dashboard.
+The dashboard's server request times out after 15 seconds and reports a clear
+error; authentication/runtime failures return an uncached JSON 503.
+
 ### Supported JSON imports
 
 Maximum input size: 10 MiB and 50,000 rows. The parser accepts:
@@ -135,7 +167,7 @@ establish disinterest, causation, or individual movement.
 ## Local verification
 
 ```sh
-node --test scripts/analysis/*.test.cjs
+node --test scripts/analysis/*.test.cjs scripts/analysis/*.test.mjs
 npx tsc --noEmit
 npm run lint
 NEXT_PUBLIC_HALL_ISOLATED=1 npm run dev -- --hostname 127.0.0.1
@@ -150,7 +182,7 @@ Cloudflare. Existing unrelated lint failures are not changed.
 
 ### Verification for this implementation
 
-- 21 offline model/API checks pass; root TypeScript is clean. Full ESLint has
+- 25 offline model/API/export checks pass; root TypeScript is clean. Full ESLint has
   the existing baseline of 10 errors and 4 warnings, with none in new files.
 - Browser-reviewed desktop and phone layouts, including lite and full mode;
   tested custom dates, schedule shift, event details, track filtering, panel
