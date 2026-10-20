@@ -1,0 +1,154 @@
+.dashboard { position: relative; z-index: 10; max-width: 1380px; margin: auto; padding: 104px 32px 80px; color: var(--paper); background: var(--ink); }
+.dashboard button, .dashboard input, .dashboard summary { font: inherit; }
+.dashboard button, .dashboard summary { cursor: pointer; }
+.dashboard button:disabled { cursor: wait; opacity: .5; }
+.dashboard button:focus-visible, .dashboard input:focus-visible, .dashboard summary:focus-visible, .dashboard a:focus-visible, .chartPoint:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 30px 0 24px; }
+.eyebrow { color: var(--blue); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+.header h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; line-height: 1.15; letter-spacing: -.04em; }
+.subtitle { margin-top: 10px; font-size: 14px; color: color-mix(in srgb, var(--paper) 65%, transparent); }
+.dataMenu { position: relative; flex-shrink: 0; font-size: 12px; }
+.dataMenu summary { padding: 10px 13px; border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); border-radius: 8px; list-style: none; color: color-mix(in srgb, var(--paper) 75%, transparent); }
+.dataMenu summary span { margin-left: 18px; }
+.dataOptions { position: absolute; right: 0; top: 48px; width: 270px; z-index: 30; padding: 10px; border: 1px solid color-mix(in srgb, var(--paper) 20%, transparent); border-radius: 10px; background: var(--ink); box-shadow: 0 14px 36px color-mix(in srgb, var(--ink) 80%, transparent); }
+.dataOptions button, .fileButton { display: block; width: 100%; padding: 10px 12px; text-align: left; background: transparent; color: var(--paper); border-radius: 5px; cursor: pointer; }
+.dataOptions button:hover, .fileButton:hover { background: color-mix(in srgb, var(--paper) 7%, transparent); }
+.dataOptions p { font-size: 11px; line-height: 1.6; color: color-mix(in srgb, var(--paper) 55%, transparent); padding: 8px 12px 4px; }
+.fileButton input, .primary input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.fileButton:focus-within, .primary:focus-within { outline: 2px solid var(--blue); outline-offset: 2px; }
+.toolbar { display: flex; align-items: center; gap: 24px; padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent); border-radius: 10px; margin-bottom: 12px; }
+.controlLabel { display: block; color: color-mix(in srgb, var(--paper) 55%, transparent); font-size: 11px; margin-bottom: 4px; }
+.rangePicker { position: relative; font-size: 13px; }
+.rangePicker summary { list-style: none; }
+.rangeFields { position: absolute; left: 0; top: 54px; z-index: 20; background: var(--ink); border: 1px solid color-mix(in srgb, var(--paper) 22%, transparent); border-radius: 10px; padding: 18px; width: 340px; box-shadow: 0 14px 36px var(--ink); display: grid; gap: 14px; }
+.rangeFields label { display: grid; gap: 6px; font-size: 12px; color: color-mix(in srgb, var(--paper) 65%, transparent); }
+.rangeFields input { min-width: 0; padding: 8px; color: var(--paper); background: var(--ink); border: 1px solid color-mix(in srgb, var(--paper) 25%, transparent); border-radius: 6px; }
+.delay { border-left: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); padding-left: 24px; font-size: 13px; }
+.delay input { width: 62px; padding: 2px 5px; color: var(--paper); background: color-mix(in srgb, var(--paper) 5%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); border-radius: 4px; }
+.toolbarNote { margin-left: auto; font-size: 11px; color: color-mix(in srgb, var(--paper) 45%, transparent); }
+.sampleNote { font-size: 12px; color: var(--yellow); margin: 12px 0 18px; }
+.error { padding: 12px 0; color: var(--red); font-size: 13px; line-height: 1.6; }
+.error a { color: var(--paper); text-decoration: underline; }
+.takeaways { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+.takeaway { position: relative; text-align: left; display: flex; flex-direction: column; min-height: 183px; padding: 20px; border: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--paper) 3%, var(--ink)); color: var(--paper); }
+.takeaway:hover, .takeaway[aria-pressed="true"] { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 6%, var(--ink)); }
+.takeawayLabel { font-size: 13px; color: color-mix(in srgb, var(--paper) 75%, transparent); }
+.takeawayLabel::before { content: ''; width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: var(--blue); margin-right: 8px; }
+.takeaway[data-tone="drop"] .takeawayLabel::before { background: var(--yellow); }
+.takeaway[data-tone="full"] .takeawayLabel::before { background: var(--green); }
+.takeaway strong { margin: 9px 0 5px; font-size: clamp(25px, 3vw, 33px); font-weight: 600; letter-spacing: -.04em; }
+.takeawayDescription { font-size: 11px; line-height: 1.5; color: color-mix(in srgb, var(--paper) 55%, transparent); }
+.cardLink { font-size: 11px; color: var(--blue); margin-top: auto; padding-top: 15px; }
+.cardLink span { float: right; }
+.measurementNote, .note { color: color-mix(in srgb, var(--paper) 55%, transparent); font-size: 12px; line-height: 1.65; }
+.measurementNote { margin: 12px 0 0; }
+.eventSection { margin-top: 36px; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; }
+.sectionHeading h2 { font-size: 21px; font-weight: 600; letter-spacing: -.025em; }
+.sectionHeading p { margin-top: 6px; font-size: 12px; line-height: 1.6; color: color-mix(in srgb, var(--paper) 55%, transparent); }
+.textButton { color: var(--blue); background: transparent; font-size: 12px !important; text-align: left; white-space: nowrap; padding: 5px 0; }
+.events { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.eventCard { display: flex; flex-direction: column; min-height: 203px; color: var(--paper); text-align: left; background: var(--ink); border: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); border-radius: 11px; padding: 19px; }
+.eventCard:hover { border-color: color-mix(in srgb, var(--blue) 70%, transparent); background: color-mix(in srgb, var(--blue) 3%, var(--ink)); }
+.eventMeta { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; color: color-mix(in srgb, var(--paper) 50%, transparent); }
+.gapLabel { display: inline-block; width: fit-content; font-size: 11px; font-weight: 400; line-height: 1.5; color: var(--yellow); background: color-mix(in srgb, var(--yellow) 8%, transparent); border-radius: 4px; padding: 2px 6px; margin: 4px 0; }
+.eventCard h3 { font-size: 15px; font-weight: 500; line-height: 1.45; margin: 10px 0 14px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.eventTakeaway { margin-top: auto; font-size: 15px; color: var(--blue); font-weight: 500; }
+.eventTakeaway[data-tone="drop"] { color: var(--yellow); }
+.eventTakeaway[data-tone="full"] { color: var(--green); }
+.occupancyBar { height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--paper) 10%, transparent); margin: 12px 0 11px; overflow: hidden; }
+.occupancyBar span { display: block; height: 100%; background: var(--blue); }
+.eventFooter { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: color-mix(in srgb, var(--paper) 50%, transparent); }
+.eventFooter > span:last-child { color: var(--blue); white-space: nowrap; }
+.moreButton { display: block; margin: 20px auto 0; padding: 8px 15px; border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); border-radius: 7px; background: transparent; color: color-mix(in srgb, var(--paper) 75%, transparent); font-size: 12px !important; }
+.empty { text-align: center; padding: 48px 20px; border: 1px dashed color-mix(in srgb, var(--paper) 20%, transparent); border-radius: 12px; }
+.empty h3 { font-size: 18px; font-weight: 500; margin-bottom: 10px; }
+.empty p { font-size: 13px; color: color-mix(in srgb, var(--paper) 55%, transparent); line-height: 1.7; }
+.emptyActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.primary, .secondary { display: inline-block; padding: 10px 15px; border-radius: 7px; font-size: 12px !important; cursor: pointer; }
+.primary { color: var(--ink); background: var(--blue); font-weight: 600; }
+.secondary { color: var(--paper); border: 1px solid color-mix(in srgb, var(--paper) 25%, transparent); background: transparent; }
+.comparisonSection { margin-top: 48px; border-top: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); padding-top: 28px; }
+.tableScroll { overflow-x: auto; }
+.comparison { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+.comparison th { padding: 13px 14px; font-size: 11px; font-weight: 500; color: color-mix(in srgb, var(--paper) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); white-space: nowrap; }
+.comparison td { padding: 15px 14px; border-bottom: 1px solid color-mix(in srgb, var(--paper) 8%, transparent); min-width: 140px; vertical-align: middle; }
+.comparison td:first-child { width: 40%; min-width: 250px; }
+.comparison button { text-align: left; color: var(--paper); background: transparent; line-height: 1.5; }
+.comparison button:hover { color: var(--blue); }
+.comparison strong { font-weight: 500; }
+.comparison small { display: block; font-size: 11px; margin-top: 5px; color: color-mix(in srgb, var(--paper) 50%, transparent); }
+.dataNotes { margin-top: 28px; color: color-mix(in srgb, var(--paper) 55%, transparent); font-size: 12px; line-height: 1.7; }
+.dataNotes summary { cursor: pointer; }
+.dataNotes p { margin-top: 10px; }
+.dialog { position: fixed; inset: 0; margin: auto; width: min(950px, 94vw); max-height: 88vh; overflow-y: auto; padding: 30px; border: 1px solid color-mix(in srgb, var(--paper) 22%, transparent); border-radius: 15px; background: var(--ink); color: var(--paper); }
+.dialog::backdrop { background: color-mix(in srgb, var(--ink) 85%, transparent); }
+.dialog button { font: inherit; cursor: pointer; }
+.closeButton { display: block; margin-left: auto; background: transparent; border: 1px solid color-mix(in srgb, var(--paper) 25%, transparent); border-radius: 6px; padding: 6px 10px; color: var(--paper); font-size: 12px !important; }
+.dialog h2 { font-size: 25px; font-weight: 600; letter-spacing: -.025em; line-height: 1.35; margin: 8px 0 12px; }
+.detailTakeaway { font-size: 19px; color: var(--blue); margin-bottom: 8px; }
+.timeline { margin: 24px 0; }
+.timeline svg { width: 100%; }
+.timeline text { fill: color-mix(in srgb, var(--paper) 60%, transparent); font-size: 13px; font-family: inherit; }
+.axisTitle { font-size: 12px !important; }
+.gridLine { stroke: color-mix(in srgb, var(--paper) 12%, transparent); stroke-dasharray: 3 5; }
+.chartFill { fill: color-mix(in srgb, var(--blue) 15%, transparent); }
+.chartLine { stroke: var(--blue); stroke-width: 3; }
+.fullLine { stroke: var(--green); stroke-width: 3; }
+.chartPoint { cursor: pointer; }
+.dot { fill: var(--blue); stroke: var(--ink); stroke-width: 1; }
+.chartPoint:hover .dot, .chartPoint[aria-pressed="true"] .dot { fill: var(--paper); }
+.chartCaption { font-size: 12px; color: color-mix(in srgb, var(--paper) 60%, transparent); text-align: center; min-height: 20px; }
+.chartEmpty { padding: 40px 15px; margin: 22px 0; background: color-mix(in srgb, var(--paper) 4%, transparent); color: color-mix(in srgb, var(--paper) 60%, transparent); text-align: center; font-size: 13px; }
+.detailMetrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); border-radius: 8px; }
+.detailMetrics > div { padding: 15px; }
+.detailMetrics > div + div { border-left: 1px solid color-mix(in srgb, var(--paper) 12%, transparent); }
+.detailMetrics span, .detailTimingGrid span { display: block; font-size: 11px; color: color-mix(in srgb, var(--paper) 55%, transparent); }
+.detailMetrics strong { display: block; margin: 8px 0; font-size: 20px; font-weight: 500; }
+.detailMetrics small, .dropDetail small { display: block; font-size: 11px; color: color-mix(in srgb, var(--paper) 50%, transparent); line-height: 1.6; }
+.dropDetail { margin-top: 22px; padding: 18px; border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--yellow) 3%, transparent); }
+.dropDetail h3, .detailTiming h3 { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.dropDetail p { font-size: 14px; color: var(--yellow); margin-bottom: 7px; }
+.detailTiming { margin-top: 26px; }
+.detailTimingGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.detailTimingGrid > div { padding: 16px; border: 1px solid color-mix(in srgb, var(--paper) 13%, transparent); border-radius: 8px; }
+.detailTimingGrid strong { display: block; font-size: 18px; margin: 4px 0 12px; font-weight: 500; }
+.detailTimingGrid small { font-size: 12px; color: var(--blue); }
+.detailFootnote { margin: 24px 0 0; font-size: 11px; line-height: 1.7; color: color-mix(in srgb, var(--paper) 50%, transparent); }
+@media (max-width: 1000px) { .takeaways { grid-template-columns: repeat(2, minmax(0, 1fr)); } .events { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .dashboard { padding: 95px 16px 45px; }
+  .header { margin: 24px 0 18px; align-items: flex-start; gap: 12px; flex-direction: column; }
+  .header h1 { font-size: 31px; }
+  .subtitle { font-size: 13px; line-height: 1.6; }
+  .dataMenu summary { padding: 7px 10px; font-size: 11px; }
+  .dataOptions { left: 0; right: auto; }
+  .toolbar { padding: 12px; gap: 16px; flex-wrap: wrap; }
+  .rangePicker { font-size: 11px; width: 100%; }
+  .rangeFields { width: min(310px, calc(100vw - 60px)); }
+  .delay { border-left: 0; padding-left: 0; display: flex; gap: 12px; align-items: center; }
+  .delay .controlLabel { margin-bottom: 0; }
+  .takeaways { gap: 9px; }
+  .takeaway { padding: 14px; min-height: 171px; }
+  .takeawayLabel { font-size: 11px; }
+  .takeaway strong { font-size: 26px; }
+  .takeawayDescription { font-size: 10px; }
+  .takeawayLabel::before { margin-right: 5px; width: 5px; height: 5px; }
+  .sectionHeading { gap: 12px; }
+  .sectionHeading h2 { font-size: 18px; }
+  .sectionHeading p { font-size: 11px; }
+  .events { grid-template-columns: 1fr; }
+  .eventCard { min-height: 180px; }
+  .dialog { padding: 19px; }
+  .dialog h2 { font-size: 21px; }
+  .detailTakeaway { font-size: 16px; }
+  .detailMetrics { grid-template-columns: 1fr 1fr; }
+  .detailMetrics > div:nth-child(3) { border-left: 0; }
+  .detailMetrics > div:nth-child(n+3) { border-top: 1px solid color-mix(in srgb, var(--paper) 12%, transparent); }
+  .detailMetrics strong { font-size: 18px; }
+}
+
+.periods { margin-top: 18px; font-size: 12px; color: color-mix(in srgb, var(--paper) 70%, transparent); }
+.periods summary { cursor: pointer; padding: 8px 0; }
+.periods li { display: flex; justify-content: space-between; gap: 18px; padding: 9px 0; border-bottom: 1px solid color-mix(in srgb, var(--paper) 10%, transparent); }
+.periods strong { font-weight: 500; }
