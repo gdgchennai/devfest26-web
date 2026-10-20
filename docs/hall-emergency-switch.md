@@ -8,7 +8,7 @@ variable, not a Next.js build variable or private hall backend setting.
 ## Before the event
 
 Deploy the frontend containing this implementation once, with Live enabled.
-The branch is `hall-availability-prod`; the frontend Worker is still named
+Confirm the frontend target in root `wrangler.jsonc`; this checkout targets
 `devfest-hall-availability-test` (a Git branch rename does not rename a Worker).
 The private `devfest-hall-live` backend needs no deployment for this switch.
 
