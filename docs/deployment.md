@@ -389,8 +389,56 @@ collision — restart `npm run dev`.
 
 ## Hall live integration
 
-The `/live` and `/admin/halls` pages require the separate `devfest-hall-live` realtime Worker. Root configuration declares private `HALL_CONTROL` and read-only `HALL_PUBLIC` service bindings, and wraps OpenNext fetch to forward WebSocket upgrades. Existing D1, R2, Images, self-reference and domain bindings remain in place. Follow [production readiness](hall-production-readiness.md) before deploying. `wrangler.hall-local.jsonc`, local fixture flags and isolated bundles are never production deployment configs. Production permissions use the existing track RBAC; only super-admins manage hall priorities.
+The `/live` and `/admin/halls` pages require the separate `devfest-hall-live` realtime Worker. Root configuration declares private `HALL_CONTROL` and read-only `HALL_PUBLIC` service bindings, and wraps OpenNext fetch to forward WebSocket upgrades. Existing D1, R2, Images, self-reference and domain bindings remain in place. Follow [the hall deployment sequence](#hall-deployment-sequence) before deploying. `wrangler.hall-local.jsonc`, local fixture flags and isolated bundles are never production deployment configs. Production permissions use the existing track RBAC; only super-admins manage hall priorities.
 
+
+### Hall deployment sequence
+
+Confirm the intended frontend target in root `wrangler.jsonc` before running any
+command: this checkout targets `devfest-hall-availability-test`, not the production
+custom domain. The frontend shares production D1 and `devfest-hall-live`; deploying
+the private backend affects both frontends. Preserve existing auth, push and other
+secrets; do not replace them from a local dotenv file or seed test values remotely.
+
+1. Export and verify a fresh private database backup, and review pending migrations.
+   The hall additions are `0014_hall_live.sql` and `0015_hall_manual_sessions.sql`;
+   retain both distinct existing `0014` filenames. These add hall state, not fake
+   occupancy, role grants or running events. Apply only reviewed pending migrations:
+
+   ```sh
+   npx wrangler d1 migrations apply devfest-chennai-2026 --config wrangler.jsonc --remote
+   ```
+
+2. Deploy the private hall service first. Its config creates the SQLite-backed
+   `HallCoordinator` namespace and named `HallControl` entrypoint:
+
+   ```sh
+   npx wrangler deploy --config workers/hall-live/wrangler.jsonc
+   ```
+
+3. Record the active frontend/backend versions for rollback. Build/deploy the full
+   site with Agenda enabled and local isolation disabled; never publish an old
+   `hall:build` bundle. Production runtime must not enable `HALL_LOCAL_TEST` or
+   `HALL_LOAD_TEST`. Check the combined gzip bundle and hosted CPU/quota headroom
+   against the existing plan; do not change billing as part of deployment.
+
+   ```sh
+   AGENDA_READY=true NEXT_PUBLIC_HALL_ISOLATED=0 npm run deploy
+   ```
+
+4. Verify Home, Live, Agenda, Speakers, Google sign-in, anonymous/ordinary-user
+   denials, assigned track-admin/lead access, super-admin priorities and updates
+   between two browsers. Manage real track assignments in `/admin/users` after
+   sign-in; `ADMIN_EMAILS` defines super-admins. Do not use `hall_leads` for
+   production grants. Coordinate real Start/End actions with organizers.
+
+The hall service has no public hostname; browsers use frontend `/api/halls/socket`.
+Existing OAuth callbacks must match the selected frontend hostname (see branch
+separation above). Deploy the app and coordinator together when bundled agenda
+content changes. The ticketing Worker does not need redeployment. Rollback means
+reverting application deployments, not dropping additive tables or overwriting
+the shared database. Hall lifecycle and saved-session push remain separate;
+see [the feature guide](hall-availability.md#existing-sessions-page).
 
 ### Hall deployment verification — 16 October 2026
 
@@ -400,7 +448,7 @@ The availability frontend is serving version
 `bf061986-e6a4-48eb-b5cb-d93ec5bf7486` at 100%, deployed through the dashboard.
 Saving/pushing the latest configuration and reports does not itself deploy them.
 No connection-recovery changes were implemented or deployed during the audit.
-See [the realistic five-minute rehearsal](hall-realistic-five-minute-report-2026-10-16.md)
+See [the consolidated verification history](hall-verification-history.md)
 for the failed reliability checks, quota model and verified data restoration.
 
 

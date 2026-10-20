@@ -1,0 +1,4229 @@
+{
+  "description": "Historical hall verification evidence from 14–16 October 2026. Original JSON payloads are preserved by source filename; embedded filenames, local paths and deployment observations are historical, not current instructions. See hall-verification-history.md for interpretation.",
+  "reports": {
+    "hall-event-load-evidence-2026-10-16.json": {
+      "date": "2026-10-16",
+      "expectations": "hall-event-load-expectations.md",
+      "localSequential": {
+        "date": "2026-10-16T12:07:10.199Z",
+        "clients": 1520,
+        "acceptedConnections": 1820,
+        "authorizedChanges": 200,
+        "setupClockWrites": 1,
+        "lifecycleWrites": 2,
+        "healthyBroadcastGaps": 0,
+        "updatesSequential": true,
+        "finalRevision": 219,
+        "missed": 0,
+        "unexpectedDisconnects": 0,
+        "disconnectEvents": 300,
+        "reconnects": 300,
+        "conflicts": 0,
+        "unauthorizedRejected": 3,
+        "transportRetries": 0,
+        "duplicates": 300,
+        "outOfOrder": 0,
+        "propagationMs": {
+          "p50": 45.41,
+          "p95": 64.16,
+          "p99": 100.28
+        },
+        "samples": 308860,
+        "elapsedSeconds": 163.044,
+        "soakSeconds": 120,
+        "loadGeneratorRSS": 359854080,
+        "loadGeneratorCPUms": 11235.513
+      },
+      "localConcurrent": {
+        "started": "2026-10-16T12:07:16.657Z",
+        "localOnly": true,
+        "authBypassedAtTrustedBackend": true,
+        "productionActorLimit": 90,
+        "clients": 1520,
+        "actors": 20,
+        "rounds": 200,
+        "committed": 4000,
+        "conflicts": 19,
+        "statuses": {
+          "200": 4001,
+          "409": 19
+        },
+        "unexpectedCloses": 0,
+        "gaps": 0,
+        "regressions": 0,
+        "peakOpen": 1520,
+        "racePassed": true,
+        "reconnected": 300,
+        "converged": 1520,
+        "audit": {
+          "n": 4001,
+          "actors": 20
+        },
+        "soakSeconds": 120,
+        "result": "PASS",
+        "propagationMs": {
+          "p50": 48.42264999999952,
+          "p95": 81.77109200000996,
+          "p99": 97.43662700000277,
+          "samples": 6081820
+        },
+        "initialSnapshotMs": {
+          "p95": 535.6937790000084,
+          "samples": 1820
+        },
+        "elapsedSeconds": 367.233585156,
+        "loadGeneratorRSS": 1039306752
+      },
+      "hostedInitialFailure": {
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T12:01:18.915Z",
+        "clients": 25,
+        "soakSeconds": 30,
+        "readonly": true,
+        "attempts": 25,
+        "accepted": 0,
+        "unexpectedCloses": 0,
+        "errors": 25,
+        "regressions": 0,
+        "duplicates": 0,
+        "revisionGaps": 0,
+        "httpStatuses": {
+          "200": 1
+        },
+        "initialRevision": 2,
+        "result": "FAIL",
+        "error": "Initial snapshot timeout",
+        "initialSnapshotMs": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "elapsedSeconds": 17.169613405,
+        "closeCodes": {
+          "1006": 25
+        },
+        "remainingSockets": 0,
+        "loadGeneratorRSS": 88195072
+      },
+      "hostedFive": {
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T12:06:42.775Z",
+        "clients": 5,
+        "soakSeconds": 10,
+        "readonly": true,
+        "attempts": 10,
+        "accepted": 10,
+        "unexpectedCloses": 0,
+        "errors": 0,
+        "regressions": 0,
+        "duplicates": 0,
+        "revisionGaps": 0,
+        "httpStatuses": {
+          "200": 2
+        },
+        "initialRevision": 2,
+        "peakOpen": 5,
+        "reconnected": 5,
+        "reconnectMs": 3684.198966,
+        "finalRevision": 2,
+        "converged": 5,
+        "result": "PASS",
+        "initialSnapshotMs": {
+          "p50": 3389.879992,
+          "p95": 3433.162124999999,
+          "p99": 3433.162124999999,
+          "samples": 10
+        },
+        "elapsedSeconds": 23.583700491,
+        "closeCodes": {
+          "1000": 10
+        },
+        "remainingSockets": 0,
+        "loadGeneratorRSS": 84557824
+      },
+      "hostedTwentyFive": {
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T12:07:24.309Z",
+        "clients": 25,
+        "soakSeconds": 30,
+        "readonly": true,
+        "attempts": 50,
+        "accepted": 50,
+        "unexpectedCloses": 0,
+        "errors": 0,
+        "regressions": 0,
+        "duplicates": 0,
+        "revisionGaps": 0,
+        "httpStatuses": {
+          "200": 2
+        },
+        "initialRevision": 2,
+        "peakOpen": 25,
+        "reconnected": 25,
+        "reconnectMs": 12820.758687000001,
+        "finalRevision": 2,
+        "converged": 25,
+        "result": "PASS",
+        "initialSnapshotMs": {
+          "p50": 12567.257696,
+          "p95": 13376.273455,
+          "p99": 13379.031796,
+          "samples": 50
+        },
+        "elapsedSeconds": 62.845654993000004,
+        "closeCodes": {
+          "1000": 50
+        },
+        "remainingSockets": 0,
+        "loadGeneratorRSS": 89395200
+      },
+      "hostedTwentyFiveAcceptance": {
+        "transport": "PASS",
+        "initialSnapshotP95TargetMs": 5000,
+        "latency": "FAIL",
+        "escalationStopped": true
+      },
+      "hostedAccess": [
+        {
+          "probe": "anonymous",
+          "status": 401
+        },
+        {
+          "probe": "forged-local-organizer-cookie",
+          "status": 401
+        }
+      ],
+      "latestRunnerLocalValidation": {
+        "target": "http://127.0.0.1:8787",
+        "started": "2026-10-16T12:08:54.993Z",
+        "clients": 25,
+        "soakSeconds": 2,
+        "readonly": true,
+        "attempts": 50,
+        "accepted": 50,
+        "unexpectedCloses": 0,
+        "errors": 0,
+        "regressions": 0,
+        "duplicates": 0,
+        "revisionGaps": 0,
+        "httpStatuses": {
+          "200": 2
+        },
+        "initialRevision": 219,
+        "peakOpen": 25,
+        "reconnected": 25,
+        "reconnectMs": 543.8004420000002,
+        "finalRevision": 219,
+        "converged": 25,
+        "result": "PASS",
+        "initialSnapshotMs": {
+          "p50": 291.82764199999974,
+          "p95": 353.04159400000003,
+          "p99": 355.355026,
+          "samples": 50
+        },
+        "transportResult": "PASS",
+        "acceptance": {
+          "initialSnapshotP95Within5s": true,
+          "reconnectWithin30s": true
+        },
+        "elapsedSeconds": 4.356681297,
+        "closeCodes": {
+          "1000": 50
+        },
+        "remainingSockets": 0,
+        "loadGeneratorRSS": 91893760
+      },
+      "accountAfter": {
+        "workerInvocationSum": 28073,
+        "d1": [
+          {
+            "sum": {
+              "rowsRead": 65772,
+              "rowsWritten": 527
+            }
+          }
+        ],
+        "durableObjects": [
+          {
+            "max": {
+              "activeWebsocketConnections": 72,
+              "memoryUsageBytes": 37687260
+            },
+            "sum": {
+              "duration": 120.94426035199997,
+              "exceededCpuErrors": 0,
+              "exceededMemoryErrors": 0,
+              "fatalInternalErrors": 0,
+              "rowsRead": 24943,
+              "rowsWritten": 326
+            }
+          }
+        ],
+        "doInvocations": [
+          {
+            "sum": {
+              "errors": 159,
+              "requests": 366
+            }
+          }
+        ]
+      },
+      "subscriptionVerified": false,
+      "hostedMutationsPerformed": 0,
+      "deployed": false,
+      "validation": {
+        "rootTypecheck": "PASS",
+        "hallTypecheck": "PASS",
+        "isolatedBuild": "PASS",
+        "newScriptsLint": "PASS",
+        "repositoryLint": {
+          "errors": 10,
+          "warnings": 4,
+          "newProblems": 0
+        },
+        "functionalSuite": "PASS after isolated rebuild",
+        "restartPersistence": "PASS revision 219"
+      }
+    },
+    "hall-hosted-100-evidence-2026-10-16.json": {
+      "date": "2026-10-16",
+      "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+      "workload": "anonymous public read-only WebSockets",
+      "codeCommit": "f1221158854e07e4386b0d93f09c6b4efe8e9f57",
+      "backendWorker": "devfest-hall-live",
+      "deployedVersion": "6431b79a-0023-4730-b86c-6f27d28bfe8e",
+      "deploymentTrafficPercent": 100,
+      "maximumGeneratorConcurrency": 100,
+      "hostedMutations": 0,
+      "runs": [
+        {
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T13:26:29.058Z",
+          "clients": 1,
+          "soakSeconds": 1,
+          "connectionBatchSize": 1,
+          "readonly": true,
+          "attempts": 2,
+          "accepted": 2,
+          "unexpectedCloses": 0,
+          "errors": 0,
+          "regressions": 0,
+          "duplicates": 0,
+          "revisionGaps": 0,
+          "httpStatuses": {
+            "200": 2
+          },
+          "initialRevision": 11,
+          "peakOpen": 1,
+          "reconnected": 1,
+          "reconnectMs": 1717.0722620000006,
+          "finalRevision": 11,
+          "converged": 1,
+          "result": "PASS",
+          "initialSnapshotMs": {
+            "p50": 1308.1895169999998,
+            "p95": 1466.6111039999996,
+            "p99": 1466.6111039999996,
+            "samples": 2
+          },
+          "transportResult": "PASS",
+          "acceptance": {
+            "initialSnapshotP95Within5s": true,
+            "reconnectWithin30s": true
+          },
+          "elapsedSeconds": 10.226013581,
+          "closeCodes": {
+            "1000": 2
+          },
+          "remainingSockets": 0,
+          "loadGeneratorRSS": 83730432
+        },
+        {
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T13:26:56.556Z",
+          "clients": 25,
+          "soakSeconds": 15,
+          "connectionBatchSize": 25,
+          "readonly": true,
+          "attempts": 50,
+          "accepted": 50,
+          "unexpectedCloses": 0,
+          "errors": 0,
+          "regressions": 0,
+          "duplicates": 0,
+          "revisionGaps": 0,
+          "httpStatuses": {
+            "200": 2
+          },
+          "initialRevision": 11,
+          "peakOpen": 25,
+          "reconnected": 25,
+          "reconnectMs": 1809.7161669999987,
+          "finalRevision": 11,
+          "converged": 25,
+          "result": "PASS",
+          "initialSnapshotMs": {
+            "p50": 1408.3036300000022,
+            "p95": 1659.814484,
+            "p99": 1940.088272,
+            "samples": 50
+          },
+          "transportResult": "PASS",
+          "acceptance": {
+            "initialSnapshotP95Within5s": true,
+            "reconnectWithin30s": true
+          },
+          "elapsedSeconds": 25.377748743999998,
+          "closeCodes": {
+            "1000": 50
+          },
+          "remainingSockets": 0,
+          "loadGeneratorRSS": 90824704
+        },
+        {
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T13:27:31.352Z",
+          "clients": 100,
+          "soakSeconds": 60,
+          "connectionBatchSize": 100,
+          "readonly": true,
+          "attempts": 200,
+          "accepted": 198,
+          "unexpectedCloses": 0,
+          "errors": 2,
+          "regressions": 0,
+          "duplicates": 0,
+          "revisionGaps": 0,
+          "httpStatuses": {
+            "200": 1
+          },
+          "initialRevision": 11,
+          "peakOpen": 100,
+          "result": "FAIL",
+          "error": "Initial snapshot timeout",
+          "initialSnapshotMs": {
+            "p50": 1460.7774099999997,
+            "p95": 1900.327655000001,
+            "p99": 2491.335436,
+            "samples": 198
+          },
+          "transportResult": "FAIL",
+          "acceptance": {
+            "initialSnapshotP95Within5s": true,
+            "reconnectWithin30s": false
+          },
+          "elapsedSeconds": 83.217084315,
+          "closeCodes": {
+            "1000": 197,
+            "1006": 3
+          },
+          "remainingSockets": 0,
+          "loadGeneratorRSS": 100823040
+        }
+      ],
+      "decision": "STOPPED at 100. Initial 100 connections and 60-second hold succeeded; reconnect phase failed with two snapshot timeouts. No larger run or retry performed."
+    },
+    "hall-hosted-1400-readonly-evidence-2026-10-16.json": {
+      "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+      "started": "2026-10-16T13:58:14.169Z",
+      "anonymous": true,
+      "readonly": true,
+      "clients": 1400,
+      "soakSeconds": 30,
+      "simultaneousArrival": true,
+      "retryLimit": 2,
+      "automaticRetries": 19,
+      "unexpectedCloses": 0,
+      "regressions": 0,
+      "revisionGaps": 0,
+      "failures": [
+        {
+          "id": 1233,
+          "client": 1233,
+          "phase": "initial",
+          "startedMs": 2726.201544,
+          "socketMs": 47.15607899999986,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 2355.3453259999997,
+          "tcpMs": 2577.7793570000003,
+          "result": "FAIL",
+          "error": "read ECONNRESET",
+          "errorCode": "ECONNRESET",
+          "failureStage": "TLS handshake",
+          "elapsedMs": 5833.953930000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 72,
+          "client": 72,
+          "phase": "initial",
+          "startedMs": 2477.287819,
+          "socketMs": 281.19007299999976,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 304.3505620000001,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.746713999999,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 179,
+          "client": 179,
+          "phase": "initial",
+          "startedMs": 2505.043927,
+          "socketMs": 254.65592900000001,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 288.71296600000005,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.861475000002,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 209,
+          "client": 209,
+          "phase": "initial",
+          "startedMs": 2515.555346,
+          "socketMs": 244.51675699999987,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 311.646929,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.376311999999,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 216,
+          "client": 216,
+          "phase": "initial",
+          "startedMs": 2517.299391,
+          "socketMs": 242.84756400000015,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 324.94932400000016,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.405399000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 320,
+          "client": 320,
+          "phase": "initial",
+          "startedMs": 2541.146795,
+          "socketMs": 220.18582100000003,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 539.7000499999999,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.183372000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 324,
+          "client": 324,
+          "phase": "initial",
+          "startedMs": 2542.134403,
+          "socketMs": 219.25696599999992,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 547.709824,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.630414000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 543,
+          "client": 543,
+          "phase": "initial",
+          "startedMs": 2597.518654,
+          "socketMs": 166.38453299999992,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 943.9264430000003,
+          "tcpMs": 1051.0807170000003,
+          "tlsMs": 2977.5828280000005,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "HTTP upgrade",
+          "elapsedMs": 14999.853842,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 563,
+          "client": 563,
+          "phase": "initial",
+          "startedMs": 2601.382689,
+          "socketMs": 162.73652700000002,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 995.831608,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 14999.877563000002,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 605,
+          "client": 605,
+          "phase": "initial",
+          "startedMs": 2610.643917,
+          "socketMs": 153.89716399999998,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 1084.5586950000002,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.116515000002,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 888,
+          "client": 888,
+          "phase": "initial",
+          "startedMs": 2663.252406,
+          "socketMs": 108.02662800000007,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 1658.6420200000002,
+          "tcpMs": 1748.6011710000002,
+          "tlsMs": 14630.774222,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "HTTP upgrade",
+          "elapsedMs": 15000.263800999997,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 906,
+          "client": 906,
+          "phase": "initial",
+          "startedMs": 2666.178025,
+          "socketMs": 105.19028399999979,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 1687.4839429999997,
+          "tcpMs": 1779.2051470000001,
+          "tlsMs": 13376.337604999999,
+          "upgradeMs": 14931.871319,
+          "httpStatus": 101,
+          "ray": "a4b794272dfdce83-SIN",
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "snapshot",
+          "elapsedMs": 15000.912131,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 969,
+          "client": 969,
+          "phase": "initial",
+          "startedMs": 2677.700714,
+          "socketMs": 94.01272999999992,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 1816.0417710000002,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15001.173305,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 972,
+          "client": 972,
+          "phase": "initial",
+          "startedMs": 2678.548052,
+          "socketMs": 93.18377400000008,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 1818.2816129999997,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.482519000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 1197,
+          "client": 1197,
+          "phase": "initial",
+          "startedMs": 2720.241524,
+          "socketMs": 52.898379000000205,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 2298.5683240000003,
+          "tcpMs": 2404.746844,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TLS handshake",
+          "elapsedMs": 15000.314901,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 1285,
+          "client": 1285,
+          "phase": "initial",
+          "startedMs": 2735.528631,
+          "socketMs": 38.1285640000001,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 2465.52558,
+          "tcpMs": 2581.9490199999996,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TLS handshake",
+          "elapsedMs": 14999.647149999999,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 1295,
+          "client": 1295,
+          "phase": "initial",
+          "startedMs": 2737.2602460000003,
+          "socketMs": 36.46439399999963,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 2486.2504739999995,
+          "tcpMs": 2595.6201419999998,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TLS handshake",
+          "elapsedMs": 15000.459835000001,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 1580,
+          "client": 163,
+          "phase": "reconnect",
+          "startedMs": 61281.173159,
+          "socketMs": 252.83256699999765,
+          "resolvedAddress": "172.67.196.27",
+          "dnsMs": 282.3911920000028,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.774380999996,
+          "closeCode": 1006,
+          "closeReason": ""
+        },
+        {
+          "id": 1915,
+          "client": 498,
+          "phase": "reconnect",
+          "startedMs": 61357.32952,
+          "socketMs": 178.56929700000182,
+          "resolvedAddress": "104.21.76.142",
+          "dnsMs": 864.8027319999965,
+          "result": "FAIL",
+          "error": "15-second initial snapshot deadline exceeded",
+          "errorCode": null,
+          "failureStage": "TCP connect",
+          "elapsedMs": 15000.683531999995,
+          "closeCode": 1006,
+          "closeReason": ""
+        }
+      ],
+      "closeCodes": {
+        "1000": 2800,
+        "1006": 19
+      },
+      "httpStatuses": {
+        "200": 3
+      },
+      "initialRevision": 11,
+      "peakOpen": 1400,
+      "controlPingChecks": [
+        {
+          "phase": "hold-start",
+          "attempted": 1400,
+          "responded": 1400
+        },
+        {
+          "phase": "hold-end",
+          "attempted": 1400,
+          "responded": 1400
+        },
+        {
+          "phase": "after-reconnect",
+          "attempted": 1400,
+          "responded": 1400
+        }
+      ],
+      "openAfterSoak": 1400,
+      "convergedAfterSoak": 1400,
+      "revisionAfterSoak": 11,
+      "reconnectMs": 17499.103994000005,
+      "finalRevision": 11,
+      "finalOpen": 1400,
+      "finalConverged": 1400,
+      "transportResult": "PASS",
+      "phases": {
+        "initial": {
+          "attempted": 1417,
+          "accepted": 1400,
+          "failed": 17,
+          "metrics": {
+            "dnsMs": {
+              "p50": 1259.9823649999998,
+              "p95": 2539.4111350000003,
+              "p99": 2674.6798000000003,
+              "samples": 1400
+            },
+            "tcpMs": {
+              "p50": 1459.7789279999997,
+              "p95": 2735.4711289999996,
+              "p99": 2866.481068,
+              "samples": 1400
+            },
+            "tlsMs": {
+              "p50": 4262.964122,
+              "p95": 9736.681273999999,
+              "p99": 9950.256231,
+              "samples": 1400
+            },
+            "upgradeMs": {
+              "p50": 8174.22751,
+              "p95": 10758.74833,
+              "p99": 11235.643045,
+              "samples": 1400
+            },
+            "snapshotMs": {
+              "p50": 8177.661678,
+              "p95": 10758.864427999999,
+              "p99": 11235.927704999998,
+              "samples": 1400
+            }
+          }
+        },
+        "reconnect": {
+          "attempted": 1402,
+          "accepted": 1400,
+          "failed": 2,
+          "metrics": {
+            "dnsMs": {
+              "p50": 1272.6168060000055,
+              "p95": 2620.8043709999984,
+              "p99": 2703.9334690000032,
+              "samples": 1400
+            },
+            "tcpMs": {
+              "p50": 1560.4693130000014,
+              "p95": 2807.2052480000057,
+              "p99": 2915.56884,
+              "samples": 1400
+            },
+            "tlsMs": {
+              "p50": 2499.3282340000005,
+              "p95": 4866.492639999997,
+              "p99": 6016.029427999994,
+              "samples": 1400
+            },
+            "upgradeMs": {
+              "p50": 4635.522241000006,
+              "p95": 6944.439167999997,
+              "p99": 7830.972171000001,
+              "samples": 1400
+            },
+            "snapshotMs": {
+              "p50": 4635.847127000008,
+              "p95": 7020.480990999997,
+              "p99": 7921.173512000001,
+              "samples": 1400
+            }
+          }
+        }
+      },
+      "recovery": {
+        "initial": {
+          "clients": 1400,
+          "ready": 1400,
+          "recoveredAfterRetry": 17,
+          "readyMs": {
+            "p50": 8242.257615999999,
+            "p95": 10850.326586000001,
+            "p99": 16353.421556000001,
+            "max": 18391.99516
+          }
+        },
+        "reconnect": {
+          "clients": 1400,
+          "ready": 1400,
+          "recoveredAfterRetry": 2,
+          "readyMs": {
+            "p50": 4658.453170000008,
+            "p95": 7049.933753000005,
+            "p99": 7945.698685000003,
+            "max": 17464.582207
+          }
+        }
+      },
+      "acceptance": {
+        "allControlPingsAnswered": true,
+        "allInitialConnected": true,
+        "allHeldAndConverged": true,
+        "allReconnectedAndConverged": true,
+        "initialP95Within5s": false,
+        "reconnectWithin30s": true
+      },
+      "result": "FAIL",
+      "elapsedSeconds": 85.18035326799999,
+      "remainingSockets": 0,
+      "generator": {
+        "rss": 360423424,
+        "eventLoopDelayP99Ms": 22.413311,
+        "eventLoopDelayMaxMs": 336.592895
+      }
+    },
+    "hall-hosted-500-evidence-2026-10-16.json": {
+      "date": "2026-10-16",
+      "backendWorker": "devfest-hall-live",
+      "backendVersion": "6431b79a-0023-4730-b86c-6f27d28bfe8e",
+      "frontendWorker": "devfest-hall-availability-test",
+      "frontendVersion": "26b39bc1-d214-46b6-9c16-3da53b780eb8",
+      "publicLiveUrl": "https://devfest-hall-availability-test.gdg-chennai.workers.dev/live",
+      "frontendLiveHttpStatus": 200,
+      "hostedApplicationMutations": 0,
+      "run": {
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T13:37:30.616Z",
+        "anonymous": true,
+        "readonly": true,
+        "clients": 500,
+        "soakSeconds": 60,
+        "simultaneousArrival": true,
+        "automaticRetries": 0,
+        "unexpectedCloses": 0,
+        "regressions": 0,
+        "revisionGaps": 0,
+        "failures": [
+          {
+            "id": 585,
+            "client": 85,
+            "phase": "reconnect",
+            "startedMs": 73472.146559,
+            "socketMs": 83.80655299998762,
+            "dnsMs": 149.9430999999895,
+            "result": "FAIL",
+            "error": "15-second initial snapshot deadline exceeded",
+            "errorCode": null,
+            "failureStage": "TCP connect",
+            "elapsedMs": 15000.12823799999,
+            "closeCode": 1006,
+            "closeReason": ""
+          },
+          {
+            "id": 602,
+            "client": 102,
+            "phase": "reconnect",
+            "startedMs": 73475.588292,
+            "socketMs": 80.46335499999986,
+            "dnsMs": 182.1654639999906,
+            "result": "FAIL",
+            "error": "15-second initial snapshot deadline exceeded",
+            "errorCode": null,
+            "failureStage": "TCP connect",
+            "elapsedMs": 15001.709363999995,
+            "closeCode": 1006,
+            "closeReason": ""
+          },
+          {
+            "id": 612,
+            "client": 112,
+            "phase": "reconnect",
+            "startedMs": 73477.443086,
+            "socketMs": 78.66553499999281,
+            "dnsMs": 199.876774999997,
+            "result": "FAIL",
+            "error": "15-second initial snapshot deadline exceeded",
+            "errorCode": null,
+            "failureStage": "TCP connect",
+            "elapsedMs": 14999.962994000001,
+            "closeCode": 1006,
+            "closeReason": ""
+          }
+        ],
+        "closeCodes": {
+          "1000": 996,
+          "1006": 4
+        },
+        "httpStatuses": {
+          "200": 3
+        },
+        "initialRevision": 11,
+        "peakOpen": 500,
+        "controlPingChecks": [
+          {
+            "phase": "hold-start",
+            "attempted": 500,
+            "responded": 500
+          },
+          {
+            "phase": "hold-end",
+            "attempted": 500,
+            "responded": 500
+          },
+          {
+            "phase": "after-reconnect",
+            "attempted": 497,
+            "responded": 497
+          }
+        ],
+        "openAfterSoak": 500,
+        "convergedAfterSoak": 500,
+        "revisionAfterSoak": 11,
+        "reconnectMs": 15024.937019000005,
+        "finalRevision": 11,
+        "finalOpen": 497,
+        "finalConverged": 497,
+        "transportResult": "FAIL",
+        "phases": {
+          "initial": {
+            "attempted": 500,
+            "accepted": 500,
+            "failed": 0,
+            "metrics": {
+              "dnsMs": {
+                "p50": 401.5647389999999,
+                "p95": 894.4945890000004,
+                "p99": 933.5443969999997,
+                "samples": 500
+              },
+              "tcpMs": {
+                "p50": 574.5284490000004,
+                "p95": 1091.0139440000003,
+                "p99": 1137.997019,
+                "samples": 500
+              },
+              "tlsMs": {
+                "p50": 859.930132,
+                "p95": 1341.3505289999998,
+                "p99": 1538.178129,
+                "samples": 500
+              },
+              "upgradeMs": {
+                "p50": 2478.244193,
+                "p95": 2558.392083,
+                "p99": 2636.7737319999997,
+                "samples": 500
+              },
+              "snapshotMs": {
+                "p50": 2479.385597,
+                "p95": 2561.852879,
+                "p99": 2637.1151440000003,
+                "samples": 500
+              }
+            }
+          },
+          "reconnect": {
+            "attempted": 500,
+            "accepted": 497,
+            "failed": 3,
+            "metrics": {
+              "dnsMs": {
+                "p50": 481.5858789999911,
+                "p95": 909.9453479999938,
+                "p99": 931.573458999992,
+                "samples": 497
+              },
+              "tcpMs": {
+                "p50": 662.8659239999979,
+                "p95": 1084.0628690000012,
+                "p99": 1147.9947419999953,
+                "samples": 497
+              },
+              "tlsMs": {
+                "p50": 932.0397930000036,
+                "p95": 1390.6665129999892,
+                "p99": 2018.8817310000013,
+                "samples": 497
+              },
+              "upgradeMs": {
+                "p50": 1866.0290209999948,
+                "p95": 2468.3903589999973,
+                "p99": 3127.6673909999954,
+                "samples": 497
+              },
+              "snapshotMs": {
+                "p50": 1866.2118559999944,
+                "p95": 2471.678899999999,
+                "p99": 3128.2705600000045,
+                "samples": 497
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "allControlPingsAnswered": true,
+          "allInitialConnected": true,
+          "allHeldAndConverged": true,
+          "allReconnectedAndConverged": false,
+          "initialP95Within5s": true,
+          "reconnectWithin30s": true
+        },
+        "result": "FAIL",
+        "elapsedSeconds": 94.21019790999999,
+        "remainingSockets": 0,
+        "generator": {
+          "rss": 192843776,
+          "eventLoopDelayP99Ms": 21.086207,
+          "eventLoopDelayMaxMs": 154.664959
+        }
+      },
+      "tailSummary": {
+        "frontend": {
+          "capturedEvents": 889,
+          "outcomes": {
+            "ok": 4,
+            "responseStreamDisconnected": 225,
+            "canceled": 659,
+            "unknown": 1
+          },
+          "paths": {
+            "api/halls": 3,
+            "live": 1,
+            "api/halls/socket": 884,
+            "(non-fetch)": 1
+          },
+          "versions": {
+            "26b39bc1-d214-46b6-9c16-3da53b780eb8": 888,
+            "None": 1
+          },
+          "exceptions": [],
+          "samplingNotices": [
+            "Tail is currently in sampling mode due to the high volume of messages. To prevent messages from being dropped consider adding filters."
+          ]
+        },
+        "backend": {
+          "capturedEvents": 897,
+          "outcomes": {
+            "ok": 22,
+            "canceled": 670,
+            "responseStreamDisconnected": 205
+          },
+          "paths": {
+            "snapshot": 6,
+            "(non-fetch)": 16,
+            "socket": 875
+          },
+          "versions": {
+            "6431b79a-0023-4730-b86c-6f27d28bfe8e": 897
+          },
+          "exceptions": [],
+          "samplingNotices": []
+        }
+      },
+      "tailLimitations": "Frontend reported sampling due to high volume; captured logs are not a complete ledger. Disconnect/canceled outcomes include intentional reconnect and cleanup. No captured exceptions. Raw tails contain request headers and are retained only in a private local directory."
+    },
+    "hall-hosted-e2e-evidence-2026-10-16.json": {
+      "date": "2026-10-16",
+      "backendVersion": "6431b79a-0023-4730-b86c-6f27d28bfe8e",
+      "frontendVersion": "26b39bc1-d214-46b6-9c16-3da53b780eb8",
+      "allThreeOrganizerCookiesValidated": true,
+      "result": "FAIL",
+      "runs": [
+        {
+          "runId": "2e1ac0a8-b222-44a9-b8c8-a93c2b3a77a2",
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T14:33:16.610Z",
+          "anonymousViewers": 1400,
+          "offeredUpdates": 500,
+          "localSmoke": false,
+          "requestedWriteWindowSeconds": 120,
+          "automaticSocketRetries": 18,
+          "unexpectedCloses": 24,
+          "regressions": 0,
+          "statuses": {},
+          "errors": [
+            "Initial connectivity health failed\n\n1383 !== 1400\n"
+          ],
+          "restore": [],
+          "skippedSessions": [],
+          "organizers": [
+            {
+              "session": 1,
+              "actorReference": "074879e21943",
+              "zone": "d7-auditorium"
+            },
+            {
+              "session": 2,
+              "actorReference": "3b7bd69634fd",
+              "zone": "agent-wars"
+            },
+            {
+              "session": 3,
+              "actorReference": "aae6ae8fc7a3",
+              "zone": "d7-auditorium"
+            }
+          ],
+          "effectiveWriteWindowSeconds": 120,
+          "writeRateAdjustedForAvailableActors": false,
+          "initialized": 1400,
+          "initialPingResponses": 1383,
+          "result": "FAIL",
+          "remainingSockets": 0,
+          "finished": "2026-10-16T14:33:44.409Z",
+          "offeredSlotsRecorded": 0,
+          "requestsSubmitted": 0,
+          "skippedSlots": {},
+          "organizerResponseLatencyMs": {},
+          "rawLocalReport": "/tmp/hall-hosted-e2e-1400-500.json"
+        },
+        {
+          "runId": "c101f507-d4b7-42bf-b587-9a51ed767063",
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T14:36:55.950Z",
+          "anonymousViewers": 1400,
+          "offeredUpdates": 500,
+          "localSmoke": false,
+          "requestedWriteWindowSeconds": 120,
+          "automaticSocketRetries": 24,
+          "unexpectedCloses": 79,
+          "unexpectedClosesDuringWrites": 0,
+          "connectionDrops": [
+            {
+              "client": 1214,
+              "phase": "setup",
+              "errorCode": "ECONNRESET",
+              "message": "read ECONNRESET"
+            },
+            {
+              "client": 694,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 68,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 697,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 171,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 157,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 22,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 272,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 63,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 228,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 827,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 219,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 640,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 124,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 191,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 632,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 107,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 400,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 121,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 329,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 380,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 252,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 195,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 345,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 584,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 560,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 618,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 682,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1275,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 570,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 594,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 543,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 126,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1196,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 611,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 405,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 872,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 323,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 776,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 952,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 507,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 541,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1020,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 226,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 896,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 80,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 472,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 375,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1377,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 229,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 206,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1170,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 318,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 468,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 127,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1185,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1054,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 980,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 944,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1188,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 678,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1370,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 932,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1289,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1317,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 344,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 936,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1354,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1343,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 757,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 916,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 793,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 725,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1049,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1337,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 724,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 119,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 893,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1140,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 197,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            }
+          ],
+          "connectionRampBatchSize": 500,
+          "regressions": 0,
+          "statuses": {},
+          "errors": [
+            "Initial connectivity health failed\n\n1321 !== 1400\n"
+          ],
+          "restore": [],
+          "skippedSessions": [],
+          "organizers": [
+            {
+              "session": 1,
+              "actorReference": "074879e21943",
+              "zone": "d7-auditorium"
+            },
+            {
+              "session": 2,
+              "actorReference": "3b7bd69634fd",
+              "zone": "agent-wars"
+            },
+            {
+              "session": 3,
+              "actorReference": "aae6ae8fc7a3",
+              "zone": "d7-auditorium"
+            }
+          ],
+          "effectiveWriteWindowSeconds": 120,
+          "writeRateAdjustedForAvailableActors": false,
+          "initialized": 1400,
+          "initialPingResponses": 1321,
+          "result": "FAIL",
+          "remainingSockets": 0,
+          "finished": "2026-10-16T14:38:03.401Z",
+          "offeredSlotsRecorded": 0,
+          "requestsSubmitted": 0,
+          "skippedSlots": {},
+          "organizerResponseLatencyMs": {},
+          "rawLocalReport": "/tmp/hall-hosted-e2e-1400-500-ramped.json"
+        },
+        {
+          "runId": "8d69c19b-1e09-4259-9854-69d4e6f33bb5",
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T14:41:29.413Z",
+          "anonymousViewers": 1400,
+          "offeredUpdates": 500,
+          "localSmoke": false,
+          "requestedWriteWindowSeconds": 120,
+          "automaticSocketRetries": 26,
+          "unexpectedCloses": 245,
+          "unexpectedClosesDuringWrites": 0,
+          "connectionDrops": [
+            {
+              "client": 302,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 746,
+              "phase": "setup",
+              "errorCode": "ECONNRESET",
+              "message": "read ECONNRESET"
+            },
+            {
+              "client": 692,
+              "phase": "setup",
+              "errorCode": "ECONNRESET",
+              "message": "read ECONNRESET"
+            },
+            {
+              "client": 165,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 461,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 301,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 207,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 449,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 470,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 409,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 452,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 437,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1261,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1075,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 16,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 379,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 473,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 675,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 694,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 177,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 754,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 733,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 463,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 102,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 878,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 42,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 122,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 388,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1116,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 562,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 169,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 996,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1399,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 174,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 123,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 34,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 48,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 46,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 185,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 529,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1395,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 296,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 260,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 170,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 275,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 327,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 269,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 777,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 308,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 230,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 850,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1308,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 231,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 91,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 159,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 23,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 26,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1144,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 401,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 459,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 19,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 93,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 348,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 867,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1303,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 80,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 836,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 183,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 492,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 443,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 434,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 232,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 1020,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 235,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 494,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 415,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 131,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 446,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 194,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 224,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 229,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 241,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 339,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 290,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 325,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 519,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 270,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 304,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 119,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 323,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 396,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 276,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 336,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 297,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 262,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 245,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 254,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 412,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 398,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            },
+            {
+              "client": 405,
+              "phase": "setup",
+              "code": 1006,
+              "reason": ""
+            }
+          ],
+          "connectionRampBatchSize": 500,
+          "regressions": 0,
+          "statuses": {},
+          "errors": [
+            "Initial connectivity health failed\n\n1392 !== 1400\n"
+          ],
+          "restore": [],
+          "skippedSessions": [],
+          "organizers": [
+            {
+              "session": 1,
+              "actorReference": "074879e21943",
+              "zone": "d7-auditorium"
+            },
+            {
+              "session": 2,
+              "actorReference": "3b7bd69634fd",
+              "zone": "agent-wars"
+            },
+            {
+              "session": 3,
+              "actorReference": "aae6ae8fc7a3",
+              "zone": "d7-auditorium"
+            }
+          ],
+          "effectiveWriteWindowSeconds": 120,
+          "writeRateAdjustedForAvailableActors": false,
+          "setupRecoveredAfterDrop": 12,
+          "initialized": 1400,
+          "setupHealthChecks": [
+            {
+              "round": 0,
+              "responders": 1204,
+              "failed": 196
+            },
+            {
+              "round": 1,
+              "responders": 1371,
+              "failed": 29
+            },
+            {
+              "round": 2,
+              "responders": 1392,
+              "failed": 8
+            }
+          ],
+          "initialPingResponses": 1392,
+          "result": "FAIL",
+          "remainingSockets": 0,
+          "finished": "2026-10-16T14:43:07.445Z",
+          "offeredSlotsRecorded": 0,
+          "requestsSubmitted": 0,
+          "skippedSlots": {},
+          "organizerResponseLatencyMs": {},
+          "rawLocalReport": "/tmp/hall-hosted-e2e-1400-500-recovery.json"
+        },
+        {
+          "runId": "c2995ffb-cf60-4962-96cf-14206a64fb29",
+          "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+          "started": "2026-10-16T14:52:00.077Z",
+          "anonymousViewers": 1400,
+          "offeredUpdates": 500,
+          "localSmoke": false,
+          "requestedWriteWindowSeconds": 120,
+          "automaticSocketRetries": 18,
+          "unexpectedCloses": 0,
+          "unexpectedClosesDuringWrites": 0,
+          "connectionDrops": [],
+          "connectionRampBatchSize": 1400,
+          "regressions": 0,
+          "statuses": {
+            "200": 122,
+            "409": 378
+          },
+          "errors": [
+            "Viewers did not converge after writes",
+            "Restoration: Final restoration did not converge"
+          ],
+          "restore": [
+            {
+              "zone": "d7-auditorium",
+              "status": 200,
+              "result": "Restored through API"
+            },
+            {
+              "zone": "agent-wars",
+              "result": "Original value already present"
+            }
+          ],
+          "skippedSessions": [],
+          "organizers": [
+            {
+              "session": 1,
+              "actorReference": "074879e21943",
+              "zone": "d7-auditorium"
+            },
+            {
+              "session": 2,
+              "actorReference": "3b7bd69634fd",
+              "zone": "agent-wars"
+            },
+            {
+              "session": 3,
+              "actorReference": "aae6ae8fc7a3",
+              "zone": "d7-auditorium"
+            }
+          ],
+          "effectiveWriteWindowSeconds": 120,
+          "writeRateAdjustedForAvailableActors": false,
+          "initialized": 1400,
+          "setupHealthChecks": [
+            {
+              "round": 0,
+              "responders": 1400,
+              "failed": 0
+            }
+          ],
+          "initialPingResponses": 1400,
+          "minimumOpenDuringWrites": 1100,
+          "writeStartedAt": 27583.564194,
+          "plannedReconnected": 300,
+          "plannedReconnectMs": 16950.390566999995,
+          "committedResponsesWithinWindow": 120,
+          "writeDrainSeconds": 121.83437756999999,
+          "committedUpdates": 122,
+          "auditActors": 3,
+          "result": "FAIL",
+          "remainingSockets": 0,
+          "finished": "2026-10-16T14:55:16.965Z",
+          "offeredSlotsRecorded": 500,
+          "requestsSubmitted": 500,
+          "skippedSlots": {},
+          "organizerResponseLatencyMs": {
+            "200": {
+              "samples": 122,
+              "p50": 1852.636518000014,
+              "p95": 2933.1353490000038,
+              "p99": 3727.7368290000013
+            },
+            "409": {
+              "samples": 378,
+              "p50": 1614.6418019999983,
+              "p95": 3072.291296999989,
+              "p99": 3637.956158999994
+            }
+          },
+          "rawLocalReport": "/tmp/hall-hosted-e2e-1400-500-final.json"
+        }
+      ],
+      "audit": [
+        {
+          "run_id": "c2995ffb-cf60-4962-96cf-14206a64fb29",
+          "phase": "restore",
+          "n": 1,
+          "actors": 1,
+          "first_revision": 134,
+          "last_revision": 134
+        },
+        {
+          "run_id": "c2995ffb-cf60-4962-96cf-14206a64fb29",
+          "phase": "write",
+          "n": 122,
+          "actors": 3,
+          "first_revision": 12,
+          "last_revision": 133
+        },
+        {
+          "run_id": "db6ad224-a870-4905-be98-c9491043db8c",
+          "phase": "diagnostic-restore",
+          "n": 1,
+          "actors": 1,
+          "first_revision": 135,
+          "last_revision": 135
+        }
+      ],
+      "postTestVerification": {
+        "occupancyValuesRestored": true,
+        "lifecyclePromotionsClockUnchanged": true,
+        "finalRevision": 135,
+        "occupancy": [
+          {
+            "zone": "d7-auditorium",
+            "occupied": 48,
+            "revision": 135
+          },
+          {
+            "zone": "agent-wars",
+            "occupied": 11,
+            "revision": 133
+          }
+        ]
+      },
+      "lowLoadPublicationProbe": {
+        "runId": "db6ad224-a870-4905-be98-c9491043db8c",
+        "attemptedViewers": 10,
+        "initializedViewers": 9,
+        "initializationError": "Initial snapshot timeout",
+        "diagnosticWrites": 0,
+        "cleanupNoopRevision": 135,
+        "initializedViewersReceivingCleanupRevision": 9
+      },
+      "errorTailSummary": {
+        "backend-recovery-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "frontend-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "backend-ramped-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "frontend-recovery-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "frontend-ramped-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "frontend-final-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "backend-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        },
+        "backend-final-errors.jsonl": {
+          "capturedErrorEvents": 0,
+          "outcomes": {},
+          "exceptionCount": 0
+        }
+      },
+      "measurementLimitation": "The main run threw before saving per-viewer final revision distributions and propagation samples. Its failed convergence assertions are recorded, but exact stale-viewer counts and propagation percentiles cannot be reconstructed. Recorder fixed afterward and exercised locally; no additional high-load write run performed."
+    },
+    "hall-live-load-report.json": {
+      "date": "2026-10-14T22:59:50.021Z",
+      "clients": 1400,
+      "acceptedConnections": 1700,
+      "authorizedChanges": 500,
+      "setupClockWrites": 1,
+      "healthyBroadcastGaps": 0,
+      "updatesSequential": true,
+      "finalRevision": 1519,
+      "missed": 0,
+      "unexpectedDisconnects": 0,
+      "disconnectEvents": 300,
+      "reconnects": 300,
+      "conflicts": 0,
+      "unauthorizedRejected": 3,
+      "transportRetries": 1,
+      "duplicates": 300,
+      "outOfOrder": 0,
+      "propagationMs": {
+        "p50": 74.36,
+        "p95": 121.55,
+        "p99": 149.56
+      },
+      "samples": 701700,
+      "elapsedSeconds": 222.631,
+      "soakSeconds": 120,
+      "loadGeneratorRSS": 371347456,
+      "loadGeneratorCPUms": 48714.172
+    },
+    "hall-live-manual-load-report.json": {
+      "date": "2026-10-15T04:45:15.335Z",
+      "clients": 1400,
+      "acceptedConnections": 1700,
+      "authorizedChanges": 500,
+      "setupClockWrites": 1,
+      "lifecycleWrites": 2,
+      "healthyBroadcastGaps": 0,
+      "updatesSequential": true,
+      "finalRevision": 2071,
+      "missed": 0,
+      "unexpectedDisconnects": 0,
+      "disconnectEvents": 300,
+      "reconnects": 300,
+      "conflicts": 0,
+      "unauthorizedRejected": 3,
+      "transportRetries": 0,
+      "duplicates": 300,
+      "outOfOrder": 0,
+      "propagationMs": {
+        "p50": 61.32,
+        "p95": 93.63,
+        "p99": 117.93
+      },
+      "samples": 704500,
+      "elapsedSeconds": 204.887,
+      "soakSeconds": 120,
+      "loadGeneratorRSS": 389758976,
+      "loadGeneratorCPUms": 35035.354
+    },
+    "hall-realistic-five-minute-evidence-2026-10-16.json": {
+      "scope": "1310 anonymous protocol viewers, two spaced real organizer edits during 300-second hold; no browser page-load or venue-network validation",
+      "finalRun": {
+        "runId": "9f28e4a7-bcaa-4a09-a9ce-057a0325fcda",
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T15:45:53.455Z",
+        "anonymousViewers": 1310,
+        "offeredUpdates": 2,
+        "localSmoke": false,
+        "requestedWriteWindowSeconds": 300,
+        "automaticSocketRetries": 55,
+        "unexpectedCloses": 215,
+        "unexpectedClosesDuringWrites": 64,
+        "connectionDrops": [
+          {
+            "client": 1216,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 11,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 38,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 486,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 529,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 402,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 494,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 543,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 635,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 658,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 657,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 285,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 203,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 156,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 406,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 446,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 520,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 238,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 149,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 541,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 244,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 33,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 225,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 269,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 346,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 327,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 572,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 542,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 710,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 410,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 502,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 466,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 235,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 636,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 651,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 801,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 681,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 964,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 850,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 947,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1004,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1132,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1115,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1107,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1073,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 911,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1265,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1280,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 937,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 926,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1284,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 979,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 796,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 853,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 901,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1121,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1144,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1272,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1229,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1045,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 631,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1243,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 500,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 552,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 62,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 714,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1187,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 808,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 653,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 431,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1089,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 495,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1249,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 414,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 306,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1032,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 369,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 12,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1090,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 350,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 399,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 396,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 755,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1227,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 444,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 334,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 106,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 180,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 201,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 326,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 626,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 283,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 695,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 731,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 290,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 224,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 784,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 692,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 179,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 113,
+            "phase": "setup",
+            "code": 1006,
+            "reason": ""
+          }
+        ],
+        "connectionRampBatchSize": 1310,
+        "regressions": 0,
+        "statuses": {
+          "200": 2
+        },
+        "jobs": [
+          {
+            "sequence": 0,
+            "actorReference": "074879e21943",
+            "zone": "d7-auditorium",
+            "expected": 138,
+            "occupied": 49,
+            "sentAt": 172596.7732,
+            "sentOffsetMs": 60000.139467,
+            "status": 200,
+            "responseMs": 2294.3225939999975,
+            "revision": 140,
+            "deliveryCheckMs": 32300.028907,
+            "exactStateMatches": 1307,
+            "revisionDistribution": {
+              "139": 3,
+              "140": 1307
+            }
+          },
+          {
+            "sequence": 1,
+            "actorReference": "3b7bd69634fd",
+            "zone": "agent-wars",
+            "expected": 139,
+            "occupied": 12,
+            "sentAt": 322596.300014,
+            "sentOffsetMs": 209999.66628099998,
+            "status": 200,
+            "responseMs": 3909.264775000047,
+            "revision": 141,
+            "deliveryCheckMs": 33916.813226,
+            "exactStateMatches": 1309,
+            "revisionDistribution": {
+              "140": 1,
+              "141": 1309
+            }
+          }
+        ],
+        "errors": [
+          "The operation was aborted due to timeout",
+          "Restoration: The operation was aborted due to timeout"
+        ],
+        "restore": [],
+        "skippedSessions": [],
+        "organizers": [
+          {
+            "session": 1,
+            "actorReference": "074879e21943",
+            "zone": "d7-auditorium"
+          },
+          {
+            "session": 2,
+            "actorReference": "3b7bd69634fd",
+            "zone": "agent-wars"
+          },
+          {
+            "session": 3,
+            "actorReference": "aae6ae8fc7a3",
+            "zone": "d7-auditorium"
+          }
+        ],
+        "effectiveWriteWindowSeconds": 300,
+        "writeRateAdjustedForAvailableActors": false,
+        "setupRecoveredAfterDrop": 1,
+        "initialized": 1310,
+        "setupHealthChecks": [
+          {
+            "round": 0,
+            "responders": 1231,
+            "failed": 79
+          },
+          {
+            "round": 1,
+            "responders": 1233,
+            "failed": 77
+          },
+          {
+            "round": 2,
+            "responders": 1269,
+            "failed": 41
+          }
+        ],
+        "initialPingResponses": 1269,
+        "initialHealthFullyResponsive": false,
+        "healthDuringHold": [
+          {
+            "offsetSeconds": 65.013311827,
+            "responders": 1287,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 125.014101876,
+            "responders": 1289,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 185.018586951,
+            "responders": 1285,
+            "open": 1307
+          },
+          {
+            "offsetSeconds": 245.01526506,
+            "responders": 1282,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 305.025866731,
+            "responders": 1237,
+            "open": 1309
+          }
+        ],
+        "minimumOpenDuringWrites": 1309,
+        "writeStartedAt": 112596.633733,
+        "committedResponsesWithinWindow": 2,
+        "writeDrainSeconds": 300.00036923700003,
+        "committedUpdates": 2,
+        "auditActors": 2,
+        "result": "FAIL",
+        "observerRevisionDistribution": {
+          "141": 1310
+        },
+        "deliveryEvidence": {
+          "continuousViewers": 1251,
+          "committedRevisions": 2,
+          "missingDeliveries": 0,
+          "samples": 2502,
+          "p50": 3368.112194000045,
+          "p95": 5213.4972340000095,
+          "p99": 9550.810320000048
+        },
+        "remainingSockets": 0,
+        "finished": "2026-10-16T15:53:19.930Z"
+      },
+      "earlierFiveMinuteRun": {
+        "runId": "1ce67c9c-75c6-4137-88e3-6bd35d8ebc7b",
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T15:37:57.737Z",
+        "anonymousViewers": 1310,
+        "offeredUpdates": 2,
+        "localSmoke": false,
+        "requestedWriteWindowSeconds": 300,
+        "automaticSocketRetries": 8,
+        "unexpectedCloses": 52,
+        "unexpectedClosesDuringWrites": 52,
+        "connectionDrops": [
+          {
+            "client": 17,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1186,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 256,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 622,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 251,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 908,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 706,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 993,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 128,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 874,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1033,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 99,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 20,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 304,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 216,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 584,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 689,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 508,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 690,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 704,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 875,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 754,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 528,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1022,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1255,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 499,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 374,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 513,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 733,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 852,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 768,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 999,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 958,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1008,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1219,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1266,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1272,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 717,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 391,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1014,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1265,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 844,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 408,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1035,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 530,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 209,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1071,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1279,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 472,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 703,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1224,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          },
+          {
+            "client": 1288,
+            "phase": "writes",
+            "code": 1006,
+            "reason": ""
+          }
+        ],
+        "connectionRampBatchSize": 1310,
+        "regressions": 0,
+        "statuses": {
+          "200": 2
+        },
+        "jobs": [
+          {
+            "sequence": 0,
+            "actorReference": "074879e21943",
+            "zone": "d7-auditorium",
+            "expected": 135,
+            "occupied": 49,
+            "sentAt": 122282.728144,
+            "sentOffsetMs": 60000.004285999996,
+            "status": 200,
+            "responseMs": 9550.129086,
+            "revision": 136,
+            "deliveryCheckMs": 39551.80485099999,
+            "exactStateMatches": 1309,
+            "revisionDistribution": {
+              "135": 1,
+              "136": 1309
+            }
+          },
+          {
+            "sequence": 1,
+            "actorReference": "3b7bd69634fd",
+            "zone": "agent-wars",
+            "expected": 133,
+            "occupied": 12,
+            "sentAt": 272287.838672,
+            "sentOffsetMs": 210005.11481399997,
+            "status": 200,
+            "responseMs": 2842.4853090000106,
+            "revision": 137,
+            "deliveryCheckMs": 32868.84411599999,
+            "exactStateMatches": 1309,
+            "revisionDistribution": {
+              "136": 1,
+              "137": 1309
+            }
+          }
+        ],
+        "errors": [
+          "Restoration: Final restoration did not converge"
+        ],
+        "restore": [
+          {
+            "zone": "d7-auditorium",
+            "status": 200,
+            "result": "Restored through API"
+          },
+          {
+            "zone": "agent-wars",
+            "status": 200,
+            "result": "Restored through API"
+          }
+        ],
+        "skippedSessions": [],
+        "organizers": [
+          {
+            "session": 1,
+            "actorReference": "074879e21943",
+            "zone": "d7-auditorium"
+          },
+          {
+            "session": 2,
+            "actorReference": "3b7bd69634fd",
+            "zone": "agent-wars"
+          },
+          {
+            "session": 3,
+            "actorReference": "aae6ae8fc7a3",
+            "zone": "d7-auditorium"
+          }
+        ],
+        "effectiveWriteWindowSeconds": 300,
+        "writeRateAdjustedForAvailableActors": false,
+        "initialized": 1310,
+        "setupHealthChecks": [
+          {
+            "round": 0,
+            "responders": 1303,
+            "failed": 7
+          },
+          {
+            "round": 1,
+            "responders": 1301,
+            "failed": 9
+          },
+          {
+            "round": 2,
+            "responders": 1302,
+            "failed": 8
+          }
+        ],
+        "initialPingResponses": 1302,
+        "initialHealthFullyResponsive": false,
+        "healthDuringHold": [
+          {
+            "offsetSeconds": 65.011401721,
+            "responders": 1303,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 125.01951819399999,
+            "responders": 1298,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 185.020486288,
+            "responders": 1299,
+            "open": 1310
+          },
+          {
+            "offsetSeconds": 245.01972274599999,
+            "responders": 1302,
+            "open": 1301
+          },
+          {
+            "offsetSeconds": 305.038039401,
+            "responders": 1265,
+            "open": 1278
+          }
+        ],
+        "minimumOpenDuringWrites": 1310,
+        "writeStartedAt": 62282.723858,
+        "committedResponsesWithinWindow": 2,
+        "writeDrainSeconds": 300.021810972,
+        "committedUpdates": 2,
+        "auditActors": 2,
+        "convergedAfterWrites": 1310,
+        "pingAfterWrites": 1258,
+        "continuousViewers": 1264,
+        "missedContinuousDeliveries": 0,
+        "propagationMs": {
+          "p50": 7472.844402000002,
+          "p95": 8791.554571000015,
+          "p99": 10336.349126999994,
+          "samples": 2528
+        },
+        "result": "FAIL",
+        "observerRevisionDistribution": {
+          "137": 43,
+          "138": 4,
+          "139": 1263
+        },
+        "deliveryEvidence": {
+          "continuousViewers": 1258,
+          "committedRevisions": 2,
+          "missingDeliveries": 0,
+          "samples": 2516,
+          "p50": 7472.844402000002,
+          "p95": 8791.561791999993,
+          "p99": 10336.349126999994
+        },
+        "remainingSockets": 0,
+        "finished": "2026-10-16T15:44:25.888Z"
+      },
+      "initialSetupAttempt": {
+        "runId": "dfb24231-c303-4184-ba47-b6994307739c",
+        "target": "https://devfest-hall-availability-test.gdg-chennai.workers.dev",
+        "started": "2026-10-16T15:32:57.339Z",
+        "anonymousViewers": 1310,
+        "offeredUpdates": 2,
+        "localSmoke": false,
+        "requestedWriteWindowSeconds": 300,
+        "automaticSocketRetries": 38,
+        "unexpectedCloses": 0,
+        "unexpectedClosesDuringWrites": 0,
+        "connectionDrops": [],
+        "connectionRampBatchSize": 1310,
+        "regressions": 0,
+        "statuses": {},
+        "jobs": [],
+        "errors": [
+          "Initial connectivity health failed\n\n1307 !== 1310\n"
+        ],
+        "restore": [],
+        "skippedSessions": [],
+        "organizers": [
+          {
+            "session": 1,
+            "actorReference": "074879e21943",
+            "zone": "d7-auditorium"
+          },
+          {
+            "session": 2,
+            "actorReference": "3b7bd69634fd",
+            "zone": "agent-wars"
+          },
+          {
+            "session": 3,
+            "actorReference": "aae6ae8fc7a3",
+            "zone": "d7-auditorium"
+          }
+        ],
+        "effectiveWriteWindowSeconds": 300,
+        "writeRateAdjustedForAvailableActors": false,
+        "initialized": 1310,
+        "setupHealthChecks": [
+          {
+            "round": 0,
+            "responders": 1297,
+            "failed": 13
+          },
+          {
+            "round": 1,
+            "responders": 1299,
+            "failed": 11
+          },
+          {
+            "round": 2,
+            "responders": 1307,
+            "failed": 3
+          }
+        ],
+        "initialPingResponses": 1307,
+        "result": "FAIL",
+        "observerRevisionDistribution": {
+          "135": 1310
+        },
+        "remainingSockets": 0,
+        "finished": "2026-10-16T15:34:14.103Z"
+      },
+      "abortedBatchedSetup": "Stopped before edits because runner overall timeout was insufficient; log retained at /tmp/hall-realistic-setup-attempt2.log",
+      "usageBefore": {
+        "start": "2026-10-16T00:00:00Z",
+        "end": "2026-10-16T15:31:51Z",
+        "data": {
+          "data": {
+            "viewer": {
+              "accounts": [
+                {
+                  "d1AnalyticsAdaptiveGroups": [
+                    {
+                      "sum": {
+                        "rowsRead": 76921,
+                        "rowsWritten": 1878
+                      }
+                    }
+                  ],
+                  "durableObjectsInvocationsAdaptiveGroups": [
+                    {
+                      "sum": {
+                        "errors": 10500,
+                        "requests": 21629
+                      }
+                    }
+                  ],
+                  "durableObjectsPeriodicGroups": [
+                    {
+                      "max": {
+                        "activeWebsocketConnections": 1750
+                      },
+                      "sum": {
+                        "duration": 196.42942847999996,
+                        "exceededCpuErrors": 0,
+                        "exceededMemoryErrors": 0,
+                        "fatalInternalErrors": 0,
+                        "rowsRead": 56307,
+                        "rowsWritten": 11366
+                      }
+                    }
+                  ],
+                  "workersInvocationsAdaptive": [
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-hall-availability-test"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 12498
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-ticketing"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 23
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest"
+                      },
+                      "sum": {
+                        "errors": 25,
+                        "requests": 395
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-chennai-2026"
+                      },
+                      "sum": {
+                        "errors": 298,
+                        "requests": 39672
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-hall-live"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 11031
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "agentic-inbox"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 37
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-26-sponsor"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 21
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "home"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 765
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "errors": null
+        }
+      },
+      "usageAfter": {
+        "start": "2026-10-16T00:00:00Z",
+        "end": "2026-10-16T15:56:00Z",
+        "data": {
+          "data": {
+            "viewer": {
+              "accounts": [
+                {
+                  "d1AnalyticsAdaptiveGroups": [
+                    {
+                      "sum": {
+                        "rowsRead": 77890,
+                        "rowsWritten": 1963
+                      }
+                    }
+                  ],
+                  "durableObjectsInvocationsAdaptiveGroups": [
+                    {
+                      "sum": {
+                        "errors": 14406,
+                        "requests": 29468
+                      }
+                    }
+                  ],
+                  "durableObjectsPeriodicGroups": [
+                    {
+                      "max": {
+                        "activeWebsocketConnections": 1811
+                      },
+                      "sum": {
+                        "duration": 209.55064921599995,
+                        "exceededCpuErrors": 0,
+                        "exceededMemoryErrors": 0,
+                        "fatalInternalErrors": 0,
+                        "rowsRead": 70122,
+                        "rowsWritten": 16727
+                      }
+                    }
+                  ],
+                  "workersInvocationsAdaptive": [
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-hall-availability-test"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 16470
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-ticketing"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 23
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest"
+                      },
+                      "sum": {
+                        "errors": 25,
+                        "requests": 395
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "__unknown__"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 50
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-chennai-2026"
+                      },
+                      "sum": {
+                        "errors": 326,
+                        "requests": 42304
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-hall-live"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 15003
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "agentic-inbox"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 38
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "devfest-26-sponsor"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 21
+                      }
+                    },
+                    {
+                      "dimensions": {
+                        "scriptName": "home"
+                      },
+                      "sum": {
+                        "errors": 0,
+                        "requests": 766
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "errors": null
+        }
+      },
+      "restoration": {
+        "restores": [
+          {
+            "zone": "d7-auditorium",
+            "status": 200,
+            "revision": 142
+          },
+          {
+            "zone": "agent-wars",
+            "status": 200,
+            "revision": 143
+          }
+        ],
+        "baselineRevision": 139,
+        "finalRevision": 143,
+        "valuesRestored": true,
+        "lifecycleUnchanged": true
+      },
+      "workersSubscriptionVerified": false,
+      "conservativeWorkerInvocationSum": 75070,
+      "limits": "Analytics may be sampled/delayed and include internal service invocations; not an exact billing ledger. Errors on closed long-lived streams must not all be interpreted as quota errors."
+    }
+  }
+}
