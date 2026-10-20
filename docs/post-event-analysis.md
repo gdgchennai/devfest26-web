@@ -61,6 +61,10 @@ as another occurrence with its own time. Occupancy never transfers into a new
 run. End, reset, unknown agenda IDs and subsequent starts bound the old reading.
 Missing context appears under **Some reports need more context**.
 
+The canceled **GDG on Campus Meetup** (`gdg-on-campus-meetup`) is excluded from
+all analysis totals and views. Its audit entries remain intact and still bound
+other events, so its occupancy cannot be attributed to a neighboring event.
+
 A reading is carried forward until the next update, event boundary or selected
 range end. Full/empty durations and time-weighted averages include those gaps;
 they assume occupancy stayed unchanged between reports. Values never carry into

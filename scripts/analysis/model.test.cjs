@@ -55,6 +55,18 @@ test('default carry fills long gaps but stops at lifecycle boundaries', () => {
   assert.equal(result.summaries[1].coverage, 0);
   assert.equal(m.validateSettings({}).freshness, null);
 });
+test('the canceled GDG on Campus meetup is excluded without losing lifecycle boundaries', () => {
+  const canceled = { ...agenda[0], id: 'gdg-on-campus-meetup', title: 'GDG on Campus Meetup' };
+  const audit = [start(1), reading(2, 0, 100), row(3, 10, { kind: 'session', zone: 'd7-auditorium', session: canceled.id, status: 'started' }), reading(4, 11, 0), row(5, 50, { kind: 'session', zone: 'd7-auditorium', session: canceled.id, status: 'ended' })];
+  const result = m.analyze(m.parseAnalysisData(audit, [...agenda, canceled], 'test'), m.defaultSettings);
+  assert.deepEqual(result.summaries.map((s) => s.run.session.id), ['talk']);
+  assert.equal(result.segments.length, 1);
+  assert.equal(result.segments[0].end, t(10));
+  assert.equal(result.readings.length, 1);
+  assert.equal(result.actions.some((a) => a.runKey?.startsWith(canceled.id)), false);
+  assert.equal(result.flags.length, 0);
+  assert.equal(result.unassigned, 0);
+});
 test('occupancy cannot transfer to a restarted event', () => {
   const result = m.analyze(data([start(1), reading(2, 0, 80), end(3, 1), start(4, 2), end(5, 30)]), settings());
   assert.equal(result.runs.length, 2);

@@ -178,7 +178,9 @@ export function analyze(data: AnalysisData, settings: Settings) {
   const runMap = new Map(runs.map((r) => [r.key, r]));
   const trackOk = (zone: string) => !settings.tracks.length || settings.tracks.includes(zone);
   const actorOk = (actor: string) => !settings.actors.length || settings.actors.includes(actor);
-  const eventOk = (key?: string) => !settings.events.length || (!!key && settings.events.includes(runMap.get(key)?.session.id ?? ""));
+  // Canceled event: retain audit lifecycle boundaries, but exclude it from analysis.
+  const eventOk = (key?: string) => runMap.get(key ?? "")?.session.id !== "gdg-on-campus-meetup"
+    && (!settings.events.length || (!!key && settings.events.includes(runMap.get(key)?.session.id ?? "")));
   const eligible = allReadings.filter((r) => trackOk(r.zone) && actorOk(r.actor) && eventOk(r.runKey) && (settings.outside || r.runKey));
   const visible = eligible.filter((r) => r.time >= start && r.time < end);
   const segments: Segment[] = [];
