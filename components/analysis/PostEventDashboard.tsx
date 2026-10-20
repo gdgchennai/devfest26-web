@@ -46,6 +46,7 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
   const [viewName, setViewName] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [requiresSignIn, setRequiresSignIn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [exportFile, setExportFile] = useState<{ name: string; content: string; type: string; url: string } | null>(null);
   const exportDialog = useRef<HTMLDialogElement>(null);
@@ -128,13 +129,17 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
     } catch (e) { setError(e instanceof Error ? e.message : "Could not import this file."); } finally { setBusy(false); }
   }
   async function refreshDatabase() {
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setRequiresSignIn(false);
     try {
-      const response = await fetch("/api/admin/analysis", { cache: "no-store" });
+      const response = await fetch("/api/admin/analysis", { cache: "no-store", signal: AbortSignal.timeout(15_000) });
+      if (response.status === 401) {
+        setRequiresSignIn(true);
+        throw new Error("Sign in as a super-admin on this host to load its database history. Signing in on the hosted site does not sign you in on localhost.");
+      }
       const body = await response.json();
       if (!response.ok) throw new Error(body && typeof body === "object" && "error" in body && typeof body.error === "string" ? body.error : "Could not load history. Sign in as a super-admin.");
       file.current = null; acceptData(parseAnalysisData(body, agenda, "Hall audit database"));
-    } catch (e) { setError(e instanceof Error ? e.message : "Could not load history."); } finally { setBusy(false); }
+    } catch (e) { setError(e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError") ? "The server took too long to respond. Check your sign-in and server connection, or import an audit JSON export." : e instanceof Error ? e.message : "Could not load history."); } finally { setBusy(false); }
   }
   function saveView() {
     const name = viewName.trim();
@@ -219,11 +224,11 @@ export function PostEventDashboard({ agenda }: { agenda: AgendaSession[] }) {
     <header className={styles.top}><div><p className={styles.eyebrow}>DevFest Chennai / Organizer workspace</p><h1 className={styles.title}>The day, in perspective.</h1><p className={styles.subtitle}>Explore reported occupancy, session timing and the gaps in between. Every insight traces back to a submitted update.</p></div><div className={styles.actions}>
       <label className={styles.fileLabel}>Import audit JSON<input aria-label="Import audit JSON" type="file" accept=".json,application/json" disabled={busy} onChange={(e) => { const upload = e.target.files?.[0]; if (upload) void importFile(upload); e.target.value = ""; }} /></label>
       <button className={styles.button} disabled={busy} onClick={() => { file.current = null; acceptData(sampleAnalysisData(agenda)); }}>Try sample data</button>
-      <button className={styles.primary} disabled={busy} onClick={() => void refreshDatabase()}>Load database history</button>
+      <button className={styles.primary} disabled={busy} onClick={() => void refreshDatabase()}>{busy ? "Loading history…" : "Load database history"}</button>
     </div></header>
     <div className={styles.source}><div><strong>{data.source}</strong><p className={styles.note}>{noData ? "Import an existing export to analyze offline, or use synthetic sample reports to explore the controls." : `${data.audit.length} audit records · loaded ${formatTime(data.loadedAt, true)} IST · analysis range is independent of refresh time`}</p></div><div className={styles.actions}><button className={styles.button} disabled={busy || noData} onClick={() => { if (file.current) void importFile(file.current); else if (data.source === "Hall audit database") void refreshDatabase(); else acceptData(sampleAnalysisData(agenda)); }}>Refresh source</button><button className={styles.button} disabled={noData} onClick={() => { setData(emptyData(agenda)); file.current = null; setSelected(null); setMessage("Dataset cleared from this page."); }}>Clear data</button></div></div>
-    <p className={styles.note}>Imports stay in this browser tab. No background refresh. Database loading requires super-admin sign-in. All times use Asia/Kolkata (IST).</p>
-    <div role="status" aria-live="polite" className={styles.note}>{busy ? "Loading history…" : message}</div>{error && <p role="alert" className={styles.error}>{error}</p>}
+    <p className={styles.note}>Imports stay in this browser tab. No background refresh. Database loading requires super-admin sign-in on this host. On localhost it uses the local database; import a hosted audit export for real event history. All times use Asia/Kolkata (IST).</p>
+    <div role="status" aria-live="polite" className={styles.note}>{busy ? "Loading history…" : message}</div>{error && <div role="alert" className={styles.error}><p>{error}</p>{requiresSignIn && <a className={styles.button} href="/signin?callbackUrl=%2Fadmin%2Fanalysis">Sign in on this host</a>}</div>}
     <section className={styles.filters} aria-label="Analysis filters"><div className={styles.filterGrid}>
       <Field label="From · IST"><input type="datetime-local" value={settings.start} onInput={(e) => update("start", e.currentTarget.value)} onChange={(e) => update("start", e.target.value)} /></Field>
       <Field label="Until · IST (exclusive)"><input type="datetime-local" value={settings.end} onInput={(e) => update("end", e.currentTarget.value)} onChange={(e) => update("end", e.target.value)} /></Field>

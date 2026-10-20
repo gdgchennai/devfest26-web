@@ -11,7 +11,7 @@ const agenda = require('../../content/agenda.json');
 let access, records, queries, fail;
 const originalLoad = Module._load;
 Module._load = function(name, ...args) {
-  if (name === '@/lib/admin') return { requireAccessApi: async () => access };
+  if (name === '@/lib/admin') return { requireAccessApi: async () => { if (access instanceof Error) throw access; return access; } };
   if (name === '@/lib/db') return { getDb: async () => ({ prepare(sql) { queries.push(sql); return { async all() { if (fail) throw new Error('offline'); return { results: records }; } }; } }) };
   if (name === '@/lib/post-event-analysis') return model;
   if (name === '@/lib/schemas') return schemas;
@@ -49,4 +49,14 @@ test('database failures produce an actionable error without leaking details', as
   const response = await GET();
   assert.equal(response.status, 503);
   assert.match((await response.json()).error, /Import/);
+});
+
+test('authentication runtime failures still return uncached JSON', async () => {
+  reset(); access = new Error('private runtime details');
+  const response = await GET();
+  assert.equal(response.status, 503);
+  assert.match(response.headers.get('content-type'), /application\/json/);
+  assert.match(response.headers.get('cache-control'), /no-store/);
+  assert.doesNotMatch(JSON.stringify(await response.json()), /private runtime/);
+  assert.equal(queries.length, 0);
 });
