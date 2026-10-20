@@ -105,3 +105,12 @@ test('preserves mutation metadata and numeric negative CSV values', () => {
   assert.equal(data([input]).audit[0].payload.loadTest, 'setup-run');
   assert.equal(m.csv([[-20]]), '\"-20\"');
 });
+
+test('unknown event IDs terminate old attribution instead of reusing a previous event', () => {
+  const audit = [start(1), reading(2, 1, 90), row(3, 2, { kind: 'session', zone: 'd7-auditorium', session: 'removed-from-agenda', status: 'started' }), reading(4, 3, 20)];
+  const result = m.analyze(data(audit), settings({ outside: true }));
+  assert.equal(result.readings[1].runKey, undefined);
+  assert.equal(result.segments[0].end, t(2));
+  assert.equal(result.flags.length, 0);
+  assert.ok(result.history.issues.some((s) => s.includes('Unknown event')));
+});

@@ -85,7 +85,15 @@ export function reconstruct(data: AnalysisData): History {
       active.clear();
     } else if (m.kind === "session") {
       const session = sessions.get(m.session);
-      if (!session || session.track !== m.zone) { issues.push(`Unknown event/track at revision ${row.revision}; use the event-day agenda export.`); continue; }
+      if (!session || session.track !== m.zone) {
+        boundary(m.zone, row.changed_at);
+        const previousRun = active.get(m.zone);
+        if (previousRun) previousRun.boundaryEnd = row.changed_at;
+        active.delete(m.zone);
+        actions.push({ ...row, zone: m.zone });
+        issues.push(`Unknown event/track at revision ${row.revision}; use the event-day agenda export.`);
+        continue;
+      }
       boundary(m.zone, row.changed_at);
       let run = active.get(m.zone);
       if (m.status === "started") {

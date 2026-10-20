@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const headers = { "Cache-Control": "private, no-store", "Vary": "Cookie" };
   const access = await requireAccessApi();
-  if (access instanceof Response) return new Response(access.body, { status: access.status, headers });
+  if (access instanceof Response) return new Response(access.body, { status: access.status, headers: { ...Object.fromEntries(access.headers), ...headers } });
   if (!access.isSuper) return Response.json({ error: "Whole-event analysis requires super-admin access." }, { status: 403, headers });
   try {
     const db = await getDb();
